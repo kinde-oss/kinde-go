@@ -72,7 +72,7 @@ func (client *ClientCredentialsFlow) GetClient(ctx context.Context) *http.Client
 }
 
 // Returns the token to be used to make requests.
-func (client *ClientCredentialsFlow) GetToken(ctx context.Context) (*jwt.JwtToken, error) {
+func (client *ClientCredentialsFlow) GetToken(ctx context.Context) (*jwt.Token, error) {
 	token, err := client.config.Token(ctx)
 	if err != nil {
 		return nil, err
