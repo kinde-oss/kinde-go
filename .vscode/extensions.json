@@ -1,7 +1,3 @@
 {
-  "recommendations": [
-    "yzhang.markdown-all-in-one",
-    "editorconfig.editorconfig",
-    "esbenp.prettier-vscode"
-  ]
+  "recommendations": ["golang.go"]
 }

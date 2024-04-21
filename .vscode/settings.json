@@ -9,5 +9,12 @@
   "markdown.preview.fontFamily": "system-ui, -apple-system, sans-serif",
   "files.associations": {
     "CODEOWNERS": "ini"
-  }
+  },
+  "[go]": {
+    "editor.defaultFormatter": "golang.go"
+  },
+  "[go.mod]": {
+    "editor.defaultFormatter": "golang.go"
+  },
+  "go.diagnostic.vulncheck": "Imports"
 }
