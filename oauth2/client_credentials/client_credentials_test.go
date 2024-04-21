@@ -30,15 +30,24 @@ func TestClientCredentials(t *testing.T) {
 	}))
 	defer testServer.Close()
 
-	kindeClient, err := NewClientCredentialsFlow(authorizationServer.URL, "client_id", "client_secret", WithAudience("test"), WithKindeManagementAPI("test2"))
+	kindeClient, err := NewClientCredentialsFlow(authorizationServer.URL, "client_id", "client_secret",
+		WithAudience("http://my.api.com/api"),
+		WithKindeManagementAPI("my_kinde_tenant"),
+		WithKindeManagementAPI("https://my_kinde_tenant.kinde.com"),
+	)
+
 	assert.Nil(t, err, "error creating client credentials flow")
 	assert.Equal(t, "client_id", kindeClient.config.ClientID)
 	assert.Equal(t, "client_secret", kindeClient.config.ClientSecret)
+	assert.Contains(t, kindeClient.config.EndpointParams["audience"], "http://my.api.com/api")
+	assert.Contains(t, kindeClient.config.EndpointParams["audience"], "https://my_kinde_tenant.kinde.com/api")
 	assert.Equal(t, fmt.Sprintf("%v/oauth2/token", authorizationServer.URL), kindeClient.config.TokenURL)
+
 	client := kindeClient.GetClient(context.Background())
 	assert.NotNil(t, client, "client cannot be null")
 	response, err := client.Get(fmt.Sprintf("%v/test_call", testServer.URL))
-	assert.Nil(t, err, "unexpected error")
+	assert.Nil(t, err, "error calling test server")
+
 	testClientResponse, _ := io.ReadAll(response.Body)
 	assert.Equal(t, `hello world`, string(testClientResponse), "incorrect test server response")
 	assert.Equal(t, `hello world`, string(testClientResponse), "incorrect test server response") //second call to test token caching

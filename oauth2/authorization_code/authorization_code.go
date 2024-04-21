@@ -5,6 +5,8 @@ import (
 	"fmt"
 	"net/http"
 	"net/url"
+	"slices"
+	"strings"
 
 	"github.com/kinde-oss/kinde-go/v1/jwt"
 	"golang.org/x/oauth2"
@@ -56,7 +58,9 @@ func newAuthorizationCodeflow(baseURL string, clientID string, clientSecret stri
 func WithAuthParameter(name, value string) func(*AuthorizationCodeFlow) {
 	return func(s *AuthorizationCodeFlow) {
 		if val, ok := s.authURLOptions[name]; ok {
-			s.authURLOptions[name] = append(val, value)
+			if !slices.Contains(val, value) {
+				s.authURLOptions[name] = append(val, value)
+			}
 		} else {
 			s.authURLOptions[name] = []string{value}
 		}
@@ -67,7 +71,27 @@ func WithAuthParameter(name, value string) func(*AuthorizationCodeFlow) {
 // Adds an audience to the list of audiences to request.
 func WithAudience(audience string) func(*AuthorizationCodeFlow) {
 	return func(s *AuthorizationCodeFlow) {
-		WithAuthParameter("audience", audience)
+		WithAuthParameter("audience", audience)(s)
+	}
+}
+
+func WithKindeManagementAPI(kindeDomain string) func(*AuthorizationCodeFlow) {
+	return func(s *AuthorizationCodeFlow) {
+
+		asURL, err := url.Parse(kindeDomain)
+		if err != nil {
+			return
+		}
+
+		host := asURL.Hostname()
+		if host == "" {
+			host = kindeDomain
+		}
+
+		host = strings.TrimSuffix(host, ".kinde.com")
+		managementApiaudience := fmt.Sprintf("https://%v.kinde.com/api", host)
+
+		WithAuthParameter("audience", managementApiaudience)(s)
 	}
 }
 
@@ -112,5 +136,5 @@ func (flow *AuthorizationCodeFlow) Exchange(ctx context.Context, authorizationCo
 
 // Returns the client to make requests to the backend.
 func (flow *AuthorizationCodeFlow) GetClient(ctx context.Context, token *jwt.Token) *http.Client {
-  return flow.config.Client(ctx, token.GetRawToken())
+	return flow.config.Client(ctx, token.GetRawToken())
 }

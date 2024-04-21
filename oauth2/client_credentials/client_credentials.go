@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"net/http"
 	"net/url"
+	"strings"
 
 	"github.com/kinde-oss/kinde-go/v1/jwt"
 	"golang.org/x/oauth2/clientcredentials"
@@ -34,7 +35,6 @@ func NewClientCredentialsFlow(baseURL string, clientID string, clientSecret stri
 		},
 	}
 
-	//applying With... options
 	for _, o := range options {
 		o(client)
 	}
@@ -43,26 +43,41 @@ func NewClientCredentialsFlow(baseURL string, clientID string, clientSecret stri
 }
 
 // Adds an arbitrary parameter to the list of parameters to request.
+func WithAuthParameter(key, value string) func(*ClientCredentialsFlow) {
+	return func(s *ClientCredentialsFlow) {
+		if params, ok := s.config.EndpointParams[key]; ok {
+			s.config.EndpointParams[key] = append(params, value)
+		} else {
+			s.config.EndpointParams[key] = []string{value}
+		}
+	}
+}
+
+// Adds an arbitrary parameter to the list of parameters to request.
 func WithAudience(audience string) func(*ClientCredentialsFlow) {
 	return func(s *ClientCredentialsFlow) {
-
-		if params, ok := s.config.EndpointParams["audience"]; ok {
-			s.config.EndpointParams["audience"] = append(params, audience)
-		} else {
-			s.config.EndpointParams["audience"] = []string{audience}
-		}
+		WithAuthParameter("audience", audience)(s)
 	}
 }
 
 // Adds Kinde management API audience to the list of audiences to request.
 func WithKindeManagementAPI(kindeDomain string) func(*ClientCredentialsFlow) {
 	return func(s *ClientCredentialsFlow) {
-		managementApiaudience := fmt.Sprintf("https://%v.kinde.com", kindeDomain)
-		if params, ok := s.config.EndpointParams["audience"]; ok {
-			s.config.EndpointParams["audience"] = append(params, managementApiaudience)
-		} else {
-			s.config.EndpointParams["audience"] = []string{managementApiaudience}
+
+		asURL, err := url.Parse(kindeDomain)
+		if err != nil {
+			return
 		}
+
+		host := asURL.Hostname()
+		if host == "" {
+			host = kindeDomain
+		}
+
+		host = strings.TrimSuffix(host, ".kinde.com")
+
+		managementApiaudience := fmt.Sprintf("https://%v.kinde.com/api", host)
+		WithAuthParameter("audience", managementApiaudience)(s)
 	}
 }
 
