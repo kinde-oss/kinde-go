@@ -19,11 +19,13 @@ type AuthorizationCodeFlow struct {
 }
 
 // Creates a new AuthorizationCodeFlow with the given baseURL, clientID, clientSecret and options to authenticate backend applications.
-func NewAuthorizationclientFlow(baseURL string, clientID string, clientSecret string, options ...func(*AuthorizationCodeFlow)) (*AuthorizationCodeFlow, error) {
-	return newAuthorizationCodeflow(baseURL, clientID, clientSecret, options...)
+func NewAuthorizationclientFlow(baseURL string, clientID string, clientSecret string, callbackURL string,
+	options ...func(*AuthorizationCodeFlow)) (*AuthorizationCodeFlow, error) {
+	return newAuthorizationCodeflow(baseURL, clientID, clientSecret, callbackURL, options...)
 }
 
-func newAuthorizationCodeflow(baseURL string, clientID string, clientSecret string, options ...func(*AuthorizationCodeFlow)) (*AuthorizationCodeFlow, error) {
+func newAuthorizationCodeflow(baseURL string, clientID string, clientSecret string, callbackURL string,
+	options ...func(*AuthorizationCodeFlow)) (*AuthorizationCodeFlow, error) {
 	asURL, err := url.Parse(baseURL)
 	if err != nil {
 		return nil, err
@@ -38,6 +40,7 @@ func newAuthorizationCodeflow(baseURL string, clientID string, clientSecret stri
 		config: oauth2.Config{
 			ClientID:     clientID,
 			ClientSecret: clientSecret,
+			RedirectURL:  callbackURL,
 			Scopes:       []string{"openid", "profile", "email"},
 			Endpoint: oauth2.Endpoint{
 				TokenURL: fmt.Sprintf("%v://%v/oauth2/token", asURL.Scheme, host),

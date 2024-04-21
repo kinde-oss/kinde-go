@@ -31,8 +31,9 @@ func TestAutorizationCodeFlowOnline(t *testing.T) {
 	}))
 	defer testServer.Close()
 
+	callbackURL := fmt.Sprintf("%v/callback", testServer.URL)
 	kindeClient, err := NewAuthorizationclientFlow(
-		authorizationServer.URL, "client_id", "client_secret",
+		authorizationServer.URL, "client_id", "client_secret", callbackURL,
 		WithAudience("http://my.api.com/api"),                       //custom API audience
 		WithKindeManagementAPI("my_kinde_tenant"),                   //we need kinde tenant domain to generate correct management API audience
 		WithKindeManagementAPI("https://my_kinde_tenant.kinde.com"), //verifying that just domain and domain with subdomain adds correct audience
@@ -41,8 +42,10 @@ func TestAutorizationCodeFlowOnline(t *testing.T) {
 	assert.Nil(t, err, "could not create kinde client")
 	assert.Equal(t, kindeClient.config.ClientID, "client_id")
 	assert.Equal(t, kindeClient.config.ClientSecret, "client_secret")
+	assert.Equal(t, kindeClient.config.RedirectURL, callbackURL)
 	assert.Contains(t, kindeClient.authURLOptions["audience"], "http://my.api.com/api")
 	assert.Contains(t, kindeClient.authURLOptions["audience"], "https://my_kinde_tenant.kinde.com/api")
+
 	authURL := kindeClient.GetAuthURL("testState")
 	assert.NotNil(t, authURL, "AuthURL cannot be null")
 
