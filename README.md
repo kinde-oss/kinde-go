@@ -40,8 +40,6 @@ For details on integrating this SDK into your project, head over to the [Kinde d
 
 The core team handles publishing.
 
-**`</todo>`**
-
 ## Contributing
 
 Please refer to Kinde’s [contributing guidelines](https://github.com/kinde-oss/.github/blob/489e2ca9c3307c2b2e098a885e22f2239116394a/CONTRIBUTING.md).
