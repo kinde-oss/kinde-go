@@ -49,7 +49,10 @@ func TestAutorizationCodeFlowOnline(t *testing.T) {
 		WithKindeManagementAPI("my_kinde_tenant"),                   //we need kinde tenant domain to generate correct management API audience
 		WithKindeManagementAPI("https://my_kinde_tenant.kinde.com"), //verifying that just domain and domain with subdomain adds correct audience
 		WithTokenValidation(
-			jwt.WillValidateAudience([]string{"http://my.api.com/api", "https://my_kinde_tenant.kinde.com/api"}),
+			true,
+			jwt.WillValidateAlgorythm(),
+			jwt.WillValidateAudience("http://my.api.com/api"),
+			jwt.WillValidateAudience("https://my_kinde_tenant.kinde.com/api"),
 		),
 	)
 

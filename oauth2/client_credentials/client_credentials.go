@@ -86,15 +86,15 @@ func WithKindeManagementAPI(kindeDomain string) func(*ClientCredentialsFlow) {
 }
 
 // Adds options to validate the token.
-func WithTokenValidation(tokenOptions ...func(*jwt.Token)) func(*ClientCredentialsFlow) {
+func WithTokenValidation(isValidateJWKS bool, tokenOptions ...func(*jwt.Token)) func(*ClientCredentialsFlow) {
 	return func(s *ClientCredentialsFlow) {
 
-		if len(s.tokenOptions) == 0 {
+		if isValidateJWKS {
 			jwks, err := keyfunc.NewDefault([]string{s.JWKS_URL})
 			if err != nil {
 				return
 			}
-			s.tokenOptions = append(s.tokenOptions, jwt.WillValidateSignature(jwks.Keyfunc), jwt.WillValidateAlgorythm())
+			s.tokenOptions = append(s.tokenOptions, jwt.ValidateWithKeyFunc(jwks.Keyfunc))
 		}
 
 		s.tokenOptions = append(s.tokenOptions, tokenOptions...)
