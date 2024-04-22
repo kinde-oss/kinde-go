@@ -8,7 +8,8 @@ import (
 	"slices"
 	"strings"
 
-	"github.com/kinde-oss/kinde-go/v1/jwt"
+	keyfunc "github.com/MicahParks/keyfunc/v3"
+	"github.com/kinde-oss/kinde-go/jwt"
 	"golang.org/x/oauth2"
 )
 
@@ -16,6 +17,8 @@ import (
 type AuthorizationCodeFlow struct {
 	config         oauth2.Config
 	authURLOptions url.Values
+	JWKS_URL       string
+	tokenOptions   []func(*jwt.Token)
 }
 
 // Creates a new AuthorizationCodeFlow with the given baseURL, clientID, clientSecret and options to authenticate backend applications.
@@ -37,6 +40,7 @@ func newAuthorizationCodeflow(baseURL string, clientID string, clientSecret stri
 	}
 
 	client := &AuthorizationCodeFlow{
+		JWKS_URL: fmt.Sprintf("%v://%v/.well-known/jwks", asURL.Scheme, host),
 		config: oauth2.Config{
 			ClientID:     clientID,
 			ClientSecret: clientSecret,
@@ -125,6 +129,22 @@ func (flow *AuthorizationCodeFlow) GetAuthURL(state string) string {
 	return url.String()
 }
 
+// Adds options to validate the token.
+func WithTokenValidation(tokenOptions ...func(*jwt.Token)) func(*AuthorizationCodeFlow) {
+	return func(s *AuthorizationCodeFlow) {
+
+		if len(s.tokenOptions) == 0 {
+			jwks, err := keyfunc.NewDefault([]string{s.JWKS_URL})
+			if err != nil {
+				return
+			}
+			s.tokenOptions = append(s.tokenOptions, jwt.WillValidateSignature(jwks.Keyfunc), jwt.WillValidateAlgorythm())
+		}
+
+		s.tokenOptions = append(s.tokenOptions, tokenOptions...)
+	}
+}
+
 // Exchanges the authorization code for a token.
 func (flow *AuthorizationCodeFlow) Exchange(ctx context.Context, authorizationCode string) (*jwt.Token, error) {
 	token, err := flow.config.Exchange(ctx, authorizationCode)
@@ -133,8 +153,8 @@ func (flow *AuthorizationCodeFlow) Exchange(ctx context.Context, authorizationCo
 		return nil, err
 	}
 
-	result := jwt.NewJwtToken(token)
-	return result, nil
+	result, err := jwt.ParseJwtToken(token, flow.tokenOptions...)
+	return result, err
 }
 
 // Returns the client to make requests to the backend.

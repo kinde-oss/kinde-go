@@ -7,13 +7,16 @@ import (
 	"net/url"
 	"strings"
 
-	"github.com/kinde-oss/kinde-go/v1/jwt"
+	"github.com/MicahParks/keyfunc/v3"
+	"github.com/kinde-oss/kinde-go/jwt"
 	"golang.org/x/oauth2/clientcredentials"
 )
 
 // ClientCredentialsFlow represents the client credentials flow.
 type ClientCredentialsFlow struct {
-	config clientcredentials.Config
+	config       clientcredentials.Config
+	tokenOptions []func(*jwt.Token)
+	JWKS_URL     string
 }
 
 // Creates a new ClientCredentialsFlow with the given baseURL, clientID, clientSecret and options to authenticate backend applications.
@@ -33,6 +36,7 @@ func NewClientCredentialsFlow(baseURL string, clientID string, clientSecret stri
 			TokenURL:       fmt.Sprintf("%v://%v/%v", asURL.Scheme, host, "oauth2/token"),
 			EndpointParams: map[string][]string{},
 		},
+		JWKS_URL: fmt.Sprintf("%v://%v/.well-known/jwks", asURL.Scheme, host),
 	}
 
 	for _, o := range options {
@@ -81,16 +85,32 @@ func WithKindeManagementAPI(kindeDomain string) func(*ClientCredentialsFlow) {
 	}
 }
 
+// Adds options to validate the token.
+func WithTokenValidation(tokenOptions ...func(*jwt.Token)) func(*ClientCredentialsFlow) {
+	return func(s *ClientCredentialsFlow) {
+
+		if len(s.tokenOptions) == 0 {
+			jwks, err := keyfunc.NewDefault([]string{s.JWKS_URL})
+			if err != nil {
+				return
+			}
+			s.tokenOptions = append(s.tokenOptions, jwt.WillValidateSignature(jwks.Keyfunc), jwt.WillValidateAlgorythm())
+		}
+
+		s.tokenOptions = append(s.tokenOptions, tokenOptions...)
+	}
+}
+
 // Returns the http client to be used to make requests.
-func (client *ClientCredentialsFlow) GetClient(ctx context.Context) *http.Client {
-	return client.config.Client(ctx)
+func (flow *ClientCredentialsFlow) GetClient(ctx context.Context) *http.Client {
+	return flow.config.Client(ctx)
 }
 
 // Returns the token to be used to make requests.
-func (client *ClientCredentialsFlow) GetToken(ctx context.Context) (*jwt.Token, error) {
-	token, err := client.config.Token(ctx)
+func (flow *ClientCredentialsFlow) GetToken(ctx context.Context) (*jwt.Token, error) {
+	token, err := flow.config.Token(ctx)
 	if err != nil {
 		return nil, err
 	}
-	return jwt.NewJwtToken(token), nil
+	return jwt.ParseJwtToken(token, flow.tokenOptions...)
 }
