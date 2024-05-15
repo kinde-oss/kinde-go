@@ -16,7 +16,7 @@ import (
 func TestAutorizationCodeFlowOnline(t *testing.T) {
 
 	callCount := 0
-	authorizationServer := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+	testAuthorizationServer := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 
 		if strings.Contains(r.URL.Path, "/.well-known/jwks") {
 			w.WriteHeader(http.StatusOK)
@@ -32,18 +32,23 @@ func TestAutorizationCodeFlowOnline(t *testing.T) {
 		w.Header().Set("Content-Type", "application/json")
 		w.Write([]byte(fmt.Sprintf(`{"access_token": "%v","token_type":"bearer"}`, testJwtToken())))
 	}))
-	defer authorizationServer.Close()
+	defer testAuthorizationServer.Close()
 
-	testServer := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+	testApiServer := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		headerAuth := r.Header.Get("Authorization")
 		assert.Equal(t, headerAuth, "Bearer "+testJwtToken(), "incorrect authorization header")
+
+		parsedToken, err := jwt.ParseFromAuthorizationHeader(r, jwt.WillValidateJWKS(fmt.Sprintf("%v/.well-known/jwks", testAuthorizationServer.URL)))
+		assert.Nil(t, err, "error parsing token")
+		assert.True(t, parsedToken.IsValid(), "token is not valid")
+
 		w.Write([]byte(`hello world`))
 	}))
-	defer testServer.Close()
+	defer testApiServer.Close()
 
-	callbackURL := fmt.Sprintf("%v/callback", testServer.URL)
+	callbackURL := fmt.Sprintf("%v/callback", testApiServer.URL)
 	kindeClient, err := NewAuthorizationCodeFlow(
-		authorizationServer.URL, "b9da18c441b44d81bab3e8232de2e18d", "client_secret", callbackURL,
+		testAuthorizationServer.URL, "b9da18c441b44d81bab3e8232de2e18d", "client_secret", callbackURL,
 		WithCustomStateGenerator(func() string { return "test_state" }), //custom state generator for testing
 		WithOffline(),                                               //offline scope
 		WithAudience("http://my.api.com/api"),                       //custom API audience
@@ -74,7 +79,7 @@ func TestAutorizationCodeFlowOnline(t *testing.T) {
 
 	client := kindeClient.GetClient(context.Background(), token)
 	assert.NotNil(t, client, "client cannot be null")
-	response, err := client.Get(fmt.Sprintf("%v/test_call", testServer.URL))
+	response, err := client.Get(fmt.Sprintf("%v/test_call", testApiServer.URL))
 	assert.Nil(t, err, "could not make request")
 
 	testClientResponse, _ := io.ReadAll(response.Body)

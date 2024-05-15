@@ -72,7 +72,7 @@ func (flow *AuthorizationCodeFlow) ExchangeAndValidate(ctx context.Context, auth
 		return nil, err
 	}
 
-	result, err := jwt.ParseJwtToken(token, flow.tokenOptions...)
+	result, err := jwt.ParseOAuth2Token(token, flow.tokenOptions...)
 	return result, err
 }
 

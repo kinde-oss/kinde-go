@@ -98,7 +98,7 @@ func WithTokenValidation(isValidateJWKS bool, tokenOptions ...func(*jwt.Token)) 
 			if err != nil {
 				return
 			}
-			s.tokenOptions = append(s.tokenOptions, jwt.ValidateWithKeyFunc(jwks.Keyfunc))
+			s.tokenOptions = append(s.tokenOptions, jwt.WillValidateWithKeyFunc(jwks.Keyfunc))
 		}
 
 		s.tokenOptions = append(s.tokenOptions, tokenOptions...)
@@ -117,5 +117,5 @@ func (flow *ClientCredentialsFlow) GetToken(ctx context.Context) (*jwt.Token, er
 	if err != nil {
 		return nil, err
 	}
-	return jwt.ParseJwtToken(token, flow.tokenOptions...)
+	return jwt.ParseOAuth2Token(token, flow.tokenOptions...)
 }

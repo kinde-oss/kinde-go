@@ -96,7 +96,7 @@ func WithTokenValidation(isValidateJWKS bool, tokenOptions ...func(*jwt.Token)) 
 			if err != nil {
 				return
 			}
-			s.tokenOptions = append(s.tokenOptions, jwt.ValidateWithKeyFunc(jwks.Keyfunc))
+			s.tokenOptions = append(s.tokenOptions, jwt.WillValidateWithKeyFunc(jwks.Keyfunc))
 		}
 
 		s.tokenOptions = append(s.tokenOptions, tokenOptions...)

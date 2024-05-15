@@ -1,10 +1,12 @@
 package jwt
 
 import (
-	"crypto/rsa"
 	"fmt"
+	"net/http"
 	"slices"
+	"strings"
 
+	"github.com/MicahParks/keyfunc/v3"
 	golangjwt "github.com/golang-jwt/jwt/v5"
 	"golang.org/x/oauth2"
 )
@@ -23,8 +25,22 @@ type Token struct {
 	isValid    bool
 }
 
-// ParseJwtToken will parse the given token and validate it with the given options.
-func ParseJwtToken(rawToken *oauth2.Token, options ...func(*Token)) (*Token, error) {
+func ParseFromAuthorizationHeader(r *http.Request, options ...func(*Token)) (*Token, error) {
+	requestedToken := r.Header.Get("Authorization")
+	splitToken := strings.Split(requestedToken, "Bearer")
+	if len(splitToken) != 2 {
+		return nil, fmt.Errorf("invalid token")
+	}
+	requestedToken = strings.TrimSpace(splitToken[1])
+	return ParseOAuth2Token(&oauth2.Token{AccessToken: requestedToken}, options...)
+}
+
+func ParseFromString(rawToken string, options ...func(*Token)) (*Token, error) {
+	return ParseOAuth2Token(&oauth2.Token{AccessToken: rawToken}, options...)
+}
+
+// ParseOAuth2Token will parse the given token and validate it with the given options.
+func ParseOAuth2Token(rawToken *oauth2.Token, options ...func(*Token)) (*Token, error) {
 
 	token := Token{
 		rawToken: rawToken,
@@ -77,7 +93,8 @@ func (j *Token) IsValid() bool {
 	return j.isValid
 }
 
-func WillVerifyWithPublicKey(keyFunc func(rawToken string) (*rsa.PublicKey, error)) func(*Token) {
+// WillValidateKeys will validate the token with the given keyFunc.
+func WillValidateKeys(keyFunc func(rawToken string) (interface{}, error)) func(*Token) {
 	return func(s *Token) {
 		wrapped := func(token *golangjwt.Token) (interface{}, error) {
 			return keyFunc(token.Raw)
@@ -86,8 +103,19 @@ func WillVerifyWithPublicKey(keyFunc func(rawToken string) (*rsa.PublicKey, erro
 	}
 }
 
+// WillValidateKeys will validate the token with the given keyFunc.
+func WillValidateJWKS(jwks string) func(*Token) {
+	return func(s *Token) {
+		jwks, err := keyfunc.NewDefault([]string{jwks})
+		if err != nil {
+			return
+		}
+		s.processing.keyFunc = jwks.Keyfunc
+	}
+}
+
 // WillValidateWithKeyFunc will validate the token with the given keyFunc.
-func ValidateWithKeyFunc(keyFunc func(*golangjwt.Token) (interface{}, error)) func(*Token) {
+func WillValidateWithKeyFunc(keyFunc func(*golangjwt.Token) (interface{}, error)) func(*Token) {
 	return func(s *Token) {
 		s.processing.keyFunc = keyFunc
 	}
