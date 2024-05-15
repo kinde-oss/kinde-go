@@ -7,7 +7,6 @@ import (
 	"net/url"
 	"strings"
 
-	"github.com/MicahParks/keyfunc/v3"
 	"github.com/kinde-oss/kinde-go/jwt"
 	"golang.org/x/oauth2"
 	"golang.org/x/oauth2/clientcredentials"
@@ -94,11 +93,7 @@ func WithTokenValidation(isValidateJWKS bool, tokenOptions ...func(*jwt.Token)) 
 	return func(s *ClientCredentialsFlow) {
 
 		if isValidateJWKS {
-			jwks, err := keyfunc.NewDefault([]string{s.JWKS_URL})
-			if err != nil {
-				return
-			}
-			s.tokenOptions = append(s.tokenOptions, jwt.WillValidateWithKeyFunc(jwks.Keyfunc))
+			s.tokenOptions = append(s.tokenOptions, jwt.WillValidateJWKSUrl(s.JWKS_URL))
 		}
 
 		s.tokenOptions = append(s.tokenOptions, tokenOptions...)
