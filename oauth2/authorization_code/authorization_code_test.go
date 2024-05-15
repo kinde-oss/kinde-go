@@ -42,8 +42,9 @@ func TestAutorizationCodeFlowOnline(t *testing.T) {
 	defer testServer.Close()
 
 	callbackURL := fmt.Sprintf("%v/callback", testServer.URL)
-	kindeClient, err := NewAuthorizationclientFlow(
+	kindeClient, err := NewAuthorizationCodeFlow(
 		authorizationServer.URL, "b9da18c441b44d81bab3e8232de2e18d", "client_secret", callbackURL,
+		WithCustomStateGenerator(func() string { return "test_state" }), //custom state generator for testing
 		WithOffline(),                                               //offline scope
 		WithAudience("http://my.api.com/api"),                       //custom API audience
 		WithKindeManagementAPI("my_kinde_tenant"),                   //we need kinde tenant domain to generate correct management API audience
@@ -63,8 +64,9 @@ func TestAutorizationCodeFlowOnline(t *testing.T) {
 	assert.Contains(t, kindeClient.authURLOptions["audience"], "http://my.api.com/api")
 	assert.Contains(t, kindeClient.authURLOptions["audience"], "https://my_kinde_tenant.kinde.com/api")
 
-	authURL := kindeClient.GetAuthURL("testState")
+	authURL := kindeClient.GetAuthURL()
 	assert.NotNil(t, authURL, "AuthURL cannot be null")
+	assert.Contains(t, authURL, "test_state", "state parameter is missing")
 
 	token, err := kindeClient.Exchange(context.Background(), "code")
 	assert.Nil(t, err, "could not exchange token")

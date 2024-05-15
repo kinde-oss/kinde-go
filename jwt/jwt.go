@@ -15,12 +15,14 @@ type tokenProcessing struct {
 	parsed         *golangjwt.Token
 }
 
+// Token represents a JWT token.
 type Token struct {
-	rawToken     *oauth2.Token
-	processing   tokenProcessing
-	IsTokenValid bool
+	rawToken   *oauth2.Token
+	processing tokenProcessing
+	IsValid    bool
 }
 
+// ParseJwtToken will parse the given token and validate it with the given options.
 func ParseJwtToken(rawToken *oauth2.Token, options ...func(*Token)) (*Token, error) {
 
 	token := Token{
@@ -41,7 +43,7 @@ func ParseJwtToken(rawToken *oauth2.Token, options ...func(*Token)) (*Token, err
 
 	if err != nil {
 		errors = append(errors, err)
-		token.IsTokenValid = false
+		token.IsValid = false
 	} else {
 		claims := parsedToken.Claims.(golangjwt.MapClaims)
 		isTokenValid := true
@@ -55,7 +57,7 @@ func ParseJwtToken(rawToken *oauth2.Token, options ...func(*Token)) (*Token, err
 				isTokenValid = false
 			}
 		}
-		token.IsTokenValid = isTokenValid
+		token.IsValid = isTokenValid
 	}
 	token.processing.parsed = parsedToken
 
@@ -79,18 +81,25 @@ func WillResolveCustomJWK(keyFunc func(rawToken string) (interface{}, error)) fu
 	}
 }
 
+// WillValidateWithKeyFunc will validate the token with the given keyFunc.
 func ValidateWithKeyFunc(keyFunc func(*golangjwt.Token) (interface{}, error)) func(*Token) {
 	return func(s *Token) {
 		s.processing.keyFunc = keyFunc
 	}
 }
 
-func WillValidateAlgorythm() func(*Token) {
+// WillValidateAlgorythm will validate the token with the given algorithm, defaults to RS256.
+func WillValidateAlgorythm(alg ...string) func(*Token) {
 	return func(s *Token) {
-		s.processing.parsingOptions = append(s.processing.parsingOptions, golangjwt.WithValidMethods([]string{"RS256"}))
+		if len(alg) > 0 {
+			s.processing.parsingOptions = append(s.processing.parsingOptions, golangjwt.WithValidMethods(alg))
+		} else {
+			s.processing.parsingOptions = append(s.processing.parsingOptions, golangjwt.WithValidMethods([]string{"RS256"}))
+		}
 	}
 }
 
+// WillValidateAudience will validate the audience is present in the token.
 func WillValidateAudience(expectedAudience string) func(*Token) {
 	return func(s *Token) {
 		f := func(receivedClaims golangjwt.MapClaims) (bool, error) {

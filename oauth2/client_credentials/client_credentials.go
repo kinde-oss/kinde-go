@@ -9,6 +9,7 @@ import (
 
 	"github.com/MicahParks/keyfunc/v3"
 	"github.com/kinde-oss/kinde-go/jwt"
+	"golang.org/x/oauth2"
 	"golang.org/x/oauth2/clientcredentials"
 )
 
@@ -17,6 +18,7 @@ type ClientCredentialsFlow struct {
 	config       clientcredentials.Config
 	tokenOptions []func(*jwt.Token)
 	JWKS_URL     string
+	tokenSource  oauth2.TokenSource
 }
 
 // Creates a new ClientCredentialsFlow with the given baseURL, clientID, clientSecret and options to authenticate backend applications.
@@ -42,6 +44,8 @@ func NewClientCredentialsFlow(baseURL string, clientID string, clientSecret stri
 	for _, o := range options {
 		o(client)
 	}
+
+	client.tokenSource = client.config.TokenSource(context.Background())
 
 	return client, nil
 }
@@ -108,7 +112,8 @@ func (flow *ClientCredentialsFlow) GetClient(ctx context.Context) *http.Client {
 
 // Returns the token to be used to make requests.
 func (flow *ClientCredentialsFlow) GetToken(ctx context.Context) (*jwt.Token, error) {
-	token, err := flow.config.Token(ctx)
+
+	token, err := flow.tokenSource.Token()
 	if err != nil {
 		return nil, err
 	}
