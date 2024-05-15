@@ -104,7 +104,7 @@ func WillValidateKeys(keyFunc func(rawToken string) (interface{}, error)) func(*
 }
 
 // WillValidateKeys will validate the token with the given keyFunc.
-func WillValidateJWKS(jwks string) func(*Token) {
+func WillValidateJWKSUrl(jwks string) func(*Token) {
 	return func(s *Token) {
 		jwks, err := keyfunc.NewDefault([]string{jwks})
 		if err != nil {

@@ -39,7 +39,7 @@ func TestAutorizationCodeFlowOnline(t *testing.T) {
 		assert.Equal(t, headerAuth, "Bearer "+testJwtToken(), "incorrect authorization header")
 
 		parsedToken, err := jwt.ParseFromAuthorizationHeader(r,
-			jwt.WillValidateJWKS(fmt.Sprintf("%v/.well-known/jwks", testAuthorizationServer.URL)),
+			jwt.WillValidateJWKSUrl(fmt.Sprintf("%v/.well-known/jwks", testAuthorizationServer.URL)),
 			jwt.WillValidateAudience("http://my.api.com/api"),
 			jwt.WillValidateAlgorythm(),
 		)
