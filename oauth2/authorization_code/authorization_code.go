@@ -64,8 +64,8 @@ func newAuthorizationCodeflow(baseURL string, clientID string, clientSecret stri
 	return client, nil
 }
 
-// Exchanges the authorization code for a token.
-func (flow *AuthorizationCodeFlow) Exchange(ctx context.Context, authorizationCode string) (*jwt.Token, error) {
+// Exchanges the authorization code for a token and validates it. Please verify the IsValid method of the token.
+func (flow *AuthorizationCodeFlow) ExchangeAndValidate(ctx context.Context, authorizationCode string) (*jwt.Token, error) {
 	token, err := flow.config.Exchange(ctx, authorizationCode)
 
 	if err != nil {

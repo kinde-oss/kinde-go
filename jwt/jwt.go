@@ -1,6 +1,7 @@
 package jwt
 
 import (
+	"crypto/rsa"
 	"fmt"
 	"slices"
 
@@ -19,7 +20,7 @@ type tokenProcessing struct {
 type Token struct {
 	rawToken   *oauth2.Token
 	processing tokenProcessing
-	IsValid    bool
+	isValid    bool
 }
 
 // ParseJwtToken will parse the given token and validate it with the given options.
@@ -43,7 +44,7 @@ func ParseJwtToken(rawToken *oauth2.Token, options ...func(*Token)) (*Token, err
 
 	if err != nil {
 		errors = append(errors, err)
-		token.IsValid = false
+		token.isValid = false
 	} else {
 		claims := parsedToken.Claims.(golangjwt.MapClaims)
 		isTokenValid := true
@@ -57,7 +58,7 @@ func ParseJwtToken(rawToken *oauth2.Token, options ...func(*Token)) (*Token, err
 				isTokenValid = false
 			}
 		}
-		token.IsValid = isTokenValid
+		token.isValid = isTokenValid
 	}
 	token.processing.parsed = parsedToken
 
@@ -72,7 +73,11 @@ func (j *Token) GetRawToken() *oauth2.Token {
 	return j.rawToken
 }
 
-func WillResolveCustomJWK(keyFunc func(rawToken string) (interface{}, error)) func(*Token) {
+func (j *Token) IsValid() bool {
+	return j.isValid
+}
+
+func WillVerifyWithPublicKey(keyFunc func(rawToken string) (*rsa.PublicKey, error)) func(*Token) {
 	return func(s *Token) {
 		wrapped := func(token *golangjwt.Token) (interface{}, error) {
 			return keyFunc(token.Raw)

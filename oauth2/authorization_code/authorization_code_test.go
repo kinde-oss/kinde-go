@@ -68,8 +68,9 @@ func TestAutorizationCodeFlowOnline(t *testing.T) {
 	assert.NotNil(t, authURL, "AuthURL cannot be null")
 	assert.Contains(t, authURL, "test_state", "state parameter is missing")
 
-	token, err := kindeClient.Exchange(context.Background(), "code")
+	token, err := kindeClient.ExchangeAndValidate(context.Background(), "code")
 	assert.Nil(t, err, "could not exchange token")
+	assert.True(t, token.IsValid(), "token is not valid")
 
 	client := kindeClient.GetClient(context.Background(), token)
 	assert.NotNil(t, client, "client cannot be null")
