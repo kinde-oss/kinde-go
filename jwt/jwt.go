@@ -1,6 +1,7 @@
 package jwt
 
 import (
+	"crypto/rsa"
 	"fmt"
 	"net/http"
 	"slices"
@@ -25,6 +26,7 @@ type Token struct {
 	isValid    bool
 }
 
+// ParseFromAuthorizationHeader will parse the token from the Authorization header and validate it with the given options.
 func ParseFromAuthorizationHeader(r *http.Request, options ...func(*Token)) (*Token, error) {
 	requestedToken := r.Header.Get("Authorization")
 	splitToken := strings.Split(requestedToken, "Bearer")
@@ -35,6 +37,7 @@ func ParseFromAuthorizationHeader(r *http.Request, options ...func(*Token)) (*To
 	return ParseOAuth2Token(&oauth2.Token{AccessToken: requestedToken}, options...)
 }
 
+// ParseFromString will parse the given token and validate it with the given options.
 func ParseFromString(rawToken string, options ...func(*Token)) (*Token, error) {
 	return ParseOAuth2Token(&oauth2.Token{AccessToken: rawToken}, options...)
 }
@@ -93,8 +96,8 @@ func (j *Token) IsValid() bool {
 	return j.isValid
 }
 
-// WillValidateKeys will validate the token with the given keyFunc.
-func WillValidateKeys(keyFunc func(rawToken string) (interface{}, error)) func(*Token) {
+// WillValidateKeys receives a token and needs to return a public rsa key to validate the token.
+func WillValidateKeys(keyFunc func(rawToken string) (*rsa.PublicKey, error)) func(*Token) {
 	return func(s *Token) {
 		wrapped := func(token *golangjwt.Token) (interface{}, error) {
 			return keyFunc(token.Raw)
@@ -104,9 +107,9 @@ func WillValidateKeys(keyFunc func(rawToken string) (interface{}, error)) func(*
 }
 
 // WillValidateKeys will validate the token with the given keyFunc.
-func WillValidateJWKSUrl(jwks string) func(*Token) {
+func WillValidateJWKSUrl(url string) func(*Token) {
 	return func(s *Token) {
-		jwks, err := keyfunc.NewDefault([]string{jwks})
+		jwks, err := keyfunc.NewDefault([]string{url})
 		if err != nil {
 			return
 		}

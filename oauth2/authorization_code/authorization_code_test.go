@@ -2,6 +2,9 @@ package authorization_code
 
 import (
 	"context"
+	"crypto/rsa"
+	"crypto/x509"
+	"encoding/pem"
 	"fmt"
 	"io"
 	"net/http"
@@ -40,6 +43,17 @@ func TestAutorizationCodeFlowOnline(t *testing.T) {
 
 		parsedToken, err := jwt.ParseFromAuthorizationHeader(r,
 			jwt.WillValidateJWKSUrl(fmt.Sprintf("%v/.well-known/jwks", testAuthorizationServer.URL)),
+			jwt.WillValidateAudience("http://my.api.com/api"),
+			jwt.WillValidateAlgorythm(),
+		)
+		assert.Nil(t, err, "error parsing token")
+		assert.True(t, parsedToken.IsValid(), "token is not valid")
+
+		parsedToken, err = jwt.ParseFromAuthorizationHeader(r,
+			//testing verification with provided private key instead of JWKS
+			jwt.WillValidateKeys(func(rawToken string) (*rsa.PublicKey, error) {
+				return testPublicPEM(), nil
+			}),
 			jwt.WillValidateAudience("http://my.api.com/api"),
 			jwt.WillValidateAlgorythm(),
 		)
@@ -133,7 +147,21 @@ func testJWKSPublicKeys() []byte {
   ]}`
 
 	return []byte(key)
+}
 
+func testPublicPEM() *rsa.PublicKey {
+	publicKey := `-----BEGIN PUBLIC KEY-----
+MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAuOaDKcdR8JR7PiVEHjRO
+1dQVbLFoMRSiBio+rRlq+ljouBFJtehghnkIk0sSJlmoJY8329RdF9122IL0NYxO
++QTFJmAamSdUcmSgg4D3qI3Nc82H7L7ocad2OfhhXmBwz+O/8cxK+xYAnvKGmHf/
+tSmqVWJVbvBFG1r7sU3WBfLZPoivofFKjnhPG5jFbC2AziTFqKiQ7i2T2F0APIPT
+J5Bf05zI2BpIYwyZyaP1F5EWmBEOvOP02Mr0L3Rj0lOJGQJ8gJh9uacGCt/RZAlx
+0ZMiK93fk3vfszfKv0UhOpYKBcElR/5U1gJfXuDF6j10vG+8rwoorIPzCwu3wKZP
+ewIDAQAB
+-----END PUBLIC KEY-----`
+	block, _ := pem.Decode([]byte(publicKey))
+	pemKey, _ := x509.ParsePKIXPublicKey(block.Bytes)
+	return pemKey.(*rsa.PublicKey)
 }
 
 func testJWKSPrivateKey() string {
