@@ -96,8 +96,8 @@ func (j *Token) IsValid() bool {
 	return j.isValid
 }
 
-// WillValidateKeys receives a token and needs to return a public rsa key to validate the token.
-func WillValidateKeys(keyFunc func(rawToken string) (*rsa.PublicKey, error)) func(*Token) {
+// WillValidateWithKeys receives a token and needs to return a public RSA key to validate the token signature.
+func WillValidateWithKeys(keyFunc func(rawToken string) (*rsa.PublicKey, error)) func(*Token) {
 	return func(s *Token) {
 		wrapped := func(token *golangjwt.Token) (interface{}, error) {
 			return keyFunc(token.Raw)
@@ -106,8 +106,8 @@ func WillValidateKeys(keyFunc func(rawToken string) (*rsa.PublicKey, error)) fun
 	}
 }
 
-// WillValidateKeys will validate the token with the given keyFunc.
-func WillValidateJWKSUrl(url string) func(*Token) {
+// WillValidateWithJWKSUrl will validate the token with the given JWKS URL.
+func WillValidateWithJWKSUrl(url string) func(*Token) {
 	return func(s *Token) {
 		jwks, err := keyfunc.NewDefault([]string{url})
 		if err != nil {

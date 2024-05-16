@@ -42,7 +42,7 @@ func TestAutorizationCodeFlowOnline(t *testing.T) {
 		assert.Equal(t, headerAuth, "Bearer "+testJwtToken(), "incorrect authorization header")
 
 		parsedToken, err := jwt.ParseFromAuthorizationHeader(r,
-			jwt.WillValidateJWKSUrl(fmt.Sprintf("%v/.well-known/jwks", testAuthorizationServer.URL)),
+			jwt.WillValidateWithJWKSUrl(fmt.Sprintf("%v/.well-known/jwks", testAuthorizationServer.URL)),
 			jwt.WillValidateAudience("http://my.api.com/api"),
 			jwt.WillValidateAlgorythm(),
 		)
@@ -51,7 +51,7 @@ func TestAutorizationCodeFlowOnline(t *testing.T) {
 
 		parsedToken, err = jwt.ParseFromAuthorizationHeader(r,
 			//testing verification with provided private key instead of JWKS
-			jwt.WillValidateKeys(func(rawToken string) (*rsa.PublicKey, error) {
+			jwt.WillValidateWithKeys(func(rawToken string) (*rsa.PublicKey, error) {
 				return testPublicPEM(), nil
 			}),
 			jwt.WillValidateAudience("http://my.api.com/api"),

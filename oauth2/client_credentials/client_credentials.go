@@ -93,7 +93,7 @@ func WithTokenValidation(isValidateJWKS bool, tokenOptions ...func(*jwt.Token)) 
 	return func(s *ClientCredentialsFlow) {
 
 		if isValidateJWKS {
-			s.tokenOptions = append(s.tokenOptions, jwt.WillValidateJWKSUrl(s.JWKS_URL))
+			s.tokenOptions = append(s.tokenOptions, jwt.WillValidateWithJWKSUrl(s.JWKS_URL))
 		}
 
 		s.tokenOptions = append(s.tokenOptions, tokenOptions...)
