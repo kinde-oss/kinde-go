@@ -10,29 +10,32 @@ import (
 )
 
 func TestTokenNeedsKeyFuncToWork(t *testing.T) {
-	parsedToken, err := ParseFromString(testJwtToken())
-	assert.NotNil(t, err, "expecting error validating a token")
-	assert.False(t, parsedToken.IsValid(), "token should be not valid")
-}
+	t.Parallel()
+	t.Run("TestTokenNeedsKeyFuncToWork", func(t *testing.T) {
+		parsedToken, err := ParseFromString(testJwtToken())
+		assert.NotNil(t, err, "expecting error validating a token")
+		assert.False(t, parsedToken.IsValid(), "token should be not valid")
+	})
+	t.Run("TestTokenParsedAndValidated", func(t *testing.T) {
+		parsedToken, err := ParseFromString(testJwtToken(),
+			WillValidateWithKeys(func(rawToken string) (*rsa.PublicKey, error) { return testPublicPEM(), nil }),
+			WillValidateAlgorythm(),
+			WillValidateAudience("http://my.api.com/api"),
+		)
+		assert.Nil(t, err, "unexpected error")
+		assert.True(t, parsedToken.IsValid(), "token should be valid")
+	})
 
-func TestTokenParsedAndValidated(t *testing.T) {
-	parsedToken, err := ParseFromString(testJwtToken(),
-		WillValidateWithKeys(func(rawToken string) (*rsa.PublicKey, error) { return testPublicPEM(), nil }),
-		WillValidateAlgorythm(),
-		WillValidateAudience("http://my.api.com/api"),
-	)
-	assert.Nil(t, err, "unexpected error")
-	assert.True(t, parsedToken.IsValid(), "token should be valid")
-}
+	t.Run("TestTokenWithInvalidAudience", func(t *testing.T) {
+		parsedToken, err := ParseFromString(testJwtToken(),
+			WillValidateWithKeys(func(rawToken string) (*rsa.PublicKey, error) { return testPublicPEM(), nil }),
+			WillValidateAlgorythm(),
+			WillValidateAudience("incorrect audience"),
+		)
+		assert.NotNil(t, err, "expecting error validating a token")
+		assert.False(t, parsedToken.IsValid(), "token should be not valid")
+	})
 
-func TestTokenWithInvalidAudience(t *testing.T) {
-	parsedToken, err := ParseFromString(testJwtToken(),
-		WillValidateWithKeys(func(rawToken string) (*rsa.PublicKey, error) { return testPublicPEM(), nil }),
-		WillValidateAlgorythm(),
-		WillValidateAudience("incorrect audience"),
-	)
-	assert.NotNil(t, err, "expecting error validating a token")
-	assert.False(t, parsedToken.IsValid(), "token should be not valid")
 }
 
 func testJwtToken() string {
