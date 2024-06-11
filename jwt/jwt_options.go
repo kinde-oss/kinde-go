@@ -4,13 +4,14 @@ import (
 	"crypto/rsa"
 	"fmt"
 	"slices"
+	"time"
 
 	"github.com/MicahParks/keyfunc/v3"
 	golangjwt "github.com/golang-jwt/jwt/v5"
 )
 
-// WillValidateWithKeys receives a token and needs to return a public RSA key to validate the token signature.
-func WillValidateWithKeys(keyFunc func(rawToken string) (*rsa.PublicKey, error)) func(*Token) {
+// WillValidateWithPublicKey receives a token and needs to return a public RSA key to validate the token signature.
+func WillValidateWithPublicKey(keyFunc func(rawToken string) (*rsa.PublicKey, error)) func(*Token) {
 	return func(s *Token) {
 		wrapped := func(token *golangjwt.Token) (interface{}, error) {
 			return keyFunc(token.Raw)
@@ -34,6 +35,20 @@ func WillValidateWithJWKSUrl(url string) func(*Token) {
 func WillValidateWithKeyFunc(keyFunc func(*golangjwt.Token) (interface{}, error)) func(*Token) {
 	return func(s *Token) {
 		s.processing.keyFunc = keyFunc
+	}
+}
+
+// WillValidateWithTimeFunc will validate the token with the given time, used fopr testing.
+func WillValidateWithTimeFunc(timeFunc func() time.Time) func(*Token) {
+	return func(s *Token) {
+		s.processing.parsingOptions = append(s.processing.parsingOptions, golangjwt.WithTimeFunc(timeFunc))
+	}
+}
+
+// WillValidateWithClockSkew will validate the token with the allowed clock skew.
+func WillValidateWithClockSkew(leeway time.Duration) func(*Token) {
+	return func(s *Token) {
+		s.processing.parsingOptions = append(s.processing.parsingOptions, golangjwt.WithLeeway(leeway))
 	}
 }
 

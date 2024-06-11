@@ -1,6 +1,7 @@
 package jwt
 
 import (
+	"encoding/json"
 	"fmt"
 	"net/http"
 	"strings"
@@ -35,8 +36,20 @@ func ParseFromAuthorizationHeader(r *http.Request, options ...func(*Token)) (*To
 }
 
 // ParseFromString will parse the given token and validate it with the given options.
-func ParseFromString(rawToken string, options ...func(*Token)) (*Token, error) {
-	return ParseOAuth2Token(&oauth2.Token{AccessToken: rawToken}, options...)
+func ParseFromString(rawAccessToken string, options ...func(*Token)) (*Token, error) {
+	return ParseOAuth2Token(&oauth2.Token{AccessToken: rawAccessToken}, options...)
+}
+
+// ParseFromString will parse the given token and validate it with the given options.
+func ParseFromSessionStorage(rawToken string, options ...func(*Token)) (*Token, error) {
+	token := oauth2.Token{}
+	json.Unmarshal([]byte(rawToken), &token)
+
+	var extra map[string]interface{}
+	json.Unmarshal([]byte(rawToken), &extra)
+	tokenExtra := token.WithExtra(extra)
+
+	return ParseOAuth2Token(tokenExtra, options...)
 }
 
 // ParseOAuth2Token will parse the given token and validate it with the given options.
@@ -90,7 +103,21 @@ func (j *Token) GetRawToken() *oauth2.Token {
 	return j.rawToken
 }
 
+// GetRawToken returns the raw token.
+func (j *Token) AsString() (string, error) {
+	marshalledToken, err := json.Marshal(j.rawToken)
+	if err != nil {
+		return "", err
+	}
+	return string(marshalledToken), nil
+}
+
 // IsValid returns if the token is valid.
 func (j *Token) IsValid() bool {
 	return j.isValid
+}
+
+func (j *Token) GetSubject() string {
+	subject, _ := j.processing.parsed.Claims.GetSubject()
+  return subject
 }

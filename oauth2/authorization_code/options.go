@@ -1,10 +1,9 @@
 package authorization_code
 
 import (
-	"fmt"
+	"net/http"
 	"net/url"
 	"slices"
-	"strings"
 
 	"github.com/kinde-oss/kinde-go/jwt"
 )
@@ -30,26 +29,6 @@ func WithAudience(audience string) func(*AuthorizationCodeFlow) {
 	}
 }
 
-func WithKindeManagementAPI(kindeDomain string) func(*AuthorizationCodeFlow) {
-	return func(s *AuthorizationCodeFlow) {
-
-		asURL, err := url.Parse(kindeDomain)
-		if err != nil {
-			return
-		}
-
-		host := asURL.Hostname()
-		if host == "" {
-			host = kindeDomain
-		}
-
-		host = strings.TrimSuffix(host, ".kinde.com")
-		managementApiaudience := fmt.Sprintf("https://%v.kinde.com/api", host)
-
-		WithAuthParameter("audience", managementApiaudience)(s)
-	}
-}
-
 // Adds the offline scope to the list of scopes to request.
 func WithOffline() func(*AuthorizationCodeFlow) {
 	return func(s *AuthorizationCodeFlow) {
@@ -58,9 +37,16 @@ func WithOffline() func(*AuthorizationCodeFlow) {
 }
 
 // Adds the offline scope to the list of scopes to request.
-func WithCustomStateGenerator(stateFunc func() string) func(*AuthorizationCodeFlow) {
+func WithCustomStateGenerator(stateFunc func(*AuthorizationCodeFlow) string) func(*AuthorizationCodeFlow) {
 	return func(s *AuthorizationCodeFlow) {
 		s.stateGenerator = stateFunc
+	}
+}
+
+// Integrates with the session management
+func WithSessionHooks(sessionHooks SessionHooks) func(*AuthorizationCodeFlow) {
+	return func(s *AuthorizationCodeFlow) {
+		s.sessionHooks = sessionHooks
 	}
 }
 
@@ -71,10 +57,39 @@ func WithScope(scope string) func(*AuthorizationCodeFlow) {
 	}
 }
 
+func (flow *AuthorizationCodeFlow) AuthorizationCodeReceived(w http.ResponseWriter, r *http.Request) {
+	receivedState := r.URL.Query().Get("state")
+	if flow.stateVerifier(flow, receivedState) {
+		token, err := flow.config.Exchange(r.Context(), receivedState)
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+		}
+		parsedToken, err := jwt.ParseOAuth2Token(token, flow.tokenOptions...)
+		if parsedToken.IsValid() {
+			stringToken, err := parsedToken.AsString()
+			if err != nil {
+				http.Error(w, err.Error(), http.StatusInternalServerError)
+			}
+			flow.sessionHooks.SetToken(stringToken)
+		}
+	}
+}
+
+// // Checks if the user is authenticated.
+// func (flow *AuthorizationCodeFlow) IsAuthenticated() bool {
+// 	accessToken := flow.sessionHooks.GetToken()
+// 	parsedToken, err := jwt.ParseFromString(accessToken, flow.tokenOptions...)
+// 	if err != nil {
+// 		return false
+
+// 	}
+// 	return parsedToken.IsValid()
+// }
+
 // Returns the URL to redirect the user to start authentication pipeline.
 func (flow *AuthorizationCodeFlow) GetAuthURL() string {
 
-	state := flow.stateGenerator()
+	state := flow.stateGenerator(flow)
 	url, _ := url.Parse(flow.config.AuthCodeURL(state))
 	query := url.Query()
 	for k, v := range flow.authURLOptions {

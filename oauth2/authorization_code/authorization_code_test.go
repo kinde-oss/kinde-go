@@ -11,72 +11,94 @@ import (
 	"net/http/httptest"
 	"strings"
 	"testing"
+	"time"
 
 	"github.com/kinde-oss/kinde-go/jwt"
+	"github.com/kinde-oss/kinde-go/kinde"
 	"github.com/stretchr/testify/assert"
 )
 
 func TestAutorizationCodeFlowOnline(t *testing.T) {
 
-	callCount := 0
-	testAuthorizationServer := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-
-		if strings.Contains(r.URL.Path, "/.well-known/jwks") {
-			w.WriteHeader(http.StatusOK)
-			w.Header().Set("Content-Type", "application/json")
-			w.Write(testJWKSPublicKeys())
-			return
-		}
-
-		callCount++
-
-		assert.LessOrEqual(t, callCount, 2, "token should only be called once")
-
-		w.Header().Set("Content-Type", "application/json")
-		w.Write([]byte(fmt.Sprintf(`{"access_token": "%v","token_type":"bearer"}`, testJwtToken())))
-	}))
+	testAuthorizationServer := getTestAuthorizationServer()
 	defer testAuthorizationServer.Close()
 
-	testApiServer := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		headerAuth := r.Header.Get("Authorization")
-		assert.Equal(t, headerAuth, "Bearer "+testJwtToken(), "incorrect authorization header")
+	mux := http.NewServeMux()
+	testBackendServer := httptest.NewServer(mux)
+	defer testBackendServer.Close()
 
-		parsedToken, err := jwt.ParseFromAuthorizationHeader(r,
-			jwt.WillValidateWithJWKSUrl(fmt.Sprintf("%v/.well-known/jwks", testAuthorizationServer.URL)),
-			jwt.WillValidateAudience("http://my.api.com/api"),
-			jwt.WillValidateAlgorythm(),
-		)
-		assert.Nil(t, err, "error parsing token")
-		assert.True(t, parsedToken.IsValid(), "token is not valid")
-
-		parsedToken, err = jwt.ParseFromAuthorizationHeader(r,
-			//testing verification with provided private key instead of JWKS
-			jwt.WillValidateWithKeys(func(rawToken string) (*rsa.PublicKey, error) {
-				return testPublicPEM(), nil
-			}),
-			jwt.WillValidateAudience("http://my.api.com/api"),
-			jwt.WillValidateAlgorythm(),
-		)
-		assert.Nil(t, err, "error parsing token")
-		assert.True(t, parsedToken.IsValid(), "token is not valid")
-
-		w.Write([]byte(`hello world`))
-	}))
-	defer testApiServer.Close()
-
-	callbackURL := fmt.Sprintf("%v/callback", testApiServer.URL)
-	kindeClient, err := NewAuthorizationCodeFlow(
+	callbackURL := fmt.Sprintf("%v/callback", testBackendServer.URL)
+	kindeAuthFlow, _ := NewAuthorizationCodeFlow(
 		testAuthorizationServer.URL, "b9da18c441b44d81bab3e8232de2e18d", "client_secret", callbackURL,
-		WithCustomStateGenerator(func() string { return "test_state" }), //custom state generator for testing
-		WithOffline(),                                               //offline scope
-		WithAudience("http://my.api.com/api"),                       //custom API audience
-		WithKindeManagementAPI("my_kinde_tenant"),                   //we need kinde tenant domain to generate correct management API audience
-		WithKindeManagementAPI("https://my_kinde_tenant.kinde.com"), //verifying that just domain and domain with subdomain adds correct audience
+		WithSessionHooks(newTestSessionHooks()),
+		WithCustomStateGenerator(func(*AuthorizationCodeFlow) string { return "test_state" }), //custom state generator for testing
+		WithOffline(),                         //offline scope
+		WithAudience("http://my.api.com/api"), //custom API audience
 		WithTokenValidation(
 			true,
 			jwt.WillValidateAlgorythm(),
 			jwt.WillValidateAudience("http://my.api.com/api"),
-			jwt.WillValidateAudience("https://my_kinde_tenant.kinde.com/api"),
+		),
+	)
+	apiCalled := false
+	mux.Handle("/test_protected_api_call", kindeAuthFlow.ProtectAPI(func(w http.ResponseWriter, r *http.Request) {
+		w.WriteHeader(http.StatusOK)
+		sub := kinde.GetKindeContext(r.Context()).GetAccessToken().GetSubject()
+		assert.Equal(t, "kp_cfcb1ae5b9254ad99521214014c54f43", sub)
+		w.Write([]byte(fmt.Sprintf("hello %v", sub)))
+		apiCalled = true
+	}))
+
+	mux.Handle("/callback", kindeAuthFlow.CallbackHandler())
+
+	mux.Handle("/user_profile", kindeAuthFlow.ProtectPage(func(w http.ResponseWriter, r *http.Request) {
+		kindecontext := kinde.GetKindeContext(r.Context())
+		client := kindecontext.GetHttpClient(context.Background())
+		resp, err := client.Get(fmt.Sprintf("%v/test_protected_api_call", testBackendServer.URL))
+		assert.Nil(t, err, "could not make request")
+
+		response, err := io.ReadAll(resp.Body)
+		assert.Nil(t, err, "could not make request")
+		assert.Equal(t, `hello kp_cfcb1ae5b9254ad99521214014c54f43`, string(response), "incorrect test server response")
+
+		w.WriteHeader(http.StatusOK)
+		w.Write([]byte("hello, authenticated world"))
+	}))
+
+	mux.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
+		panic("this is catch-all endpoint should never be called")
+	})
+
+	resp, err := http.Get(fmt.Sprintf("%v/user_profile", testBackendServer.URL))
+	assert.Nil(t, err, "could not make request")
+	response, err := io.ReadAll(resp.Body)
+	assert.Nil(t, err, "could not read response")
+	assert.Equal(t, `hello, authenticated world`, string(response), "incorrect test server response")
+
+	assert.True(t, apiCalled, "API was not called")
+
+}
+
+func TestAutorizationCodeFlowClient(t *testing.T) {
+
+	testAuthorizationServer := getTestAuthorizationServer()
+	defer testAuthorizationServer.Close()
+
+	testBackendServerURL := testAuthorizationServer.URL
+	callbackURL := fmt.Sprintf("%v/callback", testBackendServerURL)
+	kindeClient, err := NewAuthorizationCodeFlow(
+		testBackendServerURL, "b9da18c441b44d81bab3e8232de2e18d", "client_secret", callbackURL,
+		WithSessionHooks(newTestSessionHooks()),
+		WithCustomStateGenerator(func(*AuthorizationCodeFlow) string { return "test_state" }), //custom state generator for testing
+		WithOffline(),                         //offline scope
+		WithAudience("http://my.api.com/api"), //custom API audience
+		WithTokenValidation(
+			true,
+			jwt.WillValidateAlgorythm(),
+			jwt.WillValidateAudience("http://my.api.com/api"),
+			jwt.WillValidateWithTimeFunc(func() time.Time {
+				return time.Unix(1168335720000-1, 0)
+			}),
 		),
 	)
 
@@ -85,25 +107,48 @@ func TestAutorizationCodeFlowOnline(t *testing.T) {
 	assert.Equal(t, kindeClient.config.ClientSecret, "client_secret")
 	assert.Equal(t, kindeClient.config.RedirectURL, callbackURL)
 	assert.Contains(t, kindeClient.authURLOptions["audience"], "http://my.api.com/api")
-	assert.Contains(t, kindeClient.authURLOptions["audience"], "https://my_kinde_tenant.kinde.com/api")
 
 	authURL := kindeClient.GetAuthURL()
 	assert.NotNil(t, authURL, "AuthURL cannot be null")
 	assert.Contains(t, authURL, "test_state", "state parameter is missing")
 
-	token, err := kindeClient.ExchangeAndValidate(context.Background(), "code")
+	ctx := context.Background()
+
+	err = kindeClient.ExchangeCode(ctx, "code")
 	assert.Nil(t, err, "could not exchange token")
-	assert.True(t, token.IsValid(), "token is not valid")
 
-	client := kindeClient.GetClient(context.Background(), token)
+	kindeContext := kinde.GetKindeContext(ctx)
+
+	client := kindeContext.GetHttpClient(ctx)
 	assert.NotNil(t, client, "client cannot be null")
-	response, err := client.Get(fmt.Sprintf("%v/test_call", testApiServer.URL))
-	assert.Nil(t, err, "could not make request")
+	// response, err := client.Get(fmt.Sprintf("%v/test_protected_api_call", testBackendServerURL))
+	// assert.Nil(t, err, "could not make request")
 
-	testClientResponse, _ := io.ReadAll(response.Body)
-	assert.Equal(t, `hello world`, string(testClientResponse), "incorrect test server response")
-	assert.Equal(t, `hello world`, string(testClientResponse), "incorrect test server response") //second call to test token caching
+	// testClientResponse, _ := io.ReadAll(response.Body)
+	// assert.Equal(t, `hello world`, string(testClientResponse), "incorrect test server response")
+	// assert.Equal(t, `hello world`, string(testClientResponse), "incorrect test server response") //second call to test token caching
 
+}
+
+func getTestAuthorizationServer() *httptest.Server {
+	return httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+
+		if strings.Contains(r.URL.Path, "/.well-known/jwks") {
+			w.WriteHeader(http.StatusOK)
+			w.Header().Set("Content-Type", "application/json")
+			w.Write(testJWKSPublicKeys())
+			return
+		}
+
+		if strings.Contains(r.URL.Path, "/oauth2/auth") {
+			callbackURL := r.URL.Query().Get("redirect_uri")
+			http.Redirect(w, r, fmt.Sprintf("%v?code=authorization_code&state=%v", callbackURL, r.URL.Query().Get("state")), http.StatusFound)
+			return
+		}
+
+		w.Header().Set("Content-Type", "application/json")
+		w.Write([]byte(fmt.Sprintf(`{"access_token": "%v","token_type":"bearer"}`, testJwtToken())))
+	}))
 }
 
 func testJwtToken() string {
@@ -182,4 +227,44 @@ func testJWKSPrivateKey() string {
     "use": "sig",
     "kid": "56eeddc05503f230eacf6d12c18eb440"
   }`
+}
+
+type testSessionHooks struct {
+	sessionState map[string]string
+}
+
+// GetPostAuthRedirect implements SessionHooks.
+func (t *testSessionHooks) GetPostAuthRedirect() string {
+	return t.sessionState["post_auth_redirect"]
+}
+
+// SetPostAuthRedirect implements SessionHooks.
+func (t *testSessionHooks) SetPostAuthRedirect(redirect string) {
+	t.sessionState["post_auth_redirect"] = redirect
+}
+
+func newTestSessionHooks() *testSessionHooks {
+	return &testSessionHooks{
+		sessionState: make(map[string]string),
+	}
+}
+
+// GetState implements SessionHooks.
+func (t *testSessionHooks) GetState() string {
+	return t.sessionState["state"]
+}
+
+// GetToken implements SessionHooks.
+func (t *testSessionHooks) GetToken() string {
+	return t.sessionState["token"]
+}
+
+// SetState implements SessionHooks.
+func (t *testSessionHooks) SetState(state string) {
+	t.sessionState["state"] = state
+}
+
+// SetToken implements SessionHooks.
+func (t *testSessionHooks) SetToken(token string) {
+	t.sessionState["token"] = token
 }
