@@ -27,7 +27,7 @@ import (
 ```
 
 
-Example is in the test: [authorization_code_test.go](https://github.com/kinde-oss/kinde-go/blob/main/oauth2/authorization_code/authorization_code.go)
+Example is in the test: [authorization_code_test.go](https://github.com/kinde-oss/kinde-go/blob/main/oauth2/authorization_code/authorization_code_test.go)
 
 
 ## Client credentials flow
@@ -39,7 +39,7 @@ import (
 )
 ```
 
-Example is in the test: [authorization_code_test.go](https://github.com/kinde-oss/kinde-go/blob/main/oauth2/client_credentials/client_credentials.go)
+Example is in the test: [client_credentials_test.go](https://github.com/kinde-oss/kinde-go/blob/main/oauth2/client_credentials/client_credentials_test.go)
 
 #### Manually requesting a token
 
