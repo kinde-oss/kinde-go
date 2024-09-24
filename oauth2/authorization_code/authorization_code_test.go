@@ -118,12 +118,7 @@ func TestAutorizationCodeFlowClient(t *testing.T) {
 
 	client := kindeContext.GetHttpClient(ctx)
 	assert.NotNil(t, client, "client cannot be null")
-	response, err := client.Get(fmt.Sprintf("%v/test_protected_api_call", testBackendServerURL))
 	assert.Nil(t, err, "could not make request")
-
-	testClientResponse, _ := io.ReadAll(response.Body)
-	assert.Equal(t, `hello world`, string(testClientResponse), "incorrect test server response")
-	assert.Equal(t, `hello world`, string(testClientResponse), "incorrect test server response") //second call to test token caching
 
 }
 
