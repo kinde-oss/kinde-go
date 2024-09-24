@@ -1,12 +1,12 @@
-# Kinde Go
+# Kinde Go SDK
+
+## This is work in progress, not ready for production usage. API is subject to change without warning.
 
 The Kinde SDK for Go.
 
 [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg?style=flat-square)](https://makeapullrequest.com) [![Kinde Docs](https://img.shields.io/badge/Kinde-Docs-eee?style=flat-square)](https://kinde.com/docs/developer-tools) [![Kinde Community](https://img.shields.io/badge/Kinde-Community-eee?style=flat-square)](https://thekindecommunity.slack.com)
 
 ## Development
-
-\*\* Kinde Go SDK
 
 Requires Go 1.21+
 
@@ -20,8 +20,13 @@ go mod tidy
 ## Autorization code flow
 
 ```go
-
+import (
+	"github.com/kinde-oss/kinde-go/jwt"
+	"github.com/kinde-oss/kinde-go/oauth2/authorization_code"
+)
 ```
+
+Example is in the test:
 
 ## Client credentials flow
 
@@ -32,19 +37,7 @@ import (
 )
 ```
 
-```go
-	// Create a new client to use client credentials flow (used for M2M communication)
-	kindeClient, _ := client_credentials.NewClientCredentialsFlow(
-		os.Getenv("AUTH_DOMAIN"),   //the domain of the authorization server (could be a custom domain)
-		os.Getenv("CLIENT_ID"),     //client_id
-		os.Getenv("CLIENT_SECRET"), //clienmt_secret
-		client_credentials.WithKindeManagementAPI(os.Getenv("KINDE_SUB_DOMAIN")), //Kinde subdomain, used to call the management API
-		client_credentials.WithTokenValidation(
-			true,                        //verifies JWKS, establishes key cache
-			jwt.WillValidateAlgorythm(), //verifying tocken algorythm
-		),
-	)
-```
+Example is in the test:
 
 #### Manually requesting a token
 

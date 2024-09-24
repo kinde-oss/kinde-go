@@ -2,9 +2,6 @@ package authorization_code
 
 import (
 	"context"
-	"crypto/rsa"
-	"crypto/x509"
-	"encoding/pem"
 	"fmt"
 	"io"
 	"net/http"
@@ -121,12 +118,12 @@ func TestAutorizationCodeFlowClient(t *testing.T) {
 
 	client := kindeContext.GetHttpClient(ctx)
 	assert.NotNil(t, client, "client cannot be null")
-	// response, err := client.Get(fmt.Sprintf("%v/test_protected_api_call", testBackendServerURL))
-	// assert.Nil(t, err, "could not make request")
+	response, err := client.Get(fmt.Sprintf("%v/test_protected_api_call", testBackendServerURL))
+	assert.Nil(t, err, "could not make request")
 
-	// testClientResponse, _ := io.ReadAll(response.Body)
-	// assert.Equal(t, `hello world`, string(testClientResponse), "incorrect test server response")
-	// assert.Equal(t, `hello world`, string(testClientResponse), "incorrect test server response") //second call to test token caching
+	testClientResponse, _ := io.ReadAll(response.Body)
+	assert.Equal(t, `hello world`, string(testClientResponse), "incorrect test server response")
+	assert.Equal(t, `hello world`, string(testClientResponse), "incorrect test server response") //second call to test token caching
 
 }
 
@@ -194,40 +191,40 @@ func testJWKSPublicKeys() []byte {
 	return []byte(key)
 }
 
-func testPublicPEM() *rsa.PublicKey {
-	publicKey := `-----BEGIN PUBLIC KEY-----
-MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAuOaDKcdR8JR7PiVEHjRO
-1dQVbLFoMRSiBio+rRlq+ljouBFJtehghnkIk0sSJlmoJY8329RdF9122IL0NYxO
-+QTFJmAamSdUcmSgg4D3qI3Nc82H7L7ocad2OfhhXmBwz+O/8cxK+xYAnvKGmHf/
-tSmqVWJVbvBFG1r7sU3WBfLZPoivofFKjnhPG5jFbC2AziTFqKiQ7i2T2F0APIPT
-J5Bf05zI2BpIYwyZyaP1F5EWmBEOvOP02Mr0L3Rj0lOJGQJ8gJh9uacGCt/RZAlx
-0ZMiK93fk3vfszfKv0UhOpYKBcElR/5U1gJfXuDF6j10vG+8rwoorIPzCwu3wKZP
-ewIDAQAB
------END PUBLIC KEY-----`
-	block, _ := pem.Decode([]byte(publicKey))
-	pemKey, _ := x509.ParsePKIXPublicKey(block.Bytes)
-	return pemKey.(*rsa.PublicKey)
-}
+// func testPublicPEM() *rsa.PublicKey {
+// 	publicKey := `-----BEGIN PUBLIC KEY-----
+// MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAuOaDKcdR8JR7PiVEHjRO
+// 1dQVbLFoMRSiBio+rRlq+ljouBFJtehghnkIk0sSJlmoJY8329RdF9122IL0NYxO
+// +QTFJmAamSdUcmSgg4D3qI3Nc82H7L7ocad2OfhhXmBwz+O/8cxK+xYAnvKGmHf/
+// tSmqVWJVbvBFG1r7sU3WBfLZPoivofFKjnhPG5jFbC2AziTFqKiQ7i2T2F0APIPT
+// J5Bf05zI2BpIYwyZyaP1F5EWmBEOvOP02Mr0L3Rj0lOJGQJ8gJh9uacGCt/RZAlx
+// 0ZMiK93fk3vfszfKv0UhOpYKBcElR/5U1gJfXuDF6j10vG+8rwoorIPzCwu3wKZP
+// ewIDAQAB
+// -----END PUBLIC KEY-----`
+// 	block, _ := pem.Decode([]byte(publicKey))
+// 	pemKey, _ := x509.ParsePKIXPublicKey(block.Bytes)
+// 	return pemKey.(*rsa.PublicKey)
+// }
 
-func testJWKSPrivateKey() string {
-	return `{
-    "alg": "RS256",
-    "d": "R-dsrnySwuobG0nGubBB0CnPwxsil6OcdqVLBmnSDlUw-xPOBG2_y8uZqB4TitJm72RIprZpFXTMWNpkOca8l15hhNDuxwxibLHxMfKfXO74LMaKy2haYIhtE5Ih21_Jvy6kYFW_-vDNgQJzkStpR3xSfy3kZ2YMmdzB8GuChYEH_nRvG5xd7O9rf_C-6-M81U4160c9krP4SQoZv5hZ6APm9SmCk5KIHTAEmv5kVx9uiHC7IWiQWDj44I24UZ82IfJwK4LC6-bKszwBWgdTgB-1ngZ5mWoIyuQJskw7d88J4YJr87wNv2y0oLjPRnnPcWdfqjTEkf9s7r5b4Q-H4Q",
-    "dp": "YbZw8_lD4JI2p-n6BgdiDyKAaMKssayhgBME7_Y8GCG-wtYxq-vA4csyYkksvRosPvLcSea-TMefUkGbFEst3JCAlm3H0UtRtyFqIflw6ObyT_gO-xX_M92sYwPbdd9Sza9kwNSkzcol6OVVLMlM1atG0erW_qlm2dwl6ri35As",
-    "dq": "vXO-K5h75qEjuKFZZah1QCTeprgsK6AYDY4ylLLXeSoXtUeeTJR8IiijiJO3v-neEdlLgazzn1aLCRVT20iDekENKTQ9OU8JlW9oI464pqMROH0oivrvDkO9bDxLPSl6QiAY1FtLvTXssoQR4RjdZJqH2zuDi--nETsco8gOzik",
-    "e": "AQAB",
-    "key_ops": [
-      "sign"
-    ],
-    "kty": "RSA",
-    "n": "uOaDKcdR8JR7PiVEHjRO1dQVbLFoMRSiBio-rRlq-ljouBFJtehghnkIk0sSJlmoJY8329RdF9122IL0NYxO-QTFJmAamSdUcmSgg4D3qI3Nc82H7L7ocad2OfhhXmBwz-O_8cxK-xYAnvKGmHf_tSmqVWJVbvBFG1r7sU3WBfLZPoivofFKjnhPG5jFbC2AziTFqKiQ7i2T2F0APIPTJ5Bf05zI2BpIYwyZyaP1F5EWmBEOvOP02Mr0L3Rj0lOJGQJ8gJh9uacGCt_RZAlx0ZMiK93fk3vfszfKv0UhOpYKBcElR_5U1gJfXuDF6j10vG-8rwoorIPzCwu3wKZPew",
-    "p": "2wfOtQqjJBEeudxqOmo_FTz_z0X_6l3f-gPy9kzBfnHEIaGqwJeyS4e6j2cBkdtt2qyKJEtEwcUtif6O5cKslD4kksWSu_MIS7_hxNKx_txG_AByNMW7LSmaI23UviuX6stsg_K0hKCMQ2E4A2tES_fg8a5Qci6c4lEqmw6r9SM",
-    "q": "2Bv2iGwT-dZ5Lem9JkCmJrHhNV74hI2D6bH_QWLzeYfLfWfrzp_HowT8FHCgbPFoOYfZupbe7P8mjfR7QCbrpRFskS095xNIx2k9cg8x_Kgpb-aNj9hDYJVW-RQv3KjfctCJVIy3EKQW56S6lEHZqOgB6jngKAJ5FhaZbTg4vck",
-    "qi": "LlP6px0kjGp8nnqucE_qlKn-KrfT9PUEw_LJURL30iSZIaxrWxThpaKV6jaGGKy6CpTYZ-gePrw4oq7IZ9gqSAFBmHWfhCRqvhZDlensKLtQ-4d-dNlE6Xe3yuuENT1wKQMXYbCQS71hHFiTahJW-27picZfQdIF7jY96BjebL4",
-    "use": "sig",
-    "kid": "56eeddc05503f230eacf6d12c18eb440"
-  }`
-}
+// func testJWKSPrivateKey() string {
+// 	return `{
+//     "alg": "RS256",
+//     "d": "R-dsrnySwuobG0nGubBB0CnPwxsil6OcdqVLBmnSDlUw-xPOBG2_y8uZqB4TitJm72RIprZpFXTMWNpkOca8l15hhNDuxwxibLHxMfKfXO74LMaKy2haYIhtE5Ih21_Jvy6kYFW_-vDNgQJzkStpR3xSfy3kZ2YMmdzB8GuChYEH_nRvG5xd7O9rf_C-6-M81U4160c9krP4SQoZv5hZ6APm9SmCk5KIHTAEmv5kVx9uiHC7IWiQWDj44I24UZ82IfJwK4LC6-bKszwBWgdTgB-1ngZ5mWoIyuQJskw7d88J4YJr87wNv2y0oLjPRnnPcWdfqjTEkf9s7r5b4Q-H4Q",
+//     "dp": "YbZw8_lD4JI2p-n6BgdiDyKAaMKssayhgBME7_Y8GCG-wtYxq-vA4csyYkksvRosPvLcSea-TMefUkGbFEst3JCAlm3H0UtRtyFqIflw6ObyT_gO-xX_M92sYwPbdd9Sza9kwNSkzcol6OVVLMlM1atG0erW_qlm2dwl6ri35As",
+//     "dq": "vXO-K5h75qEjuKFZZah1QCTeprgsK6AYDY4ylLLXeSoXtUeeTJR8IiijiJO3v-neEdlLgazzn1aLCRVT20iDekENKTQ9OU8JlW9oI464pqMROH0oivrvDkO9bDxLPSl6QiAY1FtLvTXssoQR4RjdZJqH2zuDi--nETsco8gOzik",
+//     "e": "AQAB",
+//     "key_ops": [
+//       "sign"
+//     ],
+//     "kty": "RSA",
+//     "n": "uOaDKcdR8JR7PiVEHjRO1dQVbLFoMRSiBio-rRlq-ljouBFJtehghnkIk0sSJlmoJY8329RdF9122IL0NYxO-QTFJmAamSdUcmSgg4D3qI3Nc82H7L7ocad2OfhhXmBwz-O_8cxK-xYAnvKGmHf_tSmqVWJVbvBFG1r7sU3WBfLZPoivofFKjnhPG5jFbC2AziTFqKiQ7i2T2F0APIPTJ5Bf05zI2BpIYwyZyaP1F5EWmBEOvOP02Mr0L3Rj0lOJGQJ8gJh9uacGCt_RZAlx0ZMiK93fk3vfszfKv0UhOpYKBcElR_5U1gJfXuDF6j10vG-8rwoorIPzCwu3wKZPew",
+//     "p": "2wfOtQqjJBEeudxqOmo_FTz_z0X_6l3f-gPy9kzBfnHEIaGqwJeyS4e6j2cBkdtt2qyKJEtEwcUtif6O5cKslD4kksWSu_MIS7_hxNKx_txG_AByNMW7LSmaI23UviuX6stsg_K0hKCMQ2E4A2tES_fg8a5Qci6c4lEqmw6r9SM",
+//     "q": "2Bv2iGwT-dZ5Lem9JkCmJrHhNV74hI2D6bH_QWLzeYfLfWfrzp_HowT8FHCgbPFoOYfZupbe7P8mjfR7QCbrpRFskS095xNIx2k9cg8x_Kgpb-aNj9hDYJVW-RQv3KjfctCJVIy3EKQW56S6lEHZqOgB6jngKAJ5FhaZbTg4vck",
+//     "qi": "LlP6px0kjGp8nnqucE_qlKn-KrfT9PUEw_LJURL30iSZIaxrWxThpaKV6jaGGKy6CpTYZ-gePrw4oq7IZ9gqSAFBmHWfhCRqvhZDlensKLtQ-4d-dNlE6Xe3yuuENT1wKQMXYbCQS71hHFiTahJW-27picZfQdIF7jY96BjebL4",
+//     "use": "sig",
+//     "kid": "56eeddc05503f230eacf6d12c18eb440"
+//   }`
+// }
 
 type testSessionHooks struct {
 	sessionState map[string]string
