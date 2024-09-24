@@ -1,6 +1,6 @@
 # Kinde Go SDK
 
-## This is work in progress, not ready for production usage. API is subject to change without warning.
+## This is work in progress. API is subject to change without warning.
 
 The Kinde SDK for Go.
 
