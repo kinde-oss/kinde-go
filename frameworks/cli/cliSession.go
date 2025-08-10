@@ -66,7 +66,18 @@ func (c *cliSession) SetRawToken(token *oauth2.Token) error {
 	key := fmt.Sprintf("%s_token", keyPrefix)
 
 	if token == nil {
-		return c.keyring.Remove(key)
+		// Remove legacy single-key entry
+		_ = c.keyring.Remove(key)
+		// Remove chunked keys and chunk count
+		for i := 0; ; i++ {
+			chunkKey := fmt.Sprintf("%s_chunk_%d", key, i)
+			if err := c.keyring.Remove(chunkKey); err != nil {
+				break
+			}
+		}
+		countKey := fmt.Sprintf("%s_chunk_count", key)
+		_ = c.keyring.Remove(countKey)
+		return nil
 	}
 
 	t, err := json.Marshal(token)
