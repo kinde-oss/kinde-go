@@ -15,19 +15,47 @@ const (
 
 type (
 	cliSession struct {
-		configFileName string
-		keyring        keyring.Keyring
+		keyring keyring.Keyring
 	}
 )
 
 // GetRawToken implements authorization_code.ISessionHooks.
 func (c *cliSession) GetRawToken() (*oauth2.Token, error) {
-	token, err := c.keyring.Get(fmt.Sprintf("%s_token", keyPrefix))
+	key := fmt.Sprintf("%s_token", keyPrefix)
+	countKey := fmt.Sprintf("%s_chunk_count", key)
+
+	// Try to get chunk count
+	countItem, err := c.keyring.Get(countKey)
 	if err != nil {
-		return nil, fmt.Errorf("failed to get token: %w", err)
+		// fallback to single token (old format)
+		token, err := c.keyring.Get(key)
+		if err != nil {
+			return nil, fmt.Errorf("failed to get token: %w", err)
+		}
+		var t oauth2.Token
+		if err := json.Unmarshal(token.Data, &t); err != nil {
+			return nil, fmt.Errorf("failed to unmarshal token: %w", err)
+		}
+		return &t, nil
 	}
+
+	var chunks int
+	if _, err := fmt.Sscanf(string(countItem.Data), "%d", &chunks); err != nil {
+		return nil, fmt.Errorf("failed to parse chunk count: %w", err)
+	}
+
+	var tokenData []byte
+	for i := 0; i < chunks; i++ {
+		chunkKey := fmt.Sprintf("%s_chunk_%d", key, i)
+		chunkItem, err := c.keyring.Get(chunkKey)
+		if err != nil {
+			return nil, fmt.Errorf("failed to get token chunk %d: %w", i, err)
+		}
+		tokenData = append(tokenData, chunkItem.Data...)
+	}
+
 	var t oauth2.Token
-	if err := json.Unmarshal(token.Data, &t); err != nil {
+	if err := json.Unmarshal(tokenData, &t); err != nil {
 		return nil, fmt.Errorf("failed to unmarshal token: %w", err)
 	}
 	return &t, nil
@@ -35,19 +63,52 @@ func (c *cliSession) GetRawToken() (*oauth2.Token, error) {
 
 // SetRawToken implements authorization_code.ISessionHooks.
 func (c *cliSession) SetRawToken(token *oauth2.Token) error {
+	key := fmt.Sprintf("%s_token", keyPrefix)
 
 	if token == nil {
-		return c.keyring.Remove(fmt.Sprintf("%s_token", keyPrefix))
+		return c.keyring.Remove(key)
 	}
 
 	t, err := json.Marshal(token)
 	if err != nil {
 		return fmt.Errorf("failed to marshal token: %w", err)
 	}
-	return c.keyring.Set(keyring.Item{
-		Key:  fmt.Sprintf("%s_token", keyPrefix),
-		Data: t,
-	})
+
+	const chunkSize = 1024
+	chunks := (len(t) + chunkSize - 1) / chunkSize
+
+	// Remove any existing chunks
+	for i := 0; ; i++ {
+		chunkKey := fmt.Sprintf("%s_chunk_%d", key, i)
+		if err := c.keyring.Remove(chunkKey); err != nil {
+			break
+		}
+	}
+
+	// Save chunks
+	for i := range chunks {
+		start := i * chunkSize
+		end := min(start+chunkSize, len(t))
+		chunkKey := fmt.Sprintf("%s_chunk_%d", key, i)
+		if err := c.keyring.Set(keyring.Item{
+			Key:  chunkKey,
+			Data: t[start:end],
+		}); err != nil {
+			return fmt.Errorf("failed to save token chunk %d: %w", i, err)
+		}
+	}
+
+	// Save chunk count
+	countKey := fmt.Sprintf("%s_chunk_count", key)
+	countData := fmt.Appendf(nil, "%d", chunks)
+	if err := c.keyring.Set(keyring.Item{
+		Key:  countKey,
+		Data: countData,
+	}); err != nil {
+		return fmt.Errorf("failed to save chunk count: %w", err)
+	}
+
+	return nil
 }
 
 // GetPostAuthRedirect implements authorization_code.SessionHooks.
