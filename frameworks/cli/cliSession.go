@@ -78,10 +78,12 @@ func (c *cliSession) SetRawToken(token *oauth2.Token) error {
 		// Remove legacy single-key entry
 		_ = c.keyring.Remove(key)
 		// Remove chunked keys and chunk count
-		for i := 0; ; i++ {
-			chunkKey := fmt.Sprintf("%s_chunk_%d", key, i)
-			if err := c.keyring.Remove(chunkKey); err != nil {
-				break
+		if chunks, err := c.getChunkCount(countKey); err == nil {
+			for i := 0; i < chunks; i++ {
+				chunkKey := fmt.Sprintf("%s_chunk_%d", key, i)
+				if err := c.keyring.Remove(chunkKey); err != nil {
+					break
+				}
 			}
 		}
 		_ = c.keyring.Remove(countKey)
