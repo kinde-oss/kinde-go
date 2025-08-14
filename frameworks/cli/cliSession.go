@@ -19,13 +19,26 @@ type (
 	}
 )
 
+func (c *cliSession) getChunkCount(key string) (int, error) {
+	countItem, err := c.keyring.Get(key)
+	if err != nil {
+		return 0, fmt.Errorf("failed to get chunk count: %w", err)
+	}
+
+	var chunks int
+	if _, err := fmt.Sscanf(string(countItem.Data), "%d", &chunks); err != nil {
+		return 0, fmt.Errorf("failed to parse chunk count: %w", err)
+	}
+	return chunks, nil
+}
+
 // GetRawToken implements authorization_code.ISessionHooks.
 func (c *cliSession) GetRawToken() (*oauth2.Token, error) {
 	key := fmt.Sprintf("%s_token", keyPrefix)
 	countKey := fmt.Sprintf("%s_chunk_count", key)
 
 	// Try to get chunk count
-	countItem, err := c.keyring.Get(countKey)
+	chunks, err := c.getChunkCount(countKey)
 	if err != nil {
 		// fallback to single token (old format)
 		token, err := c.keyring.Get(key)
@@ -37,11 +50,6 @@ func (c *cliSession) GetRawToken() (*oauth2.Token, error) {
 			return nil, fmt.Errorf("failed to unmarshal token: %w", err)
 		}
 		return &t, nil
-	}
-
-	var chunks int
-	if _, err := fmt.Sscanf(string(countItem.Data), "%d", &chunks); err != nil {
-		return nil, fmt.Errorf("failed to parse chunk count: %w", err)
 	}
 
 	var tokenData []byte
@@ -64,6 +72,7 @@ func (c *cliSession) GetRawToken() (*oauth2.Token, error) {
 // SetRawToken implements authorization_code.ISessionHooks.
 func (c *cliSession) SetRawToken(token *oauth2.Token) error {
 	key := fmt.Sprintf("%s_token", keyPrefix)
+	countKey := fmt.Sprintf("%s_chunk_count", key)
 
 	if token == nil {
 		// Remove legacy single-key entry
@@ -75,7 +84,6 @@ func (c *cliSession) SetRawToken(token *oauth2.Token) error {
 				break
 			}
 		}
-		countKey := fmt.Sprintf("%s_chunk_count", key)
 		_ = c.keyring.Remove(countKey)
 		return nil
 	}
@@ -88,11 +96,14 @@ func (c *cliSession) SetRawToken(token *oauth2.Token) error {
 	const chunkSize = 1024
 	chunks := (len(t) + chunkSize - 1) / chunkSize
 
-	// Remove any existing chunks
-	for i := 0; ; i++ {
-		chunkKey := fmt.Sprintf("%s_chunk_%d", key, i)
-		if err := c.keyring.Remove(chunkKey); err != nil {
-			break
+	// Try to get chunk count
+	if chunks, err := c.getChunkCount(countKey); err == nil {
+		// Remove any existing chunks
+		for i := 0; i < chunks; i++ {
+			chunkKey := fmt.Sprintf("%s_chunk_%d", key, i)
+			if err := c.keyring.Remove(chunkKey); err != nil {
+				break
+			}
 		}
 	}
 
@@ -110,7 +121,7 @@ func (c *cliSession) SetRawToken(token *oauth2.Token) error {
 	}
 
 	// Save chunk count
-	countKey := fmt.Sprintf("%s_chunk_count", key)
+	countKey = fmt.Sprintf("%s_chunk_count", key)
 	countData := fmt.Appendf(nil, "%d", chunks)
 	if err := c.keyring.Set(keyring.Item{
 		Key:  countKey,
