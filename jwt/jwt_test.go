@@ -1340,7 +1340,7 @@ func TestToken_GetUserProfile(t *testing.T) {
 	})
 
 	t.Run("returns profile from ID token", func(t *testing.T) {
-		// Create a mock ID token with user profile claims
+		// Create a valid ID token JWT (unsigned)
 		idTokenClaims := golangjwt.MapClaims{
 			"sub":         "user_123",
 			"given_name":  "John",
@@ -1348,45 +1348,79 @@ func TestToken_GetUserProfile(t *testing.T) {
 			"email":       "john.doe@example.com",
 			"picture":     "https://example.com/picture.jpg",
 		}
+		
+		// Create an unsigned JWT token string for testing
+		idToken := golangjwt.NewWithClaims(golangjwt.SigningMethodNone, idTokenClaims)
+		idTokenStr, err := idToken.SignedString(golangjwt.UnsafeAllowNoneSignatureType)
+		assert.NoError(t, err)
 
-		// Create a token with ID token in extra
+		// Create a token with the ID token in extra
 		token := &Token{
 			rawToken: &oauth2.Token{
 				AccessToken: "access_token",
 			},
 		}
 		token.rawToken = token.rawToken.WithExtra(map[string]interface{}{
-			"id_token": "mock_id_token",
+			"id_token": idTokenStr,
 		})
 
-		// We need to mock the ParseFromString to return our token with claims
-		// For this test, we'll create a token directly with the ID token parsed
-		idToken := &Token{
-			processing: tokenProcessing{
-				parsed: &golangjwt.Token{
-					Claims: idTokenClaims,
-				},
-			},
-		}
-
-		// Since we can't easily mock ParseFromString, we'll test the logic differently
-		// by creating a token that already has the ID token parsed
-		// This is a simplified test - in practice, GetUserProfile would parse the ID token string
-		_ = idToken
-		_ = token
-		// Note: Full integration test would require actual JWT parsing
+		// Test GetUserProfile
+		profile := token.GetUserProfile()
+		assert.NotNil(t, profile)
+		assert.Equal(t, "user_123", profile.ID)
+		assert.Equal(t, "John", profile.GivenName)
+		assert.Equal(t, "Doe", profile.FamilyName)
+		assert.Equal(t, "john.doe@example.com", profile.Email)
+		assert.Equal(t, "https://example.com/picture.jpg", profile.Picture)
 	})
 
 	t.Run("returns nil when sub claim is missing", func(t *testing.T) {
+		// Create ID token without 'sub' claim
+		idTokenClaims := golangjwt.MapClaims{
+			"given_name": "John",
+			"email":      "john@example.com",
+		}
+		
+		idToken := golangjwt.NewWithClaims(golangjwt.SigningMethodNone, idTokenClaims)
+		idTokenStr, err := idToken.SignedString(golangjwt.UnsafeAllowNoneSignatureType)
+		assert.NoError(t, err)
+
 		token := &Token{
 			rawToken: &oauth2.Token{},
 		}
 		token.rawToken = token.rawToken.WithExtra(map[string]interface{}{
-			"id_token": "invalid_token",
+			"id_token": idTokenStr,
 		})
+		
 		profile := token.GetUserProfile()
-		// Will be nil because parsing will fail or sub is missing
+		// Should be nil because 'sub' is required
 		assert.Nil(t, profile)
+	})
+
+	t.Run("returns profile with only required sub claim", func(t *testing.T) {
+		// Create ID token with only 'sub' claim
+		idTokenClaims := golangjwt.MapClaims{
+			"sub": "user_456",
+		}
+		
+		idToken := golangjwt.NewWithClaims(golangjwt.SigningMethodNone, idTokenClaims)
+		idTokenStr, err := idToken.SignedString(golangjwt.UnsafeAllowNoneSignatureType)
+		assert.NoError(t, err)
+
+		token := &Token{
+			rawToken: &oauth2.Token{},
+		}
+		token.rawToken = token.rawToken.WithExtra(map[string]interface{}{
+			"id_token": idTokenStr,
+		})
+		
+		profile := token.GetUserProfile()
+		assert.NotNil(t, profile)
+		assert.Equal(t, "user_456", profile.ID)
+		assert.Empty(t, profile.GivenName)
+		assert.Empty(t, profile.FamilyName)
+		assert.Empty(t, profile.Email)
+		assert.Empty(t, profile.Picture)
 	})
 }
 
@@ -1448,18 +1482,79 @@ func TestToken_GetUserOrganizations(t *testing.T) {
 	})
 
 	t.Run("returns organizations from standard org_codes claim", func(t *testing.T) {
-		// Create a token with ID token that has org_codes
-		// Note: Full test would require actual JWT parsing
-		// This tests the logic conceptually
+		// Create ID token with org_codes claim
+		idTokenClaims := golangjwt.MapClaims{
+			"sub":       "user_123",
+			"org_codes": []interface{}{"org_alpha", "org_beta", "org_gamma"},
+		}
+		
+		idToken := golangjwt.NewWithClaims(golangjwt.SigningMethodNone, idTokenClaims)
+		idTokenStr, err := idToken.SignedString(golangjwt.UnsafeAllowNoneSignatureType)
+		assert.NoError(t, err)
+
 		token := &Token{
 			rawToken: &oauth2.Token{},
 		}
 		token.rawToken = token.rawToken.WithExtra(map[string]interface{}{
-			"id_token": "mock_token",
+			"id_token": idTokenStr,
 		})
-		// Since we can't easily mock ParseFromString, we'll skip the full test
-		// In practice, GetUserOrganizations would parse the ID token and extract org_codes
-		_ = token
+
+		orgs := token.GetUserOrganizations()
+		assert.NotNil(t, orgs)
+		assert.Equal(t, 3, len(orgs))
+		assert.Equal(t, "org_alpha", orgs[0])
+		assert.Equal(t, "org_beta", orgs[1])
+		assert.Equal(t, "org_gamma", orgs[2])
+	})
+
+	t.Run("returns organizations from Hasura x-hasura-org-codes claim", func(t *testing.T) {
+		// Create ID token with Hasura format
+		idTokenClaims := golangjwt.MapClaims{
+			"sub":                 "user_123",
+			"x-hasura-org-codes": []interface{}{"hasura_org_1", "hasura_org_2"},
+		}
+		
+		idToken := golangjwt.NewWithClaims(golangjwt.SigningMethodNone, idTokenClaims)
+		idTokenStr, err := idToken.SignedString(golangjwt.UnsafeAllowNoneSignatureType)
+		assert.NoError(t, err)
+
+		token := &Token{
+			rawToken: &oauth2.Token{},
+		}
+		token.rawToken = token.rawToken.WithExtra(map[string]interface{}{
+			"id_token": idTokenStr,
+		})
+
+		orgs := token.GetUserOrganizations()
+		assert.NotNil(t, orgs)
+		assert.Equal(t, 2, len(orgs))
+		assert.Equal(t, "hasura_org_1", orgs[0])
+		assert.Equal(t, "hasura_org_2", orgs[1])
+	})
+
+	t.Run("prefers standard org_codes over Hasura format", func(t *testing.T) {
+		// Create ID token with both formats - standard should take precedence
+		idTokenClaims := golangjwt.MapClaims{
+			"sub":                 "user_123",
+			"org_codes":           []interface{}{"standard_org"},
+			"x-hasura-org-codes": []interface{}{"hasura_org"},
+		}
+		
+		idToken := golangjwt.NewWithClaims(golangjwt.SigningMethodNone, idTokenClaims)
+		idTokenStr, err := idToken.SignedString(golangjwt.UnsafeAllowNoneSignatureType)
+		assert.NoError(t, err)
+
+		token := &Token{
+			rawToken: &oauth2.Token{},
+		}
+		token.rawToken = token.rawToken.WithExtra(map[string]interface{}{
+			"id_token": idTokenStr,
+		})
+
+		orgs := token.GetUserOrganizations()
+		assert.NotNil(t, orgs)
+		assert.Equal(t, 1, len(orgs))
+		assert.Equal(t, "standard_org", orgs[0]) // Should use standard, not Hasura
 	})
 }
 

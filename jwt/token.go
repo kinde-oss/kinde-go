@@ -467,13 +467,11 @@ func (j *Token) GetUserProfile() *UserProfile {
 	}
 
 	// Parse the ID token without validation (it's already validated in OAuth flow)
-	// We use ParseFromString which will parse but we skip validation options
-	idToken, err := ParseFromString(idTokenStr)
+	claims, err := ParseIDTokenUnverified(idTokenStr)
 	if err != nil {
 		return nil
 	}
 
-	claims := idToken.GetClaims()
 	if claims == nil {
 		return nil
 	}
@@ -530,12 +528,11 @@ func (j *Token) GetUserOrganizations() []string {
 	}
 
 	// Parse the ID token without validation (it's already validated in OAuth flow)
-	idToken, err := ParseFromString(idTokenStr)
+	claims, err := ParseIDTokenUnverified(idTokenStr)
 	if err != nil {
 		return nil
 	}
 
-	claims := idToken.GetClaims()
 	if claims == nil {
 		return nil
 	}

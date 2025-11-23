@@ -204,13 +204,43 @@ func TestToken_GetEntitlements(t *testing.T) {
 
 		result, err := token.GetEntitlements(context.Background(), apiClient)
 		require.NoError(t, err)
+		
+		// Assert org code
 		assert.Equal(t, "org123", result.OrgCode)
+		
+		// Assert plans
 		assert.Len(t, result.Plans, 1)
 		assert.Equal(t, "pro", result.Plans[0].Key)
+		assert.Equal(t, "2024-01-01", result.Plans[0].SubscribedOn)
+		
+		// Assert all entitlement fields (complete coverage)
 		assert.Len(t, result.Entitlements, 1)
-		assert.Equal(t, "ent1", result.Entitlements[0].ID)
-		assert.Equal(t, 10.0, result.Entitlements[0].FixedCharge)
-		assert.Equal(t, "feature1", result.Entitlements[0].FeatureKey)
+		ent := result.Entitlements[0]
+		assert.Equal(t, "ent1", ent.ID)
+		assert.Equal(t, 10.0, ent.FixedCharge)
+		assert.Equal(t, "Basic", ent.PriceName)
+		assert.Equal(t, 5.0, ent.UnitAmount)
+		assert.Equal(t, "feature1", ent.FeatureKey)
+		assert.Equal(t, "Feature 1", ent.FeatureName)
+		assert.Equal(t, 100, ent.EntitlementLimitMax)
+		assert.Equal(t, 0, ent.EntitlementLimitMin)
+	})
+
+	t.Run("returns error when API call fails", func(t *testing.T) {
+		server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			w.WriteHeader(http.StatusInternalServerError)
+		}))
+		defer server.Close()
+
+		token := createTestToken(t, map[string]interface{}{})
+		apiClient, _ := account_api.NewClient(server.URL, func(ctx context.Context) (string, error) {
+			return "token", nil
+		})
+
+		result, err := token.GetEntitlements(context.Background(), apiClient)
+		assert.Error(t, err)
+		assert.Nil(t, result)
+		assert.Contains(t, err.Error(), "failed to fetch entitlements from API")
 	})
 }
 
