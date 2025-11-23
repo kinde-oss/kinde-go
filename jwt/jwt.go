@@ -54,11 +54,11 @@ func ParseIDTokenUnverified(idTokenStr string) (golangjwt.MapClaims, error) {
 	if err != nil {
 		return nil, err
 	}
-	
+
 	if claims, ok := token.Claims.(golangjwt.MapClaims); ok {
 		return claims, nil
 	}
-	
+
 	return nil, golangjwt.ErrTokenMalformed
 }
 

@@ -1348,7 +1348,7 @@ func TestToken_GetUserProfile(t *testing.T) {
 			"email":       "john.doe@example.com",
 			"picture":     "https://example.com/picture.jpg",
 		}
-		
+
 		// Create an unsigned JWT token string for testing
 		idToken := golangjwt.NewWithClaims(golangjwt.SigningMethodNone, idTokenClaims)
 		idTokenStr, err := idToken.SignedString(golangjwt.UnsafeAllowNoneSignatureType)
@@ -1380,7 +1380,7 @@ func TestToken_GetUserProfile(t *testing.T) {
 			"given_name": "John",
 			"email":      "john@example.com",
 		}
-		
+
 		idToken := golangjwt.NewWithClaims(golangjwt.SigningMethodNone, idTokenClaims)
 		idTokenStr, err := idToken.SignedString(golangjwt.UnsafeAllowNoneSignatureType)
 		assert.NoError(t, err)
@@ -1391,7 +1391,7 @@ func TestToken_GetUserProfile(t *testing.T) {
 		token.rawToken = token.rawToken.WithExtra(map[string]interface{}{
 			"id_token": idTokenStr,
 		})
-		
+
 		profile := token.GetUserProfile()
 		// Should be nil because 'sub' is required
 		assert.Nil(t, profile)
@@ -1402,7 +1402,7 @@ func TestToken_GetUserProfile(t *testing.T) {
 		idTokenClaims := golangjwt.MapClaims{
 			"sub": "user_456",
 		}
-		
+
 		idToken := golangjwt.NewWithClaims(golangjwt.SigningMethodNone, idTokenClaims)
 		idTokenStr, err := idToken.SignedString(golangjwt.UnsafeAllowNoneSignatureType)
 		assert.NoError(t, err)
@@ -1413,7 +1413,7 @@ func TestToken_GetUserProfile(t *testing.T) {
 		token.rawToken = token.rawToken.WithExtra(map[string]interface{}{
 			"id_token": idTokenStr,
 		})
-		
+
 		profile := token.GetUserProfile()
 		assert.NotNil(t, profile)
 		assert.Equal(t, "user_456", profile.ID)
@@ -1487,7 +1487,7 @@ func TestToken_GetUserOrganizations(t *testing.T) {
 			"sub":       "user_123",
 			"org_codes": []interface{}{"org_alpha", "org_beta", "org_gamma"},
 		}
-		
+
 		idToken := golangjwt.NewWithClaims(golangjwt.SigningMethodNone, idTokenClaims)
 		idTokenStr, err := idToken.SignedString(golangjwt.UnsafeAllowNoneSignatureType)
 		assert.NoError(t, err)
@@ -1513,7 +1513,7 @@ func TestToken_GetUserOrganizations(t *testing.T) {
 			"sub":                 "user_123",
 			"x-hasura-org-codes": []interface{}{"hasura_org_1", "hasura_org_2"},
 		}
-		
+
 		idToken := golangjwt.NewWithClaims(golangjwt.SigningMethodNone, idTokenClaims)
 		idTokenStr, err := idToken.SignedString(golangjwt.UnsafeAllowNoneSignatureType)
 		assert.NoError(t, err)
@@ -1539,7 +1539,7 @@ func TestToken_GetUserOrganizations(t *testing.T) {
 			"org_codes":           []interface{}{"standard_org"},
 			"x-hasura-org-codes": []interface{}{"hasura_org"},
 		}
-		
+
 		idToken := golangjwt.NewWithClaims(golangjwt.SigningMethodNone, idTokenClaims)
 		idTokenStr, err := idToken.SignedString(golangjwt.UnsafeAllowNoneSignatureType)
 		assert.NoError(t, err)

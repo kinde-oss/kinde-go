@@ -204,15 +204,15 @@ func TestToken_GetEntitlements(t *testing.T) {
 
 		result, err := token.GetEntitlements(context.Background(), apiClient)
 		require.NoError(t, err)
-		
+
 		// Assert org code
 		assert.Equal(t, "org123", result.OrgCode)
-		
+
 		// Assert plans
 		assert.Len(t, result.Plans, 1)
 		assert.Equal(t, "pro", result.Plans[0].Key)
 		assert.Equal(t, "2024-01-01", result.Plans[0].SubscribedOn)
-		
+
 		// Assert all entitlement fields (complete coverage)
 		assert.Len(t, result.Entitlements, 1)
 		ent := result.Entitlements[0]
