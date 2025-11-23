@@ -10,26 +10,55 @@ import (
 	"strings"
 )
 
-// Client represents an Account API client that uses the user's access token.
-// The getToken function should return the access token string.
+// Client is the Account API client for making authenticated requests to the Kinde Account API.
+// It handles authentication, request formatting, pagination, and response parsing.
+//
+// The getToken function should return a valid access token string for authentication.
 type Client struct {
+	// httpClient is the HTTP client used for making requests. Can be customized via WithHTTPClient option.
 	httpClient *http.Client
-	baseURL    string
-	getToken   func(ctx context.Context) (string, error)
+	// baseURL is the base URL for the Kinde Account API (e.g., "https://yourdomain.kinde.com").
+	baseURL string
+	// getToken is a function that returns an access token for authenticating API requests.
+	getToken func(ctx context.Context) (string, error)
 }
 
-// ClientOption is a function that configures a Client.
+// ClientOption is a function that configures a Client during initialization.
+// Options are passed to NewClient to customize the client's behavior.
 type ClientOption func(*Client)
 
-// WithHTTPClient sets a custom HTTP client.
+// WithHTTPClient returns a ClientOption that sets a custom HTTP client.
+// Use this to configure timeouts, transport settings, or other HTTP client behavior.
+//
+// Example:
+//
+//	httpClient := &http.Client{Timeout: 30 * time.Second}
+//	client := NewClient(baseURL, getToken, WithHTTPClient(httpClient))
 func WithHTTPClient(client *http.Client) ClientOption {
 	return func(c *Client) {
 		c.httpClient = client
 	}
 }
 
-// NewClient creates a new Account API client.
-// The getToken function should return the access token string.
+// NewClient creates a new Account API client for making authenticated requests to the Kinde Account API.
+//
+// Parameters:
+//   - baseURL: The base URL for your Kinde instance (e.g., "https://yourdomain.kinde.com")
+//   - getToken: A function that returns a valid access token for authentication. This function
+//     is called before each API request to obtain a fresh token.
+//   - opts: Optional configuration options (e.g., WithHTTPClient to customize the HTTP client)
+//
+// Returns an error if the baseURL is empty or if any configuration option fails.
+//
+// Example:
+//
+//	client, err := NewClient(
+//	    "https://yourdomain.kinde.com",
+//	    func(ctx context.Context) (string, error) {
+//	        return token.GetAccessToken(), nil
+//	    },
+//	    WithHTTPClient(&http.Client{Timeout: 30 * time.Second}),
+//	)
 func NewClient(baseURL string, getToken func(ctx context.Context) (string, error), opts ...ClientOption) (*Client, error) {
 	// Remove trailing slash
 	baseURL = strings.TrimSuffix(baseURL, "/")
@@ -47,7 +76,13 @@ func NewClient(baseURL string, getToken func(ctx context.Context) (string, error
 	return client, nil
 }
 
-// callAPI makes an authenticated request to the Account API.
+// callAPI makes an authenticated HTTP GET request to the Account API.
+//
+// It obtains an access token using the configured getToken function, constructs the full URL,
+// and makes a GET request with the Authorization header. The raw response body is returned
+// without parsing or pagination handling.
+//
+// This is an internal helper method used by CallAccountAPI and CallAccountAPIPaginated.
 func (c *Client) callAPI(ctx context.Context, route string) ([]byte, error) {
 	accessToken, err := c.getToken(ctx)
 	if err != nil {
@@ -90,18 +125,36 @@ func (c *Client) callAPI(ctx context.Context, route string) ([]byte, error) {
 }
 
 // Metadata represents pagination metadata in Account API responses.
+// It contains the cursor information needed to fetch the next page of results.
 type Metadata struct {
-	HasMore              bool   `json:"has_more"`
+	// HasMore indicates whether there are more pages of results available.
+	HasMore bool `json:"has_more"`
+	// NextPageStartingAfter is the cursor value for the next page of results.
+	// Empty if there are no more pages to fetch.
 	NextPageStartingAfter string `json:"next_page_starting_after"`
 }
 
 // BaseAccountResponse represents the base structure of Account API responses.
+// All Account API responses include this metadata for pagination support.
 type BaseAccountResponse struct {
-	Metadata Metadata    `json:"metadata"`
-	Data     interface{} `json:"data"`
+	// Metadata contains pagination information, including whether there are more pages
+	// and the cursor for the next page.
+	Metadata Metadata `json:"metadata"`
+	// Data contains the response payload, which varies by endpoint.
+	Data interface{} `json:"data"`
 }
 
-// CallAccountAPI makes a single request to the Account API.
+// CallAccountAPI makes a single authenticated request to the Account API.
+//
+// This method does NOT handle pagination - it only fetches the first page of results.
+// For paginated results, use CallAccountAPIPaginated instead.
+//
+// Parameters:
+//   - ctx: Context for the request
+//   - route: The API route path (e.g., "account_api/v1/permissions")
+//   - result: Pointer to a struct where the JSON response will be unmarshaled
+//
+// Returns an error if the request fails or the response cannot be parsed.
 func (c *Client) CallAccountAPI(ctx context.Context, route string, result interface{}) error {
 	body, err := c.callAPI(ctx, route)
 	if err != nil {
@@ -115,8 +168,32 @@ func (c *Client) CallAccountAPI(ctx context.Context, route string, result interf
 	return nil
 }
 
-// CallAccountAPIPaginated makes paginated requests to the Account API and merges all results.
-// It automatically handles pagination by following the next_page_starting_after cursor.
+// CallAccountAPIPaginated makes authenticated requests to the Account API with automatic pagination.
+//
+// This method automatically handles pagination by following the next_page_starting_after cursor
+// until all pages have been fetched. It intelligently merges results from multiple pages:
+//   - For array responses (permissions, roles, feature_flags): Concatenates arrays and removes duplicates
+//   - For object responses (entitlements): Deep merges objects, preserving all unique data
+//
+// Parameters:
+//   - ctx: Context for the requests (all paginated requests share this context)
+//   - route: The API route path (e.g., "account_api/v1/permissions")
+//   - result: Pointer to a struct where the merged JSON response will be unmarshaled.
+//     The struct should match the API response format (without pagination metadata).
+//
+// Returns an error if any request fails or the response cannot be parsed.
+//
+// Example:
+//
+//	type PermissionsResponse struct {
+//	    OrgCode     string `json:"org_code"`
+//	    Permissions []struct {
+//	        ID   string `json:"id"`
+//	        Name string `json:"name"`
+//	    } `json:"permissions"`
+//	}
+//	var result PermissionsResponse
+//	err := client.CallAccountAPIPaginated(ctx, "account_api/v1/permissions", &result)
 func (c *Client) CallAccountAPIPaginated(ctx context.Context, route string, result interface{}) error {
 	// First request
 	var firstResponse BaseAccountResponse
@@ -150,7 +227,13 @@ func (c *Client) CallAccountAPIPaginated(ctx context.Context, route string, resu
 	return c.paginateObject(ctx, route, firstResponse, firstResponse.Data, result)
 }
 
-// paginateArray handles pagination for array responses (permissions, roles, feature flags).
+// paginateArray handles pagination for array-type API responses.
+//
+// This method is used for endpoints that return arrays (e.g., permissions, roles, feature_flags).
+// It fetches all pages by following the next_page_starting_after cursor, concatenates the arrays,
+// and removes duplicate entries based on JSON comparison.
+//
+// This is an internal helper method used by CallAccountAPIPaginated.
 func (c *Client) paginateArray(ctx context.Context, route string, firstResponse BaseAccountResponse, firstData []json.RawMessage, result interface{}) error {
 	allDataItems := make([]json.RawMessage, len(firstData))
 	copy(allDataItems, firstData)
@@ -202,7 +285,13 @@ func (c *Client) paginateArray(ctx context.Context, route string, firstResponse 
 	return json.Unmarshal(marshalArray(allDataItems), result)
 }
 
-// paginateObject handles pagination for object responses (entitlements).
+// paginateObject handles pagination for object-type API responses.
+//
+// This method is used for endpoints that return objects (e.g., entitlements).
+// It fetches all pages by following the next_page_starting_after cursor and performs
+// deep merging of objects to combine data from all pages while preserving all fields.
+//
+// This is an internal helper method used by CallAccountAPIPaginated.
 func (c *Client) paginateObject(ctx context.Context, route string, firstResponse BaseAccountResponse, firstData interface{}, result interface{}) error {
 	allData := firstData
 
@@ -248,7 +337,13 @@ func (c *Client) paginateObject(ctx context.Context, route string, firstResponse
 }
 
 
-// mergeArrays merges two arrays and removes duplicates.
+// mergeArrays merges two JSON arrays and removes duplicate entries.
+//
+// Deduplication is done by comparing the raw JSON bytes of each element.
+// This ensures that identical JSON objects are not duplicated even if they
+// appear in both arrays.
+//
+// This is an internal helper used by paginateArray to combine results from multiple pages.
 func mergeArrays(arr1, arr2 []json.RawMessage) []json.RawMessage {
 	seen := make(map[string]bool)
 	result := []json.RawMessage{}
@@ -274,7 +369,12 @@ func mergeArrays(arr1, arr2 []json.RawMessage) []json.RawMessage {
 	return result
 }
 
-// marshalArray converts an array of RawMessage to JSON bytes.
+// marshalArray efficiently converts an array of json.RawMessage to JSON bytes.
+//
+// This avoids the overhead of marshaling/unmarshaling by directly constructing
+// the JSON array syntax with the pre-encoded RawMessage elements.
+//
+// This is an internal helper used by paginateArray to re-marshal merged results.
 func marshalArray(arr []json.RawMessage) []byte {
 	if len(arr) == 0 {
 		return []byte("[]")
@@ -291,7 +391,16 @@ func marshalArray(arr []json.RawMessage) []byte {
 	return result
 }
 
-// deepMergeObjects deeply merges two objects.
+// deepMergeObjects recursively merges two JSON objects.
+//
+// For each key:
+//   - If both values are maps, recursively merges them
+//   - If both values are arrays, merges and deduplicates the arrays
+//   - Otherwise, the value from obj2 overwrites the value from obj1
+//
+// This preserves all unique data from both objects while handling nested structures.
+//
+// This is an internal helper used by paginateObject to combine object results from multiple pages.
 func deepMergeObjects(obj1, obj2 interface{}) interface{} {
 	obj1Map, ok1 := obj1.(map[string]interface{})
 	obj2Map, ok2 := obj2.(map[string]interface{})
@@ -329,7 +438,13 @@ func deepMergeObjects(obj1, obj2 interface{}) interface{} {
 	return merged
 }
 
-// mergeInterfaceArrays merges two []interface{} arrays and removes duplicates.
+// mergeInterfaceArrays merges two interface{} arrays and removes duplicate entries.
+//
+// Deduplication is done by comparing the string representation of each element.
+// This works well for primitive types and simple structures but may not be perfect
+// for complex nested objects.
+//
+// This is an internal helper used by deepMergeObjects when merging arrays within objects.
 func mergeInterfaceArrays(arr1, arr2 []interface{}) []interface{} {
 	seen := make(map[string]bool)
 	result := []interface{}{}

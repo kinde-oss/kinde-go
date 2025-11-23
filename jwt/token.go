@@ -280,7 +280,12 @@ func (j *Token) GetFeatureFlags() map[string]FeatureFlag {
 	return nil
 }
 
-// extractFeatureFlags extracts feature flags from a map.
+// extractFeatureFlags extracts feature flags from a JWT claim map.
+//
+// The function expects a map where each key is a feature flag code and each value
+// is a map containing "t" (type) and "v" (value) fields following the Kinde feature flag format.
+//
+// This is an internal helper used by GetFeatureFlag and other feature flag methods.
 func extractFeatureFlags(flagsMap map[string]interface{}) map[string]FeatureFlag {
 	result := make(map[string]FeatureFlag)
 	for key, flagData := range flagsMap {
@@ -376,8 +381,15 @@ func (j *Token) GetRoles() []Role {
 	return nil
 }
 
-// extractRoles extracts roles from a claim value.
-// Handles both array of strings and array of role objects.
+// extractRoles extracts roles from a JWT claim value.
+//
+// This function handles multiple role formats:
+//   - Array of strings (e.g., ["admin", "user"]) - creates Role objects with Key only
+//   - Array of role objects with "id", "key", and "name" fields
+//
+// This flexibility allows the SDK to work with both simplified and detailed role representations.
+//
+// This is an internal helper used by GetRoles and related methods.
 func extractRoles(roles interface{}) []Role {
 	if roles == nil {
 		return nil
@@ -447,19 +459,37 @@ func (j *Token) HasRoles(roleKeys ...string) bool {
 	return false
 }
 
-// UserProfile represents user profile information from the ID token.
+// UserProfile represents user profile information extracted from the ID token.
+// It contains the core user identity and profile claims defined in the OpenID Connect specification.
 type UserProfile struct {
-	ID         string
-	GivenName  string
+	// ID is the unique identifier for the user (from the "sub" claim).
+	// This is the primary key that should be used to identify the user in your application.
+	ID string
+	// GivenName is the user's first name or given name (from the "given_name" claim).
+	GivenName string
+	// FamilyName is the user's last name or family name (from the "family_name" claim).
 	FamilyName string
-	Email      string
-	Picture    string
+	// Email is the user's email address (from the "email" claim).
+	Email string
+	// Picture is the URL to the user's profile picture (from the "picture" claim).
+	Picture string
 }
 
 // GetUserProfile extracts user profile information from the ID token.
-// Returns nil if the ID token is not available or doesn't contain required claims.
-// The ID token is parsed without validation since it's already been validated
-// as part of the OAuth flow.
+//
+// The method parses the ID token without validation since the token has already been
+// validated as part of the OAuth flow. It extracts standard OpenID Connect claims
+// including the subject (user ID), given name, family name, email, and picture URL.
+//
+// The subject (sub) claim is required - if it's missing or empty, the method returns nil.
+// All other profile fields are optional and will be empty strings if not present in the token.
+//
+// Returns nil if:
+//   - The ID token is not available in the OAuth2 token
+//   - The ID token cannot be parsed
+//   - The subject (sub) claim is missing or empty
+//
+// Returns a UserProfile pointer containing the extracted profile information otherwise.
 func (j *Token) GetUserProfile() *UserProfile {
 	idTokenStr, exists := j.GetIdToken()
 	if !exists || idTokenStr == "" {
@@ -516,11 +546,23 @@ func (j *Token) GetClaim(key string) (interface{}, bool) {
 	return nil, false
 }
 
-// GetUserOrganizations returns all organization codes the user belongs to.
-// Extracts from the ID token's org_codes or x-hasura-org-codes claim.
-// Returns nil if the ID token is not available or doesn't contain organization codes.
-// The ID token is parsed without validation since it's already been validated
-// as part of the OAuth flow.
+// GetUserOrganizations returns all organization codes that the user belongs to.
+//
+// The method parses the ID token without validation since the token has already been
+// validated as part of the OAuth flow. It looks for organization codes in two possible
+// claim formats:
+//   - "org_codes" - Standard Kinde claim format (checked first)
+//   - "x-hasura-org-codes" - Hasura integration format (fallback)
+//
+// The organization codes are extracted from whichever claim is present, and returned
+// as a slice of strings. Each string represents a unique organization identifier.
+//
+// Returns nil if:
+//   - The ID token is not available in the OAuth2 token
+//   - The ID token cannot be parsed
+//   - Neither org_codes nor x-hasura-org-codes claims are present
+//
+// Returns a string slice containing organization codes otherwise.
 func (j *Token) GetUserOrganizations() []string {
 	idTokenStr, exists := j.GetIdToken()
 	if !exists || idTokenStr == "" {
@@ -551,6 +593,14 @@ func (j *Token) GetUserOrganizations() []string {
 }
 
 // extractStringArray extracts a string array from an interface{} value.
+//
+// This function handles multiple array formats:
+//   - []string - returned directly
+//   - []interface{} - each element is type-asserted to string
+//
+// Non-string elements in []interface{} arrays are silently skipped.
+//
+// This is an internal helper used by GetUserOrganizations and other array extraction methods.
 func extractStringArray(value interface{}) []string {
 	if value == nil {
 		return nil

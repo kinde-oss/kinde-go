@@ -43,10 +43,27 @@ func ParseFromString(rawAccessToken string, options ...func(*Token)) (*Token, er
 	return ParseOAuth2Token(&oauth2.Token{AccessToken: rawAccessToken}, options...)
 }
 
-// ParseIDTokenUnverified parses an ID token without validation.
-// This should only be used for ID tokens that have already been validated
-// during the OAuth flow (e.g., tokens obtained from a trusted OAuth2 exchange).
-// Returns the parsed claims without signature verification.
+// ParseIDTokenUnverified parses an ID token without cryptographic validation.
+//
+// This function should ONLY be used for ID tokens that have already been validated
+// during the OAuth flow (e.g., tokens obtained directly from a trusted OAuth2 token exchange).
+// It parses the JWT structure and extracts claims without verifying the signature or
+// standard JWT claims (exp, iat, nbf, etc.).
+//
+// Use cases:
+//   - Extracting user profile information from an ID token obtained via OAuth2 code flow
+//   - Reading organization memberships from a validated ID token
+//   - Accessing custom claims from a trusted ID token
+//
+// DO NOT use this function to parse:
+//   - Access tokens that require validation
+//   - ID tokens from untrusted sources
+//   - Tokens that haven't been obtained through a secure OAuth2 flow
+//
+// Parameters:
+//   - idTokenStr: The raw JWT string to parse
+//
+// Returns the parsed JWT claims as a map, or an error if parsing fails.
 func ParseIDTokenUnverified(idTokenStr string) (golangjwt.MapClaims, error) {
 	// Parse without verification - the token was already validated in OAuth flow
 	parser := golangjwt.NewParser()
