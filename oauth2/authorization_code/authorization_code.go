@@ -54,6 +54,8 @@ type (
 		AuthorizationCodeReceivedHandler(w http.ResponseWriter, r *http.Request)
 		// InjectTokenMiddleware that injects the token into the request context
 		InjectTokenMiddleware(next http.Handler) http.Handler
+		// GetToken returns the validated JWT token.
+		GetToken(context.Context) (*jwt.Token, error)
 	}
 
 	// IDeviceAuthorizationFlow represents the interface for the device authorization flow.

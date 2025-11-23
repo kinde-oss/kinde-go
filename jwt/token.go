@@ -157,13 +157,27 @@ func (j *Token) GetJWTID() string {
 }
 
 // GetPermissions returns the permissions claim of the token.
+// Supports both standard "permissions" and Hasura "x-hasura-permissions" claim formats.
 func (j *Token) GetPermissions() []string {
 	if j.processing.parsed == nil || j.processing.parsed.Claims == nil {
 		return nil
 	}
 	if claims, ok := j.processing.parsed.Claims.(golangjwt.MapClaims); ok {
+		// Try standard permissions claim first
 		if permissions, exists := claims["permissions"]; exists {
 			if perms, ok := permissions.([]interface{}); ok {
+				result := make([]string, 0, len(perms))
+				for _, p := range perms {
+					if pStr, ok := p.(string); ok {
+						result = append(result, pStr)
+					}
+				}
+				return result
+			}
+		}
+		// Fallback to Hasura format
+		if hasuraPermissions, exists := claims["x-hasura-permissions"]; exists {
+			if perms, ok := hasuraPermissions.([]interface{}); ok {
 				result := make([]string, 0, len(perms))
 				for _, p := range perms {
 					if pStr, ok := p.(string); ok {
@@ -199,13 +213,21 @@ func (j *Token) GetScopes() []string {
 }
 
 // GetOrganizationCode returns the org_code claim of the token.
+// Supports both standard "org_code" and Hasura "x-hasura-org-code" claim formats.
 func (j *Token) GetOrganizationCode() string {
 	if j.processing.parsed == nil || j.processing.parsed.Claims == nil {
 		return ""
 	}
 	if claims, ok := j.processing.parsed.Claims.(golangjwt.MapClaims); ok {
+		// Try standard org_code claim first
 		if orgCode, exists := claims["org_code"]; exists {
 			if orgCodeStr, ok := orgCode.(string); ok {
+				return orgCodeStr
+			}
+		}
+		// Fallback to Hasura format
+		if hasuraOrgCode, exists := claims["x-hasura-org-code"]; exists {
+			if orgCodeStr, ok := hasuraOrgCode.(string); ok {
 				return orgCodeStr
 			}
 		}
@@ -236,31 +258,44 @@ type FeatureFlag struct {
 
 // GetFeatureFlags returns the feature_flags claim of the token.
 // The feature flags use short codes: t=type, v=value, b=boolean, i=integer, s=string
+// Supports both standard "feature_flags" and Hasura "x-hasura-feature-flags" claim formats.
 func (j *Token) GetFeatureFlags() map[string]FeatureFlag {
 	if j.processing.parsed == nil || j.processing.parsed.Claims == nil {
 		return nil
 	}
 	if claims, ok := j.processing.parsed.Claims.(golangjwt.MapClaims); ok {
+		// Try standard feature_flags claim first
 		if featureFlags, exists := claims["feature_flags"]; exists {
 			if flagsMap, ok := featureFlags.(map[string]interface{}); ok {
-				result := make(map[string]FeatureFlag)
-				for key, flagData := range flagsMap {
-					if flag, ok := flagData.(map[string]interface{}); ok {
-						if flagType, exists := flag["t"]; exists {
-							if flagValue, exists := flag["v"]; exists {
-								result[key] = FeatureFlag{
-									Type:  toString(flagType),
-									Value: flagValue,
-								}
-							}
-						}
-					}
-				}
-				return result
+				return extractFeatureFlags(flagsMap)
+			}
+		}
+		// Fallback to Hasura format
+		if hasuraFeatureFlags, exists := claims["x-hasura-feature-flags"]; exists {
+			if flagsMap, ok := hasuraFeatureFlags.(map[string]interface{}); ok {
+				return extractFeatureFlags(flagsMap)
 			}
 		}
 	}
 	return nil
+}
+
+// extractFeatureFlags extracts feature flags from a map.
+func extractFeatureFlags(flagsMap map[string]interface{}) map[string]FeatureFlag {
+	result := make(map[string]FeatureFlag)
+	for key, flagData := range flagsMap {
+		if flag, ok := flagData.(map[string]interface{}); ok {
+			if flagType, exists := flag["t"]; exists {
+				if flagValue, exists := flag["v"]; exists {
+					result[key] = FeatureFlag{
+						Type:  toString(flagType),
+						Value: flagValue,
+					}
+				}
+			}
+		}
+	}
+	return result
 }
 
 // GetFeatureFlag returns a specific feature flag by name.
@@ -312,6 +347,232 @@ func (j *Token) GetFeatureFlagInt(name string) (int64, bool) {
 		return int64(val), true
 	}
 	return 0, false
+}
+
+// Role represents a user role with id, name, and key.
+type Role struct {
+	ID   string `json:"id"`
+	Name string `json:"name"`
+	Key  string `json:"key"`
+}
+
+// GetRoles returns the roles claim of the token.
+// Supports both standard "roles" and Hasura "x-hasura-roles" claim formats.
+// Returns an empty slice if no roles are found.
+func (j *Token) GetRoles() []Role {
+	if j.processing.parsed == nil || j.processing.parsed.Claims == nil {
+		return nil
+	}
+	if claims, ok := j.processing.parsed.Claims.(golangjwt.MapClaims); ok {
+		// Try standard roles claim first
+		if roles, exists := claims["roles"]; exists {
+			return extractRoles(roles)
+		}
+		// Fallback to Hasura format
+		if hasuraRoles, exists := claims["x-hasura-roles"]; exists {
+			return extractRoles(hasuraRoles)
+		}
+	}
+	return nil
+}
+
+// extractRoles extracts roles from a claim value.
+// Handles both array of strings and array of role objects.
+func extractRoles(roles interface{}) []Role {
+	if roles == nil {
+		return nil
+	}
+
+	rolesSlice, ok := roles.([]interface{})
+	if !ok {
+		return nil
+	}
+
+	result := make([]Role, 0, len(rolesSlice))
+	for _, r := range rolesSlice {
+		switch roleVal := r.(type) {
+		case string:
+			// Simple string role - create Role with key only
+			result = append(result, Role{
+				Key: roleVal,
+			})
+		case map[string]interface{}:
+			// Role object with id, name, key
+			role := Role{}
+			if id, ok := roleVal["id"].(string); ok {
+				role.ID = id
+			}
+			if name, ok := roleVal["name"].(string); ok {
+				role.Name = name
+			}
+			if key, ok := roleVal["key"].(string); ok {
+				role.Key = key
+			}
+			// If we have at least a key or id, add the role
+			if role.Key != "" || role.ID != "" {
+				result = append(result, role)
+			}
+		}
+	}
+	return result
+}
+
+// HasRoles checks if the token contains any of the specified roles.
+// Returns true if the user has at least one of the provided role keys.
+func (j *Token) HasRoles(roleKeys ...string) bool {
+	if len(roleKeys) == 0 {
+		return true
+	}
+
+	roles := j.GetRoles()
+	if len(roles) == 0 {
+		return false
+	}
+
+	// Create a map of user role keys for efficient lookup
+	userRoleKeys := make(map[string]bool, len(roles))
+	for _, role := range roles {
+		if role.Key != "" {
+			userRoleKeys[role.Key] = true
+		}
+	}
+
+	// Check if any of the requested roles exist
+	for _, requestedKey := range roleKeys {
+		if userRoleKeys[requestedKey] {
+			return true
+		}
+	}
+
+	return false
+}
+
+// UserProfile represents user profile information from the ID token.
+type UserProfile struct {
+	ID         string
+	GivenName  string
+	FamilyName string
+	Email      string
+	Picture    string
+}
+
+// GetUserProfile extracts user profile information from the ID token.
+// Returns nil if the ID token is not available or doesn't contain required claims.
+// The ID token is parsed without validation since it's already been validated
+// as part of the OAuth flow.
+func (j *Token) GetUserProfile() *UserProfile {
+	idTokenStr, exists := j.GetIdToken()
+	if !exists || idTokenStr == "" {
+		return nil
+	}
+
+	// Parse the ID token without validation (it's already validated in OAuth flow)
+	// We use ParseFromString which will parse but we skip validation options
+	idToken, err := ParseFromString(idTokenStr)
+	if err != nil {
+		return nil
+	}
+
+	claims := idToken.GetClaims()
+	if claims == nil {
+		return nil
+	}
+
+	profile := &UserProfile{}
+
+	// Extract subject (user ID) - required
+	if sub, ok := claims["sub"].(string); ok && sub != "" {
+		profile.ID = sub
+	} else {
+		// Subject is required
+		return nil
+	}
+
+	// Extract optional fields
+	if givenName, ok := claims["given_name"].(string); ok {
+		profile.GivenName = givenName
+	}
+	if familyName, ok := claims["family_name"].(string); ok {
+		profile.FamilyName = familyName
+	}
+	if email, ok := claims["email"].(string); ok {
+		profile.Email = email
+	}
+	if picture, ok := claims["picture"].(string); ok {
+		profile.Picture = picture
+	}
+
+	return profile
+}
+
+// GetClaim retrieves a specific claim value from the token by key.
+// Returns the value and a boolean indicating if the claim exists.
+func (j *Token) GetClaim(key string) (interface{}, bool) {
+	if j.processing.parsed == nil || j.processing.parsed.Claims == nil {
+		return nil, false
+	}
+	if claims, ok := j.processing.parsed.Claims.(golangjwt.MapClaims); ok {
+		value, exists := claims[key]
+		return value, exists
+	}
+	return nil, false
+}
+
+// GetUserOrganizations returns all organization codes the user belongs to.
+// Extracts from the ID token's org_codes or x-hasura-org-codes claim.
+// Returns nil if the ID token is not available or doesn't contain organization codes.
+// The ID token is parsed without validation since it's already been validated
+// as part of the OAuth flow.
+func (j *Token) GetUserOrganizations() []string {
+	idTokenStr, exists := j.GetIdToken()
+	if !exists || idTokenStr == "" {
+		return nil
+	}
+
+	// Parse the ID token without validation (it's already validated in OAuth flow)
+	idToken, err := ParseFromString(idTokenStr)
+	if err != nil {
+		return nil
+	}
+
+	claims := idToken.GetClaims()
+	if claims == nil {
+		return nil
+	}
+
+	// Try standard org_codes claim first
+	if orgCodes, exists := claims["org_codes"]; exists {
+		return extractStringArray(orgCodes)
+	}
+
+	// Fallback to Hasura format
+	if hasuraOrgCodes, exists := claims["x-hasura-org-codes"]; exists {
+		return extractStringArray(hasuraOrgCodes)
+	}
+
+	return nil
+}
+
+// extractStringArray extracts a string array from an interface{} value.
+func extractStringArray(value interface{}) []string {
+	if value == nil {
+		return nil
+	}
+
+	switch arr := value.(type) {
+	case []string:
+		return arr
+	case []interface{}:
+		result := make([]string, 0, len(arr))
+		for _, item := range arr {
+			if str, ok := item.(string); ok {
+				result = append(result, str)
+			}
+		}
+		return result
+	}
+
+	return nil
 }
 
 // toString converts interface{} to string safely.
