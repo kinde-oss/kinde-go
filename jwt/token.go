@@ -553,8 +553,8 @@ func extractRoles(roles interface{}) []Role {
 			if key, ok := roleVal["key"].(string); ok {
 				role.Key = key
 			}
-			// If we have at least a key or id, add the role
-			if role.Key != "" || role.ID != "" {
+			// Only include roles with a Key, since HasRoles only checks role.Key
+			if role.Key != "" {
 				result = append(result, role)
 			}
 		}
@@ -820,5 +820,8 @@ func (j *Token) GetClaims() map[string]any {
 // Returns nil if there are no validation errors, or an aggregated error containing
 // all validation failures.
 func (j *Token) GetValidationErrors() error {
+	if len(j.validationErrors) == 0 {
+		return nil
+	}
 	return newError("token validation errors", nil, j.validationErrors...)
 }
