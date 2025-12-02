@@ -7,12 +7,25 @@ import (
 	"golang.org/x/oauth2"
 )
 
-// GetRawToken returns the raw token.
+// GetRawToken returns the underlying OAuth2 token structure.
+//
+// This provides access to the original OAuth2 token that was parsed, including
+// the access token, refresh token (if available), expiration time, and any extra
+// fields such as the ID token.
+//
+// Returns the raw OAuth2 token, or nil if the token was not initialized.
 func (j *Token) GetRawToken() *oauth2.Token {
 	return j.rawToken
 }
 
-// GetIdToken returns the ID token if it exists.
+// GetIdToken returns the ID token string if it exists in the OAuth2 token.
+//
+// The ID token is typically included in the OAuth2 token's extra fields during
+// the authorization code flow. It contains user identity information and can be
+// used to extract user profile data via GetUserProfile().
+//
+// Returns the ID token string and true if the ID token exists, or empty string
+// and false if it is not present in the token.
 func (j *Token) GetIdToken() (string, bool) {
 	if j.rawToken == nil {
 		return "", false
@@ -23,7 +36,13 @@ func (j *Token) GetIdToken() (string, bool) {
 	return "", false
 }
 
-// GetAccessToken returns the access token.
+// GetAccessToken returns the access token string from the OAuth2 token.
+//
+// The access token is the JWT that was parsed and validated. It can be used to
+// make authenticated API requests to protected resources.
+//
+// Returns the access token string and true if the access token exists, or empty
+// string and false if the token is not available.
 func (j *Token) GetAccessToken() (string, bool) {
 	if j.rawToken == nil {
 		return "", false
@@ -31,7 +50,13 @@ func (j *Token) GetAccessToken() (string, bool) {
 	return j.rawToken.AccessToken, j.rawToken.AccessToken != ""
 }
 
-// GetRefreshToken returns the refresh token if it exists.
+// GetRefreshToken returns the refresh token string if it exists in the OAuth2 token.
+//
+// The refresh token can be used to obtain a new access token when the current
+// access token expires, without requiring the user to re-authenticate.
+//
+// Returns the refresh token string and true if a refresh token exists, or empty
+// string and false if no refresh token is available.
 func (j *Token) GetRefreshToken() (string, bool) {
 	if j.rawToken == nil {
 		return "", false
@@ -39,7 +64,12 @@ func (j *Token) GetRefreshToken() (string, bool) {
 	return j.rawToken.RefreshToken, j.rawToken.RefreshToken != ""
 }
 
-// AsString returns the token as a JSON string.
+// AsString serializes the underlying OAuth2 token to a JSON string.
+//
+// This is useful for storing the token in session storage or transmitting it
+// as a string. The resulting JSON can be parsed back using ParseFromSessionStorage().
+//
+// Returns the JSON-encoded token string, or an error if JSON marshaling fails.
 func (j *Token) AsString() (string, error) {
 	marshalledToken, err := json.Marshal(j.rawToken)
 	if err != nil {
@@ -48,12 +78,27 @@ func (j *Token) AsString() (string, error) {
 	return string(marshalledToken), nil
 }
 
-// IsValid returns if the token is valid.
+// IsValid returns whether the token passed all validation checks.
+//
+// A token is considered valid if:
+//   - It was successfully parsed as a JWT
+//   - All signature verification checks passed
+//   - All configured validation functions returned true
+//   - No validation errors occurred
+//
+// Returns true if the token is valid, false otherwise. For detailed error
+// information, use GetValidationErrors().
 func (j *Token) IsValid() bool {
 	return j.isValid
 }
 
-// GetSubject returns the sub claim of the token.
+// GetSubject returns the subject (sub) claim from the JWT token.
+//
+// The subject claim identifies the principal that the token is about, typically
+// the user ID. This is a standard JWT claim defined in RFC 7519.
+//
+// Returns the subject string, or an empty string if the claim is not present
+// or the token was not parsed successfully.
 func (j *Token) GetSubject() string {
 	if j.processing.parsed == nil || j.processing.parsed.Claims == nil {
 		return ""
@@ -62,7 +107,14 @@ func (j *Token) GetSubject() string {
 	return subject
 }
 
-// GetIssuer returns the iss claim of the token.
+// GetIssuer returns the issuer (iss) claim from the JWT token.
+//
+// The issuer claim identifies the principal that issued the JWT, typically the
+// authorization server URL (e.g., "https://yourdomain.kinde.com"). This is a
+// standard JWT claim defined in RFC 7519.
+//
+// Returns the issuer string, or an empty string if the claim is not present
+// or the token was not parsed successfully.
 func (j *Token) GetIssuer() string {
 	if j.processing.parsed == nil || j.processing.parsed.Claims == nil {
 		return ""
@@ -77,7 +129,14 @@ func (j *Token) GetIssuer() string {
 	return ""
 }
 
-// GetAudience returns the aud claim of the token.
+// GetAudience returns the audience (aud) claim from the JWT token.
+//
+// The audience claim identifies the recipients that the JWT is intended for,
+// typically the client ID. This is a standard JWT claim defined in RFC 7519.
+// The claim can be either a single string or an array of strings.
+//
+// Returns a slice of audience strings, or nil if the claim is not present
+// or the token was not parsed successfully.
 func (j *Token) GetAudience() []string {
 	if j.processing.parsed == nil || j.processing.parsed.Claims == nil {
 		return nil
@@ -101,7 +160,14 @@ func (j *Token) GetAudience() []string {
 	return nil
 }
 
-// GetExpiration returns the exp claim of the token.
+// GetExpiration returns the expiration time (exp) claim from the JWT token.
+//
+// The expiration time claim identifies the time after which the JWT must not be
+// accepted for processing, represented as a Unix timestamp (seconds since epoch).
+// This is a standard JWT claim defined in RFC 7519.
+//
+// Returns the expiration timestamp and true if the claim exists, or 0 and false
+// if the claim is not present or the token was not parsed successfully.
 func (j *Token) GetExpiration() (int64, bool) {
 	if j.processing.parsed == nil || j.processing.parsed.Claims == nil {
 		return 0, false
@@ -121,7 +187,14 @@ func (j *Token) GetExpiration() (int64, bool) {
 	return 0, false
 }
 
-// GetIssuedAt returns the iat claim of the token.
+// GetIssuedAt returns the issued at (iat) claim from the JWT token.
+//
+// The issued at claim identifies the time at which the JWT was issued, represented
+// as a Unix timestamp (seconds since epoch). This is a standard JWT claim defined
+// in RFC 7519.
+//
+// Returns the issued at timestamp and true if the claim exists, or 0 and false
+// if the claim is not present or the token was not parsed successfully.
 func (j *Token) GetIssuedAt() (int64, bool) {
 	if j.processing.parsed == nil || j.processing.parsed.Claims == nil {
 		return 0, false
@@ -141,7 +214,13 @@ func (j *Token) GetIssuedAt() (int64, bool) {
 	return 0, false
 }
 
-// GetJWTID returns the jti claim of the token.
+// GetJWTID returns the JWT ID (jti) claim from the token.
+//
+// The JWT ID claim provides a unique identifier for the JWT, which can be used
+// to prevent token replay attacks. This is a standard JWT claim defined in RFC 7519.
+//
+// Returns the JWT ID string, or an empty string if the claim is not present
+// or the token was not parsed successfully.
 func (j *Token) GetJWTID() string {
 	if j.processing.parsed == nil || j.processing.parsed.Claims == nil {
 		return ""
@@ -191,7 +270,14 @@ func (j *Token) GetPermissions() []string {
 	return nil
 }
 
-// GetScopes returns the scp claim of the token.
+// GetScopes returns the scope (scp) claim from the JWT token.
+//
+// The scope claim contains the OAuth2 scopes granted to the token, which define
+// the permissions and access rights. Scopes are typically space-separated strings
+// in OAuth2, but in JWT they are often represented as arrays.
+//
+// Returns a slice of scope strings, or nil if the claim is not present
+// or the token was not parsed successfully.
 func (j *Token) GetScopes() []string {
 	if j.processing.parsed == nil || j.processing.parsed.Claims == nil {
 		return nil
@@ -235,7 +321,14 @@ func (j *Token) GetOrganizationCode() string {
 	return ""
 }
 
-// GetAuthorizedParty returns the azp claim of the token.
+// GetAuthorizedParty returns the authorized party (azp) claim from the JWT token.
+//
+// The authorized party claim identifies the party to which the JWT was issued.
+// This is typically the client ID that requested the token. This claim is defined
+// in the OpenID Connect specification.
+//
+// Returns the authorized party string, or an empty string if the claim is not present
+// or the token was not parsed successfully.
 func (j *Token) GetAuthorizedParty() string {
 	if j.processing.parsed == nil || j.processing.parsed.Claims == nil {
 		return ""
@@ -303,7 +396,16 @@ func extractFeatureFlags(flagsMap map[string]interface{}) map[string]FeatureFlag
 	return result
 }
 
-// GetFeatureFlag returns a specific feature flag by name.
+// GetFeatureFlag retrieves a specific feature flag by its name/code.
+//
+// Feature flags are used to enable or disable features for specific users or
+// organizations. This method looks up a flag by its key in the feature_flags claim.
+//
+// Parameters:
+//   - name: The feature flag code/name to retrieve
+//
+// Returns the FeatureFlag and true if the flag exists, or an empty FeatureFlag
+// and false if the flag is not present in the token.
 func (j *Token) GetFeatureFlag(name string) (FeatureFlag, bool) {
 	flags := j.GetFeatureFlags()
 	if flags == nil {
@@ -313,7 +415,17 @@ func (j *Token) GetFeatureFlag(name string) (FeatureFlag, bool) {
 	return flag, exists
 }
 
-// GetFeatureFlagBool returns a boolean feature flag value.
+// GetFeatureFlagBool retrieves a boolean feature flag value by name.
+//
+// This is a convenience method that retrieves a feature flag and type-checks
+// that it is a boolean (type "b"). If the flag exists and is a boolean, it
+// returns the boolean value.
+//
+// Parameters:
+//   - name: The feature flag code/name to retrieve
+//
+// Returns the boolean value and true if the flag exists and is a boolean type,
+// or false and false if the flag doesn't exist or is not a boolean.
 func (j *Token) GetFeatureFlagBool(name string) (bool, bool) {
 	flag, exists := j.GetFeatureFlag(name)
 	if !exists || flag.Type != "b" {
@@ -325,7 +437,17 @@ func (j *Token) GetFeatureFlagBool(name string) (bool, bool) {
 	return false, false
 }
 
-// GetFeatureFlagString returns a string feature flag value.
+// GetFeatureFlagString retrieves a string feature flag value by name.
+//
+// This is a convenience method that retrieves a feature flag and type-checks
+// that it is a string (type "s"). If the flag exists and is a string, it
+// returns the string value.
+//
+// Parameters:
+//   - name: The feature flag code/name to retrieve
+//
+// Returns the string value and true if the flag exists and is a string type,
+// or empty string and false if the flag doesn't exist or is not a string.
 func (j *Token) GetFeatureFlagString(name string) (string, bool) {
 	flag, exists := j.GetFeatureFlag(name)
 	if !exists || flag.Type != "s" {
@@ -337,7 +459,18 @@ func (j *Token) GetFeatureFlagString(name string) (string, bool) {
 	return "", false
 }
 
-// GetFeatureFlagInt returns an integer feature flag value.
+// GetFeatureFlagInt retrieves an integer feature flag value by name.
+//
+// This is a convenience method that retrieves a feature flag and type-checks
+// that it is an integer (type "i"). If the flag exists and is an integer, it
+// returns the integer value. The method handles int, int64, and float64 types
+// (converting float64 to int64).
+//
+// Parameters:
+//   - name: The feature flag code/name to retrieve
+//
+// Returns the integer value and true if the flag exists and is an integer type,
+// or 0 and false if the flag doesn't exist or is not an integer.
 func (j *Token) GetFeatureFlagInt(name string) (int64, bool) {
 	flag, exists := j.GetFeatureFlag(name)
 	if !exists || flag.Type != "i" {
@@ -534,7 +667,17 @@ func (j *Token) GetUserProfile() *UserProfile {
 }
 
 // GetClaim retrieves a specific claim value from the token by key.
-// Returns the value and a boolean indicating if the claim exists.
+//
+// This method provides direct access to any claim in the JWT, including both
+// standard claims (sub, iss, aud, exp, etc.) and custom claims. The returned
+// value is an interface{} that may need type assertion based on the expected
+// claim type.
+//
+// Parameters:
+//   - key: The claim key to retrieve (e.g., "sub", "permissions", "custom_claim")
+//
+// Returns the claim value and true if the claim exists, or nil and false if
+// the claim is not present or the token was not parsed successfully.
 func (j *Token) GetClaim(key string) (interface{}, bool) {
 	if j.processing.parsed == nil || j.processing.parsed.Claims == nil {
 		return nil, false
@@ -622,7 +765,13 @@ func extractStringArray(value interface{}) []string {
 	return nil
 }
 
-// toString converts interface{} to string safely.
+// toString converts an interface{} value to a string safely.
+//
+// This is an internal helper function used for type-safe string conversion.
+// It handles nil values gracefully and only converts values that are already strings.
+// Non-string values are returned as empty strings.
+//
+// This function is used internally by feature flag extraction and other claim parsing logic.
 func toString(v interface{}) string {
 	if v == nil {
 		return ""
@@ -633,7 +782,15 @@ func toString(v interface{}) string {
 	return ""
 }
 
-// GetClaims returns the claims of the token.
+// GetClaims returns all claims from the JWT token as a map.
+//
+// This method provides direct access to the entire claims map, allowing you to
+// inspect all claims in the token, including standard JWT claims and any custom
+// claims that were included.
+//
+// Returns a map of all claims, or an empty map if the token was not parsed
+// successfully. The map keys are claim names (strings) and values are the
+// claim values (interface{}).
 func (j *Token) GetClaims() map[string]any {
 	if j.processing.parsed == nil {
 		return make(map[string]any)
@@ -644,6 +801,24 @@ func (j *Token) GetClaims() map[string]any {
 	return make(map[string]any)
 }
 
+// GetValidationErrors returns an aggregated error containing all validation errors
+// that occurred during token parsing and validation.
+//
+// If the token was parsed and validated successfully, this method returns nil.
+// If validation failed, it returns an error that aggregates all validation failures,
+// which may include:
+//   - Signature verification failures
+//   - Expired token errors
+//   - Invalid issuer errors
+//   - Invalid audience errors
+//   - Custom claim validation failures
+//   - Algorithm mismatch errors
+//
+// Use this method to get detailed information about why a token validation failed,
+// especially when IsValid() returns false.
+//
+// Returns nil if there are no validation errors, or an aggregated error containing
+// all validation failures.
 func (j *Token) GetValidationErrors() error {
 	return newError("token validation errors", nil, j.validationErrors...)
 }
