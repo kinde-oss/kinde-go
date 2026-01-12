@@ -169,6 +169,33 @@ func TestWithInvitationCodeOptionEmpty(t *testing.T) {
 	assert.False(hasIsInvitation, "is_invitation should not be set when empty")
 }
 
+func TestWithInvitationCodeOptionWhitespace(t *testing.T) {
+	assert := assert.New(t)
+
+	testBackendServerURL := "https://api.com"
+	testKindeServerURL := "https://mytest.kinde.com"
+
+	callbackURL := fmt.Sprintf("%v/callback", testBackendServerURL)
+	testCases := []string{" ", "  ", "\t", "\n", "   \t\n   "}
+
+	for _, whitespaceCode := range testCases {
+		t.Run(fmt.Sprintf("whitespace_%q", whitespaceCode), func(t *testing.T) {
+			kindeAuthFlow, _ := NewAuthorizationCodeFlow(
+				testKindeServerURL, "b9da18c441b44d81bab3e8232de2e18d", "client_secret", callbackURL,
+				WithSessionHooks(newTestSessionHooks()),
+				WithCustomStateGenerator(func(*AuthorizationCodeFlow) string { return "test_state" }),
+				WithInvitationCode(whitespaceCode), // Whitespace-only invitation code should not add parameters
+			)
+
+			flow := kindeAuthFlow.(*AuthorizationCodeFlow)
+			_, hasInvitationCode := flow.authURLOptions["invitation_code"]
+			_, hasIsInvitation := flow.authURLOptions["is_invitation"]
+			assert.False(hasInvitationCode, "invitation_code should not be set when whitespace-only")
+			assert.False(hasIsInvitation, "is_invitation should not be set when whitespace-only")
+		})
+	}
+}
+
 // TestGetAuthURLWithInvitationParameterPrecedence tests that invitation code parameter
 // takes precedence over option when both are provided
 func TestGetAuthURLWithInvitationParameterPrecedence(t *testing.T) {
@@ -346,11 +373,9 @@ func TestGetAuthURLWithInvitationWhitespaceOnly(t *testing.T) {
 	for _, whitespaceCode := range testCases {
 		t.Run(fmt.Sprintf("whitespace_%q", whitespaceCode), func(t *testing.T) {
 			authURL := kindeAuthFlow.GetAuthURLWithInvitation(whitespaceCode)
-			// Whitespace-only codes should still be added (they're not empty strings)
-			// but we should verify the behavior
-			// Actually, since we check for != "", whitespace will be added
-			// This might be a design decision - let's test what actually happens
-			assert.NotEmpty(authURL, "AuthURL should not be empty")
+			// Whitespace-only codes should be trimmed and treated as empty
+			assert.NotContains(authURL, "invitation_code=", "AuthURL should not contain invitation_code parameter for whitespace-only codes")
+			assert.NotContains(authURL, "is_invitation=", "AuthURL should not contain is_invitation parameter for whitespace-only codes")
 		})
 	}
 }

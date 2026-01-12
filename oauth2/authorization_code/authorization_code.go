@@ -40,7 +40,7 @@ type (
 
 	// IAuthorizationCodeFlow represents the interface for the authorization code flow.
 	IAuthorizationCodeFlow interface {
-		// Logout clears the session and token.
+		// Returns the URL to redirect the user to start authentication pipeline.
 		GetAuthURL() string
 		// GetAuthURLWithInvitation returns the URL to redirect the user to start authentication pipeline
 		// with invitation code support. If invitationCode is provided, it will include both
@@ -154,6 +154,7 @@ func (flow *AuthorizationCodeFlow) GetAuthURLWithInvitation(invitationCode strin
 	}
 
 	// Add invitation code parameters if provided
+	invitationCode = strings.TrimSpace(invitationCode)
 	if invitationCode != "" {
 		query.Set("invitation_code", invitationCode)
 		query.Set("is_invitation", "true")
