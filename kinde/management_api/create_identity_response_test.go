@@ -1,5 +1,8 @@
 package management_api
 
+// CreateIdentity response decode tests. The decoder is patched by fix_create_identity_identity.go
+// to accept "identity_id" from the API; CI runs that patch before tests (see .github/workflows/ci.yml).
+
 import (
 	"testing"
 
@@ -34,9 +37,8 @@ func TestCreateIdentityResponse_Decode_WithId(t *testing.T) {
 	assert.Equal(t, "idl_abc123", id, "Identity ID should be decoded correctly")
 }
 
-// TestCreateIdentityResponse_Decode_WithIdentityId reproduces the bug: when the API returns
-// "identity_id" (e.g. for existing enterprise identity), the current decoder only looks for "id",
-// so the identity object is present but ID is empty - "no identity is created" from the client's view.
+// TestCreateIdentityResponse_Decode_WithIdentityId verifies that when the API returns
+// "identity_id" (e.g. for existing enterprise identity), the patched decoder maps it to ID.
 func TestCreateIdentityResponse_Decode_WithIdentityId(t *testing.T) {
 	// API response when creating identity with existing enterprise value - returns "identity_id" not "id"
 	json := `{
@@ -56,7 +58,6 @@ func TestCreateIdentityResponse_Decode_WithIdentityId(t *testing.T) {
 	assert.True(t, response.Identity.IsSet(), "Identity should be set")
 	identity, ok := response.Identity.Get()
 	require.True(t, ok)
-	// BUG: With current code, ID is not set because we only decode "id", not "identity_id"
 	assert.True(t, identity.ID.IsSet(), "Identity ID should be set (from identity_id field)")
 	id, ok := identity.ID.Get()
 	require.True(t, ok)

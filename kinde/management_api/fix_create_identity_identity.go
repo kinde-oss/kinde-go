@@ -90,7 +90,7 @@ func main() {
 	if count == 0 {
 		fmt.Println("Pattern not found - generator output may have changed")
 		fmt.Println("Please verify CreateIdentityResponseIdentity.Decode manually")
-		os.Exit(0)
+		os.Exit(1)
 	}
 	if count > 1 {
 		fmt.Fprintf(os.Stderr, "Pattern matched %d times; expected 1 (CreateIdentityResponseIdentity). Refusing to patch.\n", count)
