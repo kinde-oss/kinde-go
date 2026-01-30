@@ -2,29 +2,31 @@ name: KindeCI
 
 on:
   push:
-    branches: [ "main" ]
+    branches: ['main']
   pull_request:
-    branches: [ "main" ]
+    branches: ['main']
 
 jobs:
-
   build:
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v3
+      - uses: actions/checkout@v3
 
-    - name: Set up Go
-      uses: actions/setup-go@v4
-      with:
-        go-version: '1.22'
+      - name: Set up Go
+        uses: actions/setup-go@v4
+        with:
+          go-version: '1.22'
 
-#    - name: Build
-#      run: go build -v ./...
+      #    - name: Build
+      #      run: go build -v ./...
 
-    - name: Test
-      run: go test -v ./...
+      - name: Apply management_api post-generation patches
+        run: cd kinde/management_api && go run fix_create_identity_identity.go
 
-    - id: govulncheck
-      uses: golang/govulncheck-action@v1
-      with:
-         go-package: ./...
+      - name: Test
+        run: go test -v ./...
+
+      - id: govulncheck
+        uses: golang/govulncheck-action@v1
+        with:
+          go-package: ./...
