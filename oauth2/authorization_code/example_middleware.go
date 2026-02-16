@@ -7,7 +7,14 @@ import (
 	"github.com/kinde-oss/kinde-go/jwt"
 )
 
-// ExampleMiddlewareUsage demonstrates how to use the new middleware
+// ExampleMiddlewareUsage demonstrates how to use the Kinde authentication middleware.
+//
+// This example shows the basic pattern for integrating Kinde authentication into an HTTP application:
+//  1. Create an authorization flow
+//  2. Extract tokens from request context in handlers
+//  3. Use middleware to protect routes
+//
+// This is a code example and should not be called directly in production code.
 func ExampleMiddlewareUsage() {
 	// This is an example of how to use the middleware in a real application
 
@@ -38,7 +45,20 @@ func ExampleMiddlewareUsage() {
 	// mux.Handle("/protected", protectedHandler)
 }
 
-// ExampleCustomMiddleware shows how to create custom middleware that uses the token
+// ExampleCustomMiddleware demonstrates how to create custom middleware that uses the Kinde token.
+//
+// This example shows how to build custom middleware that:
+//  1. Extracts the token from the request context (set by Kinde middleware)
+//  2. Performs custom authorization checks (e.g., scope validation)
+//  3. Handles unauthorized/forbidden cases
+//  4. Passes control to the next handler if authorized
+//
+// This is a code example and should not be called directly in production code.
+//
+// Parameters:
+//   - next: The next HTTP handler in the middleware chain
+//
+// Returns an HTTP handler that wraps the next handler with custom authorization logic.
 func ExampleCustomMiddleware(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		// Get the token from context (set by the Kinde middleware)

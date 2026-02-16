@@ -58,6 +58,8 @@ type (
 		AuthorizationCodeReceivedHandler(w http.ResponseWriter, r *http.Request)
 		// InjectTokenMiddleware that injects the token into the request context
 		InjectTokenMiddleware(next http.Handler) http.Handler
+		// GetToken returns the validated JWT token.
+		GetToken(context.Context) (*jwt.Token, error)
 	}
 
 	// IDeviceAuthorizationFlow represents the interface for the device authorization flow.
@@ -116,14 +118,61 @@ func (flow *AuthorizationCodeFlow) IsAuthenticated(ctx context.Context) (bool, e
 	return true, nil
 }
 
-// Creates a new AuthorizationCodeFlow with the given baseURL, clientID, clientSecret and options to authenticate backend applications.
+// NewAuthorizationCodeFlow creates a new AuthorizationCodeFlow for authenticating backend applications.
+//
+// This function initializes an OAuth2 authorization code flow with the provided configuration.
+// The flow handles the complete OAuth2 authorization code exchange process, including
+// generating authorization URLs, handling callbacks, and exchanging codes for tokens.
+//
+// Default scopes (openid, profile, email) are automatically prepended to any scopes
+// specified in the options.
+//
+// Parameters:
+//   - baseURL: The base URL of your Kinde instance (e.g., "https://yourdomain.kinde.com")
+//   - clientID: Your OAuth2 client ID
+//   - clientSecret: Your OAuth2 client secret
+//   - callbackURL: The redirect URI registered with your OAuth2 application
+//   - options: Optional configuration functions to customize the flow behavior
+//
+// Returns an IAuthorizationCodeFlow interface and an error if initialization fails.
+//
+// Example:
+//
+//	flow, err := NewAuthorizationCodeFlow(
+//	    "https://yourdomain.kinde.com",
+//	    "your-client-id",
+//	    "your-client-secret",
+//	    "https://yourapp.com/callback",
+//	    WithScopes("openid", "profile", "email"),
+//	    WithPKCE(),
+//	)
 func NewAuthorizationCodeFlow(baseURL string, clientID string, clientSecret string, callbackURL string,
 	options ...Option) (IAuthorizationCodeFlow, error) {
 	options = append([]Option{WithScopes("openid", "profile", "email")}, options...) // prepending default openid scopes when nothing requested
 	return newAuthorizationCodeFlow(baseURL, clientID, clientSecret, callbackURL, options...)
 }
 
-// Creates a new AuthorizationCodeFlow with the given baseURL, clientID, clientSecret and options to authenticate backend applications.
+// NewDeviceAuthorizationFlow creates a new device authorization flow for OAuth2 device code grant.
+//
+// The device authorization flow is designed for devices that lack a browser or have limited
+// input capabilities. It allows users to authorize applications by entering a code on
+// a separate device (e.g., a smartphone or computer).
+//
+// Unlike the authorization code flow, this flow does not require a client secret or callback URL,
+// making it suitable for public clients and constrained devices.
+//
+// Parameters:
+//   - baseURL: The base URL of your Kinde instance (e.g., "https://yourdomain.kinde.com")
+//   - options: Optional configuration functions to customize the flow behavior
+//
+// Returns an IDeviceAuthorizationFlow interface and an error if initialization fails.
+//
+// Example:
+//
+//	flow, err := NewDeviceAuthorizationFlow(
+//	    "https://yourdomain.kinde.com",
+//	    WithScopes("openid", "profile", "email"),
+//	)
 func NewDeviceAuthorizationFlow(baseURL string, options ...Option) (IDeviceAuthorizationFlow, error) {
 	return newAuthorizationCodeFlow(baseURL, "", "", "", options...)
 }
@@ -135,7 +184,21 @@ func (flow *AuthorizationCodeFlow) StartDeviceAuth(ctx context.Context) (*oauth2
 	return flow.config.DeviceAuth(ctx)
 }
 
-// Returns the URL to redirect the user to start authentication pipeline.
+// GetAuthURL returns the authorization URL to redirect users to for authentication.
+//
+// This method generates the complete OAuth2 authorization URL with all configured parameters,
+// including scopes, PKCE challenges (if enabled), custom auth parameters, and state.
+// The URL should be used to redirect the user's browser to the authorization server.
+//
+// The state parameter is automatically generated using the configured state generator
+// (or a random value by default) to prevent CSRF attacks.
+//
+// Returns the complete authorization URL as a string.
+//
+// Example:
+//
+//	authURL := flow.GetAuthURL()
+//	http.Redirect(w, r, authURL, http.StatusFound)
 func (flow *AuthorizationCodeFlow) GetAuthURL() string {
 	return flow.GetAuthURLWithInvitation("")
 }
@@ -170,15 +233,36 @@ func (flow *AuthorizationCodeFlow) GetAuthURLWithInvitation(invitationCode strin
 	return url.String()
 }
 
-// AuthorizationCodeReceivedHandler handles the callback from the authorization server.
+// AuthorizationCodeReceivedHandler handles the OAuth2 callback from the authorization server.
+//
+// This method processes the authorization callback, validates the state parameter to prevent
+// CSRF attacks, exchanges the authorization code for tokens, and stores the tokens using
+// the configured session hooks.
+//
+// The handler expects the callback request to contain:
+//   - "code": The authorization code from the authorization server
+//   - "state": The state parameter that was sent in the authorization request
+//
+// If successful, the tokens are stored and the user is authenticated. If an error occurs,
+// an HTTP error response is written to the response writer.
+//
+// Parameters:
+//   - w: The HTTP response writer
+//   - r: The HTTP request containing the authorization callback
+//
+// Example:
+//
+//	http.HandleFunc("/callback", flow.AuthorizationCodeReceivedHandler)
 func (flow *AuthorizationCodeFlow) AuthorizationCodeReceivedHandler(w http.ResponseWriter, r *http.Request) {
 	receivedState := r.URL.Query().Get("state")
-	if flow.stateVerifier(flow, receivedState) {
-		token, err := flow.config.Exchange(r.Context(), r.URL.Query().Get("code"))
-		if err != nil {
-			http.Error(w, err.Error(), http.StatusInternalServerError)
-		}
-		flow.sessionHooks.SetRawToken(token)
+	if !flow.stateVerifier(flow, receivedState) {
+		http.Error(w, "invalid state parameter", http.StatusBadRequest)
+		return
+	}
+	// Use ExchangeCode to properly handle PKCE code verifier if enabled
+	if err := flow.ExchangeCode(r.Context(), r.URL.Query().Get("code"), receivedState); err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
 	}
 }
 
@@ -344,8 +428,28 @@ func generateCodeChallenge(codeVerifier string) string {
 	return base64.RawURLEncoding.EncodeToString(hash[:])
 }
 
-// TokenFromContext extracts the Kinde token from the request context
-// This is a helper function for downstream handlers to access the token
+// TokenFromContext extracts the Kinde JWT token from the request context.
+//
+// This helper function retrieves the parsed and validated JWT token that was previously
+// stored in the request context by middleware (e.g., InjectTokenMiddleware). It provides
+// a convenient way for downstream handlers to access the authenticated user's token.
+//
+// Parameters:
+//   - ctx: The request context that may contain a Kinde token
+//
+// Returns the JWT token and true if a token was found in the context, or nil and false otherwise.
+//
+// Example:
+//
+//	func myHandler(w http.ResponseWriter, r *http.Request) {
+//	    token, ok := TokenFromContext(r.Context())
+//	    if !ok {
+//	        http.Error(w, "Unauthorized", http.StatusUnauthorized)
+//	        return
+//	    }
+//	    userID := token.GetSubject()
+//	    // Use token...
+//	}
 func TokenFromContext(ctx context.Context) (*jwt.Token, bool) {
 	token, ok := ctx.Value(contextKey("kinde_token")).(*jwt.Token)
 	return token, ok

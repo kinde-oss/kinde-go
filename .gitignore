@@ -37,3 +37,4 @@ coverage/
 # Go workspace file
 go.work
 examples/gin-chat/.env
+

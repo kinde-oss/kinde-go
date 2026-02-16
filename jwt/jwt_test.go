@@ -1126,3 +1126,563 @@ ewIDAQAB
 	pemKey, _ := x509.ParsePKIXPublicKey(block.Bytes)
 	return pemKey.(*rsa.PublicKey)
 }
+
+func TestToken_GetRoles(t *testing.T) {
+	t.Parallel()
+
+	t.Run("returns nil when parsed is nil", func(t *testing.T) {
+		token := &Token{}
+		roles := token.GetRoles()
+		assert.Nil(t, roles)
+	})
+
+	t.Run("returns roles from standard roles claim", func(t *testing.T) {
+		token := &Token{
+			processing: tokenProcessing{
+				parsed: &golangjwt.Token{
+					Claims: golangjwt.MapClaims{
+						"roles": []interface{}{
+							map[string]interface{}{
+								"id":   "role_123",
+								"name": "Admin",
+								"key":  "admin",
+							},
+							map[string]interface{}{
+								"id":   "role_456",
+								"name": "User",
+								"key":  "user",
+							},
+						},
+					},
+				},
+			},
+		}
+		roles := token.GetRoles()
+		assert.Len(t, roles, 2)
+		assert.Equal(t, "role_123", roles[0].ID)
+		assert.Equal(t, "Admin", roles[0].Name)
+		assert.Equal(t, "admin", roles[0].Key)
+		assert.Equal(t, "role_456", roles[1].ID)
+		assert.Equal(t, "User", roles[1].Name)
+		assert.Equal(t, "user", roles[1].Key)
+	})
+
+	t.Run("returns roles from Hasura x-hasura-roles claim", func(t *testing.T) {
+		token := &Token{
+			processing: tokenProcessing{
+				parsed: &golangjwt.Token{
+					Claims: golangjwt.MapClaims{
+						"x-hasura-roles": []interface{}{
+							map[string]interface{}{
+								"id":   "role_789",
+								"name": "Editor",
+								"key":  "editor",
+							},
+						},
+					},
+				},
+			},
+		}
+		roles := token.GetRoles()
+		assert.Len(t, roles, 1)
+		assert.Equal(t, "role_789", roles[0].ID)
+		assert.Equal(t, "Editor", roles[0].Name)
+		assert.Equal(t, "editor", roles[0].Key)
+	})
+
+	t.Run("handles string roles", func(t *testing.T) {
+		token := &Token{
+			processing: tokenProcessing{
+				parsed: &golangjwt.Token{
+					Claims: golangjwt.MapClaims{
+						"roles": []interface{}{
+							"admin",
+							"user",
+						},
+					},
+				},
+			},
+		}
+		roles := token.GetRoles()
+		assert.Len(t, roles, 2)
+		assert.Equal(t, "admin", roles[0].Key)
+		assert.Equal(t, "", roles[0].ID)
+		assert.Equal(t, "user", roles[1].Key)
+		assert.Equal(t, "", roles[1].ID)
+	})
+
+	t.Run("returns nil when roles claim is missing", func(t *testing.T) {
+		token := &Token{
+			processing: tokenProcessing{
+				parsed: &golangjwt.Token{
+					Claims: golangjwt.MapClaims{
+						"sub": "test_subject",
+					},
+				},
+			},
+		}
+		roles := token.GetRoles()
+		assert.Nil(t, roles)
+	})
+
+	t.Run("prefers standard roles over Hasura roles", func(t *testing.T) {
+		token := &Token{
+			processing: tokenProcessing{
+				parsed: &golangjwt.Token{
+					Claims: golangjwt.MapClaims{
+						"roles": []interface{}{
+							map[string]interface{}{
+								"key": "admin",
+							},
+						},
+						"x-hasura-roles": []interface{}{
+							map[string]interface{}{
+								"key": "editor",
+							},
+						},
+					},
+				},
+			},
+		}
+		roles := token.GetRoles()
+		assert.Len(t, roles, 1)
+		assert.Equal(t, "admin", roles[0].Key)
+	})
+}
+
+func TestToken_HasRoles(t *testing.T) {
+	t.Parallel()
+
+	t.Run("returns true when no roles specified", func(t *testing.T) {
+		token := &Token{}
+		result := token.HasRoles()
+		assert.True(t, result)
+	})
+
+	t.Run("returns false when token has no roles", func(t *testing.T) {
+		token := &Token{
+			processing: tokenProcessing{
+				parsed: &golangjwt.Token{
+					Claims: golangjwt.MapClaims{},
+				},
+			},
+		}
+		result := token.HasRoles("admin")
+		assert.False(t, result)
+	})
+
+	t.Run("returns true when user has one of the requested roles", func(t *testing.T) {
+		token := &Token{
+			processing: tokenProcessing{
+				parsed: &golangjwt.Token{
+					Claims: golangjwt.MapClaims{
+						"roles": []interface{}{
+							map[string]interface{}{
+								"key": "admin",
+							},
+							map[string]interface{}{
+								"key": "user",
+							},
+						},
+					},
+				},
+			},
+		}
+		result := token.HasRoles("admin", "editor")
+		assert.True(t, result)
+	})
+
+	t.Run("returns false when user doesn't have any requested roles", func(t *testing.T) {
+		token := &Token{
+			processing: tokenProcessing{
+				parsed: &golangjwt.Token{
+					Claims: golangjwt.MapClaims{
+						"roles": []interface{}{
+							map[string]interface{}{
+								"key": "user",
+							},
+						},
+					},
+				},
+			},
+		}
+		result := token.HasRoles("admin", "editor")
+		assert.False(t, result)
+	})
+
+	t.Run("works with string roles", func(t *testing.T) {
+		token := &Token{
+			processing: tokenProcessing{
+				parsed: &golangjwt.Token{
+					Claims: golangjwt.MapClaims{
+						"roles": []interface{}{
+							"admin",
+							"user",
+						},
+					},
+				},
+			},
+		}
+		result := token.HasRoles("admin")
+		assert.True(t, result)
+	})
+}
+
+func TestToken_GetUserProfile(t *testing.T) {
+	t.Parallel()
+
+	t.Run("returns nil when ID token is not available", func(t *testing.T) {
+		token := &Token{
+			rawToken: &oauth2.Token{},
+		}
+		profile := token.GetUserProfile()
+		assert.Nil(t, profile)
+	})
+
+	t.Run("returns profile from ID token", func(t *testing.T) {
+		// Create a valid ID token JWT (unsigned)
+		idTokenClaims := golangjwt.MapClaims{
+			"sub":         "user_123",
+			"given_name":  "John",
+			"family_name": "Doe",
+			"email":       "john.doe@example.com",
+			"picture":     "https://example.com/picture.jpg",
+		}
+
+		// Create an unsigned JWT token string for testing
+		idToken := golangjwt.NewWithClaims(golangjwt.SigningMethodNone, idTokenClaims)
+		idTokenStr, err := idToken.SignedString(golangjwt.UnsafeAllowNoneSignatureType)
+		assert.NoError(t, err)
+
+		// Create a token with the ID token in extra
+		token := &Token{
+			rawToken: &oauth2.Token{
+				AccessToken: "access_token",
+			},
+		}
+		token.rawToken = token.rawToken.WithExtra(map[string]interface{}{
+			"id_token": idTokenStr,
+		})
+
+		// Test GetUserProfile
+		profile := token.GetUserProfile()
+		assert.NotNil(t, profile)
+		assert.Equal(t, "user_123", profile.ID)
+		assert.Equal(t, "John", profile.GivenName)
+		assert.Equal(t, "Doe", profile.FamilyName)
+		assert.Equal(t, "john.doe@example.com", profile.Email)
+		assert.Equal(t, "https://example.com/picture.jpg", profile.Picture)
+	})
+
+	t.Run("returns nil when sub claim is missing", func(t *testing.T) {
+		// Create ID token without 'sub' claim
+		idTokenClaims := golangjwt.MapClaims{
+			"given_name": "John",
+			"email":      "john@example.com",
+		}
+
+		idToken := golangjwt.NewWithClaims(golangjwt.SigningMethodNone, idTokenClaims)
+		idTokenStr, err := idToken.SignedString(golangjwt.UnsafeAllowNoneSignatureType)
+		assert.NoError(t, err)
+
+		token := &Token{
+			rawToken: &oauth2.Token{},
+		}
+		token.rawToken = token.rawToken.WithExtra(map[string]interface{}{
+			"id_token": idTokenStr,
+		})
+
+		profile := token.GetUserProfile()
+		// Should be nil because 'sub' is required
+		assert.Nil(t, profile)
+	})
+
+	t.Run("returns profile with only required sub claim", func(t *testing.T) {
+		// Create ID token with only 'sub' claim
+		idTokenClaims := golangjwt.MapClaims{
+			"sub": "user_456",
+		}
+
+		idToken := golangjwt.NewWithClaims(golangjwt.SigningMethodNone, idTokenClaims)
+		idTokenStr, err := idToken.SignedString(golangjwt.UnsafeAllowNoneSignatureType)
+		assert.NoError(t, err)
+
+		token := &Token{
+			rawToken: &oauth2.Token{},
+		}
+		token.rawToken = token.rawToken.WithExtra(map[string]interface{}{
+			"id_token": idTokenStr,
+		})
+
+		profile := token.GetUserProfile()
+		assert.NotNil(t, profile)
+		assert.Equal(t, "user_456", profile.ID)
+		assert.Empty(t, profile.GivenName)
+		assert.Empty(t, profile.FamilyName)
+		assert.Empty(t, profile.Email)
+		assert.Empty(t, profile.Picture)
+	})
+}
+
+func TestToken_GetClaim(t *testing.T) {
+	t.Parallel()
+
+	t.Run("returns false when parsed is nil", func(t *testing.T) {
+		token := &Token{}
+		value, exists := token.GetClaim("sub")
+		assert.Nil(t, value)
+		assert.False(t, exists)
+	})
+
+	t.Run("returns claim value when claim exists", func(t *testing.T) {
+		token := &Token{
+			processing: tokenProcessing{
+				parsed: &golangjwt.Token{
+					Claims: golangjwt.MapClaims{
+						"sub": "user_123",
+						"custom_claim": "custom_value",
+					},
+				},
+			},
+		}
+		value, exists := token.GetClaim("sub")
+		assert.True(t, exists)
+		assert.Equal(t, "user_123", value)
+
+		customValue, exists := token.GetClaim("custom_claim")
+		assert.True(t, exists)
+		assert.Equal(t, "custom_value", customValue)
+	})
+
+	t.Run("returns false when claim doesn't exist", func(t *testing.T) {
+		token := &Token{
+			processing: tokenProcessing{
+				parsed: &golangjwt.Token{
+					Claims: golangjwt.MapClaims{
+						"sub": "user_123",
+					},
+				},
+			},
+		}
+		value, exists := token.GetClaim("nonexistent")
+		assert.Nil(t, value)
+		assert.False(t, exists)
+	})
+}
+
+func TestToken_GetUserOrganizations(t *testing.T) {
+	t.Parallel()
+
+	t.Run("returns nil when ID token is not available", func(t *testing.T) {
+		token := &Token{
+			rawToken: &oauth2.Token{},
+		}
+		orgs := token.GetUserOrganizations()
+		assert.Nil(t, orgs)
+	})
+
+	t.Run("returns organizations from standard org_codes claim", func(t *testing.T) {
+		// Create ID token with org_codes claim
+		idTokenClaims := golangjwt.MapClaims{
+			"sub":       "user_123",
+			"org_codes": []interface{}{"org_alpha", "org_beta", "org_gamma"},
+		}
+
+		idToken := golangjwt.NewWithClaims(golangjwt.SigningMethodNone, idTokenClaims)
+		idTokenStr, err := idToken.SignedString(golangjwt.UnsafeAllowNoneSignatureType)
+		assert.NoError(t, err)
+
+		token := &Token{
+			rawToken: &oauth2.Token{},
+		}
+		token.rawToken = token.rawToken.WithExtra(map[string]interface{}{
+			"id_token": idTokenStr,
+		})
+
+		orgs := token.GetUserOrganizations()
+		assert.NotNil(t, orgs)
+		assert.Equal(t, 3, len(orgs))
+		assert.Equal(t, "org_alpha", orgs[0])
+		assert.Equal(t, "org_beta", orgs[1])
+		assert.Equal(t, "org_gamma", orgs[2])
+	})
+
+	t.Run("returns organizations from Hasura x-hasura-org-codes claim", func(t *testing.T) {
+		// Create ID token with Hasura format
+		idTokenClaims := golangjwt.MapClaims{
+			"sub":                 "user_123",
+			"x-hasura-org-codes": []interface{}{"hasura_org_1", "hasura_org_2"},
+		}
+
+		idToken := golangjwt.NewWithClaims(golangjwt.SigningMethodNone, idTokenClaims)
+		idTokenStr, err := idToken.SignedString(golangjwt.UnsafeAllowNoneSignatureType)
+		assert.NoError(t, err)
+
+		token := &Token{
+			rawToken: &oauth2.Token{},
+		}
+		token.rawToken = token.rawToken.WithExtra(map[string]interface{}{
+			"id_token": idTokenStr,
+		})
+
+		orgs := token.GetUserOrganizations()
+		assert.NotNil(t, orgs)
+		assert.Equal(t, 2, len(orgs))
+		assert.Equal(t, "hasura_org_1", orgs[0])
+		assert.Equal(t, "hasura_org_2", orgs[1])
+	})
+
+	t.Run("prefers standard org_codes over Hasura format", func(t *testing.T) {
+		// Create ID token with both formats - standard should take precedence
+		idTokenClaims := golangjwt.MapClaims{
+			"sub":                 "user_123",
+			"org_codes":           []interface{}{"standard_org"},
+			"x-hasura-org-codes": []interface{}{"hasura_org"},
+		}
+
+		idToken := golangjwt.NewWithClaims(golangjwt.SigningMethodNone, idTokenClaims)
+		idTokenStr, err := idToken.SignedString(golangjwt.UnsafeAllowNoneSignatureType)
+		assert.NoError(t, err)
+
+		token := &Token{
+			rawToken: &oauth2.Token{},
+		}
+		token.rawToken = token.rawToken.WithExtra(map[string]interface{}{
+			"id_token": idTokenStr,
+		})
+
+		orgs := token.GetUserOrganizations()
+		assert.NotNil(t, orgs)
+		assert.Equal(t, 1, len(orgs))
+		assert.Equal(t, "standard_org", orgs[0]) // Should use standard, not Hasura
+	})
+}
+
+func TestToken_GetPermissions_WithHasura(t *testing.T) {
+	t.Parallel()
+
+	t.Run("returns permissions from Hasura x-hasura-permissions when standard claim missing", func(t *testing.T) {
+		token := &Token{
+			processing: tokenProcessing{
+				parsed: &golangjwt.Token{
+					Claims: golangjwt.MapClaims{
+						"x-hasura-permissions": []interface{}{
+							"read:users",
+							"write:posts",
+						},
+					},
+				},
+			},
+		}
+		permissions := token.GetPermissions()
+		assert.Equal(t, []string{"read:users", "write:posts"}, permissions)
+	})
+
+	t.Run("prefers standard permissions over Hasura permissions", func(t *testing.T) {
+		token := &Token{
+			processing: tokenProcessing{
+				parsed: &golangjwt.Token{
+					Claims: golangjwt.MapClaims{
+						"permissions": []interface{}{
+							"read:users",
+						},
+						"x-hasura-permissions": []interface{}{
+							"write:posts",
+						},
+					},
+				},
+			},
+		}
+		permissions := token.GetPermissions()
+		assert.Equal(t, []string{"read:users"}, permissions)
+	})
+}
+
+func TestToken_GetOrganizationCode_WithHasura(t *testing.T) {
+	t.Parallel()
+
+	t.Run("returns org code from Hasura x-hasura-org-code when standard claim missing", func(t *testing.T) {
+		token := &Token{
+			processing: tokenProcessing{
+				parsed: &golangjwt.Token{
+					Claims: golangjwt.MapClaims{
+						"x-hasura-org-code": "org_hasura_123",
+					},
+				},
+			},
+		}
+		orgCode := token.GetOrganizationCode()
+		assert.Equal(t, "org_hasura_123", orgCode)
+	})
+
+	t.Run("prefers standard org_code over Hasura org_code", func(t *testing.T) {
+		token := &Token{
+			processing: tokenProcessing{
+				parsed: &golangjwt.Token{
+					Claims: golangjwt.MapClaims{
+						"org_code":         "org_standard_123",
+						"x-hasura-org-code": "org_hasura_123",
+					},
+				},
+			},
+		}
+		orgCode := token.GetOrganizationCode()
+		assert.Equal(t, "org_standard_123", orgCode)
+	})
+}
+
+func TestToken_GetFeatureFlags_WithHasura(t *testing.T) {
+	t.Parallel()
+
+	t.Run("returns feature flags from Hasura x-hasura-feature-flags when standard claim missing", func(t *testing.T) {
+		token := &Token{
+			processing: tokenProcessing{
+				parsed: &golangjwt.Token{
+					Claims: golangjwt.MapClaims{
+						"x-hasura-feature-flags": map[string]interface{}{
+							"new_feature": map[string]interface{}{
+								"t": "b",
+								"v": true,
+							},
+						},
+					},
+				},
+			},
+		}
+		flags := token.GetFeatureFlags()
+		assert.NotNil(t, flags)
+		flag, exists := flags["new_feature"]
+		assert.True(t, exists)
+		assert.Equal(t, "b", flag.Type)
+		assert.Equal(t, true, flag.Value)
+	})
+
+	t.Run("prefers standard feature_flags over Hasura feature_flags", func(t *testing.T) {
+		token := &Token{
+			processing: tokenProcessing{
+				parsed: &golangjwt.Token{
+					Claims: golangjwt.MapClaims{
+						"feature_flags": map[string]interface{}{
+							"standard_flag": map[string]interface{}{
+								"t": "b",
+								"v": true,
+							},
+						},
+						"x-hasura-feature-flags": map[string]interface{}{
+							"hasura_flag": map[string]interface{}{
+								"t": "b",
+								"v": false,
+							},
+						},
+					},
+				},
+			},
+		}
+		flags := token.GetFeatureFlags()
+		assert.NotNil(t, flags)
+		_, exists := flags["standard_flag"]
+		assert.True(t, exists)
+		_, exists = flags["hasura_flag"]
+		assert.False(t, exists)
+	})
+}

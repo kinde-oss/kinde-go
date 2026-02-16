@@ -40,6 +40,10 @@ func WithSessionHooks(sessionHooks ISessionHooks) Option {
 // Adds Kinde management API audience to the list of audiences to request.
 func WithKindeManagementAPI(kindeDomain string) Option {
 	return func(s *ClientCredentialsFlow) {
+		// Handle empty string input
+		if kindeDomain == "" {
+			return
+		}
 
 		asURL, err := url.Parse(kindeDomain)
 		if err != nil {
@@ -53,8 +57,12 @@ func WithKindeManagementAPI(kindeDomain string) Option {
 
 		host = strings.TrimSuffix(host, ".kinde.com")
 
+		// Don't add audience if host is empty after processing
+		if host == "" {
+			return
+		}
+
 		managementApiAudience := fmt.Sprintf("https://%v.kinde.com/api", host)
-		WithAuthParameter("audience", managementApiAudience)(s)
 		WithAudience(managementApiAudience)(s)
 	}
 }
