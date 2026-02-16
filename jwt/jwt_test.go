@@ -1,10 +1,12 @@
 package jwt
 
 import (
+	"context"
 	"crypto/rsa"
 	"crypto/x509"
 	"encoding/pem"
 	"testing"
+	"time"
 
 	golangjwt "github.com/golang-jwt/jwt/v5"
 	"github.com/stretchr/testify/assert"
@@ -1684,5 +1686,207 @@ func TestToken_GetFeatureFlags_WithHasura(t *testing.T) {
 		assert.True(t, exists)
 		_, exists = flags["hasura_flag"]
 		assert.False(t, exists)
+	})
+}
+
+func TestToken_IsTokenExpired(t *testing.T) {
+	t.Parallel()
+
+	t.Run("returns true when token has no expiration claim", func(t *testing.T) {
+		token := &Token{
+			processing: tokenProcessing{
+				parsed: &golangjwt.Token{
+					Claims: golangjwt.MapClaims{},
+				},
+			},
+		}
+		result := token.IsTokenExpired(0)
+		assert.True(t, result)
+	})
+
+	t.Run("returns false when token is not expired", func(t *testing.T) {
+		futureExp := time.Now().Add(1 * time.Hour).Unix()
+		token := &Token{
+			processing: tokenProcessing{
+				parsed: &golangjwt.Token{
+					Claims: golangjwt.MapClaims{
+						"exp": float64(futureExp),
+					},
+				},
+			},
+		}
+		result := token.IsTokenExpired(0)
+		assert.False(t, result)
+	})
+
+	t.Run("returns true when token is expired", func(t *testing.T) {
+		pastExp := time.Now().Add(-1 * time.Hour).Unix()
+		token := &Token{
+			processing: tokenProcessing{
+				parsed: &golangjwt.Token{
+					Claims: golangjwt.MapClaims{
+						"exp": float64(pastExp),
+					},
+				},
+			},
+		}
+		result := token.IsTokenExpired(0)
+		assert.True(t, result)
+	})
+
+	t.Run("returns true when token expires within threshold", func(t *testing.T) {
+		// Token expires in 5 seconds, threshold is 10 seconds
+		futureExp := time.Now().Add(5 * time.Second).Unix()
+		token := &Token{
+			processing: tokenProcessing{
+				parsed: &golangjwt.Token{
+					Claims: golangjwt.MapClaims{
+						"exp": float64(futureExp),
+					},
+				},
+			},
+		}
+		result := token.IsTokenExpired(10)
+		assert.True(t, result)
+	})
+
+	t.Run("returns false when token expires after threshold", func(t *testing.T) {
+		// Token expires in 20 seconds, threshold is 10 seconds
+		futureExp := time.Now().Add(20 * time.Second).Unix()
+		token := &Token{
+			processing: tokenProcessing{
+				parsed: &golangjwt.Token{
+					Claims: golangjwt.MapClaims{
+						"exp": float64(futureExp),
+					},
+				},
+			},
+		}
+		result := token.IsTokenExpired(10)
+		assert.False(t, result)
+	})
+
+	t.Run("handles int64 expiration claim", func(t *testing.T) {
+		futureExp := time.Now().Add(1 * time.Hour).Unix()
+		token := &Token{
+			processing: tokenProcessing{
+				parsed: &golangjwt.Token{
+					Claims: golangjwt.MapClaims{
+						"exp": int64(futureExp),
+					},
+				},
+			},
+		}
+		result := token.IsTokenExpired(0)
+		assert.False(t, result)
+	})
+
+	t.Run("handles int expiration claim", func(t *testing.T) {
+		futureExp := int(time.Now().Add(1 * time.Hour).Unix())
+		token := &Token{
+			processing: tokenProcessing{
+				parsed: &golangjwt.Token{
+					Claims: golangjwt.MapClaims{
+						"exp": futureExp,
+					},
+				},
+			},
+		}
+		result := token.IsTokenExpired(0)
+		assert.False(t, result)
+	})
+}
+
+func TestToken_IsAuthenticated(t *testing.T) {
+	t.Parallel()
+
+	t.Run("returns true when token is not expired", func(t *testing.T) {
+		futureExp := time.Now().Add(1 * time.Hour).Unix()
+		token := &Token{
+			processing: tokenProcessing{
+				parsed: &golangjwt.Token{
+					Claims: golangjwt.MapClaims{
+						"exp": float64(futureExp),
+					},
+				},
+			},
+		}
+		result := token.IsAuthenticated(context.Background(), IsAuthenticatedOptions{
+			UseRefreshToken:   false,
+			ExpiredThreshold: 0,
+		})
+		assert.True(t, result)
+	})
+
+	t.Run("returns false when token is expired", func(t *testing.T) {
+		pastExp := time.Now().Add(-1 * time.Hour).Unix()
+		token := &Token{
+			processing: tokenProcessing{
+				parsed: &golangjwt.Token{
+					Claims: golangjwt.MapClaims{
+						"exp": float64(pastExp),
+					},
+				},
+			},
+		}
+		result := token.IsAuthenticated(context.Background(), IsAuthenticatedOptions{
+			UseRefreshToken:   false,
+			ExpiredThreshold: 0,
+		})
+		assert.False(t, result)
+	})
+
+	t.Run("returns false when token has no expiration claim", func(t *testing.T) {
+		token := &Token{
+			processing: tokenProcessing{
+				parsed: &golangjwt.Token{
+					Claims: golangjwt.MapClaims{},
+				},
+			},
+		}
+		result := token.IsAuthenticated(context.Background(), IsAuthenticatedOptions{
+			UseRefreshToken:   false,
+			ExpiredThreshold: 0,
+		})
+		assert.False(t, result)
+	})
+
+	t.Run("respects expired threshold", func(t *testing.T) {
+		// Token expires in 5 seconds, threshold is 10 seconds
+		futureExp := time.Now().Add(5 * time.Second).Unix()
+		token := &Token{
+			processing: tokenProcessing{
+				parsed: &golangjwt.Token{
+					Claims: golangjwt.MapClaims{
+						"exp": float64(futureExp),
+					},
+				},
+			},
+		}
+		result := token.IsAuthenticated(context.Background(), IsAuthenticatedOptions{
+			UseRefreshToken:   false,
+			ExpiredThreshold: 10,
+		})
+		assert.False(t, result)
+	})
+
+	t.Run("returns false when expired and useRefreshToken is true", func(t *testing.T) {
+		// Note: Token refresh requires flow context, so this will return false
+		// This is expected behavior until token refresh is implemented at flow level
+		pastExp := time.Now().Add(-1 * time.Hour).Unix()
+		token := &Token{
+			processing: tokenProcessing{
+				parsed: &golangjwt.Token{
+					Claims: golangjwt.MapClaims{
+						"exp": float64(pastExp),
+					},
+				},
+			},
+		}
+		result := token.IsAuthenticated(context.Background(), IsAuthenticatedOptions{
+			UseRefreshToken:   true,
+			ExpiredThreshold: 0,
+		})
+		assert.False(t, result)
 	})
 }

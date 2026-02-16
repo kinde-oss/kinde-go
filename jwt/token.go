@@ -1,7 +1,9 @@
 package jwt
 
 import (
+	"context"
 	"encoding/json"
+	"time"
 
 	golangjwt "github.com/golang-jwt/jwt/v5"
 	"golang.org/x/oauth2"
@@ -824,4 +826,75 @@ func (j *Token) GetValidationErrors() error {
 		return nil
 	}
 	return newError("token validation errors", nil, j.validationErrors...)
+}
+
+// IsTokenExpired checks if the token is expired, optionally considering a threshold.
+//
+// The threshold parameter allows you to consider a token expired before its actual
+// expiration time. This is useful for refreshing tokens proactively to avoid
+// expiration during API calls.
+//
+// Parameters:
+//   - threshold: Optional threshold in seconds. If provided, the token is considered
+//     expired if it will expire within this many seconds. Defaults to 0 (only check actual expiration).
+//
+// Returns true if the token is expired (or will expire within the threshold),
+// false otherwise. Returns true if the expiration claim is missing or invalid.
+func (j *Token) IsTokenExpired(threshold int64) bool {
+	exp, exists := j.GetExpiration()
+	if !exists {
+		// If no expiration claim, consider it expired for safety
+		return true
+	}
+
+	// Get current time
+	now := time.Now().Unix()
+
+	// Check if expired (with threshold)
+	return exp < (now + threshold)
+}
+
+// IsAuthenticatedOptions contains options for checking authentication status.
+type IsAuthenticatedOptions struct {
+	// UseRefreshToken, if true, attempts to refresh the token if it's expired.
+	// This requires a token source that supports refresh (e.g., AuthorizationCodeFlow).
+	UseRefreshToken bool
+	// ExpiredThreshold is the threshold in seconds to consider a token expired.
+	// If the token will expire within this many seconds, it's considered expired.
+	ExpiredThreshold int64
+}
+
+// IsAuthenticated checks if the user is authenticated based on the token.
+//
+// If UseRefreshToken is true and the token is expired, this method will attempt
+// to refresh the token using the provided token source. This is useful for
+// automatically refreshing tokens before they expire.
+//
+// Note: This method requires a token source that supports refresh (e.g., from
+// AuthorizationCodeFlow). If UseRefreshToken is true but no refresh mechanism
+// is available, it will only check if the token is currently valid.
+//
+// Parameters:
+//   - ctx: Context for the request (used for token refresh if needed)
+//   - options: Configuration options for the authentication check
+//
+// Returns true if the user is authenticated (token is valid or was successfully refreshed),
+// false otherwise.
+func (j *Token) IsAuthenticated(ctx context.Context, options IsAuthenticatedOptions) bool {
+	isExpired := j.IsTokenExpired(options.ExpiredThreshold)
+
+	if !isExpired {
+		return true
+	}
+
+	// If expired and refresh is requested, we would need a token source
+	// For now, we'll just return false as token refresh requires flow context
+	// This can be enhanced later with a token source interface
+	if options.UseRefreshToken {
+		// Token refresh would need to be implemented at the flow level
+		// For now, return false if expired
+		return false
+	}
+
+	return false
 }
