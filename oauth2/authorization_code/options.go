@@ -453,3 +453,15 @@ func WithReauthState(reauthState string) Option {
 		}
 	}
 }
+
+// WithInvitationCode sets the invitation code and is_invitation parameters for team member invitations.
+// When an invitation code is provided, is_invitation will be set to "true".
+func WithInvitationCode(invitationCode string) Option {
+	return func(s *AuthorizationCodeFlow) {
+		invitationCode = strings.TrimSpace(invitationCode)
+		if invitationCode != "" {
+			WithAuthParameter("invitation_code", invitationCode)(s)
+			WithAuthParameter("is_invitation", "true")(s)
+		}
+	}
+}
