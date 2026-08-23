@@ -256,6 +256,126 @@ func decodeAddAPIScopeParams(args [1]string, argsEscaped bool, r *http.Request) 
 	return params, nil
 }
 
+// AddApplicationAccessRoleParams is parameters of AddApplicationAccessRole operation.
+type AddApplicationAccessRoleParams struct {
+	// The identifier/client ID for the application.
+	ApplicationID string
+	// The identifier for the role.
+	RoleID string
+}
+
+func unpackAddApplicationAccessRoleParams(packed middleware.Parameters) (params AddApplicationAccessRoleParams) {
+	{
+		key := middleware.ParameterKey{
+			Name: "application_id",
+			In:   "path",
+		}
+		params.ApplicationID = packed[key].(string)
+	}
+	{
+		key := middleware.ParameterKey{
+			Name: "role_id",
+			In:   "path",
+		}
+		params.RoleID = packed[key].(string)
+	}
+	return params
+}
+
+func decodeAddApplicationAccessRoleParams(args [2]string, argsEscaped bool, r *http.Request) (params AddApplicationAccessRoleParams, _ error) {
+	// Decode path: application_id.
+	if err := func() error {
+		param := args[0]
+		if argsEscaped {
+			unescaped, err := url.PathUnescape(args[0])
+			if err != nil {
+				return errors.Wrap(err, "unescape path")
+			}
+			param = unescaped
+		}
+		if len(param) > 0 {
+			d := uri.NewPathDecoder(uri.PathDecoderConfig{
+				Param:   "application_id",
+				Value:   param,
+				Style:   uri.PathStyleSimple,
+				Explode: false,
+			})
+
+			if err := func() error {
+				val, err := d.DecodeValue()
+				if err != nil {
+					return err
+				}
+
+				c, err := conv.ToString(val)
+				if err != nil {
+					return err
+				}
+
+				params.ApplicationID = c
+				return nil
+			}(); err != nil {
+				return err
+			}
+		} else {
+			return validate.ErrFieldRequired
+		}
+		return nil
+	}(); err != nil {
+		return params, &ogenerrors.DecodeParamError{
+			Name: "application_id",
+			In:   "path",
+			Err:  err,
+		}
+	}
+	// Decode path: role_id.
+	if err := func() error {
+		param := args[1]
+		if argsEscaped {
+			unescaped, err := url.PathUnescape(args[1])
+			if err != nil {
+				return errors.Wrap(err, "unescape path")
+			}
+			param = unescaped
+		}
+		if len(param) > 0 {
+			d := uri.NewPathDecoder(uri.PathDecoderConfig{
+				Param:   "role_id",
+				Value:   param,
+				Style:   uri.PathStyleSimple,
+				Explode: false,
+			})
+
+			if err := func() error {
+				val, err := d.DecodeValue()
+				if err != nil {
+					return err
+				}
+
+				c, err := conv.ToString(val)
+				if err != nil {
+					return err
+				}
+
+				params.RoleID = c
+				return nil
+			}(); err != nil {
+				return err
+			}
+		} else {
+			return validate.ErrFieldRequired
+		}
+		return nil
+	}(); err != nil {
+		return params, &ogenerrors.DecodeParamError{
+			Name: "role_id",
+			In:   "path",
+			Err:  err,
+		}
+	}
+	return params, nil
+}
+
 // AddLogoParams is parameters of AddLogo operation.
 type AddLogoParams struct {
 	// The type of logo to add.
@@ -950,6 +1070,72 @@ func decodeAddRoleScopeParams(args [1]string, argsEscaped bool, r *http.Request)
 	return params, nil
 }
 
+// CreateOrganizationInviteParams is parameters of createOrganizationInvite operation.
+type CreateOrganizationInviteParams struct {
+	// The organization's code.
+	OrgCode string
+}
+
+func unpackCreateOrganizationInviteParams(packed middleware.Parameters) (params CreateOrganizationInviteParams) {
+	{
+		key := middleware.ParameterKey{
+			Name: "org_code",
+			In:   "path",
+		}
+		params.OrgCode = packed[key].(string)
+	}
+	return params
+}
+
+func decodeCreateOrganizationInviteParams(args [1]string, argsEscaped bool, r *http.Request) (params CreateOrganizationInviteParams, _ error) {
+	// Decode path: org_code.
+	if err := func() error {
+		param := args[0]
+		if argsEscaped {
+			unescaped, err := url.PathUnescape(args[0])
+			if err != nil {
+				return errors.Wrap(err, "unescape path")
+			}
+			param = unescaped
+		}
+		if len(param) > 0 {
+			d := uri.NewPathDecoder(uri.PathDecoderConfig{
+				Param:   "org_code",
+				Value:   param,
+				Style:   uri.PathStyleSimple,
+				Explode: false,
+			})
+
+			if err := func() error {
+				val, err := d.DecodeValue()
+				if err != nil {
+					return err
+				}
+
+				c, err := conv.ToString(val)
+				if err != nil {
+					return err
+				}
+
+				params.OrgCode = c
+				return nil
+			}(); err != nil {
+				return err
+			}
+		} else {
+			return validate.ErrFieldRequired
+		}
+		return nil
+	}(); err != nil {
+		return params, &ogenerrors.DecodeParamError{
+			Name: "org_code",
+			In:   "path",
+			Err:  err,
+		}
+	}
+	return params, nil
+}
+
 // CreateOrganizationUserPermissionParams is parameters of CreateOrganizationUserPermission operation.
 type CreateOrganizationUserPermissionParams struct {
 	// The organization's code.
@@ -1346,6 +1532,72 @@ func decodeCreateSubscriberParams(args [0]string, argsEscaped bool, r *http.Requ
 		return params, &ogenerrors.DecodeParamError{
 			Name: "email",
 			In:   "query",
+			Err:  err,
+		}
+	}
+	return params, nil
+}
+
+// CreateUserBillingCustomerParams is parameters of createUserBillingCustomer operation.
+type CreateUserBillingCustomerParams struct {
+	// The user's ID.
+	UserID string
+}
+
+func unpackCreateUserBillingCustomerParams(packed middleware.Parameters) (params CreateUserBillingCustomerParams) {
+	{
+		key := middleware.ParameterKey{
+			Name: "user_id",
+			In:   "path",
+		}
+		params.UserID = packed[key].(string)
+	}
+	return params
+}
+
+func decodeCreateUserBillingCustomerParams(args [1]string, argsEscaped bool, r *http.Request) (params CreateUserBillingCustomerParams, _ error) {
+	// Decode path: user_id.
+	if err := func() error {
+		param := args[0]
+		if argsEscaped {
+			unescaped, err := url.PathUnescape(args[0])
+			if err != nil {
+				return errors.Wrap(err, "unescape path")
+			}
+			param = unescaped
+		}
+		if len(param) > 0 {
+			d := uri.NewPathDecoder(uri.PathDecoderConfig{
+				Param:   "user_id",
+				Value:   param,
+				Style:   uri.PathStyleSimple,
+				Explode: false,
+			})
+
+			if err := func() error {
+				val, err := d.DecodeValue()
+				if err != nil {
+					return err
+				}
+
+				c, err := conv.ToString(val)
+				if err != nil {
+					return err
+				}
+
+				params.UserID = c
+				return nil
+			}(); err != nil {
+				return err
+			}
+		} else {
+			return validate.ErrFieldRequired
+		}
+		return nil
+	}(); err != nil {
+		return params, &ogenerrors.DecodeParamError{
+			Name: "user_id",
+			In:   "path",
 			Err:  err,
 		}
 	}
@@ -2081,6 +2333,72 @@ func decodeDeleteConnectionParams(args [1]string, argsEscaped bool, r *http.Requ
 	}(); err != nil {
 		return params, &ogenerrors.DecodeParamError{
 			Name: "connection_id",
+			In:   "path",
+			Err:  err,
+		}
+	}
+	return params, nil
+}
+
+// DeleteDirectoryParams is parameters of deleteDirectory operation.
+type DeleteDirectoryParams struct {
+	// The directory's ID.
+	DirectoryID string
+}
+
+func unpackDeleteDirectoryParams(packed middleware.Parameters) (params DeleteDirectoryParams) {
+	{
+		key := middleware.ParameterKey{
+			Name: "directory_id",
+			In:   "path",
+		}
+		params.DirectoryID = packed[key].(string)
+	}
+	return params
+}
+
+func decodeDeleteDirectoryParams(args [1]string, argsEscaped bool, r *http.Request) (params DeleteDirectoryParams, _ error) {
+	// Decode path: directory_id.
+	if err := func() error {
+		param := args[0]
+		if argsEscaped {
+			unescaped, err := url.PathUnescape(args[0])
+			if err != nil {
+				return errors.Wrap(err, "unescape path")
+			}
+			param = unescaped
+		}
+		if len(param) > 0 {
+			d := uri.NewPathDecoder(uri.PathDecoderConfig{
+				Param:   "directory_id",
+				Value:   param,
+				Style:   uri.PathStyleSimple,
+				Explode: false,
+			})
+
+			if err := func() error {
+				val, err := d.DecodeValue()
+				if err != nil {
+					return err
+				}
+
+				c, err := conv.ToString(val)
+				if err != nil {
+					return err
+				}
+
+				params.DirectoryID = c
+				return nil
+			}(); err != nil {
+				return err
+			}
+		} else {
+			return validate.ErrFieldRequired
+		}
+		return nil
+	}(); err != nil {
+		return params, &ogenerrors.DecodeParamError{
+			Name: "directory_id",
 			In:   "path",
 			Err:  err,
 		}
@@ -2849,6 +3167,126 @@ func decodeDeleteOrganizationHandleParams(args [1]string, argsEscaped bool, r *h
 	}(); err != nil {
 		return params, &ogenerrors.DecodeParamError{
 			Name: "org_code",
+			In:   "path",
+			Err:  err,
+		}
+	}
+	return params, nil
+}
+
+// DeleteOrganizationInviteParams is parameters of deleteOrganizationInvite operation.
+type DeleteOrganizationInviteParams struct {
+	// The organization's code.
+	OrgCode string
+	// The invitation's code.
+	InviteCode string
+}
+
+func unpackDeleteOrganizationInviteParams(packed middleware.Parameters) (params DeleteOrganizationInviteParams) {
+	{
+		key := middleware.ParameterKey{
+			Name: "org_code",
+			In:   "path",
+		}
+		params.OrgCode = packed[key].(string)
+	}
+	{
+		key := middleware.ParameterKey{
+			Name: "invite_code",
+			In:   "path",
+		}
+		params.InviteCode = packed[key].(string)
+	}
+	return params
+}
+
+func decodeDeleteOrganizationInviteParams(args [2]string, argsEscaped bool, r *http.Request) (params DeleteOrganizationInviteParams, _ error) {
+	// Decode path: org_code.
+	if err := func() error {
+		param := args[0]
+		if argsEscaped {
+			unescaped, err := url.PathUnescape(args[0])
+			if err != nil {
+				return errors.Wrap(err, "unescape path")
+			}
+			param = unescaped
+		}
+		if len(param) > 0 {
+			d := uri.NewPathDecoder(uri.PathDecoderConfig{
+				Param:   "org_code",
+				Value:   param,
+				Style:   uri.PathStyleSimple,
+				Explode: false,
+			})
+
+			if err := func() error {
+				val, err := d.DecodeValue()
+				if err != nil {
+					return err
+				}
+
+				c, err := conv.ToString(val)
+				if err != nil {
+					return err
+				}
+
+				params.OrgCode = c
+				return nil
+			}(); err != nil {
+				return err
+			}
+		} else {
+			return validate.ErrFieldRequired
+		}
+		return nil
+	}(); err != nil {
+		return params, &ogenerrors.DecodeParamError{
+			Name: "org_code",
+			In:   "path",
+			Err:  err,
+		}
+	}
+	// Decode path: invite_code.
+	if err := func() error {
+		param := args[1]
+		if argsEscaped {
+			unescaped, err := url.PathUnescape(args[1])
+			if err != nil {
+				return errors.Wrap(err, "unescape path")
+			}
+			param = unescaped
+		}
+		if len(param) > 0 {
+			d := uri.NewPathDecoder(uri.PathDecoderConfig{
+				Param:   "invite_code",
+				Value:   param,
+				Style:   uri.PathStyleSimple,
+				Explode: false,
+			})
+
+			if err := func() error {
+				val, err := d.DecodeValue()
+				if err != nil {
+					return err
+				}
+
+				c, err := conv.ToString(val)
+				if err != nil {
+					return err
+				}
+
+				params.InviteCode = c
+				return nil
+			}(); err != nil {
+				return err
+			}
+		} else {
+			return validate.ErrFieldRequired
+		}
+		return nil
+	}(); err != nil {
+		return params, &ogenerrors.DecodeParamError{
+			Name: "invite_code",
 			In:   "path",
 			Err:  err,
 		}
@@ -5179,6 +5617,229 @@ func decodeGetApplicationParams(args [1]string, argsEscaped bool, r *http.Reques
 	return params, nil
 }
 
+// GetApplicationAccessRolesParams is parameters of GetApplicationAccessRoles operation.
+type GetApplicationAccessRolesParams struct {
+	// The identifier/client ID for the application.
+	ApplicationID string
+	// Number of results per page. Defaults to 10 if parameter not sent.
+	PageSize OptInt
+	// The ID of the role to start after.
+	StartingAfter OptString
+	// The ID of the role to end before.
+	EndingBefore OptString
+}
+
+func unpackGetApplicationAccessRolesParams(packed middleware.Parameters) (params GetApplicationAccessRolesParams) {
+	{
+		key := middleware.ParameterKey{
+			Name: "application_id",
+			In:   "path",
+		}
+		params.ApplicationID = packed[key].(string)
+	}
+	{
+		key := middleware.ParameterKey{
+			Name: "page_size",
+			In:   "query",
+		}
+		if v, ok := packed[key]; ok {
+			params.PageSize = v.(OptInt)
+		}
+	}
+	{
+		key := middleware.ParameterKey{
+			Name: "starting_after",
+			In:   "query",
+		}
+		if v, ok := packed[key]; ok {
+			params.StartingAfter = v.(OptString)
+		}
+	}
+	{
+		key := middleware.ParameterKey{
+			Name: "ending_before",
+			In:   "query",
+		}
+		if v, ok := packed[key]; ok {
+			params.EndingBefore = v.(OptString)
+		}
+	}
+	return params
+}
+
+func decodeGetApplicationAccessRolesParams(args [1]string, argsEscaped bool, r *http.Request) (params GetApplicationAccessRolesParams, _ error) {
+	q := uri.NewQueryDecoder(r.URL.Query())
+	// Decode path: application_id.
+	if err := func() error {
+		param := args[0]
+		if argsEscaped {
+			unescaped, err := url.PathUnescape(args[0])
+			if err != nil {
+				return errors.Wrap(err, "unescape path")
+			}
+			param = unescaped
+		}
+		if len(param) > 0 {
+			d := uri.NewPathDecoder(uri.PathDecoderConfig{
+				Param:   "application_id",
+				Value:   param,
+				Style:   uri.PathStyleSimple,
+				Explode: false,
+			})
+
+			if err := func() error {
+				val, err := d.DecodeValue()
+				if err != nil {
+					return err
+				}
+
+				c, err := conv.ToString(val)
+				if err != nil {
+					return err
+				}
+
+				params.ApplicationID = c
+				return nil
+			}(); err != nil {
+				return err
+			}
+		} else {
+			return validate.ErrFieldRequired
+		}
+		return nil
+	}(); err != nil {
+		return params, &ogenerrors.DecodeParamError{
+			Name: "application_id",
+			In:   "path",
+			Err:  err,
+		}
+	}
+	// Decode query: page_size.
+	if err := func() error {
+		cfg := uri.QueryParameterDecodingConfig{
+			Name:    "page_size",
+			Style:   uri.QueryStyleForm,
+			Explode: true,
+		}
+
+		if err := q.HasParam(cfg); err == nil {
+			if err := q.DecodeParam(cfg, func(d uri.Decoder) error {
+				var paramsDotPageSizeVal int
+				if err := func() error {
+					val, err := d.DecodeValue()
+					if err != nil {
+						return err
+					}
+
+					c, err := conv.ToInt(val)
+					if err != nil {
+						return err
+					}
+
+					paramsDotPageSizeVal = c
+					return nil
+				}(); err != nil {
+					return err
+				}
+				params.PageSize.SetTo(paramsDotPageSizeVal)
+				return nil
+			}); err != nil {
+				return err
+			}
+		}
+		return nil
+	}(); err != nil {
+		return params, &ogenerrors.DecodeParamError{
+			Name: "page_size",
+			In:   "query",
+			Err:  err,
+		}
+	}
+	// Decode query: starting_after.
+	if err := func() error {
+		cfg := uri.QueryParameterDecodingConfig{
+			Name:    "starting_after",
+			Style:   uri.QueryStyleForm,
+			Explode: true,
+		}
+
+		if err := q.HasParam(cfg); err == nil {
+			if err := q.DecodeParam(cfg, func(d uri.Decoder) error {
+				var paramsDotStartingAfterVal string
+				if err := func() error {
+					val, err := d.DecodeValue()
+					if err != nil {
+						return err
+					}
+
+					c, err := conv.ToString(val)
+					if err != nil {
+						return err
+					}
+
+					paramsDotStartingAfterVal = c
+					return nil
+				}(); err != nil {
+					return err
+				}
+				params.StartingAfter.SetTo(paramsDotStartingAfterVal)
+				return nil
+			}); err != nil {
+				return err
+			}
+		}
+		return nil
+	}(); err != nil {
+		return params, &ogenerrors.DecodeParamError{
+			Name: "starting_after",
+			In:   "query",
+			Err:  err,
+		}
+	}
+	// Decode query: ending_before.
+	if err := func() error {
+		cfg := uri.QueryParameterDecodingConfig{
+			Name:    "ending_before",
+			Style:   uri.QueryStyleForm,
+			Explode: true,
+		}
+
+		if err := q.HasParam(cfg); err == nil {
+			if err := q.DecodeParam(cfg, func(d uri.Decoder) error {
+				var paramsDotEndingBeforeVal string
+				if err := func() error {
+					val, err := d.DecodeValue()
+					if err != nil {
+						return err
+					}
+
+					c, err := conv.ToString(val)
+					if err != nil {
+						return err
+					}
+
+					paramsDotEndingBeforeVal = c
+					return nil
+				}(); err != nil {
+					return err
+				}
+				params.EndingBefore.SetTo(paramsDotEndingBeforeVal)
+				return nil
+			}); err != nil {
+				return err
+			}
+		}
+		return nil
+	}(); err != nil {
+		return params, &ogenerrors.DecodeParamError{
+			Name: "ending_before",
+			In:   "query",
+			Err:  err,
+		}
+	}
+	return params, nil
+}
+
 // GetApplicationConnectionsParams is parameters of GetApplicationConnections operation.
 type GetApplicationConnectionsParams struct {
 	// The identifier/client ID for the application.
@@ -6955,6 +7616,241 @@ func decodeGetConnectionsParams(args [0]string, argsEscaped bool, r *http.Reques
 	return params, nil
 }
 
+// GetDirectoriesParams is parameters of getDirectories operation.
+type GetDirectoriesParams struct {
+	// Number of results per page. Defaults to 50 if parameter not sent.
+	PageSize OptNilInt
+	// The ID of the directory to start after.
+	StartingAfter OptNilString
+	// Filter by organization code to get directories for a specific organization.
+	OrganizationCode OptNilString
+}
+
+func unpackGetDirectoriesParams(packed middleware.Parameters) (params GetDirectoriesParams) {
+	{
+		key := middleware.ParameterKey{
+			Name: "page_size",
+			In:   "query",
+		}
+		if v, ok := packed[key]; ok {
+			params.PageSize = v.(OptNilInt)
+		}
+	}
+	{
+		key := middleware.ParameterKey{
+			Name: "starting_after",
+			In:   "query",
+		}
+		if v, ok := packed[key]; ok {
+			params.StartingAfter = v.(OptNilString)
+		}
+	}
+	{
+		key := middleware.ParameterKey{
+			Name: "organization_code",
+			In:   "query",
+		}
+		if v, ok := packed[key]; ok {
+			params.OrganizationCode = v.(OptNilString)
+		}
+	}
+	return params
+}
+
+func decodeGetDirectoriesParams(args [0]string, argsEscaped bool, r *http.Request) (params GetDirectoriesParams, _ error) {
+	q := uri.NewQueryDecoder(r.URL.Query())
+	// Decode query: page_size.
+	if err := func() error {
+		cfg := uri.QueryParameterDecodingConfig{
+			Name:    "page_size",
+			Style:   uri.QueryStyleForm,
+			Explode: true,
+		}
+
+		if err := q.HasParam(cfg); err == nil {
+			if err := q.DecodeParam(cfg, func(d uri.Decoder) error {
+				var paramsDotPageSizeVal int
+				if err := func() error {
+					val, err := d.DecodeValue()
+					if err != nil {
+						return err
+					}
+
+					c, err := conv.ToInt(val)
+					if err != nil {
+						return err
+					}
+
+					paramsDotPageSizeVal = c
+					return nil
+				}(); err != nil {
+					return err
+				}
+				params.PageSize.SetTo(paramsDotPageSizeVal)
+				return nil
+			}); err != nil {
+				return err
+			}
+		}
+		return nil
+	}(); err != nil {
+		return params, &ogenerrors.DecodeParamError{
+			Name: "page_size",
+			In:   "query",
+			Err:  err,
+		}
+	}
+	// Decode query: starting_after.
+	if err := func() error {
+		cfg := uri.QueryParameterDecodingConfig{
+			Name:    "starting_after",
+			Style:   uri.QueryStyleForm,
+			Explode: true,
+		}
+
+		if err := q.HasParam(cfg); err == nil {
+			if err := q.DecodeParam(cfg, func(d uri.Decoder) error {
+				var paramsDotStartingAfterVal string
+				if err := func() error {
+					val, err := d.DecodeValue()
+					if err != nil {
+						return err
+					}
+
+					c, err := conv.ToString(val)
+					if err != nil {
+						return err
+					}
+
+					paramsDotStartingAfterVal = c
+					return nil
+				}(); err != nil {
+					return err
+				}
+				params.StartingAfter.SetTo(paramsDotStartingAfterVal)
+				return nil
+			}); err != nil {
+				return err
+			}
+		}
+		return nil
+	}(); err != nil {
+		return params, &ogenerrors.DecodeParamError{
+			Name: "starting_after",
+			In:   "query",
+			Err:  err,
+		}
+	}
+	// Decode query: organization_code.
+	if err := func() error {
+		cfg := uri.QueryParameterDecodingConfig{
+			Name:    "organization_code",
+			Style:   uri.QueryStyleForm,
+			Explode: true,
+		}
+
+		if err := q.HasParam(cfg); err == nil {
+			if err := q.DecodeParam(cfg, func(d uri.Decoder) error {
+				var paramsDotOrganizationCodeVal string
+				if err := func() error {
+					val, err := d.DecodeValue()
+					if err != nil {
+						return err
+					}
+
+					c, err := conv.ToString(val)
+					if err != nil {
+						return err
+					}
+
+					paramsDotOrganizationCodeVal = c
+					return nil
+				}(); err != nil {
+					return err
+				}
+				params.OrganizationCode.SetTo(paramsDotOrganizationCodeVal)
+				return nil
+			}); err != nil {
+				return err
+			}
+		}
+		return nil
+	}(); err != nil {
+		return params, &ogenerrors.DecodeParamError{
+			Name: "organization_code",
+			In:   "query",
+			Err:  err,
+		}
+	}
+	return params, nil
+}
+
+// GetDirectoryParams is parameters of getDirectory operation.
+type GetDirectoryParams struct {
+	// The directory's ID.
+	DirectoryID string
+}
+
+func unpackGetDirectoryParams(packed middleware.Parameters) (params GetDirectoryParams) {
+	{
+		key := middleware.ParameterKey{
+			Name: "directory_id",
+			In:   "path",
+		}
+		params.DirectoryID = packed[key].(string)
+	}
+	return params
+}
+
+func decodeGetDirectoryParams(args [1]string, argsEscaped bool, r *http.Request) (params GetDirectoryParams, _ error) {
+	// Decode path: directory_id.
+	if err := func() error {
+		param := args[0]
+		if argsEscaped {
+			unescaped, err := url.PathUnescape(args[0])
+			if err != nil {
+				return errors.Wrap(err, "unescape path")
+			}
+			param = unescaped
+		}
+		if len(param) > 0 {
+			d := uri.NewPathDecoder(uri.PathDecoderConfig{
+				Param:   "directory_id",
+				Value:   param,
+				Style:   uri.PathStyleSimple,
+				Explode: false,
+			})
+
+			if err := func() error {
+				val, err := d.DecodeValue()
+				if err != nil {
+					return err
+				}
+
+				c, err := conv.ToString(val)
+				if err != nil {
+					return err
+				}
+
+				params.DirectoryID = c
+				return nil
+			}(); err != nil {
+				return err
+			}
+		} else {
+			return validate.ErrFieldRequired
+		}
+		return nil
+	}(); err != nil {
+		return params, &ogenerrors.DecodeParamError{
+			Name: "directory_id",
+			In:   "path",
+			Err:  err,
+		}
+	}
+	return params, nil
+}
+
 // GetEnvironmentVariableParams is parameters of getEnvironmentVariable operation.
 type GetEnvironmentVariableParams struct {
 	// The environment variable's ID.
@@ -7342,7 +8238,7 @@ func decodeGetOrgUserMFAParams(args [2]string, argsEscaped bool, r *http.Request
 // GetOrganizationParams is parameters of getOrganization operation.
 type GetOrganizationParams struct {
 	// The organization's code.
-	Code OptString
+	Code string
 	// Additional data to include in the response. Allowed value: "billing".
 	Expand OptString
 }
@@ -7353,9 +8249,7 @@ func unpackGetOrganizationParams(packed middleware.Parameters) (params GetOrgani
 			Name: "code",
 			In:   "query",
 		}
-		if v, ok := packed[key]; ok {
-			params.Code = v.(OptString)
-		}
+		params.Code = packed[key].(string)
 	}
 	{
 		key := middleware.ParameterKey{
@@ -7381,28 +8275,23 @@ func decodeGetOrganizationParams(args [0]string, argsEscaped bool, r *http.Reque
 
 		if err := q.HasParam(cfg); err == nil {
 			if err := q.DecodeParam(cfg, func(d uri.Decoder) error {
-				var paramsDotCodeVal string
-				if err := func() error {
-					val, err := d.DecodeValue()
-					if err != nil {
-						return err
-					}
-
-					c, err := conv.ToString(val)
-					if err != nil {
-						return err
-					}
-
-					paramsDotCodeVal = c
-					return nil
-				}(); err != nil {
+				val, err := d.DecodeValue()
+				if err != nil {
 					return err
 				}
-				params.Code.SetTo(paramsDotCodeVal)
+
+				c, err := conv.ToString(val)
+				if err != nil {
+					return err
+				}
+
+				params.Code = c
 				return nil
 			}); err != nil {
 				return err
 			}
+		} else {
+			return err
 		}
 		return nil
 	}(); err != nil {
@@ -7588,6 +8477,544 @@ func decodeGetOrganizationFeatureFlagsParams(args [1]string, argsEscaped bool, r
 	return params, nil
 }
 
+// GetOrganizationInviteParams is parameters of getOrganizationInvite operation.
+type GetOrganizationInviteParams struct {
+	// The organization's code.
+	OrgCode string
+	// The invitation's code.
+	InviteCode string
+}
+
+func unpackGetOrganizationInviteParams(packed middleware.Parameters) (params GetOrganizationInviteParams) {
+	{
+		key := middleware.ParameterKey{
+			Name: "org_code",
+			In:   "path",
+		}
+		params.OrgCode = packed[key].(string)
+	}
+	{
+		key := middleware.ParameterKey{
+			Name: "invite_code",
+			In:   "path",
+		}
+		params.InviteCode = packed[key].(string)
+	}
+	return params
+}
+
+func decodeGetOrganizationInviteParams(args [2]string, argsEscaped bool, r *http.Request) (params GetOrganizationInviteParams, _ error) {
+	// Decode path: org_code.
+	if err := func() error {
+		param := args[0]
+		if argsEscaped {
+			unescaped, err := url.PathUnescape(args[0])
+			if err != nil {
+				return errors.Wrap(err, "unescape path")
+			}
+			param = unescaped
+		}
+		if len(param) > 0 {
+			d := uri.NewPathDecoder(uri.PathDecoderConfig{
+				Param:   "org_code",
+				Value:   param,
+				Style:   uri.PathStyleSimple,
+				Explode: false,
+			})
+
+			if err := func() error {
+				val, err := d.DecodeValue()
+				if err != nil {
+					return err
+				}
+
+				c, err := conv.ToString(val)
+				if err != nil {
+					return err
+				}
+
+				params.OrgCode = c
+				return nil
+			}(); err != nil {
+				return err
+			}
+		} else {
+			return validate.ErrFieldRequired
+		}
+		return nil
+	}(); err != nil {
+		return params, &ogenerrors.DecodeParamError{
+			Name: "org_code",
+			In:   "path",
+			Err:  err,
+		}
+	}
+	// Decode path: invite_code.
+	if err := func() error {
+		param := args[1]
+		if argsEscaped {
+			unescaped, err := url.PathUnescape(args[1])
+			if err != nil {
+				return errors.Wrap(err, "unescape path")
+			}
+			param = unescaped
+		}
+		if len(param) > 0 {
+			d := uri.NewPathDecoder(uri.PathDecoderConfig{
+				Param:   "invite_code",
+				Value:   param,
+				Style:   uri.PathStyleSimple,
+				Explode: false,
+			})
+
+			if err := func() error {
+				val, err := d.DecodeValue()
+				if err != nil {
+					return err
+				}
+
+				c, err := conv.ToString(val)
+				if err != nil {
+					return err
+				}
+
+				params.InviteCode = c
+				return nil
+			}(); err != nil {
+				return err
+			}
+		} else {
+			return validate.ErrFieldRequired
+		}
+		return nil
+	}(); err != nil {
+		return params, &ogenerrors.DecodeParamError{
+			Name: "invite_code",
+			In:   "path",
+			Err:  err,
+		}
+	}
+	return params, nil
+}
+
+// GetOrganizationInvitesParams is parameters of getOrganizationInvites operation.
+type GetOrganizationInvitesParams struct {
+	// The organization's code.
+	OrgCode string
+	// Field and order to sort the result by.
+	Sort OptNilGetOrganizationInvitesSort
+	// Number of results per page. Defaults to 10 if parameter not sent.
+	PageSize OptNilInt
+	// A string to get the next page of results if there are more results.
+	NextToken OptNilString
+	// Include revoked invitations in the results.
+	IncludeRevoked OptNilBool
+	// Include accepted invitations in the results.
+	IncludeAccepted OptNilBool
+}
+
+func unpackGetOrganizationInvitesParams(packed middleware.Parameters) (params GetOrganizationInvitesParams) {
+	{
+		key := middleware.ParameterKey{
+			Name: "org_code",
+			In:   "path",
+		}
+		params.OrgCode = packed[key].(string)
+	}
+	{
+		key := middleware.ParameterKey{
+			Name: "sort",
+			In:   "query",
+		}
+		if v, ok := packed[key]; ok {
+			params.Sort = v.(OptNilGetOrganizationInvitesSort)
+		}
+	}
+	{
+		key := middleware.ParameterKey{
+			Name: "page_size",
+			In:   "query",
+		}
+		if v, ok := packed[key]; ok {
+			params.PageSize = v.(OptNilInt)
+		}
+	}
+	{
+		key := middleware.ParameterKey{
+			Name: "next_token",
+			In:   "query",
+		}
+		if v, ok := packed[key]; ok {
+			params.NextToken = v.(OptNilString)
+		}
+	}
+	{
+		key := middleware.ParameterKey{
+			Name: "include_revoked",
+			In:   "query",
+		}
+		if v, ok := packed[key]; ok {
+			params.IncludeRevoked = v.(OptNilBool)
+		}
+	}
+	{
+		key := middleware.ParameterKey{
+			Name: "include_accepted",
+			In:   "query",
+		}
+		if v, ok := packed[key]; ok {
+			params.IncludeAccepted = v.(OptNilBool)
+		}
+	}
+	return params
+}
+
+func decodeGetOrganizationInvitesParams(args [1]string, argsEscaped bool, r *http.Request) (params GetOrganizationInvitesParams, _ error) {
+	q := uri.NewQueryDecoder(r.URL.Query())
+	// Decode path: org_code.
+	if err := func() error {
+		param := args[0]
+		if argsEscaped {
+			unescaped, err := url.PathUnescape(args[0])
+			if err != nil {
+				return errors.Wrap(err, "unescape path")
+			}
+			param = unescaped
+		}
+		if len(param) > 0 {
+			d := uri.NewPathDecoder(uri.PathDecoderConfig{
+				Param:   "org_code",
+				Value:   param,
+				Style:   uri.PathStyleSimple,
+				Explode: false,
+			})
+
+			if err := func() error {
+				val, err := d.DecodeValue()
+				if err != nil {
+					return err
+				}
+
+				c, err := conv.ToString(val)
+				if err != nil {
+					return err
+				}
+
+				params.OrgCode = c
+				return nil
+			}(); err != nil {
+				return err
+			}
+		} else {
+			return validate.ErrFieldRequired
+		}
+		return nil
+	}(); err != nil {
+		return params, &ogenerrors.DecodeParamError{
+			Name: "org_code",
+			In:   "path",
+			Err:  err,
+		}
+	}
+	// Decode query: sort.
+	if err := func() error {
+		cfg := uri.QueryParameterDecodingConfig{
+			Name:    "sort",
+			Style:   uri.QueryStyleForm,
+			Explode: true,
+		}
+
+		if err := q.HasParam(cfg); err == nil {
+			if err := q.DecodeParam(cfg, func(d uri.Decoder) error {
+				var paramsDotSortVal GetOrganizationInvitesSort
+				if err := func() error {
+					val, err := d.DecodeValue()
+					if err != nil {
+						return err
+					}
+
+					c, err := conv.ToString(val)
+					if err != nil {
+						return err
+					}
+
+					paramsDotSortVal = GetOrganizationInvitesSort(c)
+					return nil
+				}(); err != nil {
+					return err
+				}
+				params.Sort.SetTo(paramsDotSortVal)
+				return nil
+			}); err != nil {
+				return err
+			}
+			if err := func() error {
+				if value, ok := params.Sort.Get(); ok {
+					if err := func() error {
+						if err := value.Validate(); err != nil {
+							return err
+						}
+						return nil
+					}(); err != nil {
+						return err
+					}
+				}
+				return nil
+			}(); err != nil {
+				return err
+			}
+		}
+		return nil
+	}(); err != nil {
+		return params, &ogenerrors.DecodeParamError{
+			Name: "sort",
+			In:   "query",
+			Err:  err,
+		}
+	}
+	// Decode query: page_size.
+	if err := func() error {
+		cfg := uri.QueryParameterDecodingConfig{
+			Name:    "page_size",
+			Style:   uri.QueryStyleForm,
+			Explode: true,
+		}
+
+		if err := q.HasParam(cfg); err == nil {
+			if err := q.DecodeParam(cfg, func(d uri.Decoder) error {
+				var paramsDotPageSizeVal int
+				if err := func() error {
+					val, err := d.DecodeValue()
+					if err != nil {
+						return err
+					}
+
+					c, err := conv.ToInt(val)
+					if err != nil {
+						return err
+					}
+
+					paramsDotPageSizeVal = c
+					return nil
+				}(); err != nil {
+					return err
+				}
+				params.PageSize.SetTo(paramsDotPageSizeVal)
+				return nil
+			}); err != nil {
+				return err
+			}
+		}
+		return nil
+	}(); err != nil {
+		return params, &ogenerrors.DecodeParamError{
+			Name: "page_size",
+			In:   "query",
+			Err:  err,
+		}
+	}
+	// Decode query: next_token.
+	if err := func() error {
+		cfg := uri.QueryParameterDecodingConfig{
+			Name:    "next_token",
+			Style:   uri.QueryStyleForm,
+			Explode: true,
+		}
+
+		if err := q.HasParam(cfg); err == nil {
+			if err := q.DecodeParam(cfg, func(d uri.Decoder) error {
+				var paramsDotNextTokenVal string
+				if err := func() error {
+					val, err := d.DecodeValue()
+					if err != nil {
+						return err
+					}
+
+					c, err := conv.ToString(val)
+					if err != nil {
+						return err
+					}
+
+					paramsDotNextTokenVal = c
+					return nil
+				}(); err != nil {
+					return err
+				}
+				params.NextToken.SetTo(paramsDotNextTokenVal)
+				return nil
+			}); err != nil {
+				return err
+			}
+		}
+		return nil
+	}(); err != nil {
+		return params, &ogenerrors.DecodeParamError{
+			Name: "next_token",
+			In:   "query",
+			Err:  err,
+		}
+	}
+	// Set default value for query: include_revoked.
+	{
+		val := bool(false)
+		params.IncludeRevoked.SetTo(val)
+	}
+	// Decode query: include_revoked.
+	if err := func() error {
+		cfg := uri.QueryParameterDecodingConfig{
+			Name:    "include_revoked",
+			Style:   uri.QueryStyleForm,
+			Explode: true,
+		}
+
+		if err := q.HasParam(cfg); err == nil {
+			if err := q.DecodeParam(cfg, func(d uri.Decoder) error {
+				var paramsDotIncludeRevokedVal bool
+				if err := func() error {
+					val, err := d.DecodeValue()
+					if err != nil {
+						return err
+					}
+
+					c, err := conv.ToBool(val)
+					if err != nil {
+						return err
+					}
+
+					paramsDotIncludeRevokedVal = c
+					return nil
+				}(); err != nil {
+					return err
+				}
+				params.IncludeRevoked.SetTo(paramsDotIncludeRevokedVal)
+				return nil
+			}); err != nil {
+				return err
+			}
+		}
+		return nil
+	}(); err != nil {
+		return params, &ogenerrors.DecodeParamError{
+			Name: "include_revoked",
+			In:   "query",
+			Err:  err,
+		}
+	}
+	// Set default value for query: include_accepted.
+	{
+		val := bool(false)
+		params.IncludeAccepted.SetTo(val)
+	}
+	// Decode query: include_accepted.
+	if err := func() error {
+		cfg := uri.QueryParameterDecodingConfig{
+			Name:    "include_accepted",
+			Style:   uri.QueryStyleForm,
+			Explode: true,
+		}
+
+		if err := q.HasParam(cfg); err == nil {
+			if err := q.DecodeParam(cfg, func(d uri.Decoder) error {
+				var paramsDotIncludeAcceptedVal bool
+				if err := func() error {
+					val, err := d.DecodeValue()
+					if err != nil {
+						return err
+					}
+
+					c, err := conv.ToBool(val)
+					if err != nil {
+						return err
+					}
+
+					paramsDotIncludeAcceptedVal = c
+					return nil
+				}(); err != nil {
+					return err
+				}
+				params.IncludeAccepted.SetTo(paramsDotIncludeAcceptedVal)
+				return nil
+			}); err != nil {
+				return err
+			}
+		}
+		return nil
+	}(); err != nil {
+		return params, &ogenerrors.DecodeParamError{
+			Name: "include_accepted",
+			In:   "query",
+			Err:  err,
+		}
+	}
+	return params, nil
+}
+
+// GetOrganizationPasskeyParams is parameters of GetOrganizationPasskey operation.
+type GetOrganizationPasskeyParams struct {
+	// The organization's code.
+	OrgCode string
+}
+
+func unpackGetOrganizationPasskeyParams(packed middleware.Parameters) (params GetOrganizationPasskeyParams) {
+	{
+		key := middleware.ParameterKey{
+			Name: "org_code",
+			In:   "path",
+		}
+		params.OrgCode = packed[key].(string)
+	}
+	return params
+}
+
+func decodeGetOrganizationPasskeyParams(args [1]string, argsEscaped bool, r *http.Request) (params GetOrganizationPasskeyParams, _ error) {
+	// Decode path: org_code.
+	if err := func() error {
+		param := args[0]
+		if argsEscaped {
+			unescaped, err := url.PathUnescape(args[0])
+			if err != nil {
+				return errors.Wrap(err, "unescape path")
+			}
+			param = unescaped
+		}
+		if len(param) > 0 {
+			d := uri.NewPathDecoder(uri.PathDecoderConfig{
+				Param:   "org_code",
+				Value:   param,
+				Style:   uri.PathStyleSimple,
+				Explode: false,
+			})
+
+			if err := func() error {
+				val, err := d.DecodeValue()
+				if err != nil {
+					return err
+				}
+
+				c, err := conv.ToString(val)
+				if err != nil {
+					return err
+				}
+
+				params.OrgCode = c
+				return nil
+			}(); err != nil {
+				return err
+			}
+		} else {
+			return validate.ErrFieldRequired
+		}
+		return nil
+	}(); err != nil {
+		return params, &ogenerrors.DecodeParamError{
+			Name: "org_code",
+			In:   "path",
+			Err:  err,
+		}
+	}
+	return params, nil
+}
+
 // GetOrganizationPropertyValuesParams is parameters of GetOrganizationPropertyValues operation.
 type GetOrganizationPropertyValuesParams struct {
 	// The organization's code.
@@ -7647,6 +9074,565 @@ func decodeGetOrganizationPropertyValuesParams(args [1]string, argsEscaped bool,
 	}(); err != nil {
 		return params, &ogenerrors.DecodeParamError{
 			Name: "org_code",
+			In:   "path",
+			Err:  err,
+		}
+	}
+	return params, nil
+}
+
+// GetOrganizationRoleActiveUsersCountParams is parameters of GetOrganizationRoleActiveUsersCount operation.
+type GetOrganizationRoleActiveUsersCountParams struct {
+	// The organization's code.
+	OrgCode string
+	// The role's public id.
+	RoleID string
+	// Start of the active period (inclusive), as an ISO 8601 datetime in UTC at second precision.
+	// Fractional seconds are accepted but rounded down to the nearest second before validation.
+	DateTimeFrom time.Time
+	// End of the active period (inclusive), as an ISO 8601 datetime in UTC at second precision.
+	// Fractional seconds are accepted but rounded up to the nearest second before validation. The window
+	// must not exceed 3 days, so this must be earlier than `date_time_from` plus 3 days.
+	DateTimeTo time.Time
+}
+
+func unpackGetOrganizationRoleActiveUsersCountParams(packed middleware.Parameters) (params GetOrganizationRoleActiveUsersCountParams) {
+	{
+		key := middleware.ParameterKey{
+			Name: "org_code",
+			In:   "path",
+		}
+		params.OrgCode = packed[key].(string)
+	}
+	{
+		key := middleware.ParameterKey{
+			Name: "role_id",
+			In:   "path",
+		}
+		params.RoleID = packed[key].(string)
+	}
+	{
+		key := middleware.ParameterKey{
+			Name: "date_time_from",
+			In:   "query",
+		}
+		params.DateTimeFrom = packed[key].(time.Time)
+	}
+	{
+		key := middleware.ParameterKey{
+			Name: "date_time_to",
+			In:   "query",
+		}
+		params.DateTimeTo = packed[key].(time.Time)
+	}
+	return params
+}
+
+func decodeGetOrganizationRoleActiveUsersCountParams(args [2]string, argsEscaped bool, r *http.Request) (params GetOrganizationRoleActiveUsersCountParams, _ error) {
+	q := uri.NewQueryDecoder(r.URL.Query())
+	// Decode path: org_code.
+	if err := func() error {
+		param := args[0]
+		if argsEscaped {
+			unescaped, err := url.PathUnescape(args[0])
+			if err != nil {
+				return errors.Wrap(err, "unescape path")
+			}
+			param = unescaped
+		}
+		if len(param) > 0 {
+			d := uri.NewPathDecoder(uri.PathDecoderConfig{
+				Param:   "org_code",
+				Value:   param,
+				Style:   uri.PathStyleSimple,
+				Explode: false,
+			})
+
+			if err := func() error {
+				val, err := d.DecodeValue()
+				if err != nil {
+					return err
+				}
+
+				c, err := conv.ToString(val)
+				if err != nil {
+					return err
+				}
+
+				params.OrgCode = c
+				return nil
+			}(); err != nil {
+				return err
+			}
+		} else {
+			return validate.ErrFieldRequired
+		}
+		return nil
+	}(); err != nil {
+		return params, &ogenerrors.DecodeParamError{
+			Name: "org_code",
+			In:   "path",
+			Err:  err,
+		}
+	}
+	// Decode path: role_id.
+	if err := func() error {
+		param := args[1]
+		if argsEscaped {
+			unescaped, err := url.PathUnescape(args[1])
+			if err != nil {
+				return errors.Wrap(err, "unescape path")
+			}
+			param = unescaped
+		}
+		if len(param) > 0 {
+			d := uri.NewPathDecoder(uri.PathDecoderConfig{
+				Param:   "role_id",
+				Value:   param,
+				Style:   uri.PathStyleSimple,
+				Explode: false,
+			})
+
+			if err := func() error {
+				val, err := d.DecodeValue()
+				if err != nil {
+					return err
+				}
+
+				c, err := conv.ToString(val)
+				if err != nil {
+					return err
+				}
+
+				params.RoleID = c
+				return nil
+			}(); err != nil {
+				return err
+			}
+		} else {
+			return validate.ErrFieldRequired
+		}
+		return nil
+	}(); err != nil {
+		return params, &ogenerrors.DecodeParamError{
+			Name: "role_id",
+			In:   "path",
+			Err:  err,
+		}
+	}
+	// Decode query: date_time_from.
+	if err := func() error {
+		cfg := uri.QueryParameterDecodingConfig{
+			Name:    "date_time_from",
+			Style:   uri.QueryStyleForm,
+			Explode: true,
+		}
+
+		if err := q.HasParam(cfg); err == nil {
+			if err := q.DecodeParam(cfg, func(d uri.Decoder) error {
+				val, err := d.DecodeValue()
+				if err != nil {
+					return err
+				}
+
+				c, err := conv.ToDateTime(val)
+				if err != nil {
+					return err
+				}
+
+				params.DateTimeFrom = c
+				return nil
+			}); err != nil {
+				return err
+			}
+		} else {
+			return err
+		}
+		return nil
+	}(); err != nil {
+		return params, &ogenerrors.DecodeParamError{
+			Name: "date_time_from",
+			In:   "query",
+			Err:  err,
+		}
+	}
+	// Decode query: date_time_to.
+	if err := func() error {
+		cfg := uri.QueryParameterDecodingConfig{
+			Name:    "date_time_to",
+			Style:   uri.QueryStyleForm,
+			Explode: true,
+		}
+
+		if err := q.HasParam(cfg); err == nil {
+			if err := q.DecodeParam(cfg, func(d uri.Decoder) error {
+				val, err := d.DecodeValue()
+				if err != nil {
+					return err
+				}
+
+				c, err := conv.ToDateTime(val)
+				if err != nil {
+					return err
+				}
+
+				params.DateTimeTo = c
+				return nil
+			}); err != nil {
+				return err
+			}
+		} else {
+			return err
+		}
+		return nil
+	}(); err != nil {
+		return params, &ogenerrors.DecodeParamError{
+			Name: "date_time_to",
+			In:   "query",
+			Err:  err,
+		}
+	}
+	return params, nil
+}
+
+// GetOrganizationRoleUsersParams is parameters of GetOrganizationRoleUsers operation.
+type GetOrganizationRoleUsersParams struct {
+	// The organization's code.
+	OrgCode string
+	// The role's public id.
+	RoleID string
+	// Number of results per page. Defaults to 10 if parameter not sent.
+	PageSize OptNilInt
+	// A string to get the next page of results if there are more results.
+	NextToken OptNilString
+}
+
+func unpackGetOrganizationRoleUsersParams(packed middleware.Parameters) (params GetOrganizationRoleUsersParams) {
+	{
+		key := middleware.ParameterKey{
+			Name: "org_code",
+			In:   "path",
+		}
+		params.OrgCode = packed[key].(string)
+	}
+	{
+		key := middleware.ParameterKey{
+			Name: "role_id",
+			In:   "path",
+		}
+		params.RoleID = packed[key].(string)
+	}
+	{
+		key := middleware.ParameterKey{
+			Name: "page_size",
+			In:   "query",
+		}
+		if v, ok := packed[key]; ok {
+			params.PageSize = v.(OptNilInt)
+		}
+	}
+	{
+		key := middleware.ParameterKey{
+			Name: "next_token",
+			In:   "query",
+		}
+		if v, ok := packed[key]; ok {
+			params.NextToken = v.(OptNilString)
+		}
+	}
+	return params
+}
+
+func decodeGetOrganizationRoleUsersParams(args [2]string, argsEscaped bool, r *http.Request) (params GetOrganizationRoleUsersParams, _ error) {
+	q := uri.NewQueryDecoder(r.URL.Query())
+	// Decode path: org_code.
+	if err := func() error {
+		param := args[0]
+		if argsEscaped {
+			unescaped, err := url.PathUnescape(args[0])
+			if err != nil {
+				return errors.Wrap(err, "unescape path")
+			}
+			param = unescaped
+		}
+		if len(param) > 0 {
+			d := uri.NewPathDecoder(uri.PathDecoderConfig{
+				Param:   "org_code",
+				Value:   param,
+				Style:   uri.PathStyleSimple,
+				Explode: false,
+			})
+
+			if err := func() error {
+				val, err := d.DecodeValue()
+				if err != nil {
+					return err
+				}
+
+				c, err := conv.ToString(val)
+				if err != nil {
+					return err
+				}
+
+				params.OrgCode = c
+				return nil
+			}(); err != nil {
+				return err
+			}
+		} else {
+			return validate.ErrFieldRequired
+		}
+		return nil
+	}(); err != nil {
+		return params, &ogenerrors.DecodeParamError{
+			Name: "org_code",
+			In:   "path",
+			Err:  err,
+		}
+	}
+	// Decode path: role_id.
+	if err := func() error {
+		param := args[1]
+		if argsEscaped {
+			unescaped, err := url.PathUnescape(args[1])
+			if err != nil {
+				return errors.Wrap(err, "unescape path")
+			}
+			param = unescaped
+		}
+		if len(param) > 0 {
+			d := uri.NewPathDecoder(uri.PathDecoderConfig{
+				Param:   "role_id",
+				Value:   param,
+				Style:   uri.PathStyleSimple,
+				Explode: false,
+			})
+
+			if err := func() error {
+				val, err := d.DecodeValue()
+				if err != nil {
+					return err
+				}
+
+				c, err := conv.ToString(val)
+				if err != nil {
+					return err
+				}
+
+				params.RoleID = c
+				return nil
+			}(); err != nil {
+				return err
+			}
+		} else {
+			return validate.ErrFieldRequired
+		}
+		return nil
+	}(); err != nil {
+		return params, &ogenerrors.DecodeParamError{
+			Name: "role_id",
+			In:   "path",
+			Err:  err,
+		}
+	}
+	// Decode query: page_size.
+	if err := func() error {
+		cfg := uri.QueryParameterDecodingConfig{
+			Name:    "page_size",
+			Style:   uri.QueryStyleForm,
+			Explode: true,
+		}
+
+		if err := q.HasParam(cfg); err == nil {
+			if err := q.DecodeParam(cfg, func(d uri.Decoder) error {
+				var paramsDotPageSizeVal int
+				if err := func() error {
+					val, err := d.DecodeValue()
+					if err != nil {
+						return err
+					}
+
+					c, err := conv.ToInt(val)
+					if err != nil {
+						return err
+					}
+
+					paramsDotPageSizeVal = c
+					return nil
+				}(); err != nil {
+					return err
+				}
+				params.PageSize.SetTo(paramsDotPageSizeVal)
+				return nil
+			}); err != nil {
+				return err
+			}
+		}
+		return nil
+	}(); err != nil {
+		return params, &ogenerrors.DecodeParamError{
+			Name: "page_size",
+			In:   "query",
+			Err:  err,
+		}
+	}
+	// Decode query: next_token.
+	if err := func() error {
+		cfg := uri.QueryParameterDecodingConfig{
+			Name:    "next_token",
+			Style:   uri.QueryStyleForm,
+			Explode: true,
+		}
+
+		if err := q.HasParam(cfg); err == nil {
+			if err := q.DecodeParam(cfg, func(d uri.Decoder) error {
+				var paramsDotNextTokenVal string
+				if err := func() error {
+					val, err := d.DecodeValue()
+					if err != nil {
+						return err
+					}
+
+					c, err := conv.ToString(val)
+					if err != nil {
+						return err
+					}
+
+					paramsDotNextTokenVal = c
+					return nil
+				}(); err != nil {
+					return err
+				}
+				params.NextToken.SetTo(paramsDotNextTokenVal)
+				return nil
+			}); err != nil {
+				return err
+			}
+		}
+		return nil
+	}(); err != nil {
+		return params, &ogenerrors.DecodeParamError{
+			Name: "next_token",
+			In:   "query",
+			Err:  err,
+		}
+	}
+	return params, nil
+}
+
+// GetOrganizationRoleUsersCountParams is parameters of GetOrganizationRoleUsersCount operation.
+type GetOrganizationRoleUsersCountParams struct {
+	// The organization's code.
+	OrgCode string
+	// The role's public id.
+	RoleID string
+}
+
+func unpackGetOrganizationRoleUsersCountParams(packed middleware.Parameters) (params GetOrganizationRoleUsersCountParams) {
+	{
+		key := middleware.ParameterKey{
+			Name: "org_code",
+			In:   "path",
+		}
+		params.OrgCode = packed[key].(string)
+	}
+	{
+		key := middleware.ParameterKey{
+			Name: "role_id",
+			In:   "path",
+		}
+		params.RoleID = packed[key].(string)
+	}
+	return params
+}
+
+func decodeGetOrganizationRoleUsersCountParams(args [2]string, argsEscaped bool, r *http.Request) (params GetOrganizationRoleUsersCountParams, _ error) {
+	// Decode path: org_code.
+	if err := func() error {
+		param := args[0]
+		if argsEscaped {
+			unescaped, err := url.PathUnescape(args[0])
+			if err != nil {
+				return errors.Wrap(err, "unescape path")
+			}
+			param = unescaped
+		}
+		if len(param) > 0 {
+			d := uri.NewPathDecoder(uri.PathDecoderConfig{
+				Param:   "org_code",
+				Value:   param,
+				Style:   uri.PathStyleSimple,
+				Explode: false,
+			})
+
+			if err := func() error {
+				val, err := d.DecodeValue()
+				if err != nil {
+					return err
+				}
+
+				c, err := conv.ToString(val)
+				if err != nil {
+					return err
+				}
+
+				params.OrgCode = c
+				return nil
+			}(); err != nil {
+				return err
+			}
+		} else {
+			return validate.ErrFieldRequired
+		}
+		return nil
+	}(); err != nil {
+		return params, &ogenerrors.DecodeParamError{
+			Name: "org_code",
+			In:   "path",
+			Err:  err,
+		}
+	}
+	// Decode path: role_id.
+	if err := func() error {
+		param := args[1]
+		if argsEscaped {
+			unescaped, err := url.PathUnescape(args[1])
+			if err != nil {
+				return errors.Wrap(err, "unescape path")
+			}
+			param = unescaped
+		}
+		if len(param) > 0 {
+			d := uri.NewPathDecoder(uri.PathDecoderConfig{
+				Param:   "role_id",
+				Value:   param,
+				Style:   uri.PathStyleSimple,
+				Explode: false,
+			})
+
+			if err := func() error {
+				val, err := d.DecodeValue()
+				if err != nil {
+					return err
+				}
+
+				c, err := conv.ToString(val)
+				if err != nil {
+					return err
+				}
+
+				params.RoleID = c
+				return nil
+			}(); err != nil {
+				return err
+			}
+		} else {
+			return validate.ErrFieldRequired
+		}
+		return nil
+	}(); err != nil {
+		return params, &ogenerrors.DecodeParamError{
+			Name: "role_id",
 			In:   "path",
 			Err:  err,
 		}
@@ -9263,6 +11249,415 @@ func decodeGetRoleScopesParams(args [1]string, argsEscaped bool, r *http.Request
 	return params, nil
 }
 
+// GetRoleSystemPermissionsParams is parameters of GetRoleSystemPermissions operation.
+type GetRoleSystemPermissionsParams struct {
+	// The role's public id.
+	RoleID string
+	// Field and order to sort the result by.
+	Sort OptNilGetRoleSystemPermissionsSort
+	// Number of results per page. Defaults to 10 if parameter not sent.
+	PageSize OptNilInt
+	// A string to get the next page of results if there are more results.
+	NextToken OptNilString
+}
+
+func unpackGetRoleSystemPermissionsParams(packed middleware.Parameters) (params GetRoleSystemPermissionsParams) {
+	{
+		key := middleware.ParameterKey{
+			Name: "role_id",
+			In:   "path",
+		}
+		params.RoleID = packed[key].(string)
+	}
+	{
+		key := middleware.ParameterKey{
+			Name: "sort",
+			In:   "query",
+		}
+		if v, ok := packed[key]; ok {
+			params.Sort = v.(OptNilGetRoleSystemPermissionsSort)
+		}
+	}
+	{
+		key := middleware.ParameterKey{
+			Name: "page_size",
+			In:   "query",
+		}
+		if v, ok := packed[key]; ok {
+			params.PageSize = v.(OptNilInt)
+		}
+	}
+	{
+		key := middleware.ParameterKey{
+			Name: "next_token",
+			In:   "query",
+		}
+		if v, ok := packed[key]; ok {
+			params.NextToken = v.(OptNilString)
+		}
+	}
+	return params
+}
+
+func decodeGetRoleSystemPermissionsParams(args [1]string, argsEscaped bool, r *http.Request) (params GetRoleSystemPermissionsParams, _ error) {
+	q := uri.NewQueryDecoder(r.URL.Query())
+	// Decode path: role_id.
+	if err := func() error {
+		param := args[0]
+		if argsEscaped {
+			unescaped, err := url.PathUnescape(args[0])
+			if err != nil {
+				return errors.Wrap(err, "unescape path")
+			}
+			param = unescaped
+		}
+		if len(param) > 0 {
+			d := uri.NewPathDecoder(uri.PathDecoderConfig{
+				Param:   "role_id",
+				Value:   param,
+				Style:   uri.PathStyleSimple,
+				Explode: false,
+			})
+
+			if err := func() error {
+				val, err := d.DecodeValue()
+				if err != nil {
+					return err
+				}
+
+				c, err := conv.ToString(val)
+				if err != nil {
+					return err
+				}
+
+				params.RoleID = c
+				return nil
+			}(); err != nil {
+				return err
+			}
+		} else {
+			return validate.ErrFieldRequired
+		}
+		return nil
+	}(); err != nil {
+		return params, &ogenerrors.DecodeParamError{
+			Name: "role_id",
+			In:   "path",
+			Err:  err,
+		}
+	}
+	// Decode query: sort.
+	if err := func() error {
+		cfg := uri.QueryParameterDecodingConfig{
+			Name:    "sort",
+			Style:   uri.QueryStyleForm,
+			Explode: true,
+		}
+
+		if err := q.HasParam(cfg); err == nil {
+			if err := q.DecodeParam(cfg, func(d uri.Decoder) error {
+				var paramsDotSortVal GetRoleSystemPermissionsSort
+				if err := func() error {
+					val, err := d.DecodeValue()
+					if err != nil {
+						return err
+					}
+
+					c, err := conv.ToString(val)
+					if err != nil {
+						return err
+					}
+
+					paramsDotSortVal = GetRoleSystemPermissionsSort(c)
+					return nil
+				}(); err != nil {
+					return err
+				}
+				params.Sort.SetTo(paramsDotSortVal)
+				return nil
+			}); err != nil {
+				return err
+			}
+			if err := func() error {
+				if value, ok := params.Sort.Get(); ok {
+					if err := func() error {
+						if err := value.Validate(); err != nil {
+							return err
+						}
+						return nil
+					}(); err != nil {
+						return err
+					}
+				}
+				return nil
+			}(); err != nil {
+				return err
+			}
+		}
+		return nil
+	}(); err != nil {
+		return params, &ogenerrors.DecodeParamError{
+			Name: "sort",
+			In:   "query",
+			Err:  err,
+		}
+	}
+	// Decode query: page_size.
+	if err := func() error {
+		cfg := uri.QueryParameterDecodingConfig{
+			Name:    "page_size",
+			Style:   uri.QueryStyleForm,
+			Explode: true,
+		}
+
+		if err := q.HasParam(cfg); err == nil {
+			if err := q.DecodeParam(cfg, func(d uri.Decoder) error {
+				var paramsDotPageSizeVal int
+				if err := func() error {
+					val, err := d.DecodeValue()
+					if err != nil {
+						return err
+					}
+
+					c, err := conv.ToInt(val)
+					if err != nil {
+						return err
+					}
+
+					paramsDotPageSizeVal = c
+					return nil
+				}(); err != nil {
+					return err
+				}
+				params.PageSize.SetTo(paramsDotPageSizeVal)
+				return nil
+			}); err != nil {
+				return err
+			}
+		}
+		return nil
+	}(); err != nil {
+		return params, &ogenerrors.DecodeParamError{
+			Name: "page_size",
+			In:   "query",
+			Err:  err,
+		}
+	}
+	// Decode query: next_token.
+	if err := func() error {
+		cfg := uri.QueryParameterDecodingConfig{
+			Name:    "next_token",
+			Style:   uri.QueryStyleForm,
+			Explode: true,
+		}
+
+		if err := q.HasParam(cfg); err == nil {
+			if err := q.DecodeParam(cfg, func(d uri.Decoder) error {
+				var paramsDotNextTokenVal string
+				if err := func() error {
+					val, err := d.DecodeValue()
+					if err != nil {
+						return err
+					}
+
+					c, err := conv.ToString(val)
+					if err != nil {
+						return err
+					}
+
+					paramsDotNextTokenVal = c
+					return nil
+				}(); err != nil {
+					return err
+				}
+				params.NextToken.SetTo(paramsDotNextTokenVal)
+				return nil
+			}); err != nil {
+				return err
+			}
+		}
+		return nil
+	}(); err != nil {
+		return params, &ogenerrors.DecodeParamError{
+			Name: "next_token",
+			In:   "query",
+			Err:  err,
+		}
+	}
+	return params, nil
+}
+
+// GetRoleUsersParams is parameters of GetRoleUsers operation.
+type GetRoleUsersParams struct {
+	// The role's public id.
+	RoleID string
+	// Number of results per page. Defaults to 10 if parameter not sent.
+	PageSize OptNilInt
+	// A string to get the next page of results if there are more results.
+	NextToken OptNilString
+}
+
+func unpackGetRoleUsersParams(packed middleware.Parameters) (params GetRoleUsersParams) {
+	{
+		key := middleware.ParameterKey{
+			Name: "role_id",
+			In:   "path",
+		}
+		params.RoleID = packed[key].(string)
+	}
+	{
+		key := middleware.ParameterKey{
+			Name: "page_size",
+			In:   "query",
+		}
+		if v, ok := packed[key]; ok {
+			params.PageSize = v.(OptNilInt)
+		}
+	}
+	{
+		key := middleware.ParameterKey{
+			Name: "next_token",
+			In:   "query",
+		}
+		if v, ok := packed[key]; ok {
+			params.NextToken = v.(OptNilString)
+		}
+	}
+	return params
+}
+
+func decodeGetRoleUsersParams(args [1]string, argsEscaped bool, r *http.Request) (params GetRoleUsersParams, _ error) {
+	q := uri.NewQueryDecoder(r.URL.Query())
+	// Decode path: role_id.
+	if err := func() error {
+		param := args[0]
+		if argsEscaped {
+			unescaped, err := url.PathUnescape(args[0])
+			if err != nil {
+				return errors.Wrap(err, "unescape path")
+			}
+			param = unescaped
+		}
+		if len(param) > 0 {
+			d := uri.NewPathDecoder(uri.PathDecoderConfig{
+				Param:   "role_id",
+				Value:   param,
+				Style:   uri.PathStyleSimple,
+				Explode: false,
+			})
+
+			if err := func() error {
+				val, err := d.DecodeValue()
+				if err != nil {
+					return err
+				}
+
+				c, err := conv.ToString(val)
+				if err != nil {
+					return err
+				}
+
+				params.RoleID = c
+				return nil
+			}(); err != nil {
+				return err
+			}
+		} else {
+			return validate.ErrFieldRequired
+		}
+		return nil
+	}(); err != nil {
+		return params, &ogenerrors.DecodeParamError{
+			Name: "role_id",
+			In:   "path",
+			Err:  err,
+		}
+	}
+	// Decode query: page_size.
+	if err := func() error {
+		cfg := uri.QueryParameterDecodingConfig{
+			Name:    "page_size",
+			Style:   uri.QueryStyleForm,
+			Explode: true,
+		}
+
+		if err := q.HasParam(cfg); err == nil {
+			if err := q.DecodeParam(cfg, func(d uri.Decoder) error {
+				var paramsDotPageSizeVal int
+				if err := func() error {
+					val, err := d.DecodeValue()
+					if err != nil {
+						return err
+					}
+
+					c, err := conv.ToInt(val)
+					if err != nil {
+						return err
+					}
+
+					paramsDotPageSizeVal = c
+					return nil
+				}(); err != nil {
+					return err
+				}
+				params.PageSize.SetTo(paramsDotPageSizeVal)
+				return nil
+			}); err != nil {
+				return err
+			}
+		}
+		return nil
+	}(); err != nil {
+		return params, &ogenerrors.DecodeParamError{
+			Name: "page_size",
+			In:   "query",
+			Err:  err,
+		}
+	}
+	// Decode query: next_token.
+	if err := func() error {
+		cfg := uri.QueryParameterDecodingConfig{
+			Name:    "next_token",
+			Style:   uri.QueryStyleForm,
+			Explode: true,
+		}
+
+		if err := q.HasParam(cfg); err == nil {
+			if err := q.DecodeParam(cfg, func(d uri.Decoder) error {
+				var paramsDotNextTokenVal string
+				if err := func() error {
+					val, err := d.DecodeValue()
+					if err != nil {
+						return err
+					}
+
+					c, err := conv.ToString(val)
+					if err != nil {
+						return err
+					}
+
+					paramsDotNextTokenVal = c
+					return nil
+				}(); err != nil {
+					return err
+				}
+				params.NextToken.SetTo(paramsDotNextTokenVal)
+				return nil
+			}); err != nil {
+				return err
+			}
+		}
+		return nil
+	}(); err != nil {
+		return params, &ogenerrors.DecodeParamError{
+			Name: "next_token",
+			In:   "query",
+			Err:  err,
+		}
+	}
+	return params, nil
+}
+
 // GetRolesParams is parameters of GetRoles operation.
 type GetRolesParams struct {
 	// Field and order to sort the result by.
@@ -9579,6 +11974,190 @@ func decodeGetSubscribersParams(args [0]string, argsEscaped bool, r *http.Reques
 					}
 
 					paramsDotSortVal = GetSubscribersSort(c)
+					return nil
+				}(); err != nil {
+					return err
+				}
+				params.Sort.SetTo(paramsDotSortVal)
+				return nil
+			}); err != nil {
+				return err
+			}
+			if err := func() error {
+				if value, ok := params.Sort.Get(); ok {
+					if err := func() error {
+						if err := value.Validate(); err != nil {
+							return err
+						}
+						return nil
+					}(); err != nil {
+						return err
+					}
+				}
+				return nil
+			}(); err != nil {
+				return err
+			}
+		}
+		return nil
+	}(); err != nil {
+		return params, &ogenerrors.DecodeParamError{
+			Name: "sort",
+			In:   "query",
+			Err:  err,
+		}
+	}
+	// Decode query: page_size.
+	if err := func() error {
+		cfg := uri.QueryParameterDecodingConfig{
+			Name:    "page_size",
+			Style:   uri.QueryStyleForm,
+			Explode: true,
+		}
+
+		if err := q.HasParam(cfg); err == nil {
+			if err := q.DecodeParam(cfg, func(d uri.Decoder) error {
+				var paramsDotPageSizeVal int
+				if err := func() error {
+					val, err := d.DecodeValue()
+					if err != nil {
+						return err
+					}
+
+					c, err := conv.ToInt(val)
+					if err != nil {
+						return err
+					}
+
+					paramsDotPageSizeVal = c
+					return nil
+				}(); err != nil {
+					return err
+				}
+				params.PageSize.SetTo(paramsDotPageSizeVal)
+				return nil
+			}); err != nil {
+				return err
+			}
+		}
+		return nil
+	}(); err != nil {
+		return params, &ogenerrors.DecodeParamError{
+			Name: "page_size",
+			In:   "query",
+			Err:  err,
+		}
+	}
+	// Decode query: next_token.
+	if err := func() error {
+		cfg := uri.QueryParameterDecodingConfig{
+			Name:    "next_token",
+			Style:   uri.QueryStyleForm,
+			Explode: true,
+		}
+
+		if err := q.HasParam(cfg); err == nil {
+			if err := q.DecodeParam(cfg, func(d uri.Decoder) error {
+				var paramsDotNextTokenVal string
+				if err := func() error {
+					val, err := d.DecodeValue()
+					if err != nil {
+						return err
+					}
+
+					c, err := conv.ToString(val)
+					if err != nil {
+						return err
+					}
+
+					paramsDotNextTokenVal = c
+					return nil
+				}(); err != nil {
+					return err
+				}
+				params.NextToken.SetTo(paramsDotNextTokenVal)
+				return nil
+			}); err != nil {
+				return err
+			}
+		}
+		return nil
+	}(); err != nil {
+		return params, &ogenerrors.DecodeParamError{
+			Name: "next_token",
+			In:   "query",
+			Err:  err,
+		}
+	}
+	return params, nil
+}
+
+// GetSystemPermissionsParams is parameters of GetSystemPermissions operation.
+type GetSystemPermissionsParams struct {
+	// Field and order to sort the result by.
+	Sort OptNilGetSystemPermissionsSort
+	// Number of results per page. Defaults to 10 if parameter not sent.
+	PageSize OptNilInt
+	// A string to get the next page of results if there are more results.
+	NextToken OptNilString
+}
+
+func unpackGetSystemPermissionsParams(packed middleware.Parameters) (params GetSystemPermissionsParams) {
+	{
+		key := middleware.ParameterKey{
+			Name: "sort",
+			In:   "query",
+		}
+		if v, ok := packed[key]; ok {
+			params.Sort = v.(OptNilGetSystemPermissionsSort)
+		}
+	}
+	{
+		key := middleware.ParameterKey{
+			Name: "page_size",
+			In:   "query",
+		}
+		if v, ok := packed[key]; ok {
+			params.PageSize = v.(OptNilInt)
+		}
+	}
+	{
+		key := middleware.ParameterKey{
+			Name: "next_token",
+			In:   "query",
+		}
+		if v, ok := packed[key]; ok {
+			params.NextToken = v.(OptNilString)
+		}
+	}
+	return params
+}
+
+func decodeGetSystemPermissionsParams(args [0]string, argsEscaped bool, r *http.Request) (params GetSystemPermissionsParams, _ error) {
+	q := uri.NewQueryDecoder(r.URL.Query())
+	// Decode query: sort.
+	if err := func() error {
+		cfg := uri.QueryParameterDecodingConfig{
+			Name:    "sort",
+			Style:   uri.QueryStyleForm,
+			Explode: true,
+		}
+
+		if err := q.HasParam(cfg); err == nil {
+			if err := q.DecodeParam(cfg, func(d uri.Decoder) error {
+				var paramsDotSortVal GetSystemPermissionsSort
+				if err := func() error {
+					val, err := d.DecodeValue()
+					if err != nil {
+						return err
+					}
+
+					c, err := conv.ToString(val)
+					if err != nil {
+						return err
+					}
+
+					paramsDotSortVal = GetSystemPermissionsSort(c)
 					return nil
 				}(); err != nil {
 					return err
@@ -10785,6 +13364,126 @@ func decodeRefreshUserClaimsParams(args [1]string, argsEscaped bool, r *http.Req
 	}(); err != nil {
 		return params, &ogenerrors.DecodeParamError{
 			Name: "user_id",
+			In:   "path",
+			Err:  err,
+		}
+	}
+	return params, nil
+}
+
+// RemoveApplicationAccessRoleParams is parameters of RemoveApplicationAccessRole operation.
+type RemoveApplicationAccessRoleParams struct {
+	// The identifier/client ID for the application.
+	ApplicationID string
+	// The identifier for the role.
+	RoleID string
+}
+
+func unpackRemoveApplicationAccessRoleParams(packed middleware.Parameters) (params RemoveApplicationAccessRoleParams) {
+	{
+		key := middleware.ParameterKey{
+			Name: "application_id",
+			In:   "path",
+		}
+		params.ApplicationID = packed[key].(string)
+	}
+	{
+		key := middleware.ParameterKey{
+			Name: "role_id",
+			In:   "path",
+		}
+		params.RoleID = packed[key].(string)
+	}
+	return params
+}
+
+func decodeRemoveApplicationAccessRoleParams(args [2]string, argsEscaped bool, r *http.Request) (params RemoveApplicationAccessRoleParams, _ error) {
+	// Decode path: application_id.
+	if err := func() error {
+		param := args[0]
+		if argsEscaped {
+			unescaped, err := url.PathUnescape(args[0])
+			if err != nil {
+				return errors.Wrap(err, "unescape path")
+			}
+			param = unescaped
+		}
+		if len(param) > 0 {
+			d := uri.NewPathDecoder(uri.PathDecoderConfig{
+				Param:   "application_id",
+				Value:   param,
+				Style:   uri.PathStyleSimple,
+				Explode: false,
+			})
+
+			if err := func() error {
+				val, err := d.DecodeValue()
+				if err != nil {
+					return err
+				}
+
+				c, err := conv.ToString(val)
+				if err != nil {
+					return err
+				}
+
+				params.ApplicationID = c
+				return nil
+			}(); err != nil {
+				return err
+			}
+		} else {
+			return validate.ErrFieldRequired
+		}
+		return nil
+	}(); err != nil {
+		return params, &ogenerrors.DecodeParamError{
+			Name: "application_id",
+			In:   "path",
+			Err:  err,
+		}
+	}
+	// Decode path: role_id.
+	if err := func() error {
+		param := args[1]
+		if argsEscaped {
+			unescaped, err := url.PathUnescape(args[1])
+			if err != nil {
+				return errors.Wrap(err, "unescape path")
+			}
+			param = unescaped
+		}
+		if len(param) > 0 {
+			d := uri.NewPathDecoder(uri.PathDecoderConfig{
+				Param:   "role_id",
+				Value:   param,
+				Style:   uri.PathStyleSimple,
+				Explode: false,
+			})
+
+			if err := func() error {
+				val, err := d.DecodeValue()
+				if err != nil {
+					return err
+				}
+
+				c, err := conv.ToString(val)
+				if err != nil {
+					return err
+				}
+
+				params.RoleID = c
+				return nil
+			}(); err != nil {
+				return err
+			}
+		} else {
+			return validate.ErrFieldRequired
+		}
+		return nil
+	}(); err != nil {
+		return params, &ogenerrors.DecodeParamError{
+			Name: "role_id",
 			In:   "path",
 			Err:  err,
 		}
@@ -13157,6 +15856,72 @@ func decodeUpdateConnectionParams(args [1]string, argsEscaped bool, r *http.Requ
 	return params, nil
 }
 
+// UpdateDirectoryParams is parameters of updateDirectory operation.
+type UpdateDirectoryParams struct {
+	// The directory's ID.
+	DirectoryID string
+}
+
+func unpackUpdateDirectoryParams(packed middleware.Parameters) (params UpdateDirectoryParams) {
+	{
+		key := middleware.ParameterKey{
+			Name: "directory_id",
+			In:   "path",
+		}
+		params.DirectoryID = packed[key].(string)
+	}
+	return params
+}
+
+func decodeUpdateDirectoryParams(args [1]string, argsEscaped bool, r *http.Request) (params UpdateDirectoryParams, _ error) {
+	// Decode path: directory_id.
+	if err := func() error {
+		param := args[0]
+		if argsEscaped {
+			unescaped, err := url.PathUnescape(args[0])
+			if err != nil {
+				return errors.Wrap(err, "unescape path")
+			}
+			param = unescaped
+		}
+		if len(param) > 0 {
+			d := uri.NewPathDecoder(uri.PathDecoderConfig{
+				Param:   "directory_id",
+				Value:   param,
+				Style:   uri.PathStyleSimple,
+				Explode: false,
+			})
+
+			if err := func() error {
+				val, err := d.DecodeValue()
+				if err != nil {
+					return err
+				}
+
+				c, err := conv.ToString(val)
+				if err != nil {
+					return err
+				}
+
+				params.DirectoryID = c
+				return nil
+			}(); err != nil {
+				return err
+			}
+		} else {
+			return validate.ErrFieldRequired
+		}
+		return nil
+	}(); err != nil {
+		return params, &ogenerrors.DecodeParamError{
+			Name: "directory_id",
+			In:   "path",
+			Err:  err,
+		}
+	}
+	return params, nil
+}
+
 // UpdateEnvironementFeatureFlagOverrideParams is parameters of UpdateEnvironementFeatureFlagOverride operation.
 type UpdateEnvironementFeatureFlagOverrideParams struct {
 	// The identifier for the feature flag.
@@ -13963,6 +16728,72 @@ func decodeUpdateOrganizationFeatureFlagOverrideParams(args [2]string, argsEscap
 	return params, nil
 }
 
+// UpdateOrganizationPasskeyParams is parameters of UpdateOrganizationPasskey operation.
+type UpdateOrganizationPasskeyParams struct {
+	// The organization's code.
+	OrgCode string
+}
+
+func unpackUpdateOrganizationPasskeyParams(packed middleware.Parameters) (params UpdateOrganizationPasskeyParams) {
+	{
+		key := middleware.ParameterKey{
+			Name: "org_code",
+			In:   "path",
+		}
+		params.OrgCode = packed[key].(string)
+	}
+	return params
+}
+
+func decodeUpdateOrganizationPasskeyParams(args [1]string, argsEscaped bool, r *http.Request) (params UpdateOrganizationPasskeyParams, _ error) {
+	// Decode path: org_code.
+	if err := func() error {
+		param := args[0]
+		if argsEscaped {
+			unescaped, err := url.PathUnescape(args[0])
+			if err != nil {
+				return errors.Wrap(err, "unescape path")
+			}
+			param = unescaped
+		}
+		if len(param) > 0 {
+			d := uri.NewPathDecoder(uri.PathDecoderConfig{
+				Param:   "org_code",
+				Value:   param,
+				Style:   uri.PathStyleSimple,
+				Explode: false,
+			})
+
+			if err := func() error {
+				val, err := d.DecodeValue()
+				if err != nil {
+					return err
+				}
+
+				c, err := conv.ToString(val)
+				if err != nil {
+					return err
+				}
+
+				params.OrgCode = c
+				return nil
+			}(); err != nil {
+				return err
+			}
+		} else {
+			return validate.ErrFieldRequired
+		}
+		return nil
+	}(); err != nil {
+		return params, &ogenerrors.DecodeParamError{
+			Name: "org_code",
+			In:   "path",
+			Err:  err,
+		}
+	}
+	return params, nil
+}
+
 // UpdateOrganizationPropertiesParams is parameters of UpdateOrganizationProperties operation.
 type UpdateOrganizationPropertiesParams struct {
 	// The identifier for the organization.
@@ -14477,6 +17308,72 @@ func unpackUpdateRolePermissionsParams(packed middleware.Parameters) (params Upd
 }
 
 func decodeUpdateRolePermissionsParams(args [1]string, argsEscaped bool, r *http.Request) (params UpdateRolePermissionsParams, _ error) {
+	// Decode path: role_id.
+	if err := func() error {
+		param := args[0]
+		if argsEscaped {
+			unescaped, err := url.PathUnescape(args[0])
+			if err != nil {
+				return errors.Wrap(err, "unescape path")
+			}
+			param = unescaped
+		}
+		if len(param) > 0 {
+			d := uri.NewPathDecoder(uri.PathDecoderConfig{
+				Param:   "role_id",
+				Value:   param,
+				Style:   uri.PathStyleSimple,
+				Explode: false,
+			})
+
+			if err := func() error {
+				val, err := d.DecodeValue()
+				if err != nil {
+					return err
+				}
+
+				c, err := conv.ToString(val)
+				if err != nil {
+					return err
+				}
+
+				params.RoleID = c
+				return nil
+			}(); err != nil {
+				return err
+			}
+		} else {
+			return validate.ErrFieldRequired
+		}
+		return nil
+	}(); err != nil {
+		return params, &ogenerrors.DecodeParamError{
+			Name: "role_id",
+			In:   "path",
+			Err:  err,
+		}
+	}
+	return params, nil
+}
+
+// UpdateRoleSystemPermissionsParams is parameters of UpdateRoleSystemPermissions operation.
+type UpdateRoleSystemPermissionsParams struct {
+	// The identifier for the role.
+	RoleID string
+}
+
+func unpackUpdateRoleSystemPermissionsParams(packed middleware.Parameters) (params UpdateRoleSystemPermissionsParams) {
+	{
+		key := middleware.ParameterKey{
+			Name: "role_id",
+			In:   "path",
+		}
+		params.RoleID = packed[key].(string)
+	}
+	return params
+}
+
+func decodeUpdateRoleSystemPermissionsParams(args [1]string, argsEscaped bool, r *http.Request) (params UpdateRoleSystemPermissionsParams, _ error) {
 	// Decode path: role_id.
 	if err := func() error {
 		param := args[0]

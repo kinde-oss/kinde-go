@@ -3,6 +3,14 @@
 package management_api
 
 // setDefaults set default value of fields.
+func (s *CreateOrganizationInviteReq) setDefaults() {
+	{
+		val := bool(false)
+		s.SendEmail.SetTo(val)
+	}
+}
+
+// setDefaults set default value of fields.
 func (s *ReplaceMFAReq) setDefaults() {
 	{
 		val := bool(true)

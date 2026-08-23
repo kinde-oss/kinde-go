@@ -13,6 +13,10 @@ type AddAPIsRes interface {
 	addAPIsRes()
 }
 
+type AddApplicationAccessRoleRes interface {
+	addApplicationAccessRoleRes()
+}
+
 type AddLogoRes interface {
 	addLogoRes()
 }
@@ -61,6 +65,10 @@ type CreateConnectionRes interface {
 	createConnectionRes()
 }
 
+type CreateDirectoryRes interface {
+	createDirectoryRes()
+}
+
 type CreateEnvironmentVariableRes interface {
 	createEnvironmentVariableRes()
 }
@@ -71,6 +79,10 @@ type CreateFeatureFlagRes interface {
 
 type CreateMeterUsageRecordRes interface {
 	createMeterUsageRecordRes()
+}
+
+type CreateOrganizationInviteRes interface {
+	createOrganizationInviteRes()
 }
 
 type CreateOrganizationRes interface {
@@ -99,6 +111,10 @@ type CreateRoleRes interface {
 
 type CreateSubscriberRes interface {
 	createSubscriberRes()
+}
+
+type CreateUserBillingCustomerRes interface {
+	createUserBillingCustomerRes()
 }
 
 type CreateUserIdentityRes interface {
@@ -141,6 +157,10 @@ type DeleteConnectionRes interface {
 	deleteConnectionRes()
 }
 
+type DeleteDirectoryRes interface {
+	deleteDirectoryRes()
+}
+
 type DeleteEnvironementFeatureFlagOverrideRes interface {
 	deleteEnvironementFeatureFlagOverrideRes()
 }
@@ -179,6 +199,10 @@ type DeleteOrganizationFeatureFlagOverridesRes interface {
 
 type DeleteOrganizationHandleRes interface {
 	deleteOrganizationHandleRes()
+}
+
+type DeleteOrganizationInviteRes interface {
+	deleteOrganizationInviteRes()
 }
 
 type DeleteOrganizationLogoRes interface {
@@ -261,6 +285,10 @@ type GetApiKeysRes interface {
 	getApiKeysRes()
 }
 
+type GetApplicationAccessRolesRes interface {
+	getApplicationAccessRolesRes()
+}
+
 type GetApplicationConnectionsRes interface {
 	getApplicationConnectionsRes()
 }
@@ -313,6 +341,14 @@ type GetConnectionsRes interface {
 	getConnectionsRes()
 }
 
+type GetDirectoriesRes interface {
+	getDirectoriesRes()
+}
+
+type GetDirectoryRes interface {
+	getDirectoryRes()
+}
+
 type GetEnvironementFeatureFlagsRes interface {
 	getEnvironementFeatureFlagsRes()
 }
@@ -361,12 +397,36 @@ type GetOrganizationFeatureFlagsRes interface {
 	getOrganizationFeatureFlagsRes()
 }
 
+type GetOrganizationInviteRes interface {
+	getOrganizationInviteRes()
+}
+
+type GetOrganizationInvitesRes interface {
+	getOrganizationInvitesRes()
+}
+
+type GetOrganizationPasskeyRes interface {
+	getOrganizationPasskeyRes()
+}
+
 type GetOrganizationPropertyValuesRes interface {
 	getOrganizationPropertyValuesRes()
 }
 
 type GetOrganizationRes interface {
 	getOrganizationRes()
+}
+
+type GetOrganizationRoleActiveUsersCountRes interface {
+	getOrganizationRoleActiveUsersCountRes()
+}
+
+type GetOrganizationRoleUsersCountRes interface {
+	getOrganizationRoleUsersCountRes()
+}
+
+type GetOrganizationRoleUsersRes interface {
+	getOrganizationRoleUsersRes()
 }
 
 type GetOrganizationUserPermissionsRes interface {
@@ -383,6 +443,10 @@ type GetOrganizationUsersRes interface {
 
 type GetOrganizationsRes interface {
 	getOrganizationsRes()
+}
+
+type GetPasskeyRes interface {
+	getPasskeyRes()
 }
 
 type GetPermissionsRes interface {
@@ -405,6 +469,14 @@ type GetRoleScopesRes interface {
 	getRoleScopesRes()
 }
 
+type GetRoleSystemPermissionsRes interface {
+	getRoleSystemPermissionsRes()
+}
+
+type GetRoleUsersRes interface {
+	getRoleUsersRes()
+}
+
 type GetRolesRes interface {
 	getRolesRes()
 }
@@ -415,6 +487,10 @@ type GetSubscriberRes interface {
 
 type GetSubscribersRes interface {
 	getSubscribersRes()
+}
+
+type GetSystemPermissionsRes interface {
+	getSystemPermissionsRes()
 }
 
 type GetTimezonesRes interface {
@@ -459,6 +535,10 @@ type ReadOrganizationLogoRes interface {
 
 type RefreshUserClaimsRes interface {
 	refreshUserClaimsRes()
+}
+
+type RemoveApplicationAccessRoleRes interface {
+	removeApplicationAccessRoleRes()
 }
 
 type RemoveConnectionRes interface {
@@ -561,6 +641,10 @@ type UpdateConnectionRes interface {
 	updateConnectionRes()
 }
 
+type UpdateDirectoryRes interface {
+	updateDirectoryRes()
+}
+
 type UpdateEnvironementFeatureFlagOverrideRes interface {
 	updateEnvironementFeatureFlagOverrideRes()
 }
@@ -579,6 +663,10 @@ type UpdateIdentityRes interface {
 
 type UpdateOrganizationFeatureFlagOverrideRes interface {
 	updateOrganizationFeatureFlagOverrideRes()
+}
+
+type UpdateOrganizationPasskeyRes interface {
+	updateOrganizationPasskeyRes()
 }
 
 type UpdateOrganizationPropertiesRes interface {
@@ -601,6 +689,10 @@ type UpdateOrganizationUsersRes interface {
 	updateOrganizationUsersRes()
 }
 
+type UpdatePasskeyRes interface {
+	updatePasskeyRes()
+}
+
 type UpdatePermissionsRes interface {
 	updatePermissionsRes()
 }
@@ -611,6 +703,10 @@ type UpdatePropertyRes interface {
 
 type UpdateRolePermissionsRes interface {
 	updateRolePermissionsRes()
+}
+
+type UpdateRoleSystemPermissionsRes interface {
+	updateRoleSystemPermissionsRes()
 }
 
 type UpdateRolesRes interface {

@@ -36,6 +36,17 @@ type Handler interface {
 	//
 	// POST /api/v1/apis
 	AddAPIs(ctx context.Context, req *AddAPIsReq) (AddAPIsRes, error)
+	// AddApplicationAccessRole implements AddApplicationAccessRole operation.
+	//
+	// Add a role to the set configured as allowed to access an application.
+	// Adding a role does not enable role-based access control for the
+	// application.
+	// <div>
+	// <code>update:applications</code>
+	// </div>.
+	//
+	// POST /api/v1/applications/{application_id}/access_roles/{role_id}
+	AddApplicationAccessRole(ctx context.Context, params AddApplicationAccessRoleParams) (AddApplicationAccessRoleRes, error)
 	// AddLogo implements AddLogo operation.
 	//
 	// Add environment logo
@@ -145,6 +156,15 @@ type Handler interface {
 	//
 	// POST /api/v1/connections
 	CreateConnection(ctx context.Context, req *CreateConnectionReq) (CreateConnectionRes, error)
+	// CreateDirectory implements createDirectory operation.
+	//
+	// Create a new SCIM directory for user and group synchronization.
+	// <div>
+	// <code>create:scim_directories</code>
+	// </div>.
+	//
+	// POST /api/v1/directories
+	CreateDirectory(ctx context.Context, req *CreateDirectoryReq) (CreateDirectoryRes, error)
 	// CreateEnvironmentVariable implements createEnvironmentVariable operation.
 	//
 	// Create a new environment variable. This feature is in beta and admin UI is not yet available.
@@ -182,6 +202,24 @@ type Handler interface {
 	//
 	// POST /api/v1/organization
 	CreateOrganization(ctx context.Context, req *CreateOrganizationReq) (CreateOrganizationRes, error)
+	// CreateOrganizationInvite implements createOrganizationInvite operation.
+	//
+	// Create a new invitation for an organization. An invitation email will be sent to the provided
+	// email address if `send_email` is set to `true`.
+	// Invitations cannot be created for organizations that are managed by directory sync; user and role
+	// changes for those organizations must be made in the upstream identity provider.
+	// Roles that require an explicit assignment permission cannot be granted to an invitee unless the
+	// caller (or the user the token represents) holds that permission. On Kinde-hosted plans, roles
+	// outside `owner`/`admin` additionally require the `extended_roles` entitlement.
+	// Per-organization rate limits apply: a maximum number of invitations may be created per rolling 24
+	// hour window, and a maximum number of active (non-accepted, non-revoked) invitations may exist at
+	// any time. Requests that exceed either limit are rejected.
+	// <div>
+	// <code>create:organization_invites</code>
+	// </div>.
+	//
+	// POST /api/v1/organization/{org_code}/invites
+	CreateOrganizationInvite(ctx context.Context, req *CreateOrganizationInviteReq, params CreateOrganizationInviteParams) (CreateOrganizationInviteRes, error)
 	// CreateOrganizationUserPermission implements CreateOrganizationUserPermission operation.
 	//
 	// Add permission to an organization user.
@@ -247,6 +285,22 @@ type Handler interface {
 	//
 	// POST /api/v1/user
 	CreateUser(ctx context.Context, req OptCreateUserReq) (CreateUserRes, error)
+	// CreateUserBillingCustomer implements createUserBillingCustomer operation.
+	//
+	// Creates a billing customer for a user in an organization, and assigns a published user billing
+	// plan.
+	// This mirrors the admin "Start billing customer" action on the user billing page.
+	// At most one billing customer is created per user in an organization. If one
+	// already exists, the request fails with `BILLING_CUSTOMER_EXISTS`. Concurrent
+	// creates that both pass the existence check before either finishes may both
+	// return success with the same customer and agreement ids (onboarding reuses
+	// the row created under the advisory lock).
+	// <div>
+	// <code>create:user_billing_customers</code>
+	// </div>.
+	//
+	// POST /api/v1/users/{user_id}/billing_customer
+	CreateUserBillingCustomer(ctx context.Context, req *CreateUserBillingCustomerReq, params CreateUserBillingCustomerParams) (CreateUserBillingCustomerRes, error)
 	// CreateUserIdentity implements CreateUserIdentity operation.
 	//
 	// Creates an identity for a user.
@@ -328,6 +382,15 @@ type Handler interface {
 	//
 	// DELETE /api/v1/connections/{connection_id}
 	DeleteConnection(ctx context.Context, params DeleteConnectionParams) (DeleteConnectionRes, error)
+	// DeleteDirectory implements deleteDirectory operation.
+	//
+	// Delete a SCIM directory and all associated data.
+	// <div>
+	// <code>delete:scim_directories</code>
+	// </div>.
+	//
+	// DELETE /api/v1/directories/{directory_id}
+	DeleteDirectory(ctx context.Context, params DeleteDirectoryParams) (DeleteDirectoryRes, error)
 	// DeleteEnvironementFeatureFlagOverride implements DeleteEnvironementFeatureFlagOverride operation.
 	//
 	// Delete environment feature flag override.
@@ -428,6 +491,16 @@ type Handler interface {
 	//
 	// DELETE /api/v1/organization/{org_code}/handle
 	DeleteOrganizationHandle(ctx context.Context, params DeleteOrganizationHandleParams) (DeleteOrganizationHandleRes, error)
+	// DeleteOrganizationInvite implements deleteOrganizationInvite operation.
+	//
+	// Revoke (delete) an invitation. This will mark the invitation as revoked and prevent it from being
+	// accepted.
+	// <div>
+	// <code>delete:organization_invites</code>
+	// </div>.
+	//
+	// DELETE /api/v1/organization/{org_code}/invites/{invite_code}
+	DeleteOrganizationInvite(ctx context.Context, params DeleteOrganizationInviteParams) (DeleteOrganizationInviteRes, error)
 	// DeleteOrganizationLogo implements DeleteOrganizationLogo operation.
 	//
 	// Delete organization logo
@@ -608,6 +681,17 @@ type Handler interface {
 	//
 	// GET /api/v1/applications/{application_id}
 	GetApplication(ctx context.Context, params GetApplicationParams) (GetApplicationRes, error)
+	// GetApplicationAccessRoles implements GetApplicationAccessRoles operation.
+	//
+	// Gets the roles configured as allowed to access an application. These
+	// roles are enforced only when role-based access control is enabled for
+	// the application.
+	// <div>
+	// <code>read:applications</code>
+	// </div>.
+	//
+	// GET /api/v1/applications/{application_id}/access_roles
+	GetApplicationAccessRoles(ctx context.Context, params GetApplicationAccessRolesParams) (GetApplicationAccessRolesRes, error)
 	// GetApplicationConnections implements GetApplicationConnections operation.
 	//
 	// Gets all connections for an application.
@@ -717,6 +801,24 @@ type Handler interface {
 	//
 	// GET /api/v1/connections
 	GetConnections(ctx context.Context, params GetConnectionsParams) (GetConnectionsRes, error)
+	// GetDirectories implements getDirectories operation.
+	//
+	// Returns a list of SCIM directories for your organization.
+	// <div>
+	// <code>read:scim_directories</code>
+	// </div>.
+	//
+	// GET /api/v1/directories
+	GetDirectories(ctx context.Context, params GetDirectoriesParams) (GetDirectoriesRes, error)
+	// GetDirectory implements getDirectory operation.
+	//
+	// Retrieve SCIM directory details by ID.
+	// <div>
+	// <code>read:scim_directories</code>
+	// </div>.
+	//
+	// GET /api/v1/directories/{directory_id}
+	GetDirectory(ctx context.Context, params GetDirectoryParams) (GetDirectoryRes, error)
 	// GetEnvironementFeatureFlags implements GetEnvironementFeatureFlags operation.
 	//
 	// Get environment feature flags.
@@ -835,6 +937,35 @@ type Handler interface {
 	//
 	// GET /api/v1/organizations/{org_code}/feature_flags
 	GetOrganizationFeatureFlags(ctx context.Context, params GetOrganizationFeatureFlagsParams) (GetOrganizationFeatureFlagsRes, error)
+	// GetOrganizationInvite implements getOrganizationInvite operation.
+	//
+	// Get details of a specific invitation by its code.
+	// <div>
+	// <code>read:organization_invites</code>
+	// </div>.
+	//
+	// GET /api/v1/organization/{org_code}/invites/{invite_code}
+	GetOrganizationInvite(ctx context.Context, params GetOrganizationInviteParams) (GetOrganizationInviteRes, error)
+	// GetOrganizationInvites implements getOrganizationInvites operation.
+	//
+	// Get a list of invitations for an organization. By default, only pending (non-revoked,
+	// non-accepted) invitations are returned.
+	// <div>
+	// <code>read:organization_invites</code>
+	// </div>.
+	//
+	// GET /api/v1/organization/{org_code}/invites
+	GetOrganizationInvites(ctx context.Context, params GetOrganizationInvitesParams) (GetOrganizationInvitesRes, error)
+	// GetOrganizationPasskey implements GetOrganizationPasskey operation.
+	//
+	// Retrieve passkey settings for an organization, including whether the organization overrides the
+	// environment default.
+	// <div>
+	// <code>read:organization_passkey</code>
+	// </div>.
+	//
+	// GET /api/v1/organizations/{org_code}/passkey
+	GetOrganizationPasskey(ctx context.Context, params GetOrganizationPasskeyParams) (GetOrganizationPasskeyRes, error)
 	// GetOrganizationPropertyValues implements GetOrganizationPropertyValues operation.
 	//
 	// Gets properties for an organization by org code.
@@ -844,6 +975,52 @@ type Handler interface {
 	//
 	// GET /api/v1/organizations/{org_code}/properties
 	GetOrganizationPropertyValues(ctx context.Context, params GetOrganizationPropertyValuesParams) (GetOrganizationPropertyValuesRes, error)
+	// GetOrganizationRoleActiveUsersCount implements GetOrganizationRoleActiveUsersCount operation.
+	//
+	// Get the number of active users that hold a given role within a specific organization.
+	// A user is counted as active if they were issued at least one access token during the requested
+	// period,
+	// regardless of organization context on the token. Only users who currently hold the role in the
+	// organization are included. The count is scoped to the current environment.
+	// Both `date_time_from` and `date_time_to` are required, inclusive, and must be ISO 8601 datetimes
+	// in UTC.
+	// Provide them at second precision (no fractional seconds). If a value includes fractional seconds,
+	// it is
+	// normalized before any other processing: `date_time_from` is rounded down and `date_time_to` is
+	// rounded up
+	// to the nearest second. Window validation, the active-user query, and the echoed response bounds
+	// all use
+	// those normalized values.
+	// The requested window must not exceed 3 days. Because both bounds are inclusive, this means
+	// `date_time_to`
+	// must be earlier than `date_time_from` plus 3 days. For example, `2026-07-01T00:00:00Z` to
+	// `2026-07-03T23:59:59Z` is a full 3 day window covering the whole of 1, 2 and 3 July. A longer
+	// window is
+	// rejected with `DATE_TIME_RANGE_TOO_LARGE`.
+	// <div>
+	// <code>read:organization_user_roles</code>
+	// </div>.
+	//
+	// GET /api/v1/organizations/{org_code}/roles/{role_id}/active_users/count
+	GetOrganizationRoleActiveUsersCount(ctx context.Context, params GetOrganizationRoleActiveUsersCountParams) (GetOrganizationRoleActiveUsersCountRes, error)
+	// GetOrganizationRoleUsers implements GetOrganizationRoleUsers operation.
+	//
+	// Get users that have a given role within a specific organization.
+	// <div>
+	// <code>read:organization_user_roles</code>
+	// </div>.
+	//
+	// GET /api/v1/organizations/{org_code}/roles/{role_id}/users
+	GetOrganizationRoleUsers(ctx context.Context, params GetOrganizationRoleUsersParams) (GetOrganizationRoleUsersRes, error)
+	// GetOrganizationRoleUsersCount implements GetOrganizationRoleUsersCount operation.
+	//
+	// Get the number of users that have a given role within a specific organization.
+	// <div>
+	// <code>read:organization_user_roles</code>
+	// </div>.
+	//
+	// GET /api/v1/organizations/{org_code}/roles/{role_id}/users/count
+	GetOrganizationRoleUsersCount(ctx context.Context, params GetOrganizationRoleUsersCountParams) (GetOrganizationRoleUsersCountRes, error)
 	// GetOrganizationUserPermissions implements GetOrganizationUserPermissions operation.
 	//
 	// Get permissions for an organization user.
@@ -880,6 +1057,15 @@ type Handler interface {
 	//
 	// GET /api/v1/organizations
 	GetOrganizations(ctx context.Context, params GetOrganizationsParams) (GetOrganizationsRes, error)
+	// GetPasskey implements GetPasskey operation.
+	//
+	// Retrieve passkey policy for the current environment.
+	// <div>
+	// <code>read:passkey</code>
+	// </div>.
+	//
+	// GET /api/v1/passkey
+	GetPasskey(ctx context.Context) (GetPasskeyRes, error)
 	// GetPermissions implements GetPermissions operation.
 	//
 	// The returned list can be sorted by permission name or permission ID in ascending or descending
@@ -927,9 +1113,29 @@ type Handler interface {
 	//
 	// GET /api/v1/roles/{role_id}/scopes
 	GetRoleScopes(ctx context.Context, params GetRoleScopesParams) (GetRoleScopesRes, error)
+	// GetRoleSystemPermissions implements GetRoleSystemPermissions operation.
+	//
+	// Get system permissions for a role.
+	// System permissions control what organization users can do in the self-serve portal.
+	// <div>
+	// <code>read:role_system_permissions</code>
+	// </div>.
+	//
+	// GET /api/v1/roles/{role_id}/system_permissions
+	GetRoleSystemPermissions(ctx context.Context, params GetRoleSystemPermissionsParams) (GetRoleSystemPermissionsRes, error)
+	// GetRoleUsers implements GetRoleUsers operation.
+	//
+	// Get users that have a given role, across all organizations. Each user entry
+	// includes the organization codes where they hold that role.
+	// <div>
+	// <code>read:organization_user_roles</code>
+	// </div>.
+	//
+	// GET /api/v1/roles/{role_id}/users
+	GetRoleUsers(ctx context.Context, params GetRoleUsersParams) (GetRoleUsersRes, error)
 	// GetRoles implements GetRoles operation.
 	//
-	// The returned list can be sorted by role name or role ID in ascending or descending order. The
+	// The returned list can be sorted by role name or role key in ascending or descending order. The
 	// number of records to return at a time can also be controlled using the `page_size` query string
 	// parameter.
 	// <div>
@@ -959,6 +1165,18 @@ type Handler interface {
 	//
 	// GET /api/v1/subscribers
 	GetSubscribers(ctx context.Context, params GetSubscribersParams) (GetSubscribersRes, error)
+	// GetSystemPermissions implements GetSystemPermissions operation.
+	//
+	// The returned list can be sorted by system permission name or ID in ascending or descending order.
+	// The number of records to return at a time can also be controlled using the `page_size` query
+	// string parameter.
+	// System permissions control what organization users can do in the self-serve portal.
+	// <div>
+	// <code>read:system_permissions</code>
+	// </div>.
+	//
+	// GET /api/v1/system_permissions
+	GetSystemPermissions(ctx context.Context, params GetSystemPermissionsParams) (GetSystemPermissionsRes, error)
 	// GetTimezones implements getTimezones operation.
 	//
 	// Get a list of timezones and associated timezone keys.
@@ -1060,6 +1278,17 @@ type Handler interface {
 	//
 	// POST /api/v1/users/{user_id}/refresh_claims
 	RefreshUserClaims(ctx context.Context, params RefreshUserClaimsParams) (RefreshUserClaimsRes, error)
+	// RemoveApplicationAccessRole implements RemoveApplicationAccessRole operation.
+	//
+	// Remove a role from the set that is allowed to access an application.
+	// Removing a role does not change whether role-based access control is
+	// enabled for the application.
+	// <div>
+	// <code>update:applications</code>
+	// </div>.
+	//
+	// DELETE /api/v1/applications/{application_id}/access_roles/{role_id}
+	RemoveApplicationAccessRole(ctx context.Context, params RemoveApplicationAccessRoleParams) (RemoveApplicationAccessRoleRes, error)
 	// RemoveConnection implements RemoveConnection operation.
 	//
 	// Turn off an auth connection for an application
@@ -1289,6 +1518,15 @@ type Handler interface {
 	//
 	// PATCH /api/v1/connections/{connection_id}
 	UpdateConnection(ctx context.Context, req *UpdateConnectionReq, params UpdateConnectionParams) (UpdateConnectionRes, error)
+	// UpdateDirectory implements updateDirectory operation.
+	//
+	// Update SCIM directory configuration.
+	// <div>
+	// <code>update:scim_directories</code>
+	// </div>.
+	//
+	// PATCH /api/v1/directories/{directory_id}
+	UpdateDirectory(ctx context.Context, req *UpdateDirectoryReq, params UpdateDirectoryParams) (UpdateDirectoryRes, error)
 	// UpdateEnvironementFeatureFlagOverride implements UpdateEnvironementFeatureFlagOverride operation.
 	//
 	// Update environment feature flag override.
@@ -1329,6 +1567,9 @@ type Handler interface {
 	// UpdateOrganization implements updateOrganization operation.
 	//
 	// Update an organization.
+	// When the organization name is updated and the organization is a billing
+	// customer, the change is also propagated to the corresponding billing
+	// customer details.
 	// <div>
 	// <code>update:organizations</code>
 	// </div>.
@@ -1344,6 +1585,16 @@ type Handler interface {
 	//
 	// PATCH /api/v1/organizations/{org_code}/feature_flags/{feature_flag_key}
 	UpdateOrganizationFeatureFlagOverride(ctx context.Context, params UpdateOrganizationFeatureFlagOverrideParams) (UpdateOrganizationFeatureFlagOverrideRes, error)
+	// UpdateOrganizationPasskey implements UpdateOrganizationPasskey operation.
+	//
+	// Update passkey settings for an organization. Set `is_override_environment_passkey_settings` to
+	// `false` to revert to the environment default without providing a policy.
+	// <div>
+	// <code>update:organization_passkey</code>
+	// </div>.
+	//
+	// PUT /api/v1/organizations/{org_code}/passkey
+	UpdateOrganizationPasskey(ctx context.Context, req *UpdateOrganizationPasskeyReq, params UpdateOrganizationPasskeyParams) (UpdateOrganizationPasskeyRes, error)
 	// UpdateOrganizationProperties implements UpdateOrganizationProperties operation.
 	//
 	// Update organization property values.
@@ -1380,6 +1631,16 @@ type Handler interface {
 	//
 	// PATCH /api/v1/organizations/{org_code}/users
 	UpdateOrganizationUsers(ctx context.Context, req OptUpdateOrganizationUsersReq, params UpdateOrganizationUsersParams) (UpdateOrganizationUsersRes, error)
+	// UpdatePasskey implements UpdatePasskey operation.
+	//
+	// Set the passkey policy for the current environment. Policies other than `off` require the
+	// `passkeys` entitlement.
+	// <div>
+	// <code>update:passkey</code>
+	// </div>.
+	//
+	// PUT /api/v1/passkey
+	UpdatePasskey(ctx context.Context, req *UpdatePasskeyReq) (UpdatePasskeyRes, error)
 	// UpdatePermissions implements UpdatePermissions operation.
 	//
 	// Update permission
@@ -1407,6 +1668,16 @@ type Handler interface {
 	//
 	// PATCH /api/v1/roles/{role_id}/permissions
 	UpdateRolePermissions(ctx context.Context, req *UpdateRolePermissionsReq, params UpdateRolePermissionsParams) (UpdateRolePermissionsRes, error)
+	// UpdateRoleSystemPermissions implements UpdateRoleSystemPermissions operation.
+	//
+	// Update role system permissions.
+	// System permissions control what organization users can do in the self-serve portal.
+	// <div>
+	// <code>update:role_system_permissions</code>
+	// </div>.
+	//
+	// PATCH /api/v1/roles/{role_id}/system_permissions
+	UpdateRoleSystemPermissions(ctx context.Context, req *UpdateRoleSystemPermissionsReq, params UpdateRoleSystemPermissionsParams) (UpdateRoleSystemPermissionsRes, error)
 	// UpdateRoles implements UpdateRoles operation.
 	//
 	// Update a role
@@ -1419,6 +1690,9 @@ type Handler interface {
 	// UpdateUser implements updateUser operation.
 	//
 	// Update a user record.
+	// When `given_name` or `family_name` is updated and the user is the
+	// owner of a family billing customer, the change is also propagated to
+	// the corresponding billing customer details.
 	// <div>
 	// <code>update:users</code>
 	// </div>.
