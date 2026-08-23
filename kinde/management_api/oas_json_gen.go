@@ -5204,7 +5204,6 @@ func (s *CreateConnectionReqOptions) Decode(d *jx.Decoder) error {
 	}); err != nil {
 		return errors.Wrap(err, "capture")
 	}
-	// Manual fix: ogen defaulted to variant 0 on ambiguous oneOf; fail closed instead.
 	if !found {
 		return errors.New("unable to detect sum type variant")
 	}
@@ -42565,7 +42564,6 @@ func (s *ReplaceConnectionReqOptions) Decode(d *jx.Decoder) error {
 	}); err != nil {
 		return errors.Wrap(err, "capture")
 	}
-	// Manual fix: ogen defaulted to variant 0 on ambiguous oneOf; fail closed instead.
 	if !found {
 		return errors.New("unable to detect sum type variant")
 	}
@@ -49891,7 +49889,6 @@ func (s *UpdateConnectionReqOptions) Decode(d *jx.Decoder) error {
 	}); err != nil {
 		return errors.Wrap(err, "capture")
 	}
-	// Manual fix: ogen defaulted to variant 0 on ambiguous oneOf; fail closed instead.
 	if !found {
 		return errors.New("unable to detect sum type variant")
 	}
