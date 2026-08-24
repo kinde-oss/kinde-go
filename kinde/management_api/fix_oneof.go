@@ -65,26 +65,28 @@ func main() {
 	}`)
 	})
 
-	if patched > 0 {
-		if err := os.WriteFile(targetFile, newContent, 0644); err != nil {
-			fmt.Fprintf(os.Stderr, "Error writing patched file: %v\n", err)
-			os.Exit(1)
-		}
-		fmt.Printf("✅ Patched %d ambiguous oneOf fallback(s) to fail closed\n", patched)
-	}
-
+	// Validate before writing so a failed run leaves the file exactly as ogen
+	// generated it, never partially patched.
 	if locs := remainingFallbackPattern.FindAllIndex(newContent, -1); len(locs) > 0 {
-		fmt.Fprintf(os.Stderr, "Error: %d oneOf fallback(s) still assign s.Type after patching:\n", len(locs))
+		fmt.Fprintf(os.Stderr, "Error: %d oneOf fallback(s) would still assign s.Type after patching:\n", len(locs))
 		for _, loc := range locs {
 			line := 1 + bytes.Count(newContent[:loc[0]], []byte("\n"))
 			snippet := strings.Join(strings.Fields(string(newContent[loc[0]:loc[1]])), " ")
 			fmt.Fprintf(os.Stderr, "  %s:%d: %s\n", targetFile, line, snippet)
 		}
-		fmt.Fprintln(os.Stderr, "The generated shape has likely changed (ogen upgrade?) - update fix_oneof.go")
+		fmt.Fprintf(os.Stderr, "The generated shape has likely changed (ogen upgrade?) - update fix_oneof.go\n")
+		fmt.Fprintf(os.Stderr, "%s left unmodified\n", targetFile)
 		os.Exit(1)
 	}
 
 	if patched == 0 {
 		fmt.Println("No ambiguous oneOf fallback found - already patched or no longer generated")
+		return
 	}
+
+	if err := os.WriteFile(targetFile, newContent, 0644); err != nil {
+		fmt.Fprintf(os.Stderr, "Error writing patched file: %v\n", err)
+		os.Exit(1)
+	}
+	fmt.Printf("✅ Patched %d ambiguous oneOf fallback(s) to fail closed\n", patched)
 }
