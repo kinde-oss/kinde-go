@@ -583,6 +583,120 @@ func (s *AddAPIsTooManyRequests) UnmarshalJSON(data []byte) error {
 	return s.Decode(d)
 }
 
+// Encode encodes AddApplicationAccessRoleBadRequest as json.
+func (s *AddApplicationAccessRoleBadRequest) Encode(e *jx.Encoder) {
+	unwrapped := (*ErrorResponse)(s)
+
+	unwrapped.Encode(e)
+}
+
+// Decode decodes AddApplicationAccessRoleBadRequest from json.
+func (s *AddApplicationAccessRoleBadRequest) Decode(d *jx.Decoder) error {
+	if s == nil {
+		return errors.New("invalid: unable to decode AddApplicationAccessRoleBadRequest to nil")
+	}
+	var unwrapped ErrorResponse
+	if err := func() error {
+		if err := unwrapped.Decode(d); err != nil {
+			return err
+		}
+		return nil
+	}(); err != nil {
+		return errors.Wrap(err, "alias")
+	}
+	*s = AddApplicationAccessRoleBadRequest(unwrapped)
+	return nil
+}
+
+// MarshalJSON implements stdjson.Marshaler.
+func (s *AddApplicationAccessRoleBadRequest) MarshalJSON() ([]byte, error) {
+	e := jx.Encoder{}
+	s.Encode(&e)
+	return e.Bytes(), nil
+}
+
+// UnmarshalJSON implements stdjson.Unmarshaler.
+func (s *AddApplicationAccessRoleBadRequest) UnmarshalJSON(data []byte) error {
+	d := jx.DecodeBytes(data)
+	return s.Decode(d)
+}
+
+// Encode encodes AddApplicationAccessRoleForbidden as json.
+func (s *AddApplicationAccessRoleForbidden) Encode(e *jx.Encoder) {
+	unwrapped := (*ErrorResponse)(s)
+
+	unwrapped.Encode(e)
+}
+
+// Decode decodes AddApplicationAccessRoleForbidden from json.
+func (s *AddApplicationAccessRoleForbidden) Decode(d *jx.Decoder) error {
+	if s == nil {
+		return errors.New("invalid: unable to decode AddApplicationAccessRoleForbidden to nil")
+	}
+	var unwrapped ErrorResponse
+	if err := func() error {
+		if err := unwrapped.Decode(d); err != nil {
+			return err
+		}
+		return nil
+	}(); err != nil {
+		return errors.Wrap(err, "alias")
+	}
+	*s = AddApplicationAccessRoleForbidden(unwrapped)
+	return nil
+}
+
+// MarshalJSON implements stdjson.Marshaler.
+func (s *AddApplicationAccessRoleForbidden) MarshalJSON() ([]byte, error) {
+	e := jx.Encoder{}
+	s.Encode(&e)
+	return e.Bytes(), nil
+}
+
+// UnmarshalJSON implements stdjson.Unmarshaler.
+func (s *AddApplicationAccessRoleForbidden) UnmarshalJSON(data []byte) error {
+	d := jx.DecodeBytes(data)
+	return s.Decode(d)
+}
+
+// Encode encodes AddApplicationAccessRoleTooManyRequests as json.
+func (s *AddApplicationAccessRoleTooManyRequests) Encode(e *jx.Encoder) {
+	unwrapped := (*ErrorResponse)(s)
+
+	unwrapped.Encode(e)
+}
+
+// Decode decodes AddApplicationAccessRoleTooManyRequests from json.
+func (s *AddApplicationAccessRoleTooManyRequests) Decode(d *jx.Decoder) error {
+	if s == nil {
+		return errors.New("invalid: unable to decode AddApplicationAccessRoleTooManyRequests to nil")
+	}
+	var unwrapped ErrorResponse
+	if err := func() error {
+		if err := unwrapped.Decode(d); err != nil {
+			return err
+		}
+		return nil
+	}(); err != nil {
+		return errors.Wrap(err, "alias")
+	}
+	*s = AddApplicationAccessRoleTooManyRequests(unwrapped)
+	return nil
+}
+
+// MarshalJSON implements stdjson.Marshaler.
+func (s *AddApplicationAccessRoleTooManyRequests) MarshalJSON() ([]byte, error) {
+	e := jx.Encoder{}
+	s.Encode(&e)
+	return e.Bytes(), nil
+}
+
+// UnmarshalJSON implements stdjson.Unmarshaler.
+func (s *AddApplicationAccessRoleTooManyRequests) UnmarshalJSON(data []byte) error {
+	d := jx.DecodeBytes(data)
+	return s.Decode(d)
+}
+
 // Encode encodes AddLogoBadRequest as json.
 func (s *AddLogoBadRequest) Encode(e *jx.Encoder) {
 	unwrapped := (*ErrorResponse)(s)
@@ -1979,6 +2093,120 @@ func (s *AddRoleScopeTooManyRequests) UnmarshalJSON(data []byte) error {
 }
 
 // Encode implements json.Marshaler.
+func (s *ApplicationAccessRole) Encode(e *jx.Encoder) {
+	e.ObjStart()
+	s.encodeFields(e)
+	e.ObjEnd()
+}
+
+// encodeFields encodes fields.
+func (s *ApplicationAccessRole) encodeFields(e *jx.Encoder) {
+	{
+		if s.ID.Set {
+			e.FieldStart("id")
+			s.ID.Encode(e)
+		}
+	}
+	{
+		if s.Key.Set {
+			e.FieldStart("key")
+			s.Key.Encode(e)
+		}
+	}
+	{
+		if s.Name.Set {
+			e.FieldStart("name")
+			s.Name.Encode(e)
+		}
+	}
+	{
+		if s.Description.Set {
+			e.FieldStart("description")
+			s.Description.Encode(e)
+		}
+	}
+}
+
+var jsonFieldsNameOfApplicationAccessRole = [4]string{
+	0: "id",
+	1: "key",
+	2: "name",
+	3: "description",
+}
+
+// Decode decodes ApplicationAccessRole from json.
+func (s *ApplicationAccessRole) Decode(d *jx.Decoder) error {
+	if s == nil {
+		return errors.New("invalid: unable to decode ApplicationAccessRole to nil")
+	}
+
+	if err := d.ObjBytes(func(d *jx.Decoder, k []byte) error {
+		switch string(k) {
+		case "id":
+			if err := func() error {
+				s.ID.Reset()
+				if err := s.ID.Decode(d); err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return errors.Wrap(err, "decode field \"id\"")
+			}
+		case "key":
+			if err := func() error {
+				s.Key.Reset()
+				if err := s.Key.Decode(d); err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return errors.Wrap(err, "decode field \"key\"")
+			}
+		case "name":
+			if err := func() error {
+				s.Name.Reset()
+				if err := s.Name.Decode(d); err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return errors.Wrap(err, "decode field \"name\"")
+			}
+		case "description":
+			if err := func() error {
+				s.Description.Reset()
+				if err := s.Description.Decode(d); err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return errors.Wrap(err, "decode field \"description\"")
+			}
+		default:
+			return d.Skip()
+		}
+		return nil
+	}); err != nil {
+		return errors.Wrap(err, "decode ApplicationAccessRole")
+	}
+
+	return nil
+}
+
+// MarshalJSON implements stdjson.Marshaler.
+func (s *ApplicationAccessRole) MarshalJSON() ([]byte, error) {
+	e := jx.Encoder{}
+	s.Encode(&e)
+	return e.Bytes(), nil
+}
+
+// UnmarshalJSON implements stdjson.Unmarshaler.
+func (s *ApplicationAccessRole) UnmarshalJSON(data []byte) error {
+	d := jx.DecodeBytes(data)
+	return s.Decode(d)
+}
+
+// Encode implements json.Marshaler.
 func (s *Applications) Encode(e *jx.Encoder) {
 	e.ObjStart()
 	s.encodeFields(e)
@@ -3093,6 +3321,10 @@ func (s *CreateApiKeyReq) encodeFields(e *jx.Encoder) {
 		e.Str(s.Name)
 	}
 	{
+		e.FieldStart("type")
+		s.Type.Encode(e)
+	}
+	{
 		e.FieldStart("api_id")
 		e.Str(s.APIID)
 	}
@@ -3116,12 +3348,13 @@ func (s *CreateApiKeyReq) encodeFields(e *jx.Encoder) {
 	}
 }
 
-var jsonFieldsNameOfCreateApiKeyReq = [5]string{
+var jsonFieldsNameOfCreateApiKeyReq = [6]string{
 	0: "name",
-	1: "api_id",
-	2: "scope_ids",
-	3: "user_id",
-	4: "org_code",
+	1: "type",
+	2: "api_id",
+	3: "scope_ids",
+	4: "user_id",
+	5: "org_code",
 }
 
 // Decode decodes CreateApiKeyReq from json.
@@ -3145,8 +3378,18 @@ func (s *CreateApiKeyReq) Decode(d *jx.Decoder) error {
 			}(); err != nil {
 				return errors.Wrap(err, "decode field \"name\"")
 			}
-		case "api_id":
+		case "type":
 			requiredBitSet[0] |= 1 << 1
+			if err := func() error {
+				if err := s.Type.Decode(d); err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return errors.Wrap(err, "decode field \"type\"")
+			}
+		case "api_id":
+			requiredBitSet[0] |= 1 << 2
 			if err := func() error {
 				v, err := d.Str()
 				s.APIID = string(v)
@@ -3197,7 +3440,7 @@ func (s *CreateApiKeyReq) Decode(d *jx.Decoder) error {
 	// Validate required fields.
 	var failures []validate.FieldError
 	for i, mask := range [1]uint8{
-		0b00000011,
+		0b00000111,
 	} {
 		if result := (requiredBitSet[i] & mask) ^ mask; result != 0 {
 			// Mask only required fields and check equality to mask using XOR.
@@ -3239,6 +3482,48 @@ func (s *CreateApiKeyReq) MarshalJSON() ([]byte, error) {
 
 // UnmarshalJSON implements stdjson.Unmarshaler.
 func (s *CreateApiKeyReq) UnmarshalJSON(data []byte) error {
+	d := jx.DecodeBytes(data)
+	return s.Decode(d)
+}
+
+// Encode encodes CreateApiKeyReqType as json.
+func (s CreateApiKeyReqType) Encode(e *jx.Encoder) {
+	e.Str(string(s))
+}
+
+// Decode decodes CreateApiKeyReqType from json.
+func (s *CreateApiKeyReqType) Decode(d *jx.Decoder) error {
+	if s == nil {
+		return errors.New("invalid: unable to decode CreateApiKeyReqType to nil")
+	}
+	v, err := d.StrBytes()
+	if err != nil {
+		return err
+	}
+	// Try to use constant string.
+	switch CreateApiKeyReqType(v) {
+	case CreateApiKeyReqTypeUser:
+		*s = CreateApiKeyReqTypeUser
+	case CreateApiKeyReqTypeOrganization:
+		*s = CreateApiKeyReqTypeOrganization
+	case CreateApiKeyReqTypeEnvironment:
+		*s = CreateApiKeyReqTypeEnvironment
+	default:
+		*s = CreateApiKeyReqType(v)
+	}
+
+	return nil
+}
+
+// MarshalJSON implements stdjson.Marshaler.
+func (s CreateApiKeyReqType) MarshalJSON() ([]byte, error) {
+	e := jx.Encoder{}
+	s.Encode(&e)
+	return e.Bytes(), nil
+}
+
+// UnmarshalJSON implements stdjson.Unmarshaler.
+func (s *CreateApiKeyReqType) UnmarshalJSON(data []byte) error {
 	d := jx.DecodeBytes(data)
 	return s.Decode(d)
 }
@@ -4769,14 +5054,6 @@ func (s *CreateConnectionReqOptions) Decode(d *jx.Decoder) error {
 	if err := d.Capture(func(d *jx.Decoder) error {
 		return d.ObjBytes(func(d *jx.Decoder, key []byte) error {
 			switch string(key) {
-			case "is_use_custom_domain":
-				match := CreateConnectionReqOptions0CreateConnectionReqOptions
-				if found && s.Type != match {
-					s.Type = ""
-					return errors.Errorf("multiple oneOf matches: (%v, %v)", s.Type, match)
-				}
-				found = true
-				s.Type = match
 			case "entra_id_domain":
 				match := CreateConnectionReqOptions1CreateConnectionReqOptions
 				if found && s.Type != match {
@@ -4825,7 +5102,7 @@ func (s *CreateConnectionReqOptions) Decode(d *jx.Decoder) error {
 				}
 				found = true
 				s.Type = match
-			case "saml_acs_url":
+			case "saml_idp_metadata_url":
 				match := CreateConnectionReqOptions2CreateConnectionReqOptions
 				if found && s.Type != match {
 					s.Type = ""
@@ -4833,7 +5110,7 @@ func (s *CreateConnectionReqOptions) Decode(d *jx.Decoder) error {
 				}
 				found = true
 				s.Type = match
-			case "saml_idp_metadata_url":
+			case "saml_idp_metadata_xml":
 				match := CreateConnectionReqOptions2CreateConnectionReqOptions
 				if found && s.Type != match {
 					s.Type = ""
@@ -4849,7 +5126,39 @@ func (s *CreateConnectionReqOptions) Decode(d *jx.Decoder) error {
 				}
 				found = true
 				s.Type = match
+			case "sign_request_algorithm":
+				match := CreateConnectionReqOptions2CreateConnectionReqOptions
+				if found && s.Type != match {
+					s.Type = ""
+					return errors.Errorf("multiple oneOf matches: (%v, %v)", s.Type, match)
+				}
+				found = true
+				s.Type = match
+			case "protocol_binding":
+				match := CreateConnectionReqOptions2CreateConnectionReqOptions
+				if found && s.Type != match {
+					s.Type = ""
+					return errors.Errorf("multiple oneOf matches: (%v, %v)", s.Type, match)
+				}
+				found = true
+				s.Type = match
+			case "name_id_format":
+				match := CreateConnectionReqOptions2CreateConnectionReqOptions
+				if found && s.Type != match {
+					s.Type = ""
+					return errors.Errorf("multiple oneOf matches: (%v, %v)", s.Type, match)
+				}
+				found = true
+				s.Type = match
 			case "saml_email_key_attr":
+				match := CreateConnectionReqOptions2CreateConnectionReqOptions
+				if found && s.Type != match {
+					s.Type = ""
+					return errors.Errorf("multiple oneOf matches: (%v, %v)", s.Type, match)
+				}
+				found = true
+				s.Type = match
+			case "saml_user_id_key_attr":
 				match := CreateConnectionReqOptions2CreateConnectionReqOptions
 				if found && s.Type != match {
 					s.Type = ""
@@ -4957,12 +5266,19 @@ func (s *CreateConnectionReqOptions0) encodeFields(e *jx.Encoder) {
 			s.IsUseCustomDomain.Encode(e)
 		}
 	}
+	{
+		if s.IsTrusted.Set {
+			e.FieldStart("is_trusted")
+			s.IsTrusted.Encode(e)
+		}
+	}
 }
 
-var jsonFieldsNameOfCreateConnectionReqOptions0 = [3]string{
+var jsonFieldsNameOfCreateConnectionReqOptions0 = [4]string{
 	0: "client_id",
 	1: "client_secret",
 	2: "is_use_custom_domain",
+	3: "is_trusted",
 }
 
 // Decode decodes CreateConnectionReqOptions0 from json.
@@ -5002,6 +5318,16 @@ func (s *CreateConnectionReqOptions0) Decode(d *jx.Decoder) error {
 				return nil
 			}(); err != nil {
 				return errors.Wrap(err, "decode field \"is_use_custom_domain\"")
+			}
+		case "is_trusted":
+			if err := func() error {
+				s.IsTrusted.Reset()
+				if err := s.IsTrusted.Decode(d); err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return errors.Wrap(err, "decode field \"is_trusted\"")
 			}
 		default:
 			return d.Skip()
@@ -5107,14 +5433,32 @@ func (s *CreateConnectionReqOptions1) encodeFields(e *jx.Encoder) {
 		}
 	}
 	{
+		if s.SSOButtonDisplay.Set {
+			e.FieldStart("sso_button_display")
+			s.SSOButtonDisplay.Encode(e)
+		}
+	}
+	{
 		if s.UpstreamParams.Set {
 			e.FieldStart("upstream_params")
 			s.UpstreamParams.Encode(e)
 		}
 	}
+	{
+		if s.IsUseCustomDomain.Set {
+			e.FieldStart("is_use_custom_domain")
+			s.IsUseCustomDomain.Encode(e)
+		}
+	}
+	{
+		if s.IsTrusted.Set {
+			e.FieldStart("is_trusted")
+			s.IsTrusted.Encode(e)
+		}
+	}
 }
 
-var jsonFieldsNameOfCreateConnectionReqOptions1 = [12]string{
+var jsonFieldsNameOfCreateConnectionReqOptions1 = [15]string{
 	0:  "client_id",
 	1:  "client_secret",
 	2:  "home_realm_domains",
@@ -5126,7 +5470,10 @@ var jsonFieldsNameOfCreateConnectionReqOptions1 = [12]string{
 	8:  "is_auto_join_organization_enabled",
 	9:  "is_create_missing_user",
 	10: "is_force_show_sso_button",
-	11: "upstream_params",
+	11: "sso_button_display",
+	12: "upstream_params",
+	13: "is_use_custom_domain",
+	14: "is_trusted",
 }
 
 // Decode decodes CreateConnectionReqOptions1 from json.
@@ -5256,6 +5603,16 @@ func (s *CreateConnectionReqOptions1) Decode(d *jx.Decoder) error {
 			}(); err != nil {
 				return errors.Wrap(err, "decode field \"is_force_show_sso_button\"")
 			}
+		case "sso_button_display":
+			if err := func() error {
+				s.SSOButtonDisplay.Reset()
+				if err := s.SSOButtonDisplay.Decode(d); err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return errors.Wrap(err, "decode field \"sso_button_display\"")
+			}
 		case "upstream_params":
 			if err := func() error {
 				s.UpstreamParams.Reset()
@@ -5265,6 +5622,26 @@ func (s *CreateConnectionReqOptions1) Decode(d *jx.Decoder) error {
 				return nil
 			}(); err != nil {
 				return errors.Wrap(err, "decode field \"upstream_params\"")
+			}
+		case "is_use_custom_domain":
+			if err := func() error {
+				s.IsUseCustomDomain.Reset()
+				if err := s.IsUseCustomDomain.Decode(d); err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return errors.Wrap(err, "decode field \"is_use_custom_domain\"")
+			}
+		case "is_trusted":
+			if err := func() error {
+				s.IsTrusted.Reset()
+				if err := s.IsTrusted.Decode(d); err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return errors.Wrap(err, "decode field \"is_trusted\"")
 			}
 		default:
 			return d.Skip()
@@ -5286,6 +5663,48 @@ func (s *CreateConnectionReqOptions1) MarshalJSON() ([]byte, error) {
 
 // UnmarshalJSON implements stdjson.Unmarshaler.
 func (s *CreateConnectionReqOptions1) UnmarshalJSON(data []byte) error {
+	d := jx.DecodeBytes(data)
+	return s.Decode(d)
+}
+
+// Encode encodes CreateConnectionReqOptions1SSOButtonDisplay as json.
+func (s CreateConnectionReqOptions1SSOButtonDisplay) Encode(e *jx.Encoder) {
+	e.Str(string(s))
+}
+
+// Decode decodes CreateConnectionReqOptions1SSOButtonDisplay from json.
+func (s *CreateConnectionReqOptions1SSOButtonDisplay) Decode(d *jx.Decoder) error {
+	if s == nil {
+		return errors.New("invalid: unable to decode CreateConnectionReqOptions1SSOButtonDisplay to nil")
+	}
+	v, err := d.StrBytes()
+	if err != nil {
+		return err
+	}
+	// Try to use constant string.
+	switch CreateConnectionReqOptions1SSOButtonDisplay(v) {
+	case CreateConnectionReqOptions1SSOButtonDisplayAuto:
+		*s = CreateConnectionReqOptions1SSOButtonDisplayAuto
+	case CreateConnectionReqOptions1SSOButtonDisplayShow:
+		*s = CreateConnectionReqOptions1SSOButtonDisplayShow
+	case CreateConnectionReqOptions1SSOButtonDisplayHide:
+		*s = CreateConnectionReqOptions1SSOButtonDisplayHide
+	default:
+		*s = CreateConnectionReqOptions1SSOButtonDisplay(v)
+	}
+
+	return nil
+}
+
+// MarshalJSON implements stdjson.Marshaler.
+func (s CreateConnectionReqOptions1SSOButtonDisplay) MarshalJSON() ([]byte, error) {
+	e := jx.Encoder{}
+	s.Encode(&e)
+	return e.Bytes(), nil
+}
+
+// UnmarshalJSON implements stdjson.Unmarshaler.
+func (s *CreateConnectionReqOptions1SSOButtonDisplay) UnmarshalJSON(data []byte) error {
 	d := jx.DecodeBytes(data)
 	return s.Decode(d)
 }
@@ -5374,15 +5793,15 @@ func (s *CreateConnectionReqOptions2) encodeFields(e *jx.Encoder) {
 		}
 	}
 	{
-		if s.SamlAcsURL.Set {
-			e.FieldStart("saml_acs_url")
-			s.SamlAcsURL.Encode(e)
-		}
-	}
-	{
 		if s.SamlIdpMetadataURL.Set {
 			e.FieldStart("saml_idp_metadata_url")
 			s.SamlIdpMetadataURL.Encode(e)
+		}
+	}
+	{
+		if s.SamlIdpMetadataXML.Set {
+			e.FieldStart("saml_idp_metadata_xml")
+			s.SamlIdpMetadataXML.Encode(e)
 		}
 	}
 	{
@@ -5392,9 +5811,33 @@ func (s *CreateConnectionReqOptions2) encodeFields(e *jx.Encoder) {
 		}
 	}
 	{
+		if s.SignRequestAlgorithm.Set {
+			e.FieldStart("sign_request_algorithm")
+			s.SignRequestAlgorithm.Encode(e)
+		}
+	}
+	{
+		if s.ProtocolBinding.Set {
+			e.FieldStart("protocol_binding")
+			s.ProtocolBinding.Encode(e)
+		}
+	}
+	{
+		if s.NameIDFormat.Set {
+			e.FieldStart("name_id_format")
+			s.NameIDFormat.Encode(e)
+		}
+	}
+	{
 		if s.SamlEmailKeyAttr.Set {
 			e.FieldStart("saml_email_key_attr")
 			s.SamlEmailKeyAttr.Encode(e)
+		}
+	}
+	{
+		if s.SamlUserIDKeyAttr.Set {
+			e.FieldStart("saml_user_id_key_attr")
+			s.SamlUserIDKeyAttr.Encode(e)
 		}
 	}
 	{
@@ -5422,6 +5865,12 @@ func (s *CreateConnectionReqOptions2) encodeFields(e *jx.Encoder) {
 		}
 	}
 	{
+		if s.SSOButtonDisplay.Set {
+			e.FieldStart("sso_button_display")
+			s.SSOButtonDisplay.Encode(e)
+		}
+	}
+	{
 		if s.UpstreamParams.Set {
 			e.FieldStart("upstream_params")
 			s.UpstreamParams.Encode(e)
@@ -5445,23 +5894,42 @@ func (s *CreateConnectionReqOptions2) encodeFields(e *jx.Encoder) {
 			s.IsAutoJoinOrganizationEnabled.Encode(e)
 		}
 	}
+	{
+		if s.IsUseCustomDomain.Set {
+			e.FieldStart("is_use_custom_domain")
+			s.IsUseCustomDomain.Encode(e)
+		}
+	}
+	{
+		if s.IsTrusted.Set {
+			e.FieldStart("is_trusted")
+			s.IsTrusted.Encode(e)
+		}
+	}
 }
 
-var jsonFieldsNameOfCreateConnectionReqOptions2 = [14]string{
+var jsonFieldsNameOfCreateConnectionReqOptions2 = [21]string{
 	0:  "home_realm_domains",
 	1:  "saml_entity_id",
-	2:  "saml_acs_url",
-	3:  "saml_idp_metadata_url",
+	2:  "saml_idp_metadata_url",
+	3:  "saml_idp_metadata_xml",
 	4:  "saml_sign_in_url",
-	5:  "saml_email_key_attr",
-	6:  "saml_first_name_key_attr",
-	7:  "saml_last_name_key_attr",
-	8:  "is_create_missing_user",
-	9:  "is_force_show_sso_button",
-	10: "upstream_params",
-	11: "saml_signing_certificate",
-	12: "saml_signing_private_key",
-	13: "is_auto_join_organization_enabled",
+	5:  "sign_request_algorithm",
+	6:  "protocol_binding",
+	7:  "name_id_format",
+	8:  "saml_email_key_attr",
+	9:  "saml_user_id_key_attr",
+	10: "saml_first_name_key_attr",
+	11: "saml_last_name_key_attr",
+	12: "is_create_missing_user",
+	13: "is_force_show_sso_button",
+	14: "sso_button_display",
+	15: "upstream_params",
+	16: "saml_signing_certificate",
+	17: "saml_signing_private_key",
+	18: "is_auto_join_organization_enabled",
+	19: "is_use_custom_domain",
+	20: "is_trusted",
 }
 
 // Decode decodes CreateConnectionReqOptions2 from json.
@@ -5501,16 +5969,6 @@ func (s *CreateConnectionReqOptions2) Decode(d *jx.Decoder) error {
 			}(); err != nil {
 				return errors.Wrap(err, "decode field \"saml_entity_id\"")
 			}
-		case "saml_acs_url":
-			if err := func() error {
-				s.SamlAcsURL.Reset()
-				if err := s.SamlAcsURL.Decode(d); err != nil {
-					return err
-				}
-				return nil
-			}(); err != nil {
-				return errors.Wrap(err, "decode field \"saml_acs_url\"")
-			}
 		case "saml_idp_metadata_url":
 			if err := func() error {
 				s.SamlIdpMetadataURL.Reset()
@@ -5520,6 +5978,16 @@ func (s *CreateConnectionReqOptions2) Decode(d *jx.Decoder) error {
 				return nil
 			}(); err != nil {
 				return errors.Wrap(err, "decode field \"saml_idp_metadata_url\"")
+			}
+		case "saml_idp_metadata_xml":
+			if err := func() error {
+				s.SamlIdpMetadataXML.Reset()
+				if err := s.SamlIdpMetadataXML.Decode(d); err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return errors.Wrap(err, "decode field \"saml_idp_metadata_xml\"")
 			}
 		case "saml_sign_in_url":
 			if err := func() error {
@@ -5531,6 +5999,36 @@ func (s *CreateConnectionReqOptions2) Decode(d *jx.Decoder) error {
 			}(); err != nil {
 				return errors.Wrap(err, "decode field \"saml_sign_in_url\"")
 			}
+		case "sign_request_algorithm":
+			if err := func() error {
+				s.SignRequestAlgorithm.Reset()
+				if err := s.SignRequestAlgorithm.Decode(d); err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return errors.Wrap(err, "decode field \"sign_request_algorithm\"")
+			}
+		case "protocol_binding":
+			if err := func() error {
+				s.ProtocolBinding.Reset()
+				if err := s.ProtocolBinding.Decode(d); err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return errors.Wrap(err, "decode field \"protocol_binding\"")
+			}
+		case "name_id_format":
+			if err := func() error {
+				s.NameIDFormat.Reset()
+				if err := s.NameIDFormat.Decode(d); err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return errors.Wrap(err, "decode field \"name_id_format\"")
+			}
 		case "saml_email_key_attr":
 			if err := func() error {
 				s.SamlEmailKeyAttr.Reset()
@@ -5540,6 +6038,16 @@ func (s *CreateConnectionReqOptions2) Decode(d *jx.Decoder) error {
 				return nil
 			}(); err != nil {
 				return errors.Wrap(err, "decode field \"saml_email_key_attr\"")
+			}
+		case "saml_user_id_key_attr":
+			if err := func() error {
+				s.SamlUserIDKeyAttr.Reset()
+				if err := s.SamlUserIDKeyAttr.Decode(d); err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return errors.Wrap(err, "decode field \"saml_user_id_key_attr\"")
 			}
 		case "saml_first_name_key_attr":
 			if err := func() error {
@@ -5581,6 +6089,16 @@ func (s *CreateConnectionReqOptions2) Decode(d *jx.Decoder) error {
 			}(); err != nil {
 				return errors.Wrap(err, "decode field \"is_force_show_sso_button\"")
 			}
+		case "sso_button_display":
+			if err := func() error {
+				s.SSOButtonDisplay.Reset()
+				if err := s.SSOButtonDisplay.Decode(d); err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return errors.Wrap(err, "decode field \"sso_button_display\"")
+			}
 		case "upstream_params":
 			if err := func() error {
 				s.UpstreamParams.Reset()
@@ -5621,6 +6139,26 @@ func (s *CreateConnectionReqOptions2) Decode(d *jx.Decoder) error {
 			}(); err != nil {
 				return errors.Wrap(err, "decode field \"is_auto_join_organization_enabled\"")
 			}
+		case "is_use_custom_domain":
+			if err := func() error {
+				s.IsUseCustomDomain.Reset()
+				if err := s.IsUseCustomDomain.Decode(d); err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return errors.Wrap(err, "decode field \"is_use_custom_domain\"")
+			}
+		case "is_trusted":
+			if err := func() error {
+				s.IsTrusted.Reset()
+				if err := s.IsTrusted.Decode(d); err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return errors.Wrap(err, "decode field \"is_trusted\"")
+			}
 		default:
 			return d.Skip()
 		}
@@ -5641,6 +6179,172 @@ func (s *CreateConnectionReqOptions2) MarshalJSON() ([]byte, error) {
 
 // UnmarshalJSON implements stdjson.Unmarshaler.
 func (s *CreateConnectionReqOptions2) UnmarshalJSON(data []byte) error {
+	d := jx.DecodeBytes(data)
+	return s.Decode(d)
+}
+
+// Encode encodes CreateConnectionReqOptions2NameIDFormat as json.
+func (s CreateConnectionReqOptions2NameIDFormat) Encode(e *jx.Encoder) {
+	e.Str(string(s))
+}
+
+// Decode decodes CreateConnectionReqOptions2NameIDFormat from json.
+func (s *CreateConnectionReqOptions2NameIDFormat) Decode(d *jx.Decoder) error {
+	if s == nil {
+		return errors.New("invalid: unable to decode CreateConnectionReqOptions2NameIDFormat to nil")
+	}
+	v, err := d.StrBytes()
+	if err != nil {
+		return err
+	}
+	// Try to use constant string.
+	switch CreateConnectionReqOptions2NameIDFormat(v) {
+	case CreateConnectionReqOptions2NameIDFormatPersistent:
+		*s = CreateConnectionReqOptions2NameIDFormatPersistent
+	case CreateConnectionReqOptions2NameIDFormatTransient:
+		*s = CreateConnectionReqOptions2NameIDFormatTransient
+	case CreateConnectionReqOptions2NameIDFormatEmailAddress:
+		*s = CreateConnectionReqOptions2NameIDFormatEmailAddress
+	case CreateConnectionReqOptions2NameIDFormatUnspecified:
+		*s = CreateConnectionReqOptions2NameIDFormatUnspecified
+	default:
+		*s = CreateConnectionReqOptions2NameIDFormat(v)
+	}
+
+	return nil
+}
+
+// MarshalJSON implements stdjson.Marshaler.
+func (s CreateConnectionReqOptions2NameIDFormat) MarshalJSON() ([]byte, error) {
+	e := jx.Encoder{}
+	s.Encode(&e)
+	return e.Bytes(), nil
+}
+
+// UnmarshalJSON implements stdjson.Unmarshaler.
+func (s *CreateConnectionReqOptions2NameIDFormat) UnmarshalJSON(data []byte) error {
+	d := jx.DecodeBytes(data)
+	return s.Decode(d)
+}
+
+// Encode encodes CreateConnectionReqOptions2ProtocolBinding as json.
+func (s CreateConnectionReqOptions2ProtocolBinding) Encode(e *jx.Encoder) {
+	e.Str(string(s))
+}
+
+// Decode decodes CreateConnectionReqOptions2ProtocolBinding from json.
+func (s *CreateConnectionReqOptions2ProtocolBinding) Decode(d *jx.Decoder) error {
+	if s == nil {
+		return errors.New("invalid: unable to decode CreateConnectionReqOptions2ProtocolBinding to nil")
+	}
+	v, err := d.StrBytes()
+	if err != nil {
+		return err
+	}
+	// Try to use constant string.
+	switch CreateConnectionReqOptions2ProtocolBinding(v) {
+	case CreateConnectionReqOptions2ProtocolBindingHTTPREDIRECT:
+		*s = CreateConnectionReqOptions2ProtocolBindingHTTPREDIRECT
+	case CreateConnectionReqOptions2ProtocolBindingHTTPPOST:
+		*s = CreateConnectionReqOptions2ProtocolBindingHTTPPOST
+	default:
+		*s = CreateConnectionReqOptions2ProtocolBinding(v)
+	}
+
+	return nil
+}
+
+// MarshalJSON implements stdjson.Marshaler.
+func (s CreateConnectionReqOptions2ProtocolBinding) MarshalJSON() ([]byte, error) {
+	e := jx.Encoder{}
+	s.Encode(&e)
+	return e.Bytes(), nil
+}
+
+// UnmarshalJSON implements stdjson.Unmarshaler.
+func (s *CreateConnectionReqOptions2ProtocolBinding) UnmarshalJSON(data []byte) error {
+	d := jx.DecodeBytes(data)
+	return s.Decode(d)
+}
+
+// Encode encodes CreateConnectionReqOptions2SSOButtonDisplay as json.
+func (s CreateConnectionReqOptions2SSOButtonDisplay) Encode(e *jx.Encoder) {
+	e.Str(string(s))
+}
+
+// Decode decodes CreateConnectionReqOptions2SSOButtonDisplay from json.
+func (s *CreateConnectionReqOptions2SSOButtonDisplay) Decode(d *jx.Decoder) error {
+	if s == nil {
+		return errors.New("invalid: unable to decode CreateConnectionReqOptions2SSOButtonDisplay to nil")
+	}
+	v, err := d.StrBytes()
+	if err != nil {
+		return err
+	}
+	// Try to use constant string.
+	switch CreateConnectionReqOptions2SSOButtonDisplay(v) {
+	case CreateConnectionReqOptions2SSOButtonDisplayAuto:
+		*s = CreateConnectionReqOptions2SSOButtonDisplayAuto
+	case CreateConnectionReqOptions2SSOButtonDisplayShow:
+		*s = CreateConnectionReqOptions2SSOButtonDisplayShow
+	case CreateConnectionReqOptions2SSOButtonDisplayHide:
+		*s = CreateConnectionReqOptions2SSOButtonDisplayHide
+	default:
+		*s = CreateConnectionReqOptions2SSOButtonDisplay(v)
+	}
+
+	return nil
+}
+
+// MarshalJSON implements stdjson.Marshaler.
+func (s CreateConnectionReqOptions2SSOButtonDisplay) MarshalJSON() ([]byte, error) {
+	e := jx.Encoder{}
+	s.Encode(&e)
+	return e.Bytes(), nil
+}
+
+// UnmarshalJSON implements stdjson.Unmarshaler.
+func (s *CreateConnectionReqOptions2SSOButtonDisplay) UnmarshalJSON(data []byte) error {
+	d := jx.DecodeBytes(data)
+	return s.Decode(d)
+}
+
+// Encode encodes CreateConnectionReqOptions2SignRequestAlgorithm as json.
+func (s CreateConnectionReqOptions2SignRequestAlgorithm) Encode(e *jx.Encoder) {
+	e.Str(string(s))
+}
+
+// Decode decodes CreateConnectionReqOptions2SignRequestAlgorithm from json.
+func (s *CreateConnectionReqOptions2SignRequestAlgorithm) Decode(d *jx.Decoder) error {
+	if s == nil {
+		return errors.New("invalid: unable to decode CreateConnectionReqOptions2SignRequestAlgorithm to nil")
+	}
+	v, err := d.StrBytes()
+	if err != nil {
+		return err
+	}
+	// Try to use constant string.
+	switch CreateConnectionReqOptions2SignRequestAlgorithm(v) {
+	case CreateConnectionReqOptions2SignRequestAlgorithmRSASHA256:
+		*s = CreateConnectionReqOptions2SignRequestAlgorithmRSASHA256
+	case CreateConnectionReqOptions2SignRequestAlgorithmRSASHA1:
+		*s = CreateConnectionReqOptions2SignRequestAlgorithmRSASHA1
+	default:
+		*s = CreateConnectionReqOptions2SignRequestAlgorithm(v)
+	}
+
+	return nil
+}
+
+// MarshalJSON implements stdjson.Marshaler.
+func (s CreateConnectionReqOptions2SignRequestAlgorithm) MarshalJSON() ([]byte, error) {
+	e := jx.Encoder{}
+	s.Encode(&e)
+	return e.Bytes(), nil
+}
+
+// UnmarshalJSON implements stdjson.Unmarshaler.
+func (s *CreateConnectionReqOptions2SignRequestAlgorithm) UnmarshalJSON(data []byte) error {
 	d := jx.DecodeBytes(data)
 	return s.Decode(d)
 }
@@ -5753,6 +6457,14 @@ func (s *CreateConnectionReqStrategy) Decode(d *jx.Decoder) error {
 		*s = CreateConnectionReqStrategyOAuth2Xero
 	case CreateConnectionReqStrategySamlCustom:
 		*s = CreateConnectionReqStrategySamlCustom
+	case CreateConnectionReqStrategySamlCloudflare:
+		*s = CreateConnectionReqStrategySamlCloudflare
+	case CreateConnectionReqStrategySamlOkta:
+		*s = CreateConnectionReqStrategySamlOkta
+	case CreateConnectionReqStrategySamlMicrosoft:
+		*s = CreateConnectionReqStrategySamlMicrosoft
+	case CreateConnectionReqStrategySamlGoogle:
+		*s = CreateConnectionReqStrategySamlGoogle
 	case CreateConnectionReqStrategyWsfedAzureAd:
 		*s = CreateConnectionReqStrategyWsfedAzureAd
 	default:
@@ -5969,6 +6681,456 @@ func (s *CreateConnectionTooManyRequests) MarshalJSON() ([]byte, error) {
 
 // UnmarshalJSON implements stdjson.Unmarshaler.
 func (s *CreateConnectionTooManyRequests) UnmarshalJSON(data []byte) error {
+	d := jx.DecodeBytes(data)
+	return s.Decode(d)
+}
+
+// Encode encodes CreateDirectoryBadRequest as json.
+func (s *CreateDirectoryBadRequest) Encode(e *jx.Encoder) {
+	unwrapped := (*ErrorResponse)(s)
+
+	unwrapped.Encode(e)
+}
+
+// Decode decodes CreateDirectoryBadRequest from json.
+func (s *CreateDirectoryBadRequest) Decode(d *jx.Decoder) error {
+	if s == nil {
+		return errors.New("invalid: unable to decode CreateDirectoryBadRequest to nil")
+	}
+	var unwrapped ErrorResponse
+	if err := func() error {
+		if err := unwrapped.Decode(d); err != nil {
+			return err
+		}
+		return nil
+	}(); err != nil {
+		return errors.Wrap(err, "alias")
+	}
+	*s = CreateDirectoryBadRequest(unwrapped)
+	return nil
+}
+
+// MarshalJSON implements stdjson.Marshaler.
+func (s *CreateDirectoryBadRequest) MarshalJSON() ([]byte, error) {
+	e := jx.Encoder{}
+	s.Encode(&e)
+	return e.Bytes(), nil
+}
+
+// UnmarshalJSON implements stdjson.Unmarshaler.
+func (s *CreateDirectoryBadRequest) UnmarshalJSON(data []byte) error {
+	d := jx.DecodeBytes(data)
+	return s.Decode(d)
+}
+
+// Encode encodes CreateDirectoryConflict as json.
+func (s *CreateDirectoryConflict) Encode(e *jx.Encoder) {
+	unwrapped := (*ErrorResponse)(s)
+
+	unwrapped.Encode(e)
+}
+
+// Decode decodes CreateDirectoryConflict from json.
+func (s *CreateDirectoryConflict) Decode(d *jx.Decoder) error {
+	if s == nil {
+		return errors.New("invalid: unable to decode CreateDirectoryConflict to nil")
+	}
+	var unwrapped ErrorResponse
+	if err := func() error {
+		if err := unwrapped.Decode(d); err != nil {
+			return err
+		}
+		return nil
+	}(); err != nil {
+		return errors.Wrap(err, "alias")
+	}
+	*s = CreateDirectoryConflict(unwrapped)
+	return nil
+}
+
+// MarshalJSON implements stdjson.Marshaler.
+func (s *CreateDirectoryConflict) MarshalJSON() ([]byte, error) {
+	e := jx.Encoder{}
+	s.Encode(&e)
+	return e.Bytes(), nil
+}
+
+// UnmarshalJSON implements stdjson.Unmarshaler.
+func (s *CreateDirectoryConflict) UnmarshalJSON(data []byte) error {
+	d := jx.DecodeBytes(data)
+	return s.Decode(d)
+}
+
+// Encode encodes CreateDirectoryForbidden as json.
+func (s *CreateDirectoryForbidden) Encode(e *jx.Encoder) {
+	unwrapped := (*ErrorResponse)(s)
+
+	unwrapped.Encode(e)
+}
+
+// Decode decodes CreateDirectoryForbidden from json.
+func (s *CreateDirectoryForbidden) Decode(d *jx.Decoder) error {
+	if s == nil {
+		return errors.New("invalid: unable to decode CreateDirectoryForbidden to nil")
+	}
+	var unwrapped ErrorResponse
+	if err := func() error {
+		if err := unwrapped.Decode(d); err != nil {
+			return err
+		}
+		return nil
+	}(); err != nil {
+		return errors.Wrap(err, "alias")
+	}
+	*s = CreateDirectoryForbidden(unwrapped)
+	return nil
+}
+
+// MarshalJSON implements stdjson.Marshaler.
+func (s *CreateDirectoryForbidden) MarshalJSON() ([]byte, error) {
+	e := jx.Encoder{}
+	s.Encode(&e)
+	return e.Bytes(), nil
+}
+
+// UnmarshalJSON implements stdjson.Unmarshaler.
+func (s *CreateDirectoryForbidden) UnmarshalJSON(data []byte) error {
+	d := jx.DecodeBytes(data)
+	return s.Decode(d)
+}
+
+// Encode implements json.Marshaler.
+func (s *CreateDirectoryReq) Encode(e *jx.Encoder) {
+	e.ObjStart()
+	s.encodeFields(e)
+	e.ObjEnd()
+}
+
+// encodeFields encodes fields.
+func (s *CreateDirectoryReq) encodeFields(e *jx.Encoder) {
+	{
+		e.FieldStart("org_code")
+		e.Str(s.OrgCode)
+	}
+	{
+		if s.DirectoryName.Set {
+			e.FieldStart("directory_name")
+			s.DirectoryName.Encode(e)
+		}
+	}
+	{
+		if s.ProviderCode.Set {
+			e.FieldStart("provider_code")
+			s.ProviderCode.Encode(e)
+		}
+	}
+	{
+		if s.EnterpriseConnectionID.Set {
+			e.FieldStart("enterprise_connection_id")
+			s.EnterpriseConnectionID.Encode(e)
+		}
+	}
+}
+
+var jsonFieldsNameOfCreateDirectoryReq = [4]string{
+	0: "org_code",
+	1: "directory_name",
+	2: "provider_code",
+	3: "enterprise_connection_id",
+}
+
+// Decode decodes CreateDirectoryReq from json.
+func (s *CreateDirectoryReq) Decode(d *jx.Decoder) error {
+	if s == nil {
+		return errors.New("invalid: unable to decode CreateDirectoryReq to nil")
+	}
+	var requiredBitSet [1]uint8
+
+	if err := d.ObjBytes(func(d *jx.Decoder, k []byte) error {
+		switch string(k) {
+		case "org_code":
+			requiredBitSet[0] |= 1 << 0
+			if err := func() error {
+				v, err := d.Str()
+				s.OrgCode = string(v)
+				if err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return errors.Wrap(err, "decode field \"org_code\"")
+			}
+		case "directory_name":
+			if err := func() error {
+				s.DirectoryName.Reset()
+				if err := s.DirectoryName.Decode(d); err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return errors.Wrap(err, "decode field \"directory_name\"")
+			}
+		case "provider_code":
+			if err := func() error {
+				s.ProviderCode.Reset()
+				if err := s.ProviderCode.Decode(d); err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return errors.Wrap(err, "decode field \"provider_code\"")
+			}
+		case "enterprise_connection_id":
+			if err := func() error {
+				s.EnterpriseConnectionID.Reset()
+				if err := s.EnterpriseConnectionID.Decode(d); err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return errors.Wrap(err, "decode field \"enterprise_connection_id\"")
+			}
+		default:
+			return d.Skip()
+		}
+		return nil
+	}); err != nil {
+		return errors.Wrap(err, "decode CreateDirectoryReq")
+	}
+	// Validate required fields.
+	var failures []validate.FieldError
+	for i, mask := range [1]uint8{
+		0b00000001,
+	} {
+		if result := (requiredBitSet[i] & mask) ^ mask; result != 0 {
+			// Mask only required fields and check equality to mask using XOR.
+			//
+			// If XOR result is not zero, result is not equal to expected, so some fields are missed.
+			// Bits of fields which would be set are actually bits of missed fields.
+			missed := bits.OnesCount8(result)
+			for bitN := 0; bitN < missed; bitN++ {
+				bitIdx := bits.TrailingZeros8(result)
+				fieldIdx := i*8 + bitIdx
+				var name string
+				if fieldIdx < len(jsonFieldsNameOfCreateDirectoryReq) {
+					name = jsonFieldsNameOfCreateDirectoryReq[fieldIdx]
+				} else {
+					name = strconv.Itoa(fieldIdx)
+				}
+				failures = append(failures, validate.FieldError{
+					Name:  name,
+					Error: validate.ErrFieldRequired,
+				})
+				// Reset bit.
+				result &^= 1 << bitIdx
+			}
+		}
+	}
+	if len(failures) > 0 {
+		return &validate.Error{Fields: failures}
+	}
+
+	return nil
+}
+
+// MarshalJSON implements stdjson.Marshaler.
+func (s *CreateDirectoryReq) MarshalJSON() ([]byte, error) {
+	e := jx.Encoder{}
+	s.Encode(&e)
+	return e.Bytes(), nil
+}
+
+// UnmarshalJSON implements stdjson.Unmarshaler.
+func (s *CreateDirectoryReq) UnmarshalJSON(data []byte) error {
+	d := jx.DecodeBytes(data)
+	return s.Decode(d)
+}
+
+// Encode encodes CreateDirectoryReqProviderCode as json.
+func (s CreateDirectoryReqProviderCode) Encode(e *jx.Encoder) {
+	e.Str(string(s))
+}
+
+// Decode decodes CreateDirectoryReqProviderCode from json.
+func (s *CreateDirectoryReqProviderCode) Decode(d *jx.Decoder) error {
+	if s == nil {
+		return errors.New("invalid: unable to decode CreateDirectoryReqProviderCode to nil")
+	}
+	v, err := d.StrBytes()
+	if err != nil {
+		return err
+	}
+	// Try to use constant string.
+	switch CreateDirectoryReqProviderCode(v) {
+	case CreateDirectoryReqProviderCodeEntraIDAzureAd:
+		*s = CreateDirectoryReqProviderCodeEntraIDAzureAd
+	case CreateDirectoryReqProviderCodeOkta:
+		*s = CreateDirectoryReqProviderCodeOkta
+	case CreateDirectoryReqProviderCodeGoogleWorkspace:
+		*s = CreateDirectoryReqProviderCodeGoogleWorkspace
+	case CreateDirectoryReqProviderCodeCustomScimV2:
+		*s = CreateDirectoryReqProviderCodeCustomScimV2
+	case CreateDirectoryReqProviderCodeCyberark:
+		*s = CreateDirectoryReqProviderCodeCyberark
+	case CreateDirectoryReqProviderCodeJumpcloud:
+		*s = CreateDirectoryReqProviderCodeJumpcloud
+	case CreateDirectoryReqProviderCodeOnelogin:
+		*s = CreateDirectoryReqProviderCodeOnelogin
+	case CreateDirectoryReqProviderCodePingfederate:
+		*s = CreateDirectoryReqProviderCodePingfederate
+	case CreateDirectoryReqProviderCodeRippling:
+		*s = CreateDirectoryReqProviderCodeRippling
+	default:
+		*s = CreateDirectoryReqProviderCode(v)
+	}
+
+	return nil
+}
+
+// MarshalJSON implements stdjson.Marshaler.
+func (s CreateDirectoryReqProviderCode) MarshalJSON() ([]byte, error) {
+	e := jx.Encoder{}
+	s.Encode(&e)
+	return e.Bytes(), nil
+}
+
+// UnmarshalJSON implements stdjson.Unmarshaler.
+func (s *CreateDirectoryReqProviderCode) UnmarshalJSON(data []byte) error {
+	d := jx.DecodeBytes(data)
+	return s.Decode(d)
+}
+
+// Encode implements json.Marshaler.
+func (s *CreateDirectoryResponse) Encode(e *jx.Encoder) {
+	e.ObjStart()
+	s.encodeFields(e)
+	e.ObjEnd()
+}
+
+// encodeFields encodes fields.
+func (s *CreateDirectoryResponse) encodeFields(e *jx.Encoder) {
+	{
+		if s.Code.Set {
+			e.FieldStart("code")
+			s.Code.Encode(e)
+		}
+	}
+	{
+		if s.Message.Set {
+			e.FieldStart("message")
+			s.Message.Encode(e)
+		}
+	}
+	{
+		if s.Directory.Set {
+			e.FieldStart("directory")
+			s.Directory.Encode(e)
+		}
+	}
+}
+
+var jsonFieldsNameOfCreateDirectoryResponse = [3]string{
+	0: "code",
+	1: "message",
+	2: "directory",
+}
+
+// Decode decodes CreateDirectoryResponse from json.
+func (s *CreateDirectoryResponse) Decode(d *jx.Decoder) error {
+	if s == nil {
+		return errors.New("invalid: unable to decode CreateDirectoryResponse to nil")
+	}
+
+	if err := d.ObjBytes(func(d *jx.Decoder, k []byte) error {
+		switch string(k) {
+		case "code":
+			if err := func() error {
+				s.Code.Reset()
+				if err := s.Code.Decode(d); err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return errors.Wrap(err, "decode field \"code\"")
+			}
+		case "message":
+			if err := func() error {
+				s.Message.Reset()
+				if err := s.Message.Decode(d); err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return errors.Wrap(err, "decode field \"message\"")
+			}
+		case "directory":
+			if err := func() error {
+				s.Directory.Reset()
+				if err := s.Directory.Decode(d); err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return errors.Wrap(err, "decode field \"directory\"")
+			}
+		default:
+			return d.Skip()
+		}
+		return nil
+	}); err != nil {
+		return errors.Wrap(err, "decode CreateDirectoryResponse")
+	}
+
+	return nil
+}
+
+// MarshalJSON implements stdjson.Marshaler.
+func (s *CreateDirectoryResponse) MarshalJSON() ([]byte, error) {
+	e := jx.Encoder{}
+	s.Encode(&e)
+	return e.Bytes(), nil
+}
+
+// UnmarshalJSON implements stdjson.Unmarshaler.
+func (s *CreateDirectoryResponse) UnmarshalJSON(data []byte) error {
+	d := jx.DecodeBytes(data)
+	return s.Decode(d)
+}
+
+// Encode encodes CreateDirectoryTooManyRequests as json.
+func (s *CreateDirectoryTooManyRequests) Encode(e *jx.Encoder) {
+	unwrapped := (*ErrorResponse)(s)
+
+	unwrapped.Encode(e)
+}
+
+// Decode decodes CreateDirectoryTooManyRequests from json.
+func (s *CreateDirectoryTooManyRequests) Decode(d *jx.Decoder) error {
+	if s == nil {
+		return errors.New("invalid: unable to decode CreateDirectoryTooManyRequests to nil")
+	}
+	var unwrapped ErrorResponse
+	if err := func() error {
+		if err := unwrapped.Decode(d); err != nil {
+			return err
+		}
+		return nil
+	}(); err != nil {
+		return errors.Wrap(err, "alias")
+	}
+	*s = CreateDirectoryTooManyRequests(unwrapped)
+	return nil
+}
+
+// MarshalJSON implements stdjson.Marshaler.
+func (s *CreateDirectoryTooManyRequests) MarshalJSON() ([]byte, error) {
+	e := jx.Encoder{}
+	s.Encode(&e)
+	return e.Bytes(), nil
+}
+
+// UnmarshalJSON implements stdjson.Unmarshaler.
+func (s *CreateDirectoryTooManyRequests) UnmarshalJSON(data []byte) error {
 	d := jx.DecodeBytes(data)
 	return s.Decode(d)
 }
@@ -7274,6 +8436,735 @@ func (s *CreateOrganizationForbidden) UnmarshalJSON(data []byte) error {
 	return s.Decode(d)
 }
 
+// Encode encodes CreateOrganizationInviteBadRequest as json.
+func (s *CreateOrganizationInviteBadRequest) Encode(e *jx.Encoder) {
+	unwrapped := (*ErrorResponse)(s)
+
+	unwrapped.Encode(e)
+}
+
+// Decode decodes CreateOrganizationInviteBadRequest from json.
+func (s *CreateOrganizationInviteBadRequest) Decode(d *jx.Decoder) error {
+	if s == nil {
+		return errors.New("invalid: unable to decode CreateOrganizationInviteBadRequest to nil")
+	}
+	var unwrapped ErrorResponse
+	if err := func() error {
+		if err := unwrapped.Decode(d); err != nil {
+			return err
+		}
+		return nil
+	}(); err != nil {
+		return errors.Wrap(err, "alias")
+	}
+	*s = CreateOrganizationInviteBadRequest(unwrapped)
+	return nil
+}
+
+// MarshalJSON implements stdjson.Marshaler.
+func (s *CreateOrganizationInviteBadRequest) MarshalJSON() ([]byte, error) {
+	e := jx.Encoder{}
+	s.Encode(&e)
+	return e.Bytes(), nil
+}
+
+// UnmarshalJSON implements stdjson.Unmarshaler.
+func (s *CreateOrganizationInviteBadRequest) UnmarshalJSON(data []byte) error {
+	d := jx.DecodeBytes(data)
+	return s.Decode(d)
+}
+
+// Encode encodes CreateOrganizationInviteForbidden as json.
+func (s *CreateOrganizationInviteForbidden) Encode(e *jx.Encoder) {
+	unwrapped := (*ErrorResponse)(s)
+
+	unwrapped.Encode(e)
+}
+
+// Decode decodes CreateOrganizationInviteForbidden from json.
+func (s *CreateOrganizationInviteForbidden) Decode(d *jx.Decoder) error {
+	if s == nil {
+		return errors.New("invalid: unable to decode CreateOrganizationInviteForbidden to nil")
+	}
+	var unwrapped ErrorResponse
+	if err := func() error {
+		if err := unwrapped.Decode(d); err != nil {
+			return err
+		}
+		return nil
+	}(); err != nil {
+		return errors.Wrap(err, "alias")
+	}
+	*s = CreateOrganizationInviteForbidden(unwrapped)
+	return nil
+}
+
+// MarshalJSON implements stdjson.Marshaler.
+func (s *CreateOrganizationInviteForbidden) MarshalJSON() ([]byte, error) {
+	e := jx.Encoder{}
+	s.Encode(&e)
+	return e.Bytes(), nil
+}
+
+// UnmarshalJSON implements stdjson.Unmarshaler.
+func (s *CreateOrganizationInviteForbidden) UnmarshalJSON(data []byte) error {
+	d := jx.DecodeBytes(data)
+	return s.Decode(d)
+}
+
+// Encode implements json.Marshaler.
+func (s *CreateOrganizationInviteReq) Encode(e *jx.Encoder) {
+	e.ObjStart()
+	s.encodeFields(e)
+	e.ObjEnd()
+}
+
+// encodeFields encodes fields.
+func (s *CreateOrganizationInviteReq) encodeFields(e *jx.Encoder) {
+	{
+		e.FieldStart("email")
+		e.Str(s.Email)
+	}
+	{
+		if s.FirstName.Set {
+			e.FieldStart("first_name")
+			s.FirstName.Encode(e)
+		}
+	}
+	{
+		if s.LastName.Set {
+			e.FieldStart("last_name")
+			s.LastName.Encode(e)
+		}
+	}
+	{
+		e.FieldStart("roles")
+		e.ArrStart()
+		for _, elem := range s.Roles {
+			e.Str(elem)
+		}
+		e.ArrEnd()
+	}
+	{
+		if s.SendEmail.Set {
+			e.FieldStart("send_email")
+			s.SendEmail.Encode(e)
+		}
+	}
+}
+
+var jsonFieldsNameOfCreateOrganizationInviteReq = [5]string{
+	0: "email",
+	1: "first_name",
+	2: "last_name",
+	3: "roles",
+	4: "send_email",
+}
+
+// Decode decodes CreateOrganizationInviteReq from json.
+func (s *CreateOrganizationInviteReq) Decode(d *jx.Decoder) error {
+	if s == nil {
+		return errors.New("invalid: unable to decode CreateOrganizationInviteReq to nil")
+	}
+	var requiredBitSet [1]uint8
+	s.setDefaults()
+
+	if err := d.ObjBytes(func(d *jx.Decoder, k []byte) error {
+		switch string(k) {
+		case "email":
+			requiredBitSet[0] |= 1 << 0
+			if err := func() error {
+				v, err := d.Str()
+				s.Email = string(v)
+				if err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return errors.Wrap(err, "decode field \"email\"")
+			}
+		case "first_name":
+			if err := func() error {
+				s.FirstName.Reset()
+				if err := s.FirstName.Decode(d); err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return errors.Wrap(err, "decode field \"first_name\"")
+			}
+		case "last_name":
+			if err := func() error {
+				s.LastName.Reset()
+				if err := s.LastName.Decode(d); err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return errors.Wrap(err, "decode field \"last_name\"")
+			}
+		case "roles":
+			requiredBitSet[0] |= 1 << 3
+			if err := func() error {
+				s.Roles = make([]string, 0)
+				if err := d.Arr(func(d *jx.Decoder) error {
+					var elem string
+					v, err := d.Str()
+					elem = string(v)
+					if err != nil {
+						return err
+					}
+					s.Roles = append(s.Roles, elem)
+					return nil
+				}); err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return errors.Wrap(err, "decode field \"roles\"")
+			}
+		case "send_email":
+			if err := func() error {
+				s.SendEmail.Reset()
+				if err := s.SendEmail.Decode(d); err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return errors.Wrap(err, "decode field \"send_email\"")
+			}
+		default:
+			return d.Skip()
+		}
+		return nil
+	}); err != nil {
+		return errors.Wrap(err, "decode CreateOrganizationInviteReq")
+	}
+	// Validate required fields.
+	var failures []validate.FieldError
+	for i, mask := range [1]uint8{
+		0b00001001,
+	} {
+		if result := (requiredBitSet[i] & mask) ^ mask; result != 0 {
+			// Mask only required fields and check equality to mask using XOR.
+			//
+			// If XOR result is not zero, result is not equal to expected, so some fields are missed.
+			// Bits of fields which would be set are actually bits of missed fields.
+			missed := bits.OnesCount8(result)
+			for bitN := 0; bitN < missed; bitN++ {
+				bitIdx := bits.TrailingZeros8(result)
+				fieldIdx := i*8 + bitIdx
+				var name string
+				if fieldIdx < len(jsonFieldsNameOfCreateOrganizationInviteReq) {
+					name = jsonFieldsNameOfCreateOrganizationInviteReq[fieldIdx]
+				} else {
+					name = strconv.Itoa(fieldIdx)
+				}
+				failures = append(failures, validate.FieldError{
+					Name:  name,
+					Error: validate.ErrFieldRequired,
+				})
+				// Reset bit.
+				result &^= 1 << bitIdx
+			}
+		}
+	}
+	if len(failures) > 0 {
+		return &validate.Error{Fields: failures}
+	}
+
+	return nil
+}
+
+// MarshalJSON implements stdjson.Marshaler.
+func (s *CreateOrganizationInviteReq) MarshalJSON() ([]byte, error) {
+	e := jx.Encoder{}
+	s.Encode(&e)
+	return e.Bytes(), nil
+}
+
+// UnmarshalJSON implements stdjson.Unmarshaler.
+func (s *CreateOrganizationInviteReq) UnmarshalJSON(data []byte) error {
+	d := jx.DecodeBytes(data)
+	return s.Decode(d)
+}
+
+// Encode implements json.Marshaler.
+func (s *CreateOrganizationInviteResponse) Encode(e *jx.Encoder) {
+	e.ObjStart()
+	s.encodeFields(e)
+	e.ObjEnd()
+}
+
+// encodeFields encodes fields.
+func (s *CreateOrganizationInviteResponse) encodeFields(e *jx.Encoder) {
+	{
+		if s.Code.Set {
+			e.FieldStart("code")
+			s.Code.Encode(e)
+		}
+	}
+	{
+		if s.Message.Set {
+			e.FieldStart("message")
+			s.Message.Encode(e)
+		}
+	}
+	{
+		if s.Invite.Set {
+			e.FieldStart("invite")
+			s.Invite.Encode(e)
+		}
+	}
+}
+
+var jsonFieldsNameOfCreateOrganizationInviteResponse = [3]string{
+	0: "code",
+	1: "message",
+	2: "invite",
+}
+
+// Decode decodes CreateOrganizationInviteResponse from json.
+func (s *CreateOrganizationInviteResponse) Decode(d *jx.Decoder) error {
+	if s == nil {
+		return errors.New("invalid: unable to decode CreateOrganizationInviteResponse to nil")
+	}
+
+	if err := d.ObjBytes(func(d *jx.Decoder, k []byte) error {
+		switch string(k) {
+		case "code":
+			if err := func() error {
+				s.Code.Reset()
+				if err := s.Code.Decode(d); err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return errors.Wrap(err, "decode field \"code\"")
+			}
+		case "message":
+			if err := func() error {
+				s.Message.Reset()
+				if err := s.Message.Decode(d); err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return errors.Wrap(err, "decode field \"message\"")
+			}
+		case "invite":
+			if err := func() error {
+				s.Invite.Reset()
+				if err := s.Invite.Decode(d); err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return errors.Wrap(err, "decode field \"invite\"")
+			}
+		default:
+			return d.Skip()
+		}
+		return nil
+	}); err != nil {
+		return errors.Wrap(err, "decode CreateOrganizationInviteResponse")
+	}
+
+	return nil
+}
+
+// MarshalJSON implements stdjson.Marshaler.
+func (s *CreateOrganizationInviteResponse) MarshalJSON() ([]byte, error) {
+	e := jx.Encoder{}
+	s.Encode(&e)
+	return e.Bytes(), nil
+}
+
+// UnmarshalJSON implements stdjson.Unmarshaler.
+func (s *CreateOrganizationInviteResponse) UnmarshalJSON(data []byte) error {
+	d := jx.DecodeBytes(data)
+	return s.Decode(d)
+}
+
+// Encode implements json.Marshaler.
+func (s *CreateOrganizationInviteResponseInvite) Encode(e *jx.Encoder) {
+	e.ObjStart()
+	s.encodeFields(e)
+	e.ObjEnd()
+}
+
+// encodeFields encodes fields.
+func (s *CreateOrganizationInviteResponseInvite) encodeFields(e *jx.Encoder) {
+	{
+		if s.ID.Set {
+			e.FieldStart("id")
+			s.ID.Encode(e)
+		}
+	}
+	{
+		if s.Code.Set {
+			e.FieldStart("code")
+			s.Code.Encode(e)
+		}
+	}
+	{
+		if s.Email.Set {
+			e.FieldStart("email")
+			s.Email.Encode(e)
+		}
+	}
+	{
+		if s.FirstName.Set {
+			e.FieldStart("first_name")
+			s.FirstName.Encode(e)
+		}
+	}
+	{
+		if s.LastName.Set {
+			e.FieldStart("last_name")
+			s.LastName.Encode(e)
+		}
+	}
+	{
+		if s.FullName.Set {
+			e.FieldStart("full_name")
+			s.FullName.Encode(e)
+		}
+	}
+	{
+		if s.CreatedOn.Set {
+			e.FieldStart("created_on")
+			s.CreatedOn.Encode(e, json.EncodeDateTime)
+		}
+	}
+	{
+		if s.IsSent.Set {
+			e.FieldStart("is_sent")
+			s.IsSent.Encode(e)
+		}
+	}
+	{
+		if s.AcceptedOn.Set {
+			e.FieldStart("accepted_on")
+			s.AcceptedOn.Encode(e, json.EncodeDateTime)
+		}
+	}
+	{
+		if s.Roles != nil {
+			e.FieldStart("roles")
+			e.ArrStart()
+			for _, elem := range s.Roles {
+				elem.Encode(e)
+			}
+			e.ArrEnd()
+		}
+	}
+	{
+		if s.IsRevoked.Set {
+			e.FieldStart("is_revoked")
+			s.IsRevoked.Encode(e)
+		}
+	}
+	{
+		if s.InviteLink.Set {
+			e.FieldStart("invite_link")
+			s.InviteLink.Encode(e)
+		}
+	}
+}
+
+var jsonFieldsNameOfCreateOrganizationInviteResponseInvite = [12]string{
+	0:  "id",
+	1:  "code",
+	2:  "email",
+	3:  "first_name",
+	4:  "last_name",
+	5:  "full_name",
+	6:  "created_on",
+	7:  "is_sent",
+	8:  "accepted_on",
+	9:  "roles",
+	10: "is_revoked",
+	11: "invite_link",
+}
+
+// Decode decodes CreateOrganizationInviteResponseInvite from json.
+func (s *CreateOrganizationInviteResponseInvite) Decode(d *jx.Decoder) error {
+	if s == nil {
+		return errors.New("invalid: unable to decode CreateOrganizationInviteResponseInvite to nil")
+	}
+
+	if err := d.ObjBytes(func(d *jx.Decoder, k []byte) error {
+		switch string(k) {
+		case "id":
+			if err := func() error {
+				s.ID.Reset()
+				if err := s.ID.Decode(d); err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return errors.Wrap(err, "decode field \"id\"")
+			}
+		case "code":
+			if err := func() error {
+				s.Code.Reset()
+				if err := s.Code.Decode(d); err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return errors.Wrap(err, "decode field \"code\"")
+			}
+		case "email":
+			if err := func() error {
+				s.Email.Reset()
+				if err := s.Email.Decode(d); err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return errors.Wrap(err, "decode field \"email\"")
+			}
+		case "first_name":
+			if err := func() error {
+				s.FirstName.Reset()
+				if err := s.FirstName.Decode(d); err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return errors.Wrap(err, "decode field \"first_name\"")
+			}
+		case "last_name":
+			if err := func() error {
+				s.LastName.Reset()
+				if err := s.LastName.Decode(d); err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return errors.Wrap(err, "decode field \"last_name\"")
+			}
+		case "full_name":
+			if err := func() error {
+				s.FullName.Reset()
+				if err := s.FullName.Decode(d); err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return errors.Wrap(err, "decode field \"full_name\"")
+			}
+		case "created_on":
+			if err := func() error {
+				s.CreatedOn.Reset()
+				if err := s.CreatedOn.Decode(d, json.DecodeDateTime); err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return errors.Wrap(err, "decode field \"created_on\"")
+			}
+		case "is_sent":
+			if err := func() error {
+				s.IsSent.Reset()
+				if err := s.IsSent.Decode(d); err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return errors.Wrap(err, "decode field \"is_sent\"")
+			}
+		case "accepted_on":
+			if err := func() error {
+				s.AcceptedOn.Reset()
+				if err := s.AcceptedOn.Decode(d, json.DecodeDateTime); err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return errors.Wrap(err, "decode field \"accepted_on\"")
+			}
+		case "roles":
+			if err := func() error {
+				s.Roles = make([]CreateOrganizationInviteResponseInviteRolesItem, 0)
+				if err := d.Arr(func(d *jx.Decoder) error {
+					var elem CreateOrganizationInviteResponseInviteRolesItem
+					if err := elem.Decode(d); err != nil {
+						return err
+					}
+					s.Roles = append(s.Roles, elem)
+					return nil
+				}); err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return errors.Wrap(err, "decode field \"roles\"")
+			}
+		case "is_revoked":
+			if err := func() error {
+				s.IsRevoked.Reset()
+				if err := s.IsRevoked.Decode(d); err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return errors.Wrap(err, "decode field \"is_revoked\"")
+			}
+		case "invite_link":
+			if err := func() error {
+				s.InviteLink.Reset()
+				if err := s.InviteLink.Decode(d); err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return errors.Wrap(err, "decode field \"invite_link\"")
+			}
+		default:
+			return d.Skip()
+		}
+		return nil
+	}); err != nil {
+		return errors.Wrap(err, "decode CreateOrganizationInviteResponseInvite")
+	}
+
+	return nil
+}
+
+// MarshalJSON implements stdjson.Marshaler.
+func (s *CreateOrganizationInviteResponseInvite) MarshalJSON() ([]byte, error) {
+	e := jx.Encoder{}
+	s.Encode(&e)
+	return e.Bytes(), nil
+}
+
+// UnmarshalJSON implements stdjson.Unmarshaler.
+func (s *CreateOrganizationInviteResponseInvite) UnmarshalJSON(data []byte) error {
+	d := jx.DecodeBytes(data)
+	return s.Decode(d)
+}
+
+// Encode implements json.Marshaler.
+func (s *CreateOrganizationInviteResponseInviteRolesItem) Encode(e *jx.Encoder) {
+	e.ObjStart()
+	s.encodeFields(e)
+	e.ObjEnd()
+}
+
+// encodeFields encodes fields.
+func (s *CreateOrganizationInviteResponseInviteRolesItem) encodeFields(e *jx.Encoder) {
+	{
+		if s.Key.Set {
+			e.FieldStart("key")
+			s.Key.Encode(e)
+		}
+	}
+	{
+		if s.Name.Set {
+			e.FieldStart("name")
+			s.Name.Encode(e)
+		}
+	}
+}
+
+var jsonFieldsNameOfCreateOrganizationInviteResponseInviteRolesItem = [2]string{
+	0: "key",
+	1: "name",
+}
+
+// Decode decodes CreateOrganizationInviteResponseInviteRolesItem from json.
+func (s *CreateOrganizationInviteResponseInviteRolesItem) Decode(d *jx.Decoder) error {
+	if s == nil {
+		return errors.New("invalid: unable to decode CreateOrganizationInviteResponseInviteRolesItem to nil")
+	}
+
+	if err := d.ObjBytes(func(d *jx.Decoder, k []byte) error {
+		switch string(k) {
+		case "key":
+			if err := func() error {
+				s.Key.Reset()
+				if err := s.Key.Decode(d); err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return errors.Wrap(err, "decode field \"key\"")
+			}
+		case "name":
+			if err := func() error {
+				s.Name.Reset()
+				if err := s.Name.Decode(d); err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return errors.Wrap(err, "decode field \"name\"")
+			}
+		default:
+			return d.Skip()
+		}
+		return nil
+	}); err != nil {
+		return errors.Wrap(err, "decode CreateOrganizationInviteResponseInviteRolesItem")
+	}
+
+	return nil
+}
+
+// MarshalJSON implements stdjson.Marshaler.
+func (s *CreateOrganizationInviteResponseInviteRolesItem) MarshalJSON() ([]byte, error) {
+	e := jx.Encoder{}
+	s.Encode(&e)
+	return e.Bytes(), nil
+}
+
+// UnmarshalJSON implements stdjson.Unmarshaler.
+func (s *CreateOrganizationInviteResponseInviteRolesItem) UnmarshalJSON(data []byte) error {
+	d := jx.DecodeBytes(data)
+	return s.Decode(d)
+}
+
+// Encode encodes CreateOrganizationInviteTooManyRequests as json.
+func (s *CreateOrganizationInviteTooManyRequests) Encode(e *jx.Encoder) {
+	unwrapped := (*ErrorResponse)(s)
+
+	unwrapped.Encode(e)
+}
+
+// Decode decodes CreateOrganizationInviteTooManyRequests from json.
+func (s *CreateOrganizationInviteTooManyRequests) Decode(d *jx.Decoder) error {
+	if s == nil {
+		return errors.New("invalid: unable to decode CreateOrganizationInviteTooManyRequests to nil")
+	}
+	var unwrapped ErrorResponse
+	if err := func() error {
+		if err := unwrapped.Decode(d); err != nil {
+			return err
+		}
+		return nil
+	}(); err != nil {
+		return errors.Wrap(err, "alias")
+	}
+	*s = CreateOrganizationInviteTooManyRequests(unwrapped)
+	return nil
+}
+
+// MarshalJSON implements stdjson.Marshaler.
+func (s *CreateOrganizationInviteTooManyRequests) MarshalJSON() ([]byte, error) {
+	e := jx.Encoder{}
+	s.Encode(&e)
+	return e.Bytes(), nil
+}
+
+// UnmarshalJSON implements stdjson.Unmarshaler.
+func (s *CreateOrganizationInviteTooManyRequests) UnmarshalJSON(data []byte) error {
+	d := jx.DecodeBytes(data)
+	return s.Decode(d)
+}
+
 // Encode implements json.Marshaler.
 func (s *CreateOrganizationReq) Encode(e *jx.Encoder) {
 	e.ObjStart()
@@ -7366,6 +9257,12 @@ func (s *CreateOrganizationReq) encodeFields(e *jx.Encoder) {
 		}
 	}
 	{
+		if s.IsAutoMembershipEnabled.Set {
+			e.FieldStart("is_auto_membership_enabled")
+			s.IsAutoMembershipEnabled.Encode(e)
+		}
+	}
+	{
 		if s.SenderName.Set {
 			e.FieldStart("sender_name")
 			s.SenderName.Encode(e)
@@ -7397,7 +9294,7 @@ func (s *CreateOrganizationReq) encodeFields(e *jx.Encoder) {
 	}
 }
 
-var jsonFieldsNameOfCreateOrganizationReq = [19]string{
+var jsonFieldsNameOfCreateOrganizationReq = [20]string{
 	0:  "name",
 	1:  "feature_flags",
 	2:  "external_id",
@@ -7412,11 +9309,12 @@ var jsonFieldsNameOfCreateOrganizationReq = [19]string{
 	11: "theme_code",
 	12: "handle",
 	13: "is_allow_registrations",
-	14: "sender_name",
-	15: "sender_email",
-	16: "is_create_billing_customer",
-	17: "billing_email",
-	18: "billing_plan_code",
+	14: "is_auto_membership_enabled",
+	15: "sender_name",
+	16: "sender_email",
+	17: "is_create_billing_customer",
+	18: "billing_email",
+	19: "billing_plan_code",
 }
 
 // Decode decodes CreateOrganizationReq from json.
@@ -7569,6 +9467,16 @@ func (s *CreateOrganizationReq) Decode(d *jx.Decoder) error {
 				return nil
 			}(); err != nil {
 				return errors.Wrap(err, "decode field \"is_allow_registrations\"")
+			}
+		case "is_auto_membership_enabled":
+			if err := func() error {
+				s.IsAutoMembershipEnabled.Reset()
+				if err := s.IsAutoMembershipEnabled.Decode(d); err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return errors.Wrap(err, "decode field \"is_auto_membership_enabled\"")
 			}
 		case "sender_name":
 			if err := func() error {
@@ -9369,6 +11277,427 @@ func (s *CreateUserBadRequest) UnmarshalJSON(data []byte) error {
 	return s.Decode(d)
 }
 
+// Encode encodes CreateUserBillingCustomerBadRequest as json.
+func (s *CreateUserBillingCustomerBadRequest) Encode(e *jx.Encoder) {
+	unwrapped := (*ErrorResponse)(s)
+
+	unwrapped.Encode(e)
+}
+
+// Decode decodes CreateUserBillingCustomerBadRequest from json.
+func (s *CreateUserBillingCustomerBadRequest) Decode(d *jx.Decoder) error {
+	if s == nil {
+		return errors.New("invalid: unable to decode CreateUserBillingCustomerBadRequest to nil")
+	}
+	var unwrapped ErrorResponse
+	if err := func() error {
+		if err := unwrapped.Decode(d); err != nil {
+			return err
+		}
+		return nil
+	}(); err != nil {
+		return errors.Wrap(err, "alias")
+	}
+	*s = CreateUserBillingCustomerBadRequest(unwrapped)
+	return nil
+}
+
+// MarshalJSON implements stdjson.Marshaler.
+func (s *CreateUserBillingCustomerBadRequest) MarshalJSON() ([]byte, error) {
+	e := jx.Encoder{}
+	s.Encode(&e)
+	return e.Bytes(), nil
+}
+
+// UnmarshalJSON implements stdjson.Unmarshaler.
+func (s *CreateUserBillingCustomerBadRequest) UnmarshalJSON(data []byte) error {
+	d := jx.DecodeBytes(data)
+	return s.Decode(d)
+}
+
+// Encode encodes CreateUserBillingCustomerForbidden as json.
+func (s *CreateUserBillingCustomerForbidden) Encode(e *jx.Encoder) {
+	unwrapped := (*ErrorResponse)(s)
+
+	unwrapped.Encode(e)
+}
+
+// Decode decodes CreateUserBillingCustomerForbidden from json.
+func (s *CreateUserBillingCustomerForbidden) Decode(d *jx.Decoder) error {
+	if s == nil {
+		return errors.New("invalid: unable to decode CreateUserBillingCustomerForbidden to nil")
+	}
+	var unwrapped ErrorResponse
+	if err := func() error {
+		if err := unwrapped.Decode(d); err != nil {
+			return err
+		}
+		return nil
+	}(); err != nil {
+		return errors.Wrap(err, "alias")
+	}
+	*s = CreateUserBillingCustomerForbidden(unwrapped)
+	return nil
+}
+
+// MarshalJSON implements stdjson.Marshaler.
+func (s *CreateUserBillingCustomerForbidden) MarshalJSON() ([]byte, error) {
+	e := jx.Encoder{}
+	s.Encode(&e)
+	return e.Bytes(), nil
+}
+
+// UnmarshalJSON implements stdjson.Unmarshaler.
+func (s *CreateUserBillingCustomerForbidden) UnmarshalJSON(data []byte) error {
+	d := jx.DecodeBytes(data)
+	return s.Decode(d)
+}
+
+// Encode implements json.Marshaler.
+func (s *CreateUserBillingCustomerReq) Encode(e *jx.Encoder) {
+	e.ObjStart()
+	s.encodeFields(e)
+	e.ObjEnd()
+}
+
+// encodeFields encodes fields.
+func (s *CreateUserBillingCustomerReq) encodeFields(e *jx.Encoder) {
+	{
+		e.FieldStart("org_code")
+		e.Str(s.OrgCode)
+	}
+	{
+		e.FieldStart("billing_email")
+		e.Str(s.BillingEmail)
+	}
+	{
+		if s.BillingPlanCode.Set {
+			e.FieldStart("billing_plan_code")
+			s.BillingPlanCode.Encode(e)
+		}
+	}
+}
+
+var jsonFieldsNameOfCreateUserBillingCustomerReq = [3]string{
+	0: "org_code",
+	1: "billing_email",
+	2: "billing_plan_code",
+}
+
+// Decode decodes CreateUserBillingCustomerReq from json.
+func (s *CreateUserBillingCustomerReq) Decode(d *jx.Decoder) error {
+	if s == nil {
+		return errors.New("invalid: unable to decode CreateUserBillingCustomerReq to nil")
+	}
+	var requiredBitSet [1]uint8
+
+	if err := d.ObjBytes(func(d *jx.Decoder, k []byte) error {
+		switch string(k) {
+		case "org_code":
+			requiredBitSet[0] |= 1 << 0
+			if err := func() error {
+				v, err := d.Str()
+				s.OrgCode = string(v)
+				if err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return errors.Wrap(err, "decode field \"org_code\"")
+			}
+		case "billing_email":
+			requiredBitSet[0] |= 1 << 1
+			if err := func() error {
+				v, err := d.Str()
+				s.BillingEmail = string(v)
+				if err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return errors.Wrap(err, "decode field \"billing_email\"")
+			}
+		case "billing_plan_code":
+			if err := func() error {
+				s.BillingPlanCode.Reset()
+				if err := s.BillingPlanCode.Decode(d); err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return errors.Wrap(err, "decode field \"billing_plan_code\"")
+			}
+		default:
+			return d.Skip()
+		}
+		return nil
+	}); err != nil {
+		return errors.Wrap(err, "decode CreateUserBillingCustomerReq")
+	}
+	// Validate required fields.
+	var failures []validate.FieldError
+	for i, mask := range [1]uint8{
+		0b00000011,
+	} {
+		if result := (requiredBitSet[i] & mask) ^ mask; result != 0 {
+			// Mask only required fields and check equality to mask using XOR.
+			//
+			// If XOR result is not zero, result is not equal to expected, so some fields are missed.
+			// Bits of fields which would be set are actually bits of missed fields.
+			missed := bits.OnesCount8(result)
+			for bitN := 0; bitN < missed; bitN++ {
+				bitIdx := bits.TrailingZeros8(result)
+				fieldIdx := i*8 + bitIdx
+				var name string
+				if fieldIdx < len(jsonFieldsNameOfCreateUserBillingCustomerReq) {
+					name = jsonFieldsNameOfCreateUserBillingCustomerReq[fieldIdx]
+				} else {
+					name = strconv.Itoa(fieldIdx)
+				}
+				failures = append(failures, validate.FieldError{
+					Name:  name,
+					Error: validate.ErrFieldRequired,
+				})
+				// Reset bit.
+				result &^= 1 << bitIdx
+			}
+		}
+	}
+	if len(failures) > 0 {
+		return &validate.Error{Fields: failures}
+	}
+
+	return nil
+}
+
+// MarshalJSON implements stdjson.Marshaler.
+func (s *CreateUserBillingCustomerReq) MarshalJSON() ([]byte, error) {
+	e := jx.Encoder{}
+	s.Encode(&e)
+	return e.Bytes(), nil
+}
+
+// UnmarshalJSON implements stdjson.Unmarshaler.
+func (s *CreateUserBillingCustomerReq) UnmarshalJSON(data []byte) error {
+	d := jx.DecodeBytes(data)
+	return s.Decode(d)
+}
+
+// Encode implements json.Marshaler.
+func (s *CreateUserBillingCustomerResponse) Encode(e *jx.Encoder) {
+	e.ObjStart()
+	s.encodeFields(e)
+	e.ObjEnd()
+}
+
+// encodeFields encodes fields.
+func (s *CreateUserBillingCustomerResponse) encodeFields(e *jx.Encoder) {
+	{
+		if s.Message.Set {
+			e.FieldStart("message")
+			s.Message.Encode(e)
+		}
+	}
+	{
+		if s.Code.Set {
+			e.FieldStart("code")
+			s.Code.Encode(e)
+		}
+	}
+	{
+		if s.BillingCustomer.Set {
+			e.FieldStart("billing_customer")
+			s.BillingCustomer.Encode(e)
+		}
+	}
+}
+
+var jsonFieldsNameOfCreateUserBillingCustomerResponse = [3]string{
+	0: "message",
+	1: "code",
+	2: "billing_customer",
+}
+
+// Decode decodes CreateUserBillingCustomerResponse from json.
+func (s *CreateUserBillingCustomerResponse) Decode(d *jx.Decoder) error {
+	if s == nil {
+		return errors.New("invalid: unable to decode CreateUserBillingCustomerResponse to nil")
+	}
+
+	if err := d.ObjBytes(func(d *jx.Decoder, k []byte) error {
+		switch string(k) {
+		case "message":
+			if err := func() error {
+				s.Message.Reset()
+				if err := s.Message.Decode(d); err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return errors.Wrap(err, "decode field \"message\"")
+			}
+		case "code":
+			if err := func() error {
+				s.Code.Reset()
+				if err := s.Code.Decode(d); err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return errors.Wrap(err, "decode field \"code\"")
+			}
+		case "billing_customer":
+			if err := func() error {
+				s.BillingCustomer.Reset()
+				if err := s.BillingCustomer.Decode(d); err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return errors.Wrap(err, "decode field \"billing_customer\"")
+			}
+		default:
+			return d.Skip()
+		}
+		return nil
+	}); err != nil {
+		return errors.Wrap(err, "decode CreateUserBillingCustomerResponse")
+	}
+
+	return nil
+}
+
+// MarshalJSON implements stdjson.Marshaler.
+func (s *CreateUserBillingCustomerResponse) MarshalJSON() ([]byte, error) {
+	e := jx.Encoder{}
+	s.Encode(&e)
+	return e.Bytes(), nil
+}
+
+// UnmarshalJSON implements stdjson.Unmarshaler.
+func (s *CreateUserBillingCustomerResponse) UnmarshalJSON(data []byte) error {
+	d := jx.DecodeBytes(data)
+	return s.Decode(d)
+}
+
+// Encode implements json.Marshaler.
+func (s *CreateUserBillingCustomerResponseBillingCustomer) Encode(e *jx.Encoder) {
+	e.ObjStart()
+	s.encodeFields(e)
+	e.ObjEnd()
+}
+
+// encodeFields encodes fields.
+func (s *CreateUserBillingCustomerResponseBillingCustomer) encodeFields(e *jx.Encoder) {
+	{
+		if s.ID.Set {
+			e.FieldStart("id")
+			s.ID.Encode(e)
+		}
+	}
+	{
+		if s.AgreementID.Set {
+			e.FieldStart("agreement_id")
+			s.AgreementID.Encode(e)
+		}
+	}
+}
+
+var jsonFieldsNameOfCreateUserBillingCustomerResponseBillingCustomer = [2]string{
+	0: "id",
+	1: "agreement_id",
+}
+
+// Decode decodes CreateUserBillingCustomerResponseBillingCustomer from json.
+func (s *CreateUserBillingCustomerResponseBillingCustomer) Decode(d *jx.Decoder) error {
+	if s == nil {
+		return errors.New("invalid: unable to decode CreateUserBillingCustomerResponseBillingCustomer to nil")
+	}
+
+	if err := d.ObjBytes(func(d *jx.Decoder, k []byte) error {
+		switch string(k) {
+		case "id":
+			if err := func() error {
+				s.ID.Reset()
+				if err := s.ID.Decode(d); err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return errors.Wrap(err, "decode field \"id\"")
+			}
+		case "agreement_id":
+			if err := func() error {
+				s.AgreementID.Reset()
+				if err := s.AgreementID.Decode(d); err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return errors.Wrap(err, "decode field \"agreement_id\"")
+			}
+		default:
+			return d.Skip()
+		}
+		return nil
+	}); err != nil {
+		return errors.Wrap(err, "decode CreateUserBillingCustomerResponseBillingCustomer")
+	}
+
+	return nil
+}
+
+// MarshalJSON implements stdjson.Marshaler.
+func (s *CreateUserBillingCustomerResponseBillingCustomer) MarshalJSON() ([]byte, error) {
+	e := jx.Encoder{}
+	s.Encode(&e)
+	return e.Bytes(), nil
+}
+
+// UnmarshalJSON implements stdjson.Unmarshaler.
+func (s *CreateUserBillingCustomerResponseBillingCustomer) UnmarshalJSON(data []byte) error {
+	d := jx.DecodeBytes(data)
+	return s.Decode(d)
+}
+
+// Encode encodes CreateUserBillingCustomerTooManyRequests as json.
+func (s *CreateUserBillingCustomerTooManyRequests) Encode(e *jx.Encoder) {
+	unwrapped := (*ErrorResponse)(s)
+
+	unwrapped.Encode(e)
+}
+
+// Decode decodes CreateUserBillingCustomerTooManyRequests from json.
+func (s *CreateUserBillingCustomerTooManyRequests) Decode(d *jx.Decoder) error {
+	if s == nil {
+		return errors.New("invalid: unable to decode CreateUserBillingCustomerTooManyRequests to nil")
+	}
+	var unwrapped ErrorResponse
+	if err := func() error {
+		if err := unwrapped.Decode(d); err != nil {
+			return err
+		}
+		return nil
+	}(); err != nil {
+		return errors.Wrap(err, "alias")
+	}
+	*s = CreateUserBillingCustomerTooManyRequests(unwrapped)
+	return nil
+}
+
+// MarshalJSON implements stdjson.Marshaler.
+func (s *CreateUserBillingCustomerTooManyRequests) MarshalJSON() ([]byte, error) {
+	e := jx.Encoder{}
+	s.Encode(&e)
+	return e.Bytes(), nil
+}
+
+// UnmarshalJSON implements stdjson.Unmarshaler.
+func (s *CreateUserBillingCustomerTooManyRequests) UnmarshalJSON(data []byte) error {
+	d := jx.DecodeBytes(data)
+	return s.Decode(d)
+}
+
 // Encode encodes CreateUserForbidden as json.
 func (s *CreateUserForbidden) Encode(e *jx.Encoder) {
 	unwrapped := (*ErrorResponse)(s)
@@ -10600,17 +12929,17 @@ func (s *CreateWebhookResponseWebhook) UnmarshalJSON(data []byte) error {
 	return s.Decode(d)
 }
 
-// Encode encodes DeleteAPIAppliationScopeBadRequest as json.
-func (s *DeleteAPIAppliationScopeBadRequest) Encode(e *jx.Encoder) {
+// Encode encodes DeleteAPIApplicationScopeBadRequest as json.
+func (s *DeleteAPIApplicationScopeBadRequest) Encode(e *jx.Encoder) {
 	unwrapped := (*ErrorResponse)(s)
 
 	unwrapped.Encode(e)
 }
 
-// Decode decodes DeleteAPIAppliationScopeBadRequest from json.
-func (s *DeleteAPIAppliationScopeBadRequest) Decode(d *jx.Decoder) error {
+// Decode decodes DeleteAPIApplicationScopeBadRequest from json.
+func (s *DeleteAPIApplicationScopeBadRequest) Decode(d *jx.Decoder) error {
 	if s == nil {
-		return errors.New("invalid: unable to decode DeleteAPIAppliationScopeBadRequest to nil")
+		return errors.New("invalid: unable to decode DeleteAPIApplicationScopeBadRequest to nil")
 	}
 	var unwrapped ErrorResponse
 	if err := func() error {
@@ -10621,34 +12950,34 @@ func (s *DeleteAPIAppliationScopeBadRequest) Decode(d *jx.Decoder) error {
 	}(); err != nil {
 		return errors.Wrap(err, "alias")
 	}
-	*s = DeleteAPIAppliationScopeBadRequest(unwrapped)
+	*s = DeleteAPIApplicationScopeBadRequest(unwrapped)
 	return nil
 }
 
 // MarshalJSON implements stdjson.Marshaler.
-func (s *DeleteAPIAppliationScopeBadRequest) MarshalJSON() ([]byte, error) {
+func (s *DeleteAPIApplicationScopeBadRequest) MarshalJSON() ([]byte, error) {
 	e := jx.Encoder{}
 	s.Encode(&e)
 	return e.Bytes(), nil
 }
 
 // UnmarshalJSON implements stdjson.Unmarshaler.
-func (s *DeleteAPIAppliationScopeBadRequest) UnmarshalJSON(data []byte) error {
+func (s *DeleteAPIApplicationScopeBadRequest) UnmarshalJSON(data []byte) error {
 	d := jx.DecodeBytes(data)
 	return s.Decode(d)
 }
 
-// Encode encodes DeleteAPIAppliationScopeForbidden as json.
-func (s *DeleteAPIAppliationScopeForbidden) Encode(e *jx.Encoder) {
+// Encode encodes DeleteAPIApplicationScopeForbidden as json.
+func (s *DeleteAPIApplicationScopeForbidden) Encode(e *jx.Encoder) {
 	unwrapped := (*ErrorResponse)(s)
 
 	unwrapped.Encode(e)
 }
 
-// Decode decodes DeleteAPIAppliationScopeForbidden from json.
-func (s *DeleteAPIAppliationScopeForbidden) Decode(d *jx.Decoder) error {
+// Decode decodes DeleteAPIApplicationScopeForbidden from json.
+func (s *DeleteAPIApplicationScopeForbidden) Decode(d *jx.Decoder) error {
 	if s == nil {
-		return errors.New("invalid: unable to decode DeleteAPIAppliationScopeForbidden to nil")
+		return errors.New("invalid: unable to decode DeleteAPIApplicationScopeForbidden to nil")
 	}
 	var unwrapped ErrorResponse
 	if err := func() error {
@@ -10659,34 +12988,34 @@ func (s *DeleteAPIAppliationScopeForbidden) Decode(d *jx.Decoder) error {
 	}(); err != nil {
 		return errors.Wrap(err, "alias")
 	}
-	*s = DeleteAPIAppliationScopeForbidden(unwrapped)
+	*s = DeleteAPIApplicationScopeForbidden(unwrapped)
 	return nil
 }
 
 // MarshalJSON implements stdjson.Marshaler.
-func (s *DeleteAPIAppliationScopeForbidden) MarshalJSON() ([]byte, error) {
+func (s *DeleteAPIApplicationScopeForbidden) MarshalJSON() ([]byte, error) {
 	e := jx.Encoder{}
 	s.Encode(&e)
 	return e.Bytes(), nil
 }
 
 // UnmarshalJSON implements stdjson.Unmarshaler.
-func (s *DeleteAPIAppliationScopeForbidden) UnmarshalJSON(data []byte) error {
+func (s *DeleteAPIApplicationScopeForbidden) UnmarshalJSON(data []byte) error {
 	d := jx.DecodeBytes(data)
 	return s.Decode(d)
 }
 
-// Encode encodes DeleteAPIAppliationScopeTooManyRequests as json.
-func (s *DeleteAPIAppliationScopeTooManyRequests) Encode(e *jx.Encoder) {
+// Encode encodes DeleteAPIApplicationScopeTooManyRequests as json.
+func (s *DeleteAPIApplicationScopeTooManyRequests) Encode(e *jx.Encoder) {
 	unwrapped := (*ErrorResponse)(s)
 
 	unwrapped.Encode(e)
 }
 
-// Decode decodes DeleteAPIAppliationScopeTooManyRequests from json.
-func (s *DeleteAPIAppliationScopeTooManyRequests) Decode(d *jx.Decoder) error {
+// Decode decodes DeleteAPIApplicationScopeTooManyRequests from json.
+func (s *DeleteAPIApplicationScopeTooManyRequests) Decode(d *jx.Decoder) error {
 	if s == nil {
-		return errors.New("invalid: unable to decode DeleteAPIAppliationScopeTooManyRequests to nil")
+		return errors.New("invalid: unable to decode DeleteAPIApplicationScopeTooManyRequests to nil")
 	}
 	var unwrapped ErrorResponse
 	if err := func() error {
@@ -10697,19 +13026,19 @@ func (s *DeleteAPIAppliationScopeTooManyRequests) Decode(d *jx.Decoder) error {
 	}(); err != nil {
 		return errors.Wrap(err, "alias")
 	}
-	*s = DeleteAPIAppliationScopeTooManyRequests(unwrapped)
+	*s = DeleteAPIApplicationScopeTooManyRequests(unwrapped)
 	return nil
 }
 
 // MarshalJSON implements stdjson.Marshaler.
-func (s *DeleteAPIAppliationScopeTooManyRequests) MarshalJSON() ([]byte, error) {
+func (s *DeleteAPIApplicationScopeTooManyRequests) MarshalJSON() ([]byte, error) {
 	e := jx.Encoder{}
 	s.Encode(&e)
 	return e.Bytes(), nil
 }
 
 // UnmarshalJSON implements stdjson.Unmarshaler.
-func (s *DeleteAPIAppliationScopeTooManyRequests) UnmarshalJSON(data []byte) error {
+func (s *DeleteAPIApplicationScopeTooManyRequests) UnmarshalJSON(data []byte) error {
 	d := jx.DecodeBytes(data)
 	return s.Decode(d)
 }
@@ -11440,6 +13769,255 @@ func (s *DeleteConnectionTooManyRequests) UnmarshalJSON(data []byte) error {
 	return s.Decode(d)
 }
 
+// Encode encodes DeleteDirectoryBadRequest as json.
+func (s *DeleteDirectoryBadRequest) Encode(e *jx.Encoder) {
+	unwrapped := (*ErrorResponse)(s)
+
+	unwrapped.Encode(e)
+}
+
+// Decode decodes DeleteDirectoryBadRequest from json.
+func (s *DeleteDirectoryBadRequest) Decode(d *jx.Decoder) error {
+	if s == nil {
+		return errors.New("invalid: unable to decode DeleteDirectoryBadRequest to nil")
+	}
+	var unwrapped ErrorResponse
+	if err := func() error {
+		if err := unwrapped.Decode(d); err != nil {
+			return err
+		}
+		return nil
+	}(); err != nil {
+		return errors.Wrap(err, "alias")
+	}
+	*s = DeleteDirectoryBadRequest(unwrapped)
+	return nil
+}
+
+// MarshalJSON implements stdjson.Marshaler.
+func (s *DeleteDirectoryBadRequest) MarshalJSON() ([]byte, error) {
+	e := jx.Encoder{}
+	s.Encode(&e)
+	return e.Bytes(), nil
+}
+
+// UnmarshalJSON implements stdjson.Unmarshaler.
+func (s *DeleteDirectoryBadRequest) UnmarshalJSON(data []byte) error {
+	d := jx.DecodeBytes(data)
+	return s.Decode(d)
+}
+
+// Encode encodes DeleteDirectoryForbidden as json.
+func (s *DeleteDirectoryForbidden) Encode(e *jx.Encoder) {
+	unwrapped := (*ErrorResponse)(s)
+
+	unwrapped.Encode(e)
+}
+
+// Decode decodes DeleteDirectoryForbidden from json.
+func (s *DeleteDirectoryForbidden) Decode(d *jx.Decoder) error {
+	if s == nil {
+		return errors.New("invalid: unable to decode DeleteDirectoryForbidden to nil")
+	}
+	var unwrapped ErrorResponse
+	if err := func() error {
+		if err := unwrapped.Decode(d); err != nil {
+			return err
+		}
+		return nil
+	}(); err != nil {
+		return errors.Wrap(err, "alias")
+	}
+	*s = DeleteDirectoryForbidden(unwrapped)
+	return nil
+}
+
+// MarshalJSON implements stdjson.Marshaler.
+func (s *DeleteDirectoryForbidden) MarshalJSON() ([]byte, error) {
+	e := jx.Encoder{}
+	s.Encode(&e)
+	return e.Bytes(), nil
+}
+
+// UnmarshalJSON implements stdjson.Unmarshaler.
+func (s *DeleteDirectoryForbidden) UnmarshalJSON(data []byte) error {
+	d := jx.DecodeBytes(data)
+	return s.Decode(d)
+}
+
+// Encode encodes DeleteDirectoryNotFound as json.
+func (s *DeleteDirectoryNotFound) Encode(e *jx.Encoder) {
+	unwrapped := (*ErrorResponse)(s)
+
+	unwrapped.Encode(e)
+}
+
+// Decode decodes DeleteDirectoryNotFound from json.
+func (s *DeleteDirectoryNotFound) Decode(d *jx.Decoder) error {
+	if s == nil {
+		return errors.New("invalid: unable to decode DeleteDirectoryNotFound to nil")
+	}
+	var unwrapped ErrorResponse
+	if err := func() error {
+		if err := unwrapped.Decode(d); err != nil {
+			return err
+		}
+		return nil
+	}(); err != nil {
+		return errors.Wrap(err, "alias")
+	}
+	*s = DeleteDirectoryNotFound(unwrapped)
+	return nil
+}
+
+// MarshalJSON implements stdjson.Marshaler.
+func (s *DeleteDirectoryNotFound) MarshalJSON() ([]byte, error) {
+	e := jx.Encoder{}
+	s.Encode(&e)
+	return e.Bytes(), nil
+}
+
+// UnmarshalJSON implements stdjson.Unmarshaler.
+func (s *DeleteDirectoryNotFound) UnmarshalJSON(data []byte) error {
+	d := jx.DecodeBytes(data)
+	return s.Decode(d)
+}
+
+// Encode implements json.Marshaler.
+func (s *DeleteDirectoryResponse) Encode(e *jx.Encoder) {
+	e.ObjStart()
+	s.encodeFields(e)
+	e.ObjEnd()
+}
+
+// encodeFields encodes fields.
+func (s *DeleteDirectoryResponse) encodeFields(e *jx.Encoder) {
+	{
+		if s.Code.Set {
+			e.FieldStart("code")
+			s.Code.Encode(e)
+		}
+	}
+	{
+		if s.Message.Set {
+			e.FieldStart("message")
+			s.Message.Encode(e)
+		}
+	}
+	{
+		if s.DirectoryID.Set {
+			e.FieldStart("directory_id")
+			s.DirectoryID.Encode(e)
+		}
+	}
+}
+
+var jsonFieldsNameOfDeleteDirectoryResponse = [3]string{
+	0: "code",
+	1: "message",
+	2: "directory_id",
+}
+
+// Decode decodes DeleteDirectoryResponse from json.
+func (s *DeleteDirectoryResponse) Decode(d *jx.Decoder) error {
+	if s == nil {
+		return errors.New("invalid: unable to decode DeleteDirectoryResponse to nil")
+	}
+
+	if err := d.ObjBytes(func(d *jx.Decoder, k []byte) error {
+		switch string(k) {
+		case "code":
+			if err := func() error {
+				s.Code.Reset()
+				if err := s.Code.Decode(d); err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return errors.Wrap(err, "decode field \"code\"")
+			}
+		case "message":
+			if err := func() error {
+				s.Message.Reset()
+				if err := s.Message.Decode(d); err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return errors.Wrap(err, "decode field \"message\"")
+			}
+		case "directory_id":
+			if err := func() error {
+				s.DirectoryID.Reset()
+				if err := s.DirectoryID.Decode(d); err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return errors.Wrap(err, "decode field \"directory_id\"")
+			}
+		default:
+			return d.Skip()
+		}
+		return nil
+	}); err != nil {
+		return errors.Wrap(err, "decode DeleteDirectoryResponse")
+	}
+
+	return nil
+}
+
+// MarshalJSON implements stdjson.Marshaler.
+func (s *DeleteDirectoryResponse) MarshalJSON() ([]byte, error) {
+	e := jx.Encoder{}
+	s.Encode(&e)
+	return e.Bytes(), nil
+}
+
+// UnmarshalJSON implements stdjson.Unmarshaler.
+func (s *DeleteDirectoryResponse) UnmarshalJSON(data []byte) error {
+	d := jx.DecodeBytes(data)
+	return s.Decode(d)
+}
+
+// Encode encodes DeleteDirectoryTooManyRequests as json.
+func (s *DeleteDirectoryTooManyRequests) Encode(e *jx.Encoder) {
+	unwrapped := (*ErrorResponse)(s)
+
+	unwrapped.Encode(e)
+}
+
+// Decode decodes DeleteDirectoryTooManyRequests from json.
+func (s *DeleteDirectoryTooManyRequests) Decode(d *jx.Decoder) error {
+	if s == nil {
+		return errors.New("invalid: unable to decode DeleteDirectoryTooManyRequests to nil")
+	}
+	var unwrapped ErrorResponse
+	if err := func() error {
+		if err := unwrapped.Decode(d); err != nil {
+			return err
+		}
+		return nil
+	}(); err != nil {
+		return errors.Wrap(err, "alias")
+	}
+	*s = DeleteDirectoryTooManyRequests(unwrapped)
+	return nil
+}
+
+// MarshalJSON implements stdjson.Marshaler.
+func (s *DeleteDirectoryTooManyRequests) MarshalJSON() ([]byte, error) {
+	e := jx.Encoder{}
+	s.Encode(&e)
+	return e.Bytes(), nil
+}
+
+// UnmarshalJSON implements stdjson.Unmarshaler.
+func (s *DeleteDirectoryTooManyRequests) UnmarshalJSON(data []byte) error {
+	d := jx.DecodeBytes(data)
+	return s.Decode(d)
+}
+
 // Encode encodes DeleteEnvironmentVariableBadRequest as json.
 func (s *DeleteEnvironmentVariableBadRequest) Encode(e *jx.Encoder) {
 	unwrapped := (*ErrorResponse)(s)
@@ -11934,6 +14512,120 @@ func (s *DeleteOrganizationForbidden) MarshalJSON() ([]byte, error) {
 
 // UnmarshalJSON implements stdjson.Unmarshaler.
 func (s *DeleteOrganizationForbidden) UnmarshalJSON(data []byte) error {
+	d := jx.DecodeBytes(data)
+	return s.Decode(d)
+}
+
+// Encode encodes DeleteOrganizationInviteBadRequest as json.
+func (s *DeleteOrganizationInviteBadRequest) Encode(e *jx.Encoder) {
+	unwrapped := (*ErrorResponse)(s)
+
+	unwrapped.Encode(e)
+}
+
+// Decode decodes DeleteOrganizationInviteBadRequest from json.
+func (s *DeleteOrganizationInviteBadRequest) Decode(d *jx.Decoder) error {
+	if s == nil {
+		return errors.New("invalid: unable to decode DeleteOrganizationInviteBadRequest to nil")
+	}
+	var unwrapped ErrorResponse
+	if err := func() error {
+		if err := unwrapped.Decode(d); err != nil {
+			return err
+		}
+		return nil
+	}(); err != nil {
+		return errors.Wrap(err, "alias")
+	}
+	*s = DeleteOrganizationInviteBadRequest(unwrapped)
+	return nil
+}
+
+// MarshalJSON implements stdjson.Marshaler.
+func (s *DeleteOrganizationInviteBadRequest) MarshalJSON() ([]byte, error) {
+	e := jx.Encoder{}
+	s.Encode(&e)
+	return e.Bytes(), nil
+}
+
+// UnmarshalJSON implements stdjson.Unmarshaler.
+func (s *DeleteOrganizationInviteBadRequest) UnmarshalJSON(data []byte) error {
+	d := jx.DecodeBytes(data)
+	return s.Decode(d)
+}
+
+// Encode encodes DeleteOrganizationInviteForbidden as json.
+func (s *DeleteOrganizationInviteForbidden) Encode(e *jx.Encoder) {
+	unwrapped := (*ErrorResponse)(s)
+
+	unwrapped.Encode(e)
+}
+
+// Decode decodes DeleteOrganizationInviteForbidden from json.
+func (s *DeleteOrganizationInviteForbidden) Decode(d *jx.Decoder) error {
+	if s == nil {
+		return errors.New("invalid: unable to decode DeleteOrganizationInviteForbidden to nil")
+	}
+	var unwrapped ErrorResponse
+	if err := func() error {
+		if err := unwrapped.Decode(d); err != nil {
+			return err
+		}
+		return nil
+	}(); err != nil {
+		return errors.Wrap(err, "alias")
+	}
+	*s = DeleteOrganizationInviteForbidden(unwrapped)
+	return nil
+}
+
+// MarshalJSON implements stdjson.Marshaler.
+func (s *DeleteOrganizationInviteForbidden) MarshalJSON() ([]byte, error) {
+	e := jx.Encoder{}
+	s.Encode(&e)
+	return e.Bytes(), nil
+}
+
+// UnmarshalJSON implements stdjson.Unmarshaler.
+func (s *DeleteOrganizationInviteForbidden) UnmarshalJSON(data []byte) error {
+	d := jx.DecodeBytes(data)
+	return s.Decode(d)
+}
+
+// Encode encodes DeleteOrganizationInviteTooManyRequests as json.
+func (s *DeleteOrganizationInviteTooManyRequests) Encode(e *jx.Encoder) {
+	unwrapped := (*ErrorResponse)(s)
+
+	unwrapped.Encode(e)
+}
+
+// Decode decodes DeleteOrganizationInviteTooManyRequests from json.
+func (s *DeleteOrganizationInviteTooManyRequests) Decode(d *jx.Decoder) error {
+	if s == nil {
+		return errors.New("invalid: unable to decode DeleteOrganizationInviteTooManyRequests to nil")
+	}
+	var unwrapped ErrorResponse
+	if err := func() error {
+		if err := unwrapped.Decode(d); err != nil {
+			return err
+		}
+		return nil
+	}(); err != nil {
+		return errors.Wrap(err, "alias")
+	}
+	*s = DeleteOrganizationInviteTooManyRequests(unwrapped)
+	return nil
+}
+
+// MarshalJSON implements stdjson.Marshaler.
+func (s *DeleteOrganizationInviteTooManyRequests) MarshalJSON() ([]byte, error) {
+	e := jx.Encoder{}
+	s.Encode(&e)
+	return e.Bytes(), nil
+}
+
+// UnmarshalJSON implements stdjson.Unmarshaler.
+func (s *DeleteOrganizationInviteTooManyRequests) UnmarshalJSON(data []byte) error {
 	d := jx.DecodeBytes(data)
 	return s.Decode(d)
 }
@@ -12892,6 +15584,302 @@ func (s *DeleteWebhookResponse) MarshalJSON() ([]byte, error) {
 
 // UnmarshalJSON implements stdjson.Unmarshaler.
 func (s *DeleteWebhookResponse) UnmarshalJSON(data []byte) error {
+	d := jx.DecodeBytes(data)
+	return s.Decode(d)
+}
+
+// Encode implements json.Marshaler.
+func (s *Directory) Encode(e *jx.Encoder) {
+	e.ObjStart()
+	s.encodeFields(e)
+	e.ObjEnd()
+}
+
+// encodeFields encodes fields.
+func (s *Directory) encodeFields(e *jx.Encoder) {
+	{
+		if s.ID.Set {
+			e.FieldStart("id")
+			s.ID.Encode(e)
+		}
+	}
+	{
+		if s.DirectoryName.Set {
+			e.FieldStart("directory_name")
+			s.DirectoryName.Encode(e)
+		}
+	}
+	{
+		if s.DirectoryEndpointID.Set {
+			e.FieldStart("directory_endpoint_id")
+			s.DirectoryEndpointID.Encode(e)
+		}
+	}
+	{
+		if s.SecretToken.Set {
+			e.FieldStart("secret_token")
+			s.SecretToken.Encode(e)
+		}
+	}
+	{
+		if s.Status.Set {
+			e.FieldStart("status")
+			s.Status.Encode(e)
+		}
+	}
+	{
+		if s.OrganizationCode.Set {
+			e.FieldStart("organization_code")
+			s.OrganizationCode.Encode(e)
+		}
+	}
+	{
+		if s.EnterpriseConnectionID.Set {
+			e.FieldStart("enterprise_connection_id")
+			s.EnterpriseConnectionID.Encode(e)
+		}
+	}
+	{
+		if s.EnterpriseConnectionName.Set {
+			e.FieldStart("enterprise_connection_name")
+			s.EnterpriseConnectionName.Encode(e)
+		}
+	}
+	{
+		if s.LastSyncStartedAt.Set {
+			e.FieldStart("last_sync_started_at")
+			s.LastSyncStartedAt.Encode(e, json.EncodeDateTime)
+		}
+	}
+	{
+		if s.LastSyncCompletedAt.Set {
+			e.FieldStart("last_sync_completed_at")
+			s.LastSyncCompletedAt.Encode(e, json.EncodeDateTime)
+		}
+	}
+	{
+		if s.LastSyncError.Set {
+			e.FieldStart("last_sync_error")
+			s.LastSyncError.Encode(e)
+		}
+	}
+	{
+		if s.CreatedOn.Set {
+			e.FieldStart("created_on")
+			s.CreatedOn.Encode(e, json.EncodeDateTime)
+		}
+	}
+}
+
+var jsonFieldsNameOfDirectory = [12]string{
+	0:  "id",
+	1:  "directory_name",
+	2:  "directory_endpoint_id",
+	3:  "secret_token",
+	4:  "status",
+	5:  "organization_code",
+	6:  "enterprise_connection_id",
+	7:  "enterprise_connection_name",
+	8:  "last_sync_started_at",
+	9:  "last_sync_completed_at",
+	10: "last_sync_error",
+	11: "created_on",
+}
+
+// Decode decodes Directory from json.
+func (s *Directory) Decode(d *jx.Decoder) error {
+	if s == nil {
+		return errors.New("invalid: unable to decode Directory to nil")
+	}
+
+	if err := d.ObjBytes(func(d *jx.Decoder, k []byte) error {
+		switch string(k) {
+		case "id":
+			if err := func() error {
+				s.ID.Reset()
+				if err := s.ID.Decode(d); err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return errors.Wrap(err, "decode field \"id\"")
+			}
+		case "directory_name":
+			if err := func() error {
+				s.DirectoryName.Reset()
+				if err := s.DirectoryName.Decode(d); err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return errors.Wrap(err, "decode field \"directory_name\"")
+			}
+		case "directory_endpoint_id":
+			if err := func() error {
+				s.DirectoryEndpointID.Reset()
+				if err := s.DirectoryEndpointID.Decode(d); err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return errors.Wrap(err, "decode field \"directory_endpoint_id\"")
+			}
+		case "secret_token":
+			if err := func() error {
+				s.SecretToken.Reset()
+				if err := s.SecretToken.Decode(d); err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return errors.Wrap(err, "decode field \"secret_token\"")
+			}
+		case "status":
+			if err := func() error {
+				s.Status.Reset()
+				if err := s.Status.Decode(d); err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return errors.Wrap(err, "decode field \"status\"")
+			}
+		case "organization_code":
+			if err := func() error {
+				s.OrganizationCode.Reset()
+				if err := s.OrganizationCode.Decode(d); err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return errors.Wrap(err, "decode field \"organization_code\"")
+			}
+		case "enterprise_connection_id":
+			if err := func() error {
+				s.EnterpriseConnectionID.Reset()
+				if err := s.EnterpriseConnectionID.Decode(d); err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return errors.Wrap(err, "decode field \"enterprise_connection_id\"")
+			}
+		case "enterprise_connection_name":
+			if err := func() error {
+				s.EnterpriseConnectionName.Reset()
+				if err := s.EnterpriseConnectionName.Decode(d); err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return errors.Wrap(err, "decode field \"enterprise_connection_name\"")
+			}
+		case "last_sync_started_at":
+			if err := func() error {
+				s.LastSyncStartedAt.Reset()
+				if err := s.LastSyncStartedAt.Decode(d, json.DecodeDateTime); err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return errors.Wrap(err, "decode field \"last_sync_started_at\"")
+			}
+		case "last_sync_completed_at":
+			if err := func() error {
+				s.LastSyncCompletedAt.Reset()
+				if err := s.LastSyncCompletedAt.Decode(d, json.DecodeDateTime); err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return errors.Wrap(err, "decode field \"last_sync_completed_at\"")
+			}
+		case "last_sync_error":
+			if err := func() error {
+				s.LastSyncError.Reset()
+				if err := s.LastSyncError.Decode(d); err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return errors.Wrap(err, "decode field \"last_sync_error\"")
+			}
+		case "created_on":
+			if err := func() error {
+				s.CreatedOn.Reset()
+				if err := s.CreatedOn.Decode(d, json.DecodeDateTime); err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return errors.Wrap(err, "decode field \"created_on\"")
+			}
+		default:
+			return d.Skip()
+		}
+		return nil
+	}); err != nil {
+		return errors.Wrap(err, "decode Directory")
+	}
+
+	return nil
+}
+
+// MarshalJSON implements stdjson.Marshaler.
+func (s *Directory) MarshalJSON() ([]byte, error) {
+	e := jx.Encoder{}
+	s.Encode(&e)
+	return e.Bytes(), nil
+}
+
+// UnmarshalJSON implements stdjson.Unmarshaler.
+func (s *Directory) UnmarshalJSON(data []byte) error {
+	d := jx.DecodeBytes(data)
+	return s.Decode(d)
+}
+
+// Encode encodes DirectoryStatus as json.
+func (s DirectoryStatus) Encode(e *jx.Encoder) {
+	e.Str(string(s))
+}
+
+// Decode decodes DirectoryStatus from json.
+func (s *DirectoryStatus) Decode(d *jx.Decoder) error {
+	if s == nil {
+		return errors.New("invalid: unable to decode DirectoryStatus to nil")
+	}
+	v, err := d.StrBytes()
+	if err != nil {
+		return err
+	}
+	// Try to use constant string.
+	switch DirectoryStatus(v) {
+	case DirectoryStatusPending:
+		*s = DirectoryStatusPending
+	case DirectoryStatusValidating:
+		*s = DirectoryStatusValidating
+	case DirectoryStatusActive:
+		*s = DirectoryStatusActive
+	case DirectoryStatusInactive:
+		*s = DirectoryStatusInactive
+	case DirectoryStatusError:
+		*s = DirectoryStatusError
+	default:
+		*s = DirectoryStatus(v)
+	}
+
+	return nil
+}
+
+// MarshalJSON implements stdjson.Marshaler.
+func (s DirectoryStatus) MarshalJSON() ([]byte, error) {
+	e := jx.Encoder{}
+	s.Encode(&e)
+	return e.Bytes(), nil
+}
+
+// UnmarshalJSON implements stdjson.Unmarshaler.
+func (s *DirectoryStatus) UnmarshalJSON(data []byte) error {
 	d := jx.DecodeBytes(data)
 	return s.Decode(d)
 }
@@ -16346,6 +19334,245 @@ func (s *GetApisResponseApisItemScopesItem) UnmarshalJSON(data []byte) error {
 	return s.Decode(d)
 }
 
+// Encode encodes GetApplicationAccessRolesBadRequest as json.
+func (s *GetApplicationAccessRolesBadRequest) Encode(e *jx.Encoder) {
+	unwrapped := (*ErrorResponse)(s)
+
+	unwrapped.Encode(e)
+}
+
+// Decode decodes GetApplicationAccessRolesBadRequest from json.
+func (s *GetApplicationAccessRolesBadRequest) Decode(d *jx.Decoder) error {
+	if s == nil {
+		return errors.New("invalid: unable to decode GetApplicationAccessRolesBadRequest to nil")
+	}
+	var unwrapped ErrorResponse
+	if err := func() error {
+		if err := unwrapped.Decode(d); err != nil {
+			return err
+		}
+		return nil
+	}(); err != nil {
+		return errors.Wrap(err, "alias")
+	}
+	*s = GetApplicationAccessRolesBadRequest(unwrapped)
+	return nil
+}
+
+// MarshalJSON implements stdjson.Marshaler.
+func (s *GetApplicationAccessRolesBadRequest) MarshalJSON() ([]byte, error) {
+	e := jx.Encoder{}
+	s.Encode(&e)
+	return e.Bytes(), nil
+}
+
+// UnmarshalJSON implements stdjson.Unmarshaler.
+func (s *GetApplicationAccessRolesBadRequest) UnmarshalJSON(data []byte) error {
+	d := jx.DecodeBytes(data)
+	return s.Decode(d)
+}
+
+// Encode encodes GetApplicationAccessRolesForbidden as json.
+func (s *GetApplicationAccessRolesForbidden) Encode(e *jx.Encoder) {
+	unwrapped := (*ErrorResponse)(s)
+
+	unwrapped.Encode(e)
+}
+
+// Decode decodes GetApplicationAccessRolesForbidden from json.
+func (s *GetApplicationAccessRolesForbidden) Decode(d *jx.Decoder) error {
+	if s == nil {
+		return errors.New("invalid: unable to decode GetApplicationAccessRolesForbidden to nil")
+	}
+	var unwrapped ErrorResponse
+	if err := func() error {
+		if err := unwrapped.Decode(d); err != nil {
+			return err
+		}
+		return nil
+	}(); err != nil {
+		return errors.Wrap(err, "alias")
+	}
+	*s = GetApplicationAccessRolesForbidden(unwrapped)
+	return nil
+}
+
+// MarshalJSON implements stdjson.Marshaler.
+func (s *GetApplicationAccessRolesForbidden) MarshalJSON() ([]byte, error) {
+	e := jx.Encoder{}
+	s.Encode(&e)
+	return e.Bytes(), nil
+}
+
+// UnmarshalJSON implements stdjson.Unmarshaler.
+func (s *GetApplicationAccessRolesForbidden) UnmarshalJSON(data []byte) error {
+	d := jx.DecodeBytes(data)
+	return s.Decode(d)
+}
+
+// Encode implements json.Marshaler.
+func (s *GetApplicationAccessRolesResponse) Encode(e *jx.Encoder) {
+	e.ObjStart()
+	s.encodeFields(e)
+	e.ObjEnd()
+}
+
+// encodeFields encodes fields.
+func (s *GetApplicationAccessRolesResponse) encodeFields(e *jx.Encoder) {
+	{
+		if s.Code.Set {
+			e.FieldStart("code")
+			s.Code.Encode(e)
+		}
+	}
+	{
+		if s.Message.Set {
+			e.FieldStart("message")
+			s.Message.Encode(e)
+		}
+	}
+	{
+		if s.Roles != nil {
+			e.FieldStart("roles")
+			e.ArrStart()
+			for _, elem := range s.Roles {
+				elem.Encode(e)
+			}
+			e.ArrEnd()
+		}
+	}
+	{
+		if s.HasMore.Set {
+			e.FieldStart("has_more")
+			s.HasMore.Encode(e)
+		}
+	}
+}
+
+var jsonFieldsNameOfGetApplicationAccessRolesResponse = [4]string{
+	0: "code",
+	1: "message",
+	2: "roles",
+	3: "has_more",
+}
+
+// Decode decodes GetApplicationAccessRolesResponse from json.
+func (s *GetApplicationAccessRolesResponse) Decode(d *jx.Decoder) error {
+	if s == nil {
+		return errors.New("invalid: unable to decode GetApplicationAccessRolesResponse to nil")
+	}
+
+	if err := d.ObjBytes(func(d *jx.Decoder, k []byte) error {
+		switch string(k) {
+		case "code":
+			if err := func() error {
+				s.Code.Reset()
+				if err := s.Code.Decode(d); err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return errors.Wrap(err, "decode field \"code\"")
+			}
+		case "message":
+			if err := func() error {
+				s.Message.Reset()
+				if err := s.Message.Decode(d); err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return errors.Wrap(err, "decode field \"message\"")
+			}
+		case "roles":
+			if err := func() error {
+				s.Roles = make([]ApplicationAccessRole, 0)
+				if err := d.Arr(func(d *jx.Decoder) error {
+					var elem ApplicationAccessRole
+					if err := elem.Decode(d); err != nil {
+						return err
+					}
+					s.Roles = append(s.Roles, elem)
+					return nil
+				}); err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return errors.Wrap(err, "decode field \"roles\"")
+			}
+		case "has_more":
+			if err := func() error {
+				s.HasMore.Reset()
+				if err := s.HasMore.Decode(d); err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return errors.Wrap(err, "decode field \"has_more\"")
+			}
+		default:
+			return d.Skip()
+		}
+		return nil
+	}); err != nil {
+		return errors.Wrap(err, "decode GetApplicationAccessRolesResponse")
+	}
+
+	return nil
+}
+
+// MarshalJSON implements stdjson.Marshaler.
+func (s *GetApplicationAccessRolesResponse) MarshalJSON() ([]byte, error) {
+	e := jx.Encoder{}
+	s.Encode(&e)
+	return e.Bytes(), nil
+}
+
+// UnmarshalJSON implements stdjson.Unmarshaler.
+func (s *GetApplicationAccessRolesResponse) UnmarshalJSON(data []byte) error {
+	d := jx.DecodeBytes(data)
+	return s.Decode(d)
+}
+
+// Encode encodes GetApplicationAccessRolesTooManyRequests as json.
+func (s *GetApplicationAccessRolesTooManyRequests) Encode(e *jx.Encoder) {
+	unwrapped := (*ErrorResponse)(s)
+
+	unwrapped.Encode(e)
+}
+
+// Decode decodes GetApplicationAccessRolesTooManyRequests from json.
+func (s *GetApplicationAccessRolesTooManyRequests) Decode(d *jx.Decoder) error {
+	if s == nil {
+		return errors.New("invalid: unable to decode GetApplicationAccessRolesTooManyRequests to nil")
+	}
+	var unwrapped ErrorResponse
+	if err := func() error {
+		if err := unwrapped.Decode(d); err != nil {
+			return err
+		}
+		return nil
+	}(); err != nil {
+		return errors.Wrap(err, "alias")
+	}
+	*s = GetApplicationAccessRolesTooManyRequests(unwrapped)
+	return nil
+}
+
+// MarshalJSON implements stdjson.Marshaler.
+func (s *GetApplicationAccessRolesTooManyRequests) MarshalJSON() ([]byte, error) {
+	e := jx.Encoder{}
+	s.Encode(&e)
+	return e.Bytes(), nil
+}
+
+// UnmarshalJSON implements stdjson.Unmarshaler.
+func (s *GetApplicationAccessRolesTooManyRequests) UnmarshalJSON(data []byte) error {
+	d := jx.DecodeBytes(data)
+	return s.Decode(d)
+}
+
 // Encode encodes GetApplicationBadRequest as json.
 func (s *GetApplicationBadRequest) Encode(e *jx.Encoder) {
 	unwrapped := (*ErrorResponse)(s)
@@ -16804,17 +20031,73 @@ func (s *GetApplicationResponseApplication) encodeFields(e *jx.Encoder) {
 			s.HasCancelButton.Encode(e)
 		}
 	}
+	{
+		if s.IsAccessControlEnabled.Set {
+			e.FieldStart("is_access_control_enabled")
+			s.IsAccessControlEnabled.Encode(e)
+		}
+	}
+	{
+		if s.IsAllowFacelessAuth.Set {
+			e.FieldStart("is_allow_faceless_auth")
+			s.IsAllowFacelessAuth.Encode(e)
+		}
+	}
+	{
+		if s.IsAskForName.Set {
+			e.FieldStart("is_ask_for_name")
+			s.IsAskForName.Encode(e)
+		}
+	}
+	{
+		if s.HasMarketingConsent.Set {
+			e.FieldStart("has_marketing_consent")
+			s.HasMarketingConsent.Encode(e)
+		}
+	}
+	{
+		if s.HasSignInLinkOnSignUpPage.Set {
+			e.FieldStart("has_sign_in_link_on_sign_up_page")
+			s.HasSignInLinkOnSignUpPage.Encode(e)
+		}
+	}
+	{
+		if s.HasRegisterLinkOnSignInPage.Set {
+			e.FieldStart("has_register_link_on_sign_in_page")
+			s.HasRegisterLinkOnSignInPage.Encode(e)
+		}
+	}
+	{
+		if s.HasSignInWithSSOButton.Set {
+			e.FieldStart("has_sign_in_with_sso_button")
+			s.HasSignInWithSSOButton.Encode(e)
+		}
+	}
+	{
+		if s.UseGravatarFallback.Set {
+			e.FieldStart("use_gravatar_fallback")
+			s.UseGravatarFallback.Encode(e)
+		}
+	}
 }
 
-var jsonFieldsNameOfGetApplicationResponseApplication = [8]string{
-	0: "id",
-	1: "name",
-	2: "type",
-	3: "client_id",
-	4: "client_secret",
-	5: "login_uri",
-	6: "homepage_uri",
-	7: "has_cancel_button",
+var jsonFieldsNameOfGetApplicationResponseApplication = [16]string{
+	0:  "id",
+	1:  "name",
+	2:  "type",
+	3:  "client_id",
+	4:  "client_secret",
+	5:  "login_uri",
+	6:  "homepage_uri",
+	7:  "has_cancel_button",
+	8:  "is_access_control_enabled",
+	9:  "is_allow_faceless_auth",
+	10: "is_ask_for_name",
+	11: "has_marketing_consent",
+	12: "has_sign_in_link_on_sign_up_page",
+	13: "has_register_link_on_sign_in_page",
+	14: "has_sign_in_with_sso_button",
+	15: "use_gravatar_fallback",
 }
 
 // Decode decodes GetApplicationResponseApplication from json.
@@ -16905,6 +20188,86 @@ func (s *GetApplicationResponseApplication) Decode(d *jx.Decoder) error {
 			}(); err != nil {
 				return errors.Wrap(err, "decode field \"has_cancel_button\"")
 			}
+		case "is_access_control_enabled":
+			if err := func() error {
+				s.IsAccessControlEnabled.Reset()
+				if err := s.IsAccessControlEnabled.Decode(d); err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return errors.Wrap(err, "decode field \"is_access_control_enabled\"")
+			}
+		case "is_allow_faceless_auth":
+			if err := func() error {
+				s.IsAllowFacelessAuth.Reset()
+				if err := s.IsAllowFacelessAuth.Decode(d); err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return errors.Wrap(err, "decode field \"is_allow_faceless_auth\"")
+			}
+		case "is_ask_for_name":
+			if err := func() error {
+				s.IsAskForName.Reset()
+				if err := s.IsAskForName.Decode(d); err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return errors.Wrap(err, "decode field \"is_ask_for_name\"")
+			}
+		case "has_marketing_consent":
+			if err := func() error {
+				s.HasMarketingConsent.Reset()
+				if err := s.HasMarketingConsent.Decode(d); err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return errors.Wrap(err, "decode field \"has_marketing_consent\"")
+			}
+		case "has_sign_in_link_on_sign_up_page":
+			if err := func() error {
+				s.HasSignInLinkOnSignUpPage.Reset()
+				if err := s.HasSignInLinkOnSignUpPage.Decode(d); err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return errors.Wrap(err, "decode field \"has_sign_in_link_on_sign_up_page\"")
+			}
+		case "has_register_link_on_sign_in_page":
+			if err := func() error {
+				s.HasRegisterLinkOnSignInPage.Reset()
+				if err := s.HasRegisterLinkOnSignInPage.Decode(d); err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return errors.Wrap(err, "decode field \"has_register_link_on_sign_in_page\"")
+			}
+		case "has_sign_in_with_sso_button":
+			if err := func() error {
+				s.HasSignInWithSSOButton.Reset()
+				if err := s.HasSignInWithSSOButton.Decode(d); err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return errors.Wrap(err, "decode field \"has_sign_in_with_sso_button\"")
+			}
+		case "use_gravatar_fallback":
+			if err := func() error {
+				s.UseGravatarFallback.Reset()
+				if err := s.UseGravatarFallback.Decode(d); err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return errors.Wrap(err, "decode field \"use_gravatar_fallback\"")
+			}
 		default:
 			return d.Skip()
 		}
@@ -16951,6 +20314,8 @@ func (s *GetApplicationResponseApplicationType) Decode(d *jx.Decoder) error {
 		*s = GetApplicationResponseApplicationTypeReg
 	case GetApplicationResponseApplicationTypeSpa:
 		*s = GetApplicationResponseApplicationTypeSpa
+	case GetApplicationResponseApplicationTypeDevice:
+		*s = GetApplicationResponseApplicationTypeDevice
 	default:
 		*s = GetApplicationResponseApplicationType(v)
 	}
@@ -17483,6 +20848,18 @@ func (s *GetBillingAgreementsResponseAgreementsItem) encodeFields(e *jx.Encoder)
 		}
 	}
 	{
+		if s.CurrentPeriodStart.Set {
+			e.FieldStart("current_period_start")
+			s.CurrentPeriodStart.Encode(e, json.EncodeDateTime)
+		}
+	}
+	{
+		if s.CurrentPeriodEnd.Set {
+			e.FieldStart("current_period_end")
+			s.CurrentPeriodEnd.Encode(e, json.EncodeDateTime)
+		}
+	}
+	{
 		if s.Entitlements != nil {
 			e.FieldStart("entitlements")
 			e.ArrStart()
@@ -17494,12 +20871,14 @@ func (s *GetBillingAgreementsResponseAgreementsItem) encodeFields(e *jx.Encoder)
 	}
 }
 
-var jsonFieldsNameOfGetBillingAgreementsResponseAgreementsItem = [5]string{
+var jsonFieldsNameOfGetBillingAgreementsResponseAgreementsItem = [7]string{
 	0: "id",
 	1: "plan_code",
 	2: "expires_on",
 	3: "billing_group_id",
-	4: "entitlements",
+	4: "current_period_start",
+	5: "current_period_end",
+	6: "entitlements",
 }
 
 // Decode decodes GetBillingAgreementsResponseAgreementsItem from json.
@@ -17549,6 +20928,26 @@ func (s *GetBillingAgreementsResponseAgreementsItem) Decode(d *jx.Decoder) error
 				return nil
 			}(); err != nil {
 				return errors.Wrap(err, "decode field \"billing_group_id\"")
+			}
+		case "current_period_start":
+			if err := func() error {
+				s.CurrentPeriodStart.Reset()
+				if err := s.CurrentPeriodStart.Decode(d, json.DecodeDateTime); err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return errors.Wrap(err, "decode field \"current_period_start\"")
+			}
+		case "current_period_end":
+			if err := func() error {
+				s.CurrentPeriodEnd.Reset()
+				if err := s.CurrentPeriodEnd.Decode(d, json.DecodeDateTime); err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return errors.Wrap(err, "decode field \"current_period_end\"")
 			}
 		case "entitlements":
 			if err := func() error {
@@ -19274,6 +22673,494 @@ func (s *GetConnectionsResponse) UnmarshalJSON(data []byte) error {
 	return s.Decode(d)
 }
 
+// Encode encodes GetDirectoriesBadRequest as json.
+func (s *GetDirectoriesBadRequest) Encode(e *jx.Encoder) {
+	unwrapped := (*ErrorResponse)(s)
+
+	unwrapped.Encode(e)
+}
+
+// Decode decodes GetDirectoriesBadRequest from json.
+func (s *GetDirectoriesBadRequest) Decode(d *jx.Decoder) error {
+	if s == nil {
+		return errors.New("invalid: unable to decode GetDirectoriesBadRequest to nil")
+	}
+	var unwrapped ErrorResponse
+	if err := func() error {
+		if err := unwrapped.Decode(d); err != nil {
+			return err
+		}
+		return nil
+	}(); err != nil {
+		return errors.Wrap(err, "alias")
+	}
+	*s = GetDirectoriesBadRequest(unwrapped)
+	return nil
+}
+
+// MarshalJSON implements stdjson.Marshaler.
+func (s *GetDirectoriesBadRequest) MarshalJSON() ([]byte, error) {
+	e := jx.Encoder{}
+	s.Encode(&e)
+	return e.Bytes(), nil
+}
+
+// UnmarshalJSON implements stdjson.Unmarshaler.
+func (s *GetDirectoriesBadRequest) UnmarshalJSON(data []byte) error {
+	d := jx.DecodeBytes(data)
+	return s.Decode(d)
+}
+
+// Encode encodes GetDirectoriesForbidden as json.
+func (s *GetDirectoriesForbidden) Encode(e *jx.Encoder) {
+	unwrapped := (*ErrorResponse)(s)
+
+	unwrapped.Encode(e)
+}
+
+// Decode decodes GetDirectoriesForbidden from json.
+func (s *GetDirectoriesForbidden) Decode(d *jx.Decoder) error {
+	if s == nil {
+		return errors.New("invalid: unable to decode GetDirectoriesForbidden to nil")
+	}
+	var unwrapped ErrorResponse
+	if err := func() error {
+		if err := unwrapped.Decode(d); err != nil {
+			return err
+		}
+		return nil
+	}(); err != nil {
+		return errors.Wrap(err, "alias")
+	}
+	*s = GetDirectoriesForbidden(unwrapped)
+	return nil
+}
+
+// MarshalJSON implements stdjson.Marshaler.
+func (s *GetDirectoriesForbidden) MarshalJSON() ([]byte, error) {
+	e := jx.Encoder{}
+	s.Encode(&e)
+	return e.Bytes(), nil
+}
+
+// UnmarshalJSON implements stdjson.Unmarshaler.
+func (s *GetDirectoriesForbidden) UnmarshalJSON(data []byte) error {
+	d := jx.DecodeBytes(data)
+	return s.Decode(d)
+}
+
+// Encode implements json.Marshaler.
+func (s *GetDirectoriesResponse) Encode(e *jx.Encoder) {
+	e.ObjStart()
+	s.encodeFields(e)
+	e.ObjEnd()
+}
+
+// encodeFields encodes fields.
+func (s *GetDirectoriesResponse) encodeFields(e *jx.Encoder) {
+	{
+		if s.Code.Set {
+			e.FieldStart("code")
+			s.Code.Encode(e)
+		}
+	}
+	{
+		if s.Message.Set {
+			e.FieldStart("message")
+			s.Message.Encode(e)
+		}
+	}
+	{
+		if s.HasMore.Set {
+			e.FieldStart("has_more")
+			s.HasMore.Encode(e)
+		}
+	}
+	{
+		if s.Directories != nil {
+			e.FieldStart("directories")
+			e.ArrStart()
+			for _, elem := range s.Directories {
+				elem.Encode(e)
+			}
+			e.ArrEnd()
+		}
+	}
+}
+
+var jsonFieldsNameOfGetDirectoriesResponse = [4]string{
+	0: "code",
+	1: "message",
+	2: "has_more",
+	3: "directories",
+}
+
+// Decode decodes GetDirectoriesResponse from json.
+func (s *GetDirectoriesResponse) Decode(d *jx.Decoder) error {
+	if s == nil {
+		return errors.New("invalid: unable to decode GetDirectoriesResponse to nil")
+	}
+
+	if err := d.ObjBytes(func(d *jx.Decoder, k []byte) error {
+		switch string(k) {
+		case "code":
+			if err := func() error {
+				s.Code.Reset()
+				if err := s.Code.Decode(d); err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return errors.Wrap(err, "decode field \"code\"")
+			}
+		case "message":
+			if err := func() error {
+				s.Message.Reset()
+				if err := s.Message.Decode(d); err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return errors.Wrap(err, "decode field \"message\"")
+			}
+		case "has_more":
+			if err := func() error {
+				s.HasMore.Reset()
+				if err := s.HasMore.Decode(d); err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return errors.Wrap(err, "decode field \"has_more\"")
+			}
+		case "directories":
+			if err := func() error {
+				s.Directories = make([]Directory, 0)
+				if err := d.Arr(func(d *jx.Decoder) error {
+					var elem Directory
+					if err := elem.Decode(d); err != nil {
+						return err
+					}
+					s.Directories = append(s.Directories, elem)
+					return nil
+				}); err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return errors.Wrap(err, "decode field \"directories\"")
+			}
+		default:
+			return d.Skip()
+		}
+		return nil
+	}); err != nil {
+		return errors.Wrap(err, "decode GetDirectoriesResponse")
+	}
+
+	return nil
+}
+
+// MarshalJSON implements stdjson.Marshaler.
+func (s *GetDirectoriesResponse) MarshalJSON() ([]byte, error) {
+	e := jx.Encoder{}
+	s.Encode(&e)
+	return e.Bytes(), nil
+}
+
+// UnmarshalJSON implements stdjson.Unmarshaler.
+func (s *GetDirectoriesResponse) UnmarshalJSON(data []byte) error {
+	d := jx.DecodeBytes(data)
+	return s.Decode(d)
+}
+
+// Encode encodes GetDirectoriesTooManyRequests as json.
+func (s *GetDirectoriesTooManyRequests) Encode(e *jx.Encoder) {
+	unwrapped := (*ErrorResponse)(s)
+
+	unwrapped.Encode(e)
+}
+
+// Decode decodes GetDirectoriesTooManyRequests from json.
+func (s *GetDirectoriesTooManyRequests) Decode(d *jx.Decoder) error {
+	if s == nil {
+		return errors.New("invalid: unable to decode GetDirectoriesTooManyRequests to nil")
+	}
+	var unwrapped ErrorResponse
+	if err := func() error {
+		if err := unwrapped.Decode(d); err != nil {
+			return err
+		}
+		return nil
+	}(); err != nil {
+		return errors.Wrap(err, "alias")
+	}
+	*s = GetDirectoriesTooManyRequests(unwrapped)
+	return nil
+}
+
+// MarshalJSON implements stdjson.Marshaler.
+func (s *GetDirectoriesTooManyRequests) MarshalJSON() ([]byte, error) {
+	e := jx.Encoder{}
+	s.Encode(&e)
+	return e.Bytes(), nil
+}
+
+// UnmarshalJSON implements stdjson.Unmarshaler.
+func (s *GetDirectoriesTooManyRequests) UnmarshalJSON(data []byte) error {
+	d := jx.DecodeBytes(data)
+	return s.Decode(d)
+}
+
+// Encode encodes GetDirectoryBadRequest as json.
+func (s *GetDirectoryBadRequest) Encode(e *jx.Encoder) {
+	unwrapped := (*ErrorResponse)(s)
+
+	unwrapped.Encode(e)
+}
+
+// Decode decodes GetDirectoryBadRequest from json.
+func (s *GetDirectoryBadRequest) Decode(d *jx.Decoder) error {
+	if s == nil {
+		return errors.New("invalid: unable to decode GetDirectoryBadRequest to nil")
+	}
+	var unwrapped ErrorResponse
+	if err := func() error {
+		if err := unwrapped.Decode(d); err != nil {
+			return err
+		}
+		return nil
+	}(); err != nil {
+		return errors.Wrap(err, "alias")
+	}
+	*s = GetDirectoryBadRequest(unwrapped)
+	return nil
+}
+
+// MarshalJSON implements stdjson.Marshaler.
+func (s *GetDirectoryBadRequest) MarshalJSON() ([]byte, error) {
+	e := jx.Encoder{}
+	s.Encode(&e)
+	return e.Bytes(), nil
+}
+
+// UnmarshalJSON implements stdjson.Unmarshaler.
+func (s *GetDirectoryBadRequest) UnmarshalJSON(data []byte) error {
+	d := jx.DecodeBytes(data)
+	return s.Decode(d)
+}
+
+// Encode encodes GetDirectoryForbidden as json.
+func (s *GetDirectoryForbidden) Encode(e *jx.Encoder) {
+	unwrapped := (*ErrorResponse)(s)
+
+	unwrapped.Encode(e)
+}
+
+// Decode decodes GetDirectoryForbidden from json.
+func (s *GetDirectoryForbidden) Decode(d *jx.Decoder) error {
+	if s == nil {
+		return errors.New("invalid: unable to decode GetDirectoryForbidden to nil")
+	}
+	var unwrapped ErrorResponse
+	if err := func() error {
+		if err := unwrapped.Decode(d); err != nil {
+			return err
+		}
+		return nil
+	}(); err != nil {
+		return errors.Wrap(err, "alias")
+	}
+	*s = GetDirectoryForbidden(unwrapped)
+	return nil
+}
+
+// MarshalJSON implements stdjson.Marshaler.
+func (s *GetDirectoryForbidden) MarshalJSON() ([]byte, error) {
+	e := jx.Encoder{}
+	s.Encode(&e)
+	return e.Bytes(), nil
+}
+
+// UnmarshalJSON implements stdjson.Unmarshaler.
+func (s *GetDirectoryForbidden) UnmarshalJSON(data []byte) error {
+	d := jx.DecodeBytes(data)
+	return s.Decode(d)
+}
+
+// Encode encodes GetDirectoryNotFound as json.
+func (s *GetDirectoryNotFound) Encode(e *jx.Encoder) {
+	unwrapped := (*ErrorResponse)(s)
+
+	unwrapped.Encode(e)
+}
+
+// Decode decodes GetDirectoryNotFound from json.
+func (s *GetDirectoryNotFound) Decode(d *jx.Decoder) error {
+	if s == nil {
+		return errors.New("invalid: unable to decode GetDirectoryNotFound to nil")
+	}
+	var unwrapped ErrorResponse
+	if err := func() error {
+		if err := unwrapped.Decode(d); err != nil {
+			return err
+		}
+		return nil
+	}(); err != nil {
+		return errors.Wrap(err, "alias")
+	}
+	*s = GetDirectoryNotFound(unwrapped)
+	return nil
+}
+
+// MarshalJSON implements stdjson.Marshaler.
+func (s *GetDirectoryNotFound) MarshalJSON() ([]byte, error) {
+	e := jx.Encoder{}
+	s.Encode(&e)
+	return e.Bytes(), nil
+}
+
+// UnmarshalJSON implements stdjson.Unmarshaler.
+func (s *GetDirectoryNotFound) UnmarshalJSON(data []byte) error {
+	d := jx.DecodeBytes(data)
+	return s.Decode(d)
+}
+
+// Encode implements json.Marshaler.
+func (s *GetDirectoryResponse) Encode(e *jx.Encoder) {
+	e.ObjStart()
+	s.encodeFields(e)
+	e.ObjEnd()
+}
+
+// encodeFields encodes fields.
+func (s *GetDirectoryResponse) encodeFields(e *jx.Encoder) {
+	{
+		if s.Code.Set {
+			e.FieldStart("code")
+			s.Code.Encode(e)
+		}
+	}
+	{
+		if s.Message.Set {
+			e.FieldStart("message")
+			s.Message.Encode(e)
+		}
+	}
+	{
+		if s.Directory.Set {
+			e.FieldStart("directory")
+			s.Directory.Encode(e)
+		}
+	}
+}
+
+var jsonFieldsNameOfGetDirectoryResponse = [3]string{
+	0: "code",
+	1: "message",
+	2: "directory",
+}
+
+// Decode decodes GetDirectoryResponse from json.
+func (s *GetDirectoryResponse) Decode(d *jx.Decoder) error {
+	if s == nil {
+		return errors.New("invalid: unable to decode GetDirectoryResponse to nil")
+	}
+
+	if err := d.ObjBytes(func(d *jx.Decoder, k []byte) error {
+		switch string(k) {
+		case "code":
+			if err := func() error {
+				s.Code.Reset()
+				if err := s.Code.Decode(d); err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return errors.Wrap(err, "decode field \"code\"")
+			}
+		case "message":
+			if err := func() error {
+				s.Message.Reset()
+				if err := s.Message.Decode(d); err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return errors.Wrap(err, "decode field \"message\"")
+			}
+		case "directory":
+			if err := func() error {
+				s.Directory.Reset()
+				if err := s.Directory.Decode(d); err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return errors.Wrap(err, "decode field \"directory\"")
+			}
+		default:
+			return d.Skip()
+		}
+		return nil
+	}); err != nil {
+		return errors.Wrap(err, "decode GetDirectoryResponse")
+	}
+
+	return nil
+}
+
+// MarshalJSON implements stdjson.Marshaler.
+func (s *GetDirectoryResponse) MarshalJSON() ([]byte, error) {
+	e := jx.Encoder{}
+	s.Encode(&e)
+	return e.Bytes(), nil
+}
+
+// UnmarshalJSON implements stdjson.Unmarshaler.
+func (s *GetDirectoryResponse) UnmarshalJSON(data []byte) error {
+	d := jx.DecodeBytes(data)
+	return s.Decode(d)
+}
+
+// Encode encodes GetDirectoryTooManyRequests as json.
+func (s *GetDirectoryTooManyRequests) Encode(e *jx.Encoder) {
+	unwrapped := (*ErrorResponse)(s)
+
+	unwrapped.Encode(e)
+}
+
+// Decode decodes GetDirectoryTooManyRequests from json.
+func (s *GetDirectoryTooManyRequests) Decode(d *jx.Decoder) error {
+	if s == nil {
+		return errors.New("invalid: unable to decode GetDirectoryTooManyRequests to nil")
+	}
+	var unwrapped ErrorResponse
+	if err := func() error {
+		if err := unwrapped.Decode(d); err != nil {
+			return err
+		}
+		return nil
+	}(); err != nil {
+		return errors.Wrap(err, "alias")
+	}
+	*s = GetDirectoryTooManyRequests(unwrapped)
+	return nil
+}
+
+// MarshalJSON implements stdjson.Marshaler.
+func (s *GetDirectoryTooManyRequests) MarshalJSON() ([]byte, error) {
+	e := jx.Encoder{}
+	s.Encode(&e)
+	return e.Bytes(), nil
+}
+
+// UnmarshalJSON implements stdjson.Unmarshaler.
+func (s *GetDirectoryTooManyRequests) UnmarshalJSON(data []byte) error {
+	d := jx.DecodeBytes(data)
+	return s.Decode(d)
+}
+
 // Encode encodes GetEnvironmentBadRequest as json.
 func (s *GetEnvironmentBadRequest) Encode(e *jx.Encoder) {
 	unwrapped := (*ErrorResponse)(s)
@@ -19771,6 +23658,12 @@ func (s *GetEnvironmentResponseEnvironment) encodeFields(e *jx.Encoder) {
 		}
 	}
 	{
+		if s.ContentsquareTagID.Set {
+			e.FieldStart("contentsquare_tag_id")
+			s.ContentsquareTagID.Encode(e)
+		}
+	}
+	{
 		if s.IsDefault.Set {
 			e.FieldStart("is_default")
 			s.IsDefault.Encode(e)
@@ -19904,33 +23797,34 @@ func (s *GetEnvironmentResponseEnvironment) encodeFields(e *jx.Encoder) {
 	}
 }
 
-var jsonFieldsNameOfGetEnvironmentResponseEnvironment = [26]string{
+var jsonFieldsNameOfGetEnvironmentResponseEnvironment = [27]string{
 	0:  "code",
 	1:  "name",
 	2:  "hotjar_site_id",
 	3:  "google_analytics_tag",
-	4:  "is_default",
-	5:  "is_live",
-	6:  "kinde_domain",
-	7:  "custom_domain",
-	8:  "logo",
-	9:  "logo_dark",
-	10: "favicon_svg",
-	11: "favicon_fallback",
-	12: "link_color",
-	13: "background_color",
-	14: "button_color",
-	15: "button_text_color",
-	16: "link_color_dark",
-	17: "background_color_dark",
-	18: "button_text_color_dark",
-	19: "button_color_dark",
-	20: "button_border_radius",
-	21: "card_border_radius",
-	22: "input_border_radius",
-	23: "theme_code",
-	24: "color_scheme",
-	25: "created_on",
+	4:  "contentsquare_tag_id",
+	5:  "is_default",
+	6:  "is_live",
+	7:  "kinde_domain",
+	8:  "custom_domain",
+	9:  "logo",
+	10: "logo_dark",
+	11: "favicon_svg",
+	12: "favicon_fallback",
+	13: "link_color",
+	14: "background_color",
+	15: "button_color",
+	16: "button_text_color",
+	17: "link_color_dark",
+	18: "background_color_dark",
+	19: "button_text_color_dark",
+	20: "button_color_dark",
+	21: "button_border_radius",
+	22: "card_border_radius",
+	23: "input_border_radius",
+	24: "theme_code",
+	25: "color_scheme",
+	26: "created_on",
 }
 
 // Decode decodes GetEnvironmentResponseEnvironment from json.
@@ -19980,6 +23874,16 @@ func (s *GetEnvironmentResponseEnvironment) Decode(d *jx.Decoder) error {
 				return nil
 			}(); err != nil {
 				return errors.Wrap(err, "decode field \"google_analytics_tag\"")
+			}
+		case "contentsquare_tag_id":
+			if err := func() error {
+				s.ContentsquareTagID.Reset()
+				if err := s.ContentsquareTagID.Decode(d); err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return errors.Wrap(err, "decode field \"contentsquare_tag_id\"")
 			}
 		case "is_default":
 			if err := func() error {
@@ -23301,6 +27205,1063 @@ func (s *GetOrganizationForbidden) UnmarshalJSON(data []byte) error {
 	return s.Decode(d)
 }
 
+// Encode encodes GetOrganizationInviteBadRequest as json.
+func (s *GetOrganizationInviteBadRequest) Encode(e *jx.Encoder) {
+	unwrapped := (*ErrorResponse)(s)
+
+	unwrapped.Encode(e)
+}
+
+// Decode decodes GetOrganizationInviteBadRequest from json.
+func (s *GetOrganizationInviteBadRequest) Decode(d *jx.Decoder) error {
+	if s == nil {
+		return errors.New("invalid: unable to decode GetOrganizationInviteBadRequest to nil")
+	}
+	var unwrapped ErrorResponse
+	if err := func() error {
+		if err := unwrapped.Decode(d); err != nil {
+			return err
+		}
+		return nil
+	}(); err != nil {
+		return errors.Wrap(err, "alias")
+	}
+	*s = GetOrganizationInviteBadRequest(unwrapped)
+	return nil
+}
+
+// MarshalJSON implements stdjson.Marshaler.
+func (s *GetOrganizationInviteBadRequest) MarshalJSON() ([]byte, error) {
+	e := jx.Encoder{}
+	s.Encode(&e)
+	return e.Bytes(), nil
+}
+
+// UnmarshalJSON implements stdjson.Unmarshaler.
+func (s *GetOrganizationInviteBadRequest) UnmarshalJSON(data []byte) error {
+	d := jx.DecodeBytes(data)
+	return s.Decode(d)
+}
+
+// Encode encodes GetOrganizationInviteForbidden as json.
+func (s *GetOrganizationInviteForbidden) Encode(e *jx.Encoder) {
+	unwrapped := (*ErrorResponse)(s)
+
+	unwrapped.Encode(e)
+}
+
+// Decode decodes GetOrganizationInviteForbidden from json.
+func (s *GetOrganizationInviteForbidden) Decode(d *jx.Decoder) error {
+	if s == nil {
+		return errors.New("invalid: unable to decode GetOrganizationInviteForbidden to nil")
+	}
+	var unwrapped ErrorResponse
+	if err := func() error {
+		if err := unwrapped.Decode(d); err != nil {
+			return err
+		}
+		return nil
+	}(); err != nil {
+		return errors.Wrap(err, "alias")
+	}
+	*s = GetOrganizationInviteForbidden(unwrapped)
+	return nil
+}
+
+// MarshalJSON implements stdjson.Marshaler.
+func (s *GetOrganizationInviteForbidden) MarshalJSON() ([]byte, error) {
+	e := jx.Encoder{}
+	s.Encode(&e)
+	return e.Bytes(), nil
+}
+
+// UnmarshalJSON implements stdjson.Unmarshaler.
+func (s *GetOrganizationInviteForbidden) UnmarshalJSON(data []byte) error {
+	d := jx.DecodeBytes(data)
+	return s.Decode(d)
+}
+
+// Encode implements json.Marshaler.
+func (s *GetOrganizationInviteResponse) Encode(e *jx.Encoder) {
+	e.ObjStart()
+	s.encodeFields(e)
+	e.ObjEnd()
+}
+
+// encodeFields encodes fields.
+func (s *GetOrganizationInviteResponse) encodeFields(e *jx.Encoder) {
+	{
+		if s.Message.Set {
+			e.FieldStart("message")
+			s.Message.Encode(e)
+		}
+	}
+	{
+		if s.ID.Set {
+			e.FieldStart("id")
+			s.ID.Encode(e)
+		}
+	}
+	{
+		if s.Code.Set {
+			e.FieldStart("code")
+			s.Code.Encode(e)
+		}
+	}
+	{
+		if s.Email.Set {
+			e.FieldStart("email")
+			s.Email.Encode(e)
+		}
+	}
+	{
+		if s.FirstName.Set {
+			e.FieldStart("first_name")
+			s.FirstName.Encode(e)
+		}
+	}
+	{
+		if s.LastName.Set {
+			e.FieldStart("last_name")
+			s.LastName.Encode(e)
+		}
+	}
+	{
+		if s.FullName.Set {
+			e.FieldStart("full_name")
+			s.FullName.Encode(e)
+		}
+	}
+	{
+		if s.CreatedOn.Set {
+			e.FieldStart("created_on")
+			s.CreatedOn.Encode(e, json.EncodeDateTime)
+		}
+	}
+	{
+		if s.IsSent.Set {
+			e.FieldStart("is_sent")
+			s.IsSent.Encode(e)
+		}
+	}
+	{
+		if s.AcceptedOn.Set {
+			e.FieldStart("accepted_on")
+			s.AcceptedOn.Encode(e, json.EncodeDateTime)
+		}
+	}
+	{
+		if s.Roles != nil {
+			e.FieldStart("roles")
+			e.ArrStart()
+			for _, elem := range s.Roles {
+				elem.Encode(e)
+			}
+			e.ArrEnd()
+		}
+	}
+	{
+		if s.IsRevoked.Set {
+			e.FieldStart("is_revoked")
+			s.IsRevoked.Encode(e)
+		}
+	}
+	{
+		if s.InviteLink.Set {
+			e.FieldStart("invite_link")
+			s.InviteLink.Encode(e)
+		}
+	}
+}
+
+var jsonFieldsNameOfGetOrganizationInviteResponse = [13]string{
+	0:  "message",
+	1:  "id",
+	2:  "code",
+	3:  "email",
+	4:  "first_name",
+	5:  "last_name",
+	6:  "full_name",
+	7:  "created_on",
+	8:  "is_sent",
+	9:  "accepted_on",
+	10: "roles",
+	11: "is_revoked",
+	12: "invite_link",
+}
+
+// Decode decodes GetOrganizationInviteResponse from json.
+func (s *GetOrganizationInviteResponse) Decode(d *jx.Decoder) error {
+	if s == nil {
+		return errors.New("invalid: unable to decode GetOrganizationInviteResponse to nil")
+	}
+
+	if err := d.ObjBytes(func(d *jx.Decoder, k []byte) error {
+		switch string(k) {
+		case "message":
+			if err := func() error {
+				s.Message.Reset()
+				if err := s.Message.Decode(d); err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return errors.Wrap(err, "decode field \"message\"")
+			}
+		case "id":
+			if err := func() error {
+				s.ID.Reset()
+				if err := s.ID.Decode(d); err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return errors.Wrap(err, "decode field \"id\"")
+			}
+		case "code":
+			if err := func() error {
+				s.Code.Reset()
+				if err := s.Code.Decode(d); err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return errors.Wrap(err, "decode field \"code\"")
+			}
+		case "email":
+			if err := func() error {
+				s.Email.Reset()
+				if err := s.Email.Decode(d); err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return errors.Wrap(err, "decode field \"email\"")
+			}
+		case "first_name":
+			if err := func() error {
+				s.FirstName.Reset()
+				if err := s.FirstName.Decode(d); err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return errors.Wrap(err, "decode field \"first_name\"")
+			}
+		case "last_name":
+			if err := func() error {
+				s.LastName.Reset()
+				if err := s.LastName.Decode(d); err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return errors.Wrap(err, "decode field \"last_name\"")
+			}
+		case "full_name":
+			if err := func() error {
+				s.FullName.Reset()
+				if err := s.FullName.Decode(d); err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return errors.Wrap(err, "decode field \"full_name\"")
+			}
+		case "created_on":
+			if err := func() error {
+				s.CreatedOn.Reset()
+				if err := s.CreatedOn.Decode(d, json.DecodeDateTime); err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return errors.Wrap(err, "decode field \"created_on\"")
+			}
+		case "is_sent":
+			if err := func() error {
+				s.IsSent.Reset()
+				if err := s.IsSent.Decode(d); err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return errors.Wrap(err, "decode field \"is_sent\"")
+			}
+		case "accepted_on":
+			if err := func() error {
+				s.AcceptedOn.Reset()
+				if err := s.AcceptedOn.Decode(d, json.DecodeDateTime); err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return errors.Wrap(err, "decode field \"accepted_on\"")
+			}
+		case "roles":
+			if err := func() error {
+				s.Roles = make([]GetOrganizationInviteResponseRolesItem, 0)
+				if err := d.Arr(func(d *jx.Decoder) error {
+					var elem GetOrganizationInviteResponseRolesItem
+					if err := elem.Decode(d); err != nil {
+						return err
+					}
+					s.Roles = append(s.Roles, elem)
+					return nil
+				}); err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return errors.Wrap(err, "decode field \"roles\"")
+			}
+		case "is_revoked":
+			if err := func() error {
+				s.IsRevoked.Reset()
+				if err := s.IsRevoked.Decode(d); err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return errors.Wrap(err, "decode field \"is_revoked\"")
+			}
+		case "invite_link":
+			if err := func() error {
+				s.InviteLink.Reset()
+				if err := s.InviteLink.Decode(d); err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return errors.Wrap(err, "decode field \"invite_link\"")
+			}
+		default:
+			return d.Skip()
+		}
+		return nil
+	}); err != nil {
+		return errors.Wrap(err, "decode GetOrganizationInviteResponse")
+	}
+
+	return nil
+}
+
+// MarshalJSON implements stdjson.Marshaler.
+func (s *GetOrganizationInviteResponse) MarshalJSON() ([]byte, error) {
+	e := jx.Encoder{}
+	s.Encode(&e)
+	return e.Bytes(), nil
+}
+
+// UnmarshalJSON implements stdjson.Unmarshaler.
+func (s *GetOrganizationInviteResponse) UnmarshalJSON(data []byte) error {
+	d := jx.DecodeBytes(data)
+	return s.Decode(d)
+}
+
+// Encode implements json.Marshaler.
+func (s *GetOrganizationInviteResponseRolesItem) Encode(e *jx.Encoder) {
+	e.ObjStart()
+	s.encodeFields(e)
+	e.ObjEnd()
+}
+
+// encodeFields encodes fields.
+func (s *GetOrganizationInviteResponseRolesItem) encodeFields(e *jx.Encoder) {
+	{
+		if s.Key.Set {
+			e.FieldStart("key")
+			s.Key.Encode(e)
+		}
+	}
+	{
+		if s.Name.Set {
+			e.FieldStart("name")
+			s.Name.Encode(e)
+		}
+	}
+}
+
+var jsonFieldsNameOfGetOrganizationInviteResponseRolesItem = [2]string{
+	0: "key",
+	1: "name",
+}
+
+// Decode decodes GetOrganizationInviteResponseRolesItem from json.
+func (s *GetOrganizationInviteResponseRolesItem) Decode(d *jx.Decoder) error {
+	if s == nil {
+		return errors.New("invalid: unable to decode GetOrganizationInviteResponseRolesItem to nil")
+	}
+
+	if err := d.ObjBytes(func(d *jx.Decoder, k []byte) error {
+		switch string(k) {
+		case "key":
+			if err := func() error {
+				s.Key.Reset()
+				if err := s.Key.Decode(d); err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return errors.Wrap(err, "decode field \"key\"")
+			}
+		case "name":
+			if err := func() error {
+				s.Name.Reset()
+				if err := s.Name.Decode(d); err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return errors.Wrap(err, "decode field \"name\"")
+			}
+		default:
+			return d.Skip()
+		}
+		return nil
+	}); err != nil {
+		return errors.Wrap(err, "decode GetOrganizationInviteResponseRolesItem")
+	}
+
+	return nil
+}
+
+// MarshalJSON implements stdjson.Marshaler.
+func (s *GetOrganizationInviteResponseRolesItem) MarshalJSON() ([]byte, error) {
+	e := jx.Encoder{}
+	s.Encode(&e)
+	return e.Bytes(), nil
+}
+
+// UnmarshalJSON implements stdjson.Unmarshaler.
+func (s *GetOrganizationInviteResponseRolesItem) UnmarshalJSON(data []byte) error {
+	d := jx.DecodeBytes(data)
+	return s.Decode(d)
+}
+
+// Encode encodes GetOrganizationInviteTooManyRequests as json.
+func (s *GetOrganizationInviteTooManyRequests) Encode(e *jx.Encoder) {
+	unwrapped := (*ErrorResponse)(s)
+
+	unwrapped.Encode(e)
+}
+
+// Decode decodes GetOrganizationInviteTooManyRequests from json.
+func (s *GetOrganizationInviteTooManyRequests) Decode(d *jx.Decoder) error {
+	if s == nil {
+		return errors.New("invalid: unable to decode GetOrganizationInviteTooManyRequests to nil")
+	}
+	var unwrapped ErrorResponse
+	if err := func() error {
+		if err := unwrapped.Decode(d); err != nil {
+			return err
+		}
+		return nil
+	}(); err != nil {
+		return errors.Wrap(err, "alias")
+	}
+	*s = GetOrganizationInviteTooManyRequests(unwrapped)
+	return nil
+}
+
+// MarshalJSON implements stdjson.Marshaler.
+func (s *GetOrganizationInviteTooManyRequests) MarshalJSON() ([]byte, error) {
+	e := jx.Encoder{}
+	s.Encode(&e)
+	return e.Bytes(), nil
+}
+
+// UnmarshalJSON implements stdjson.Unmarshaler.
+func (s *GetOrganizationInviteTooManyRequests) UnmarshalJSON(data []byte) error {
+	d := jx.DecodeBytes(data)
+	return s.Decode(d)
+}
+
+// Encode encodes GetOrganizationInvitesBadRequest as json.
+func (s *GetOrganizationInvitesBadRequest) Encode(e *jx.Encoder) {
+	unwrapped := (*ErrorResponse)(s)
+
+	unwrapped.Encode(e)
+}
+
+// Decode decodes GetOrganizationInvitesBadRequest from json.
+func (s *GetOrganizationInvitesBadRequest) Decode(d *jx.Decoder) error {
+	if s == nil {
+		return errors.New("invalid: unable to decode GetOrganizationInvitesBadRequest to nil")
+	}
+	var unwrapped ErrorResponse
+	if err := func() error {
+		if err := unwrapped.Decode(d); err != nil {
+			return err
+		}
+		return nil
+	}(); err != nil {
+		return errors.Wrap(err, "alias")
+	}
+	*s = GetOrganizationInvitesBadRequest(unwrapped)
+	return nil
+}
+
+// MarshalJSON implements stdjson.Marshaler.
+func (s *GetOrganizationInvitesBadRequest) MarshalJSON() ([]byte, error) {
+	e := jx.Encoder{}
+	s.Encode(&e)
+	return e.Bytes(), nil
+}
+
+// UnmarshalJSON implements stdjson.Unmarshaler.
+func (s *GetOrganizationInvitesBadRequest) UnmarshalJSON(data []byte) error {
+	d := jx.DecodeBytes(data)
+	return s.Decode(d)
+}
+
+// Encode encodes GetOrganizationInvitesForbidden as json.
+func (s *GetOrganizationInvitesForbidden) Encode(e *jx.Encoder) {
+	unwrapped := (*ErrorResponse)(s)
+
+	unwrapped.Encode(e)
+}
+
+// Decode decodes GetOrganizationInvitesForbidden from json.
+func (s *GetOrganizationInvitesForbidden) Decode(d *jx.Decoder) error {
+	if s == nil {
+		return errors.New("invalid: unable to decode GetOrganizationInvitesForbidden to nil")
+	}
+	var unwrapped ErrorResponse
+	if err := func() error {
+		if err := unwrapped.Decode(d); err != nil {
+			return err
+		}
+		return nil
+	}(); err != nil {
+		return errors.Wrap(err, "alias")
+	}
+	*s = GetOrganizationInvitesForbidden(unwrapped)
+	return nil
+}
+
+// MarshalJSON implements stdjson.Marshaler.
+func (s *GetOrganizationInvitesForbidden) MarshalJSON() ([]byte, error) {
+	e := jx.Encoder{}
+	s.Encode(&e)
+	return e.Bytes(), nil
+}
+
+// UnmarshalJSON implements stdjson.Unmarshaler.
+func (s *GetOrganizationInvitesForbidden) UnmarshalJSON(data []byte) error {
+	d := jx.DecodeBytes(data)
+	return s.Decode(d)
+}
+
+// Encode implements json.Marshaler.
+func (s *GetOrganizationInvitesResponse) Encode(e *jx.Encoder) {
+	e.ObjStart()
+	s.encodeFields(e)
+	e.ObjEnd()
+}
+
+// encodeFields encodes fields.
+func (s *GetOrganizationInvitesResponse) encodeFields(e *jx.Encoder) {
+	{
+		if s.Code.Set {
+			e.FieldStart("code")
+			s.Code.Encode(e)
+		}
+	}
+	{
+		if s.Message.Set {
+			e.FieldStart("message")
+			s.Message.Encode(e)
+		}
+	}
+	{
+		if s.Invites != nil {
+			e.FieldStart("invites")
+			e.ArrStart()
+			for _, elem := range s.Invites {
+				elem.Encode(e)
+			}
+			e.ArrEnd()
+		}
+	}
+	{
+		if s.NextToken.Set {
+			e.FieldStart("next_token")
+			s.NextToken.Encode(e)
+		}
+	}
+}
+
+var jsonFieldsNameOfGetOrganizationInvitesResponse = [4]string{
+	0: "code",
+	1: "message",
+	2: "invites",
+	3: "next_token",
+}
+
+// Decode decodes GetOrganizationInvitesResponse from json.
+func (s *GetOrganizationInvitesResponse) Decode(d *jx.Decoder) error {
+	if s == nil {
+		return errors.New("invalid: unable to decode GetOrganizationInvitesResponse to nil")
+	}
+
+	if err := d.ObjBytes(func(d *jx.Decoder, k []byte) error {
+		switch string(k) {
+		case "code":
+			if err := func() error {
+				s.Code.Reset()
+				if err := s.Code.Decode(d); err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return errors.Wrap(err, "decode field \"code\"")
+			}
+		case "message":
+			if err := func() error {
+				s.Message.Reset()
+				if err := s.Message.Decode(d); err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return errors.Wrap(err, "decode field \"message\"")
+			}
+		case "invites":
+			if err := func() error {
+				s.Invites = make([]OrganizationInvite, 0)
+				if err := d.Arr(func(d *jx.Decoder) error {
+					var elem OrganizationInvite
+					if err := elem.Decode(d); err != nil {
+						return err
+					}
+					s.Invites = append(s.Invites, elem)
+					return nil
+				}); err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return errors.Wrap(err, "decode field \"invites\"")
+			}
+		case "next_token":
+			if err := func() error {
+				s.NextToken.Reset()
+				if err := s.NextToken.Decode(d); err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return errors.Wrap(err, "decode field \"next_token\"")
+			}
+		default:
+			return d.Skip()
+		}
+		return nil
+	}); err != nil {
+		return errors.Wrap(err, "decode GetOrganizationInvitesResponse")
+	}
+
+	return nil
+}
+
+// MarshalJSON implements stdjson.Marshaler.
+func (s *GetOrganizationInvitesResponse) MarshalJSON() ([]byte, error) {
+	e := jx.Encoder{}
+	s.Encode(&e)
+	return e.Bytes(), nil
+}
+
+// UnmarshalJSON implements stdjson.Unmarshaler.
+func (s *GetOrganizationInvitesResponse) UnmarshalJSON(data []byte) error {
+	d := jx.DecodeBytes(data)
+	return s.Decode(d)
+}
+
+// Encode encodes GetOrganizationInvitesTooManyRequests as json.
+func (s *GetOrganizationInvitesTooManyRequests) Encode(e *jx.Encoder) {
+	unwrapped := (*ErrorResponse)(s)
+
+	unwrapped.Encode(e)
+}
+
+// Decode decodes GetOrganizationInvitesTooManyRequests from json.
+func (s *GetOrganizationInvitesTooManyRequests) Decode(d *jx.Decoder) error {
+	if s == nil {
+		return errors.New("invalid: unable to decode GetOrganizationInvitesTooManyRequests to nil")
+	}
+	var unwrapped ErrorResponse
+	if err := func() error {
+		if err := unwrapped.Decode(d); err != nil {
+			return err
+		}
+		return nil
+	}(); err != nil {
+		return errors.Wrap(err, "alias")
+	}
+	*s = GetOrganizationInvitesTooManyRequests(unwrapped)
+	return nil
+}
+
+// MarshalJSON implements stdjson.Marshaler.
+func (s *GetOrganizationInvitesTooManyRequests) MarshalJSON() ([]byte, error) {
+	e := jx.Encoder{}
+	s.Encode(&e)
+	return e.Bytes(), nil
+}
+
+// UnmarshalJSON implements stdjson.Unmarshaler.
+func (s *GetOrganizationInvitesTooManyRequests) UnmarshalJSON(data []byte) error {
+	d := jx.DecodeBytes(data)
+	return s.Decode(d)
+}
+
+// Encode encodes GetOrganizationPasskeyBadRequest as json.
+func (s *GetOrganizationPasskeyBadRequest) Encode(e *jx.Encoder) {
+	unwrapped := (*ErrorResponse)(s)
+
+	unwrapped.Encode(e)
+}
+
+// Decode decodes GetOrganizationPasskeyBadRequest from json.
+func (s *GetOrganizationPasskeyBadRequest) Decode(d *jx.Decoder) error {
+	if s == nil {
+		return errors.New("invalid: unable to decode GetOrganizationPasskeyBadRequest to nil")
+	}
+	var unwrapped ErrorResponse
+	if err := func() error {
+		if err := unwrapped.Decode(d); err != nil {
+			return err
+		}
+		return nil
+	}(); err != nil {
+		return errors.Wrap(err, "alias")
+	}
+	*s = GetOrganizationPasskeyBadRequest(unwrapped)
+	return nil
+}
+
+// MarshalJSON implements stdjson.Marshaler.
+func (s *GetOrganizationPasskeyBadRequest) MarshalJSON() ([]byte, error) {
+	e := jx.Encoder{}
+	s.Encode(&e)
+	return e.Bytes(), nil
+}
+
+// UnmarshalJSON implements stdjson.Unmarshaler.
+func (s *GetOrganizationPasskeyBadRequest) UnmarshalJSON(data []byte) error {
+	d := jx.DecodeBytes(data)
+	return s.Decode(d)
+}
+
+// Encode encodes GetOrganizationPasskeyForbidden as json.
+func (s *GetOrganizationPasskeyForbidden) Encode(e *jx.Encoder) {
+	unwrapped := (*ErrorResponse)(s)
+
+	unwrapped.Encode(e)
+}
+
+// Decode decodes GetOrganizationPasskeyForbidden from json.
+func (s *GetOrganizationPasskeyForbidden) Decode(d *jx.Decoder) error {
+	if s == nil {
+		return errors.New("invalid: unable to decode GetOrganizationPasskeyForbidden to nil")
+	}
+	var unwrapped ErrorResponse
+	if err := func() error {
+		if err := unwrapped.Decode(d); err != nil {
+			return err
+		}
+		return nil
+	}(); err != nil {
+		return errors.Wrap(err, "alias")
+	}
+	*s = GetOrganizationPasskeyForbidden(unwrapped)
+	return nil
+}
+
+// MarshalJSON implements stdjson.Marshaler.
+func (s *GetOrganizationPasskeyForbidden) MarshalJSON() ([]byte, error) {
+	e := jx.Encoder{}
+	s.Encode(&e)
+	return e.Bytes(), nil
+}
+
+// UnmarshalJSON implements stdjson.Unmarshaler.
+func (s *GetOrganizationPasskeyForbidden) UnmarshalJSON(data []byte) error {
+	d := jx.DecodeBytes(data)
+	return s.Decode(d)
+}
+
+// Encode implements json.Marshaler.
+func (s *GetOrganizationPasskeyOK) Encode(e *jx.Encoder) {
+	e.ObjStart()
+	s.encodeFields(e)
+	e.ObjEnd()
+}
+
+// encodeFields encodes fields.
+func (s *GetOrganizationPasskeyOK) encodeFields(e *jx.Encoder) {
+	{
+		if s.Message.Set {
+			e.FieldStart("message")
+			s.Message.Encode(e)
+		}
+	}
+	{
+		if s.Code.Set {
+			e.FieldStart("code")
+			s.Code.Encode(e)
+		}
+	}
+	{
+		if s.Enabled.Set {
+			e.FieldStart("enabled")
+			s.Enabled.Encode(e)
+		}
+	}
+	{
+		if s.Policy.Set {
+			e.FieldStart("policy")
+			s.Policy.Encode(e)
+		}
+	}
+	{
+		if s.IsOverrideEnvironmentPasskeySettings.Set {
+			e.FieldStart("is_override_environment_passkey_settings")
+			s.IsOverrideEnvironmentPasskeySettings.Encode(e)
+		}
+	}
+	{
+		if s.EnvironmentPolicy.Set {
+			e.FieldStart("environment_policy")
+			s.EnvironmentPolicy.Encode(e)
+		}
+	}
+}
+
+var jsonFieldsNameOfGetOrganizationPasskeyOK = [6]string{
+	0: "message",
+	1: "code",
+	2: "enabled",
+	3: "policy",
+	4: "is_override_environment_passkey_settings",
+	5: "environment_policy",
+}
+
+// Decode decodes GetOrganizationPasskeyOK from json.
+func (s *GetOrganizationPasskeyOK) Decode(d *jx.Decoder) error {
+	if s == nil {
+		return errors.New("invalid: unable to decode GetOrganizationPasskeyOK to nil")
+	}
+
+	if err := d.ObjBytes(func(d *jx.Decoder, k []byte) error {
+		switch string(k) {
+		case "message":
+			if err := func() error {
+				s.Message.Reset()
+				if err := s.Message.Decode(d); err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return errors.Wrap(err, "decode field \"message\"")
+			}
+		case "code":
+			if err := func() error {
+				s.Code.Reset()
+				if err := s.Code.Decode(d); err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return errors.Wrap(err, "decode field \"code\"")
+			}
+		case "enabled":
+			if err := func() error {
+				s.Enabled.Reset()
+				if err := s.Enabled.Decode(d); err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return errors.Wrap(err, "decode field \"enabled\"")
+			}
+		case "policy":
+			if err := func() error {
+				s.Policy.Reset()
+				if err := s.Policy.Decode(d); err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return errors.Wrap(err, "decode field \"policy\"")
+			}
+		case "is_override_environment_passkey_settings":
+			if err := func() error {
+				s.IsOverrideEnvironmentPasskeySettings.Reset()
+				if err := s.IsOverrideEnvironmentPasskeySettings.Decode(d); err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return errors.Wrap(err, "decode field \"is_override_environment_passkey_settings\"")
+			}
+		case "environment_policy":
+			if err := func() error {
+				s.EnvironmentPolicy.Reset()
+				if err := s.EnvironmentPolicy.Decode(d); err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return errors.Wrap(err, "decode field \"environment_policy\"")
+			}
+		default:
+			return d.Skip()
+		}
+		return nil
+	}); err != nil {
+		return errors.Wrap(err, "decode GetOrganizationPasskeyOK")
+	}
+
+	return nil
+}
+
+// MarshalJSON implements stdjson.Marshaler.
+func (s *GetOrganizationPasskeyOK) MarshalJSON() ([]byte, error) {
+	e := jx.Encoder{}
+	s.Encode(&e)
+	return e.Bytes(), nil
+}
+
+// UnmarshalJSON implements stdjson.Unmarshaler.
+func (s *GetOrganizationPasskeyOK) UnmarshalJSON(data []byte) error {
+	d := jx.DecodeBytes(data)
+	return s.Decode(d)
+}
+
+// Encode encodes GetOrganizationPasskeyOKEnvironmentPolicy as json.
+func (s GetOrganizationPasskeyOKEnvironmentPolicy) Encode(e *jx.Encoder) {
+	e.Str(string(s))
+}
+
+// Decode decodes GetOrganizationPasskeyOKEnvironmentPolicy from json.
+func (s *GetOrganizationPasskeyOKEnvironmentPolicy) Decode(d *jx.Decoder) error {
+	if s == nil {
+		return errors.New("invalid: unable to decode GetOrganizationPasskeyOKEnvironmentPolicy to nil")
+	}
+	v, err := d.StrBytes()
+	if err != nil {
+		return err
+	}
+	// Try to use constant string.
+	switch GetOrganizationPasskeyOKEnvironmentPolicy(v) {
+	case GetOrganizationPasskeyOKEnvironmentPolicyOff:
+		*s = GetOrganizationPasskeyOKEnvironmentPolicyOff
+	case GetOrganizationPasskeyOKEnvironmentPolicyOptional:
+		*s = GetOrganizationPasskeyOKEnvironmentPolicyOptional
+	case GetOrganizationPasskeyOKEnvironmentPolicyMandatory:
+		*s = GetOrganizationPasskeyOKEnvironmentPolicyMandatory
+	default:
+		*s = GetOrganizationPasskeyOKEnvironmentPolicy(v)
+	}
+
+	return nil
+}
+
+// MarshalJSON implements stdjson.Marshaler.
+func (s GetOrganizationPasskeyOKEnvironmentPolicy) MarshalJSON() ([]byte, error) {
+	e := jx.Encoder{}
+	s.Encode(&e)
+	return e.Bytes(), nil
+}
+
+// UnmarshalJSON implements stdjson.Unmarshaler.
+func (s *GetOrganizationPasskeyOKEnvironmentPolicy) UnmarshalJSON(data []byte) error {
+	d := jx.DecodeBytes(data)
+	return s.Decode(d)
+}
+
+// Encode encodes GetOrganizationPasskeyOKPolicy as json.
+func (s GetOrganizationPasskeyOKPolicy) Encode(e *jx.Encoder) {
+	e.Str(string(s))
+}
+
+// Decode decodes GetOrganizationPasskeyOKPolicy from json.
+func (s *GetOrganizationPasskeyOKPolicy) Decode(d *jx.Decoder) error {
+	if s == nil {
+		return errors.New("invalid: unable to decode GetOrganizationPasskeyOKPolicy to nil")
+	}
+	v, err := d.StrBytes()
+	if err != nil {
+		return err
+	}
+	// Try to use constant string.
+	switch GetOrganizationPasskeyOKPolicy(v) {
+	case GetOrganizationPasskeyOKPolicyOff:
+		*s = GetOrganizationPasskeyOKPolicyOff
+	case GetOrganizationPasskeyOKPolicyOptional:
+		*s = GetOrganizationPasskeyOKPolicyOptional
+	case GetOrganizationPasskeyOKPolicyMandatory:
+		*s = GetOrganizationPasskeyOKPolicyMandatory
+	default:
+		*s = GetOrganizationPasskeyOKPolicy(v)
+	}
+
+	return nil
+}
+
+// MarshalJSON implements stdjson.Marshaler.
+func (s GetOrganizationPasskeyOKPolicy) MarshalJSON() ([]byte, error) {
+	e := jx.Encoder{}
+	s.Encode(&e)
+	return e.Bytes(), nil
+}
+
+// UnmarshalJSON implements stdjson.Unmarshaler.
+func (s *GetOrganizationPasskeyOKPolicy) UnmarshalJSON(data []byte) error {
+	d := jx.DecodeBytes(data)
+	return s.Decode(d)
+}
+
+// Encode encodes GetOrganizationPasskeyTooManyRequests as json.
+func (s *GetOrganizationPasskeyTooManyRequests) Encode(e *jx.Encoder) {
+	unwrapped := (*ErrorResponse)(s)
+
+	unwrapped.Encode(e)
+}
+
+// Decode decodes GetOrganizationPasskeyTooManyRequests from json.
+func (s *GetOrganizationPasskeyTooManyRequests) Decode(d *jx.Decoder) error {
+	if s == nil {
+		return errors.New("invalid: unable to decode GetOrganizationPasskeyTooManyRequests to nil")
+	}
+	var unwrapped ErrorResponse
+	if err := func() error {
+		if err := unwrapped.Decode(d); err != nil {
+			return err
+		}
+		return nil
+	}(); err != nil {
+		return errors.Wrap(err, "alias")
+	}
+	*s = GetOrganizationPasskeyTooManyRequests(unwrapped)
+	return nil
+}
+
+// MarshalJSON implements stdjson.Marshaler.
+func (s *GetOrganizationPasskeyTooManyRequests) MarshalJSON() ([]byte, error) {
+	e := jx.Encoder{}
+	s.Encode(&e)
+	return e.Bytes(), nil
+}
+
+// UnmarshalJSON implements stdjson.Unmarshaler.
+func (s *GetOrganizationPasskeyTooManyRequests) UnmarshalJSON(data []byte) error {
+	d := jx.DecodeBytes(data)
+	return s.Decode(d)
+}
+
 // Encode implements json.Marshaler.
 func (s *GetOrganizationResponse) Encode(e *jx.Encoder) {
 	e.ObjStart()
@@ -23368,6 +28329,16 @@ func (s *GetOrganizationResponse) encodeFields(e *jx.Encoder) {
 		if s.FaviconFallback.Set {
 			e.FieldStart("favicon_fallback")
 			s.FaviconFallback.Encode(e)
+		}
+	}
+	{
+		if s.AllowedDomains != nil {
+			e.FieldStart("allowed_domains")
+			e.ArrStart()
+			for _, elem := range s.AllowedDomains {
+				e.Str(elem)
+			}
+			e.ArrEnd()
 		}
 	}
 	{
@@ -23473,6 +28444,18 @@ func (s *GetOrganizationResponse) encodeFields(e *jx.Encoder) {
 		}
 	}
 	{
+		if s.IsSuspended.Set {
+			e.FieldStart("is_suspended")
+			s.IsSuspended.Encode(e)
+		}
+	}
+	{
+		if s.SuspendedOn.Set {
+			e.FieldStart("suspended_on")
+			s.SuspendedOn.Encode(e)
+		}
+	}
+	{
 		if s.Billing.Set {
 			e.FieldStart("billing")
 			s.Billing.Encode(e)
@@ -23480,7 +28463,7 @@ func (s *GetOrganizationResponse) encodeFields(e *jx.Encoder) {
 	}
 }
 
-var jsonFieldsNameOfGetOrganizationResponse = [28]string{
+var jsonFieldsNameOfGetOrganizationResponse = [31]string{
 	0:  "code",
 	1:  "name",
 	2:  "handle",
@@ -23491,24 +28474,27 @@ var jsonFieldsNameOfGetOrganizationResponse = [28]string{
 	7:  "logo_dark",
 	8:  "favicon_svg",
 	9:  "favicon_fallback",
-	10: "link_color",
-	11: "background_color",
-	12: "button_color",
-	13: "button_text_color",
-	14: "link_color_dark",
-	15: "background_color_dark",
-	16: "button_text_color_dark",
-	17: "button_color_dark",
-	18: "button_border_radius",
-	19: "card_border_radius",
-	20: "input_border_radius",
-	21: "theme_code",
-	22: "color_scheme",
-	23: "created_on",
-	24: "is_allow_registrations",
-	25: "sender_name",
-	26: "sender_email",
-	27: "billing",
+	10: "allowed_domains",
+	11: "link_color",
+	12: "background_color",
+	13: "button_color",
+	14: "button_text_color",
+	15: "link_color_dark",
+	16: "background_color_dark",
+	17: "button_text_color_dark",
+	18: "button_color_dark",
+	19: "button_border_radius",
+	20: "card_border_radius",
+	21: "input_border_radius",
+	22: "theme_code",
+	23: "color_scheme",
+	24: "created_on",
+	25: "is_allow_registrations",
+	26: "sender_name",
+	27: "sender_email",
+	28: "is_suspended",
+	29: "suspended_on",
+	30: "billing",
 }
 
 // Decode decodes GetOrganizationResponse from json.
@@ -23618,6 +28604,25 @@ func (s *GetOrganizationResponse) Decode(d *jx.Decoder) error {
 				return nil
 			}(); err != nil {
 				return errors.Wrap(err, "decode field \"favicon_fallback\"")
+			}
+		case "allowed_domains":
+			if err := func() error {
+				s.AllowedDomains = make([]string, 0)
+				if err := d.Arr(func(d *jx.Decoder) error {
+					var elem string
+					v, err := d.Str()
+					elem = string(v)
+					if err != nil {
+						return err
+					}
+					s.AllowedDomains = append(s.AllowedDomains, elem)
+					return nil
+				}); err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return errors.Wrap(err, "decode field \"allowed_domains\"")
 			}
 		case "link_color":
 			if err := func() error {
@@ -23788,6 +28793,26 @@ func (s *GetOrganizationResponse) Decode(d *jx.Decoder) error {
 				return nil
 			}(); err != nil {
 				return errors.Wrap(err, "decode field \"sender_email\"")
+			}
+		case "is_suspended":
+			if err := func() error {
+				s.IsSuspended.Reset()
+				if err := s.IsSuspended.Decode(d); err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return errors.Wrap(err, "decode field \"is_suspended\"")
+			}
+		case "suspended_on":
+			if err := func() error {
+				s.SuspendedOn.Reset()
+				if err := s.SuspendedOn.Decode(d); err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return errors.Wrap(err, "decode field \"suspended_on\"")
 			}
 		case "billing":
 			if err := func() error {
@@ -24854,6 +29879,422 @@ func (s *GetOrganizationResponseThemeCode) UnmarshalJSON(data []byte) error {
 	return s.Decode(d)
 }
 
+// Encode implements json.Marshaler.
+func (s *GetOrganizationRoleActiveUsersCountResponse) Encode(e *jx.Encoder) {
+	e.ObjStart()
+	s.encodeFields(e)
+	e.ObjEnd()
+}
+
+// encodeFields encodes fields.
+func (s *GetOrganizationRoleActiveUsersCountResponse) encodeFields(e *jx.Encoder) {
+	{
+		if s.Code.Set {
+			e.FieldStart("code")
+			s.Code.Encode(e)
+		}
+	}
+	{
+		if s.Message.Set {
+			e.FieldStart("message")
+			s.Message.Encode(e)
+		}
+	}
+	{
+		if s.ActiveUsersCount.Set {
+			e.FieldStart("active_users_count")
+			s.ActiveUsersCount.Encode(e)
+		}
+	}
+	{
+		if s.DateTimeFrom.Set {
+			e.FieldStart("date_time_from")
+			s.DateTimeFrom.Encode(e, json.EncodeDateTime)
+		}
+	}
+	{
+		if s.DateTimeTo.Set {
+			e.FieldStart("date_time_to")
+			s.DateTimeTo.Encode(e, json.EncodeDateTime)
+		}
+	}
+}
+
+var jsonFieldsNameOfGetOrganizationRoleActiveUsersCountResponse = [5]string{
+	0: "code",
+	1: "message",
+	2: "active_users_count",
+	3: "date_time_from",
+	4: "date_time_to",
+}
+
+// Decode decodes GetOrganizationRoleActiveUsersCountResponse from json.
+func (s *GetOrganizationRoleActiveUsersCountResponse) Decode(d *jx.Decoder) error {
+	if s == nil {
+		return errors.New("invalid: unable to decode GetOrganizationRoleActiveUsersCountResponse to nil")
+	}
+
+	if err := d.ObjBytes(func(d *jx.Decoder, k []byte) error {
+		switch string(k) {
+		case "code":
+			if err := func() error {
+				s.Code.Reset()
+				if err := s.Code.Decode(d); err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return errors.Wrap(err, "decode field \"code\"")
+			}
+		case "message":
+			if err := func() error {
+				s.Message.Reset()
+				if err := s.Message.Decode(d); err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return errors.Wrap(err, "decode field \"message\"")
+			}
+		case "active_users_count":
+			if err := func() error {
+				s.ActiveUsersCount.Reset()
+				if err := s.ActiveUsersCount.Decode(d); err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return errors.Wrap(err, "decode field \"active_users_count\"")
+			}
+		case "date_time_from":
+			if err := func() error {
+				s.DateTimeFrom.Reset()
+				if err := s.DateTimeFrom.Decode(d, json.DecodeDateTime); err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return errors.Wrap(err, "decode field \"date_time_from\"")
+			}
+		case "date_time_to":
+			if err := func() error {
+				s.DateTimeTo.Reset()
+				if err := s.DateTimeTo.Decode(d, json.DecodeDateTime); err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return errors.Wrap(err, "decode field \"date_time_to\"")
+			}
+		default:
+			return d.Skip()
+		}
+		return nil
+	}); err != nil {
+		return errors.Wrap(err, "decode GetOrganizationRoleActiveUsersCountResponse")
+	}
+
+	return nil
+}
+
+// MarshalJSON implements stdjson.Marshaler.
+func (s *GetOrganizationRoleActiveUsersCountResponse) MarshalJSON() ([]byte, error) {
+	e := jx.Encoder{}
+	s.Encode(&e)
+	return e.Bytes(), nil
+}
+
+// UnmarshalJSON implements stdjson.Unmarshaler.
+func (s *GetOrganizationRoleActiveUsersCountResponse) UnmarshalJSON(data []byte) error {
+	d := jx.DecodeBytes(data)
+	return s.Decode(d)
+}
+
+// Encode implements json.Marshaler.
+func (s *GetOrganizationRoleUsersCountResponse) Encode(e *jx.Encoder) {
+	e.ObjStart()
+	s.encodeFields(e)
+	e.ObjEnd()
+}
+
+// encodeFields encodes fields.
+func (s *GetOrganizationRoleUsersCountResponse) encodeFields(e *jx.Encoder) {
+	{
+		if s.Code.Set {
+			e.FieldStart("code")
+			s.Code.Encode(e)
+		}
+	}
+	{
+		if s.Message.Set {
+			e.FieldStart("message")
+			s.Message.Encode(e)
+		}
+	}
+	{
+		if s.Count.Set {
+			e.FieldStart("count")
+			s.Count.Encode(e)
+		}
+	}
+}
+
+var jsonFieldsNameOfGetOrganizationRoleUsersCountResponse = [3]string{
+	0: "code",
+	1: "message",
+	2: "count",
+}
+
+// Decode decodes GetOrganizationRoleUsersCountResponse from json.
+func (s *GetOrganizationRoleUsersCountResponse) Decode(d *jx.Decoder) error {
+	if s == nil {
+		return errors.New("invalid: unable to decode GetOrganizationRoleUsersCountResponse to nil")
+	}
+
+	if err := d.ObjBytes(func(d *jx.Decoder, k []byte) error {
+		switch string(k) {
+		case "code":
+			if err := func() error {
+				s.Code.Reset()
+				if err := s.Code.Decode(d); err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return errors.Wrap(err, "decode field \"code\"")
+			}
+		case "message":
+			if err := func() error {
+				s.Message.Reset()
+				if err := s.Message.Decode(d); err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return errors.Wrap(err, "decode field \"message\"")
+			}
+		case "count":
+			if err := func() error {
+				s.Count.Reset()
+				if err := s.Count.Decode(d); err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return errors.Wrap(err, "decode field \"count\"")
+			}
+		default:
+			return d.Skip()
+		}
+		return nil
+	}); err != nil {
+		return errors.Wrap(err, "decode GetOrganizationRoleUsersCountResponse")
+	}
+
+	return nil
+}
+
+// MarshalJSON implements stdjson.Marshaler.
+func (s *GetOrganizationRoleUsersCountResponse) MarshalJSON() ([]byte, error) {
+	e := jx.Encoder{}
+	s.Encode(&e)
+	return e.Bytes(), nil
+}
+
+// UnmarshalJSON implements stdjson.Unmarshaler.
+func (s *GetOrganizationRoleUsersCountResponse) UnmarshalJSON(data []byte) error {
+	d := jx.DecodeBytes(data)
+	return s.Decode(d)
+}
+
+// Encode implements json.Marshaler.
+func (s *GetOrganizationRoleUsersResponse) Encode(e *jx.Encoder) {
+	e.ObjStart()
+	s.encodeFields(e)
+	e.ObjEnd()
+}
+
+// encodeFields encodes fields.
+func (s *GetOrganizationRoleUsersResponse) encodeFields(e *jx.Encoder) {
+	{
+		if s.Code.Set {
+			e.FieldStart("code")
+			s.Code.Encode(e)
+		}
+	}
+	{
+		if s.Message.Set {
+			e.FieldStart("message")
+			s.Message.Encode(e)
+		}
+	}
+	{
+		if s.Users != nil {
+			e.FieldStart("users")
+			e.ArrStart()
+			for _, elem := range s.Users {
+				elem.Encode(e)
+			}
+			e.ArrEnd()
+		}
+	}
+	{
+		if s.NextToken.Set {
+			e.FieldStart("next_token")
+			s.NextToken.Encode(e)
+		}
+	}
+}
+
+var jsonFieldsNameOfGetOrganizationRoleUsersResponse = [4]string{
+	0: "code",
+	1: "message",
+	2: "users",
+	3: "next_token",
+}
+
+// Decode decodes GetOrganizationRoleUsersResponse from json.
+func (s *GetOrganizationRoleUsersResponse) Decode(d *jx.Decoder) error {
+	if s == nil {
+		return errors.New("invalid: unable to decode GetOrganizationRoleUsersResponse to nil")
+	}
+
+	if err := d.ObjBytes(func(d *jx.Decoder, k []byte) error {
+		switch string(k) {
+		case "code":
+			if err := func() error {
+				s.Code.Reset()
+				if err := s.Code.Decode(d); err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return errors.Wrap(err, "decode field \"code\"")
+			}
+		case "message":
+			if err := func() error {
+				s.Message.Reset()
+				if err := s.Message.Decode(d); err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return errors.Wrap(err, "decode field \"message\"")
+			}
+		case "users":
+			if err := func() error {
+				s.Users = make([]GetOrganizationRoleUsersResponseUsersItem, 0)
+				if err := d.Arr(func(d *jx.Decoder) error {
+					var elem GetOrganizationRoleUsersResponseUsersItem
+					if err := elem.Decode(d); err != nil {
+						return err
+					}
+					s.Users = append(s.Users, elem)
+					return nil
+				}); err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return errors.Wrap(err, "decode field \"users\"")
+			}
+		case "next_token":
+			if err := func() error {
+				s.NextToken.Reset()
+				if err := s.NextToken.Decode(d); err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return errors.Wrap(err, "decode field \"next_token\"")
+			}
+		default:
+			return d.Skip()
+		}
+		return nil
+	}); err != nil {
+		return errors.Wrap(err, "decode GetOrganizationRoleUsersResponse")
+	}
+
+	return nil
+}
+
+// MarshalJSON implements stdjson.Marshaler.
+func (s *GetOrganizationRoleUsersResponse) MarshalJSON() ([]byte, error) {
+	e := jx.Encoder{}
+	s.Encode(&e)
+	return e.Bytes(), nil
+}
+
+// UnmarshalJSON implements stdjson.Unmarshaler.
+func (s *GetOrganizationRoleUsersResponse) UnmarshalJSON(data []byte) error {
+	d := jx.DecodeBytes(data)
+	return s.Decode(d)
+}
+
+// Encode implements json.Marshaler.
+func (s *GetOrganizationRoleUsersResponseUsersItem) Encode(e *jx.Encoder) {
+	e.ObjStart()
+	s.encodeFields(e)
+	e.ObjEnd()
+}
+
+// encodeFields encodes fields.
+func (s *GetOrganizationRoleUsersResponseUsersItem) encodeFields(e *jx.Encoder) {
+	{
+		if s.ID.Set {
+			e.FieldStart("id")
+			s.ID.Encode(e)
+		}
+	}
+}
+
+var jsonFieldsNameOfGetOrganizationRoleUsersResponseUsersItem = [1]string{
+	0: "id",
+}
+
+// Decode decodes GetOrganizationRoleUsersResponseUsersItem from json.
+func (s *GetOrganizationRoleUsersResponseUsersItem) Decode(d *jx.Decoder) error {
+	if s == nil {
+		return errors.New("invalid: unable to decode GetOrganizationRoleUsersResponseUsersItem to nil")
+	}
+
+	if err := d.ObjBytes(func(d *jx.Decoder, k []byte) error {
+		switch string(k) {
+		case "id":
+			if err := func() error {
+				s.ID.Reset()
+				if err := s.ID.Decode(d); err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return errors.Wrap(err, "decode field \"id\"")
+			}
+		default:
+			return d.Skip()
+		}
+		return nil
+	}); err != nil {
+		return errors.Wrap(err, "decode GetOrganizationRoleUsersResponseUsersItem")
+	}
+
+	return nil
+}
+
+// MarshalJSON implements stdjson.Marshaler.
+func (s *GetOrganizationRoleUsersResponseUsersItem) MarshalJSON() ([]byte, error) {
+	e := jx.Encoder{}
+	s.Encode(&e)
+	return e.Bytes(), nil
+}
+
+// UnmarshalJSON implements stdjson.Unmarshaler.
+func (s *GetOrganizationRoleUsersResponseUsersItem) UnmarshalJSON(data []byte) error {
+	d := jx.DecodeBytes(data)
+	return s.Decode(d)
+}
+
 // Encode encodes GetOrganizationTooManyRequests as json.
 func (s *GetOrganizationTooManyRequests) Encode(e *jx.Encoder) {
 	unwrapped := (*ErrorResponse)(s)
@@ -25599,6 +31040,276 @@ func (s *GetOrganizationsUserRolesResponse) MarshalJSON() ([]byte, error) {
 
 // UnmarshalJSON implements stdjson.Unmarshaler.
 func (s *GetOrganizationsUserRolesResponse) UnmarshalJSON(data []byte) error {
+	d := jx.DecodeBytes(data)
+	return s.Decode(d)
+}
+
+// Encode encodes GetPasskeyBadRequest as json.
+func (s *GetPasskeyBadRequest) Encode(e *jx.Encoder) {
+	unwrapped := (*ErrorResponse)(s)
+
+	unwrapped.Encode(e)
+}
+
+// Decode decodes GetPasskeyBadRequest from json.
+func (s *GetPasskeyBadRequest) Decode(d *jx.Decoder) error {
+	if s == nil {
+		return errors.New("invalid: unable to decode GetPasskeyBadRequest to nil")
+	}
+	var unwrapped ErrorResponse
+	if err := func() error {
+		if err := unwrapped.Decode(d); err != nil {
+			return err
+		}
+		return nil
+	}(); err != nil {
+		return errors.Wrap(err, "alias")
+	}
+	*s = GetPasskeyBadRequest(unwrapped)
+	return nil
+}
+
+// MarshalJSON implements stdjson.Marshaler.
+func (s *GetPasskeyBadRequest) MarshalJSON() ([]byte, error) {
+	e := jx.Encoder{}
+	s.Encode(&e)
+	return e.Bytes(), nil
+}
+
+// UnmarshalJSON implements stdjson.Unmarshaler.
+func (s *GetPasskeyBadRequest) UnmarshalJSON(data []byte) error {
+	d := jx.DecodeBytes(data)
+	return s.Decode(d)
+}
+
+// Encode encodes GetPasskeyForbidden as json.
+func (s *GetPasskeyForbidden) Encode(e *jx.Encoder) {
+	unwrapped := (*ErrorResponse)(s)
+
+	unwrapped.Encode(e)
+}
+
+// Decode decodes GetPasskeyForbidden from json.
+func (s *GetPasskeyForbidden) Decode(d *jx.Decoder) error {
+	if s == nil {
+		return errors.New("invalid: unable to decode GetPasskeyForbidden to nil")
+	}
+	var unwrapped ErrorResponse
+	if err := func() error {
+		if err := unwrapped.Decode(d); err != nil {
+			return err
+		}
+		return nil
+	}(); err != nil {
+		return errors.Wrap(err, "alias")
+	}
+	*s = GetPasskeyForbidden(unwrapped)
+	return nil
+}
+
+// MarshalJSON implements stdjson.Marshaler.
+func (s *GetPasskeyForbidden) MarshalJSON() ([]byte, error) {
+	e := jx.Encoder{}
+	s.Encode(&e)
+	return e.Bytes(), nil
+}
+
+// UnmarshalJSON implements stdjson.Unmarshaler.
+func (s *GetPasskeyForbidden) UnmarshalJSON(data []byte) error {
+	d := jx.DecodeBytes(data)
+	return s.Decode(d)
+}
+
+// Encode implements json.Marshaler.
+func (s *GetPasskeyOK) Encode(e *jx.Encoder) {
+	e.ObjStart()
+	s.encodeFields(e)
+	e.ObjEnd()
+}
+
+// encodeFields encodes fields.
+func (s *GetPasskeyOK) encodeFields(e *jx.Encoder) {
+	{
+		if s.Message.Set {
+			e.FieldStart("message")
+			s.Message.Encode(e)
+		}
+	}
+	{
+		if s.Code.Set {
+			e.FieldStart("code")
+			s.Code.Encode(e)
+		}
+	}
+	{
+		if s.Enabled.Set {
+			e.FieldStart("enabled")
+			s.Enabled.Encode(e)
+		}
+	}
+	{
+		if s.Policy.Set {
+			e.FieldStart("policy")
+			s.Policy.Encode(e)
+		}
+	}
+}
+
+var jsonFieldsNameOfGetPasskeyOK = [4]string{
+	0: "message",
+	1: "code",
+	2: "enabled",
+	3: "policy",
+}
+
+// Decode decodes GetPasskeyOK from json.
+func (s *GetPasskeyOK) Decode(d *jx.Decoder) error {
+	if s == nil {
+		return errors.New("invalid: unable to decode GetPasskeyOK to nil")
+	}
+
+	if err := d.ObjBytes(func(d *jx.Decoder, k []byte) error {
+		switch string(k) {
+		case "message":
+			if err := func() error {
+				s.Message.Reset()
+				if err := s.Message.Decode(d); err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return errors.Wrap(err, "decode field \"message\"")
+			}
+		case "code":
+			if err := func() error {
+				s.Code.Reset()
+				if err := s.Code.Decode(d); err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return errors.Wrap(err, "decode field \"code\"")
+			}
+		case "enabled":
+			if err := func() error {
+				s.Enabled.Reset()
+				if err := s.Enabled.Decode(d); err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return errors.Wrap(err, "decode field \"enabled\"")
+			}
+		case "policy":
+			if err := func() error {
+				s.Policy.Reset()
+				if err := s.Policy.Decode(d); err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return errors.Wrap(err, "decode field \"policy\"")
+			}
+		default:
+			return d.Skip()
+		}
+		return nil
+	}); err != nil {
+		return errors.Wrap(err, "decode GetPasskeyOK")
+	}
+
+	return nil
+}
+
+// MarshalJSON implements stdjson.Marshaler.
+func (s *GetPasskeyOK) MarshalJSON() ([]byte, error) {
+	e := jx.Encoder{}
+	s.Encode(&e)
+	return e.Bytes(), nil
+}
+
+// UnmarshalJSON implements stdjson.Unmarshaler.
+func (s *GetPasskeyOK) UnmarshalJSON(data []byte) error {
+	d := jx.DecodeBytes(data)
+	return s.Decode(d)
+}
+
+// Encode encodes GetPasskeyOKPolicy as json.
+func (s GetPasskeyOKPolicy) Encode(e *jx.Encoder) {
+	e.Str(string(s))
+}
+
+// Decode decodes GetPasskeyOKPolicy from json.
+func (s *GetPasskeyOKPolicy) Decode(d *jx.Decoder) error {
+	if s == nil {
+		return errors.New("invalid: unable to decode GetPasskeyOKPolicy to nil")
+	}
+	v, err := d.StrBytes()
+	if err != nil {
+		return err
+	}
+	// Try to use constant string.
+	switch GetPasskeyOKPolicy(v) {
+	case GetPasskeyOKPolicyOff:
+		*s = GetPasskeyOKPolicyOff
+	case GetPasskeyOKPolicyOptional:
+		*s = GetPasskeyOKPolicyOptional
+	case GetPasskeyOKPolicyMandatory:
+		*s = GetPasskeyOKPolicyMandatory
+	default:
+		*s = GetPasskeyOKPolicy(v)
+	}
+
+	return nil
+}
+
+// MarshalJSON implements stdjson.Marshaler.
+func (s GetPasskeyOKPolicy) MarshalJSON() ([]byte, error) {
+	e := jx.Encoder{}
+	s.Encode(&e)
+	return e.Bytes(), nil
+}
+
+// UnmarshalJSON implements stdjson.Unmarshaler.
+func (s *GetPasskeyOKPolicy) UnmarshalJSON(data []byte) error {
+	d := jx.DecodeBytes(data)
+	return s.Decode(d)
+}
+
+// Encode encodes GetPasskeyTooManyRequests as json.
+func (s *GetPasskeyTooManyRequests) Encode(e *jx.Encoder) {
+	unwrapped := (*ErrorResponse)(s)
+
+	unwrapped.Encode(e)
+}
+
+// Decode decodes GetPasskeyTooManyRequests from json.
+func (s *GetPasskeyTooManyRequests) Decode(d *jx.Decoder) error {
+	if s == nil {
+		return errors.New("invalid: unable to decode GetPasskeyTooManyRequests to nil")
+	}
+	var unwrapped ErrorResponse
+	if err := func() error {
+		if err := unwrapped.Decode(d); err != nil {
+			return err
+		}
+		return nil
+	}(); err != nil {
+		return errors.Wrap(err, "alias")
+	}
+	*s = GetPasskeyTooManyRequests(unwrapped)
+	return nil
+}
+
+// MarshalJSON implements stdjson.Marshaler.
+func (s *GetPasskeyTooManyRequests) MarshalJSON() ([]byte, error) {
+	e := jx.Encoder{}
+	s.Encode(&e)
+	return e.Bytes(), nil
+}
+
+// UnmarshalJSON implements stdjson.Unmarshaler.
+func (s *GetPasskeyTooManyRequests) UnmarshalJSON(data []byte) error {
 	d := jx.DecodeBytes(data)
 	return s.Decode(d)
 }
@@ -26396,6 +32107,224 @@ func (s *GetRoleTooManyRequests) UnmarshalJSON(data []byte) error {
 	return s.Decode(d)
 }
 
+// Encode implements json.Marshaler.
+func (s *GetRoleUsersResponse) Encode(e *jx.Encoder) {
+	e.ObjStart()
+	s.encodeFields(e)
+	e.ObjEnd()
+}
+
+// encodeFields encodes fields.
+func (s *GetRoleUsersResponse) encodeFields(e *jx.Encoder) {
+	{
+		if s.Code.Set {
+			e.FieldStart("code")
+			s.Code.Encode(e)
+		}
+	}
+	{
+		if s.Message.Set {
+			e.FieldStart("message")
+			s.Message.Encode(e)
+		}
+	}
+	{
+		if s.Users != nil {
+			e.FieldStart("users")
+			e.ArrStart()
+			for _, elem := range s.Users {
+				elem.Encode(e)
+			}
+			e.ArrEnd()
+		}
+	}
+	{
+		if s.NextToken.Set {
+			e.FieldStart("next_token")
+			s.NextToken.Encode(e)
+		}
+	}
+}
+
+var jsonFieldsNameOfGetRoleUsersResponse = [4]string{
+	0: "code",
+	1: "message",
+	2: "users",
+	3: "next_token",
+}
+
+// Decode decodes GetRoleUsersResponse from json.
+func (s *GetRoleUsersResponse) Decode(d *jx.Decoder) error {
+	if s == nil {
+		return errors.New("invalid: unable to decode GetRoleUsersResponse to nil")
+	}
+
+	if err := d.ObjBytes(func(d *jx.Decoder, k []byte) error {
+		switch string(k) {
+		case "code":
+			if err := func() error {
+				s.Code.Reset()
+				if err := s.Code.Decode(d); err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return errors.Wrap(err, "decode field \"code\"")
+			}
+		case "message":
+			if err := func() error {
+				s.Message.Reset()
+				if err := s.Message.Decode(d); err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return errors.Wrap(err, "decode field \"message\"")
+			}
+		case "users":
+			if err := func() error {
+				s.Users = make([]GetRoleUsersResponseUsersItem, 0)
+				if err := d.Arr(func(d *jx.Decoder) error {
+					var elem GetRoleUsersResponseUsersItem
+					if err := elem.Decode(d); err != nil {
+						return err
+					}
+					s.Users = append(s.Users, elem)
+					return nil
+				}); err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return errors.Wrap(err, "decode field \"users\"")
+			}
+		case "next_token":
+			if err := func() error {
+				s.NextToken.Reset()
+				if err := s.NextToken.Decode(d); err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return errors.Wrap(err, "decode field \"next_token\"")
+			}
+		default:
+			return d.Skip()
+		}
+		return nil
+	}); err != nil {
+		return errors.Wrap(err, "decode GetRoleUsersResponse")
+	}
+
+	return nil
+}
+
+// MarshalJSON implements stdjson.Marshaler.
+func (s *GetRoleUsersResponse) MarshalJSON() ([]byte, error) {
+	e := jx.Encoder{}
+	s.Encode(&e)
+	return e.Bytes(), nil
+}
+
+// UnmarshalJSON implements stdjson.Unmarshaler.
+func (s *GetRoleUsersResponse) UnmarshalJSON(data []byte) error {
+	d := jx.DecodeBytes(data)
+	return s.Decode(d)
+}
+
+// Encode implements json.Marshaler.
+func (s *GetRoleUsersResponseUsersItem) Encode(e *jx.Encoder) {
+	e.ObjStart()
+	s.encodeFields(e)
+	e.ObjEnd()
+}
+
+// encodeFields encodes fields.
+func (s *GetRoleUsersResponseUsersItem) encodeFields(e *jx.Encoder) {
+	{
+		if s.ID.Set {
+			e.FieldStart("id")
+			s.ID.Encode(e)
+		}
+	}
+	{
+		if s.OrgCodes != nil {
+			e.FieldStart("org_codes")
+			e.ArrStart()
+			for _, elem := range s.OrgCodes {
+				e.Str(elem)
+			}
+			e.ArrEnd()
+		}
+	}
+}
+
+var jsonFieldsNameOfGetRoleUsersResponseUsersItem = [2]string{
+	0: "id",
+	1: "org_codes",
+}
+
+// Decode decodes GetRoleUsersResponseUsersItem from json.
+func (s *GetRoleUsersResponseUsersItem) Decode(d *jx.Decoder) error {
+	if s == nil {
+		return errors.New("invalid: unable to decode GetRoleUsersResponseUsersItem to nil")
+	}
+
+	if err := d.ObjBytes(func(d *jx.Decoder, k []byte) error {
+		switch string(k) {
+		case "id":
+			if err := func() error {
+				s.ID.Reset()
+				if err := s.ID.Decode(d); err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return errors.Wrap(err, "decode field \"id\"")
+			}
+		case "org_codes":
+			if err := func() error {
+				s.OrgCodes = make([]string, 0)
+				if err := d.Arr(func(d *jx.Decoder) error {
+					var elem string
+					v, err := d.Str()
+					elem = string(v)
+					if err != nil {
+						return err
+					}
+					s.OrgCodes = append(s.OrgCodes, elem)
+					return nil
+				}); err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return errors.Wrap(err, "decode field \"org_codes\"")
+			}
+		default:
+			return d.Skip()
+		}
+		return nil
+	}); err != nil {
+		return errors.Wrap(err, "decode GetRoleUsersResponseUsersItem")
+	}
+
+	return nil
+}
+
+// MarshalJSON implements stdjson.Marshaler.
+func (s *GetRoleUsersResponseUsersItem) MarshalJSON() ([]byte, error) {
+	e := jx.Encoder{}
+	s.Encode(&e)
+	return e.Bytes(), nil
+}
+
+// UnmarshalJSON implements stdjson.Unmarshaler.
+func (s *GetRoleUsersResponseUsersItem) UnmarshalJSON(data []byte) error {
+	d := jx.DecodeBytes(data)
+	return s.Decode(d)
+}
+
 // Encode encodes GetRolesBadRequest as json.
 func (s *GetRolesBadRequest) Encode(e *jx.Encoder) {
 	unwrapped := (*ErrorResponse)(s)
@@ -26940,6 +32869,131 @@ func (s *GetSubscribersResponse) MarshalJSON() ([]byte, error) {
 
 // UnmarshalJSON implements stdjson.Unmarshaler.
 func (s *GetSubscribersResponse) UnmarshalJSON(data []byte) error {
+	d := jx.DecodeBytes(data)
+	return s.Decode(d)
+}
+
+// Encode implements json.Marshaler.
+func (s *GetSystemPermissionsResponse) Encode(e *jx.Encoder) {
+	e.ObjStart()
+	s.encodeFields(e)
+	e.ObjEnd()
+}
+
+// encodeFields encodes fields.
+func (s *GetSystemPermissionsResponse) encodeFields(e *jx.Encoder) {
+	{
+		if s.Code.Set {
+			e.FieldStart("code")
+			s.Code.Encode(e)
+		}
+	}
+	{
+		if s.Message.Set {
+			e.FieldStart("message")
+			s.Message.Encode(e)
+		}
+	}
+	{
+		if s.SystemPermissions != nil {
+			e.FieldStart("system_permissions")
+			e.ArrStart()
+			for _, elem := range s.SystemPermissions {
+				elem.Encode(e)
+			}
+			e.ArrEnd()
+		}
+	}
+	{
+		if s.NextToken.Set {
+			e.FieldStart("next_token")
+			s.NextToken.Encode(e)
+		}
+	}
+}
+
+var jsonFieldsNameOfGetSystemPermissionsResponse = [4]string{
+	0: "code",
+	1: "message",
+	2: "system_permissions",
+	3: "next_token",
+}
+
+// Decode decodes GetSystemPermissionsResponse from json.
+func (s *GetSystemPermissionsResponse) Decode(d *jx.Decoder) error {
+	if s == nil {
+		return errors.New("invalid: unable to decode GetSystemPermissionsResponse to nil")
+	}
+
+	if err := d.ObjBytes(func(d *jx.Decoder, k []byte) error {
+		switch string(k) {
+		case "code":
+			if err := func() error {
+				s.Code.Reset()
+				if err := s.Code.Decode(d); err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return errors.Wrap(err, "decode field \"code\"")
+			}
+		case "message":
+			if err := func() error {
+				s.Message.Reset()
+				if err := s.Message.Decode(d); err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return errors.Wrap(err, "decode field \"message\"")
+			}
+		case "system_permissions":
+			if err := func() error {
+				s.SystemPermissions = make([]SystemPermissions, 0)
+				if err := d.Arr(func(d *jx.Decoder) error {
+					var elem SystemPermissions
+					if err := elem.Decode(d); err != nil {
+						return err
+					}
+					s.SystemPermissions = append(s.SystemPermissions, elem)
+					return nil
+				}); err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return errors.Wrap(err, "decode field \"system_permissions\"")
+			}
+		case "next_token":
+			if err := func() error {
+				s.NextToken.Reset()
+				if err := s.NextToken.Decode(d); err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return errors.Wrap(err, "decode field \"next_token\"")
+			}
+		default:
+			return d.Skip()
+		}
+		return nil
+	}); err != nil {
+		return errors.Wrap(err, "decode GetSystemPermissionsResponse")
+	}
+
+	return nil
+}
+
+// MarshalJSON implements stdjson.Marshaler.
+func (s *GetSystemPermissionsResponse) MarshalJSON() ([]byte, error) {
+	e := jx.Encoder{}
+	s.Encode(&e)
+	return e.Bytes(), nil
+}
+
+// UnmarshalJSON implements stdjson.Unmarshaler.
+func (s *GetSystemPermissionsResponse) UnmarshalJSON(data []byte) error {
 	d := jx.DecodeBytes(data)
 	return s.Decode(d)
 }
@@ -28581,6 +34635,12 @@ func (s *Identity) encodeFields(e *jx.Encoder) {
 		}
 	}
 	{
+		if s.ConnectionID.Set {
+			e.FieldStart("connection_id")
+			s.ConnectionID.Encode(e)
+		}
+	}
+	{
 		if s.IsPrimary.Set {
 			e.FieldStart("is_primary")
 			s.IsPrimary.Encode(e)
@@ -28588,7 +34648,7 @@ func (s *Identity) encodeFields(e *jx.Encoder) {
 	}
 }
 
-var jsonFieldsNameOfIdentity = [9]string{
+var jsonFieldsNameOfIdentity = [10]string{
 	0: "id",
 	1: "type",
 	2: "is_confirmed",
@@ -28597,7 +34657,8 @@ var jsonFieldsNameOfIdentity = [9]string{
 	5: "total_logins",
 	6: "name",
 	7: "email",
-	8: "is_primary",
+	8: "connection_id",
+	9: "is_primary",
 }
 
 // Decode decodes Identity from json.
@@ -28687,6 +34748,16 @@ func (s *Identity) Decode(d *jx.Decoder) error {
 				return nil
 			}(); err != nil {
 				return errors.Wrap(err, "decode field \"email\"")
+			}
+		case "connection_id":
+			if err := func() error {
+				s.ConnectionID.Reset()
+				if err := s.ConnectionID.Decode(d); err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return errors.Wrap(err, "decode field \"connection_id\"")
 			}
 		case "is_primary":
 			if err := func() error {
@@ -29274,6 +35345,39 @@ func (s *OptCreateConnectionReqOptions) UnmarshalJSON(data []byte) error {
 	return s.Decode(d)
 }
 
+// Encode encodes CreateConnectionReqOptions1SSOButtonDisplay as json.
+func (o OptCreateConnectionReqOptions1SSOButtonDisplay) Encode(e *jx.Encoder) {
+	if !o.Set {
+		return
+	}
+	e.Str(string(o.Value))
+}
+
+// Decode decodes CreateConnectionReqOptions1SSOButtonDisplay from json.
+func (o *OptCreateConnectionReqOptions1SSOButtonDisplay) Decode(d *jx.Decoder) error {
+	if o == nil {
+		return errors.New("invalid: unable to decode OptCreateConnectionReqOptions1SSOButtonDisplay to nil")
+	}
+	o.Set = true
+	if err := o.Value.Decode(d); err != nil {
+		return err
+	}
+	return nil
+}
+
+// MarshalJSON implements stdjson.Marshaler.
+func (s OptCreateConnectionReqOptions1SSOButtonDisplay) MarshalJSON() ([]byte, error) {
+	e := jx.Encoder{}
+	s.Encode(&e)
+	return e.Bytes(), nil
+}
+
+// UnmarshalJSON implements stdjson.Unmarshaler.
+func (s *OptCreateConnectionReqOptions1SSOButtonDisplay) UnmarshalJSON(data []byte) error {
+	d := jx.DecodeBytes(data)
+	return s.Decode(d)
+}
+
 // Encode encodes CreateConnectionReqOptions1UpstreamParams as json.
 func (o OptCreateConnectionReqOptions1UpstreamParams) Encode(e *jx.Encoder) {
 	if !o.Set {
@@ -29304,6 +35408,138 @@ func (s OptCreateConnectionReqOptions1UpstreamParams) MarshalJSON() ([]byte, err
 
 // UnmarshalJSON implements stdjson.Unmarshaler.
 func (s *OptCreateConnectionReqOptions1UpstreamParams) UnmarshalJSON(data []byte) error {
+	d := jx.DecodeBytes(data)
+	return s.Decode(d)
+}
+
+// Encode encodes CreateConnectionReqOptions2NameIDFormat as json.
+func (o OptCreateConnectionReqOptions2NameIDFormat) Encode(e *jx.Encoder) {
+	if !o.Set {
+		return
+	}
+	e.Str(string(o.Value))
+}
+
+// Decode decodes CreateConnectionReqOptions2NameIDFormat from json.
+func (o *OptCreateConnectionReqOptions2NameIDFormat) Decode(d *jx.Decoder) error {
+	if o == nil {
+		return errors.New("invalid: unable to decode OptCreateConnectionReqOptions2NameIDFormat to nil")
+	}
+	o.Set = true
+	if err := o.Value.Decode(d); err != nil {
+		return err
+	}
+	return nil
+}
+
+// MarshalJSON implements stdjson.Marshaler.
+func (s OptCreateConnectionReqOptions2NameIDFormat) MarshalJSON() ([]byte, error) {
+	e := jx.Encoder{}
+	s.Encode(&e)
+	return e.Bytes(), nil
+}
+
+// UnmarshalJSON implements stdjson.Unmarshaler.
+func (s *OptCreateConnectionReqOptions2NameIDFormat) UnmarshalJSON(data []byte) error {
+	d := jx.DecodeBytes(data)
+	return s.Decode(d)
+}
+
+// Encode encodes CreateConnectionReqOptions2ProtocolBinding as json.
+func (o OptCreateConnectionReqOptions2ProtocolBinding) Encode(e *jx.Encoder) {
+	if !o.Set {
+		return
+	}
+	e.Str(string(o.Value))
+}
+
+// Decode decodes CreateConnectionReqOptions2ProtocolBinding from json.
+func (o *OptCreateConnectionReqOptions2ProtocolBinding) Decode(d *jx.Decoder) error {
+	if o == nil {
+		return errors.New("invalid: unable to decode OptCreateConnectionReqOptions2ProtocolBinding to nil")
+	}
+	o.Set = true
+	if err := o.Value.Decode(d); err != nil {
+		return err
+	}
+	return nil
+}
+
+// MarshalJSON implements stdjson.Marshaler.
+func (s OptCreateConnectionReqOptions2ProtocolBinding) MarshalJSON() ([]byte, error) {
+	e := jx.Encoder{}
+	s.Encode(&e)
+	return e.Bytes(), nil
+}
+
+// UnmarshalJSON implements stdjson.Unmarshaler.
+func (s *OptCreateConnectionReqOptions2ProtocolBinding) UnmarshalJSON(data []byte) error {
+	d := jx.DecodeBytes(data)
+	return s.Decode(d)
+}
+
+// Encode encodes CreateConnectionReqOptions2SSOButtonDisplay as json.
+func (o OptCreateConnectionReqOptions2SSOButtonDisplay) Encode(e *jx.Encoder) {
+	if !o.Set {
+		return
+	}
+	e.Str(string(o.Value))
+}
+
+// Decode decodes CreateConnectionReqOptions2SSOButtonDisplay from json.
+func (o *OptCreateConnectionReqOptions2SSOButtonDisplay) Decode(d *jx.Decoder) error {
+	if o == nil {
+		return errors.New("invalid: unable to decode OptCreateConnectionReqOptions2SSOButtonDisplay to nil")
+	}
+	o.Set = true
+	if err := o.Value.Decode(d); err != nil {
+		return err
+	}
+	return nil
+}
+
+// MarshalJSON implements stdjson.Marshaler.
+func (s OptCreateConnectionReqOptions2SSOButtonDisplay) MarshalJSON() ([]byte, error) {
+	e := jx.Encoder{}
+	s.Encode(&e)
+	return e.Bytes(), nil
+}
+
+// UnmarshalJSON implements stdjson.Unmarshaler.
+func (s *OptCreateConnectionReqOptions2SSOButtonDisplay) UnmarshalJSON(data []byte) error {
+	d := jx.DecodeBytes(data)
+	return s.Decode(d)
+}
+
+// Encode encodes CreateConnectionReqOptions2SignRequestAlgorithm as json.
+func (o OptCreateConnectionReqOptions2SignRequestAlgorithm) Encode(e *jx.Encoder) {
+	if !o.Set {
+		return
+	}
+	e.Str(string(o.Value))
+}
+
+// Decode decodes CreateConnectionReqOptions2SignRequestAlgorithm from json.
+func (o *OptCreateConnectionReqOptions2SignRequestAlgorithm) Decode(d *jx.Decoder) error {
+	if o == nil {
+		return errors.New("invalid: unable to decode OptCreateConnectionReqOptions2SignRequestAlgorithm to nil")
+	}
+	o.Set = true
+	if err := o.Value.Decode(d); err != nil {
+		return err
+	}
+	return nil
+}
+
+// MarshalJSON implements stdjson.Marshaler.
+func (s OptCreateConnectionReqOptions2SignRequestAlgorithm) MarshalJSON() ([]byte, error) {
+	e := jx.Encoder{}
+	s.Encode(&e)
+	return e.Bytes(), nil
+}
+
+// UnmarshalJSON implements stdjson.Unmarshaler.
+func (s *OptCreateConnectionReqOptions2SignRequestAlgorithm) UnmarshalJSON(data []byte) error {
 	d := jx.DecodeBytes(data)
 	return s.Decode(d)
 }
@@ -29404,6 +35640,39 @@ func (s OptCreateConnectionResponseConnection) MarshalJSON() ([]byte, error) {
 
 // UnmarshalJSON implements stdjson.Unmarshaler.
 func (s *OptCreateConnectionResponseConnection) UnmarshalJSON(data []byte) error {
+	d := jx.DecodeBytes(data)
+	return s.Decode(d)
+}
+
+// Encode encodes CreateDirectoryReqProviderCode as json.
+func (o OptCreateDirectoryReqProviderCode) Encode(e *jx.Encoder) {
+	if !o.Set {
+		return
+	}
+	e.Str(string(o.Value))
+}
+
+// Decode decodes CreateDirectoryReqProviderCode from json.
+func (o *OptCreateDirectoryReqProviderCode) Decode(d *jx.Decoder) error {
+	if o == nil {
+		return errors.New("invalid: unable to decode OptCreateDirectoryReqProviderCode to nil")
+	}
+	o.Set = true
+	if err := o.Value.Decode(d); err != nil {
+		return err
+	}
+	return nil
+}
+
+// MarshalJSON implements stdjson.Marshaler.
+func (s OptCreateDirectoryReqProviderCode) MarshalJSON() ([]byte, error) {
+	e := jx.Encoder{}
+	s.Encode(&e)
+	return e.Bytes(), nil
+}
+
+// UnmarshalJSON implements stdjson.Unmarshaler.
+func (s *OptCreateDirectoryReqProviderCode) UnmarshalJSON(data []byte) error {
 	d := jx.DecodeBytes(data)
 	return s.Decode(d)
 }
@@ -29536,6 +35805,39 @@ func (s OptCreateMeterUsageRecordReqMeterTypeCode) MarshalJSON() ([]byte, error)
 
 // UnmarshalJSON implements stdjson.Unmarshaler.
 func (s *OptCreateMeterUsageRecordReqMeterTypeCode) UnmarshalJSON(data []byte) error {
+	d := jx.DecodeBytes(data)
+	return s.Decode(d)
+}
+
+// Encode encodes CreateOrganizationInviteResponseInvite as json.
+func (o OptCreateOrganizationInviteResponseInvite) Encode(e *jx.Encoder) {
+	if !o.Set {
+		return
+	}
+	o.Value.Encode(e)
+}
+
+// Decode decodes CreateOrganizationInviteResponseInvite from json.
+func (o *OptCreateOrganizationInviteResponseInvite) Decode(d *jx.Decoder) error {
+	if o == nil {
+		return errors.New("invalid: unable to decode OptCreateOrganizationInviteResponseInvite to nil")
+	}
+	o.Set = true
+	if err := o.Value.Decode(d); err != nil {
+		return err
+	}
+	return nil
+}
+
+// MarshalJSON implements stdjson.Marshaler.
+func (s OptCreateOrganizationInviteResponseInvite) MarshalJSON() ([]byte, error) {
+	e := jx.Encoder{}
+	s.Encode(&e)
+	return e.Bytes(), nil
+}
+
+// UnmarshalJSON implements stdjson.Unmarshaler.
+func (s *OptCreateOrganizationInviteResponseInvite) UnmarshalJSON(data []byte) error {
 	d := jx.DecodeBytes(data)
 	return s.Decode(d)
 }
@@ -29768,6 +36070,39 @@ func (s OptCreateSubscriberSuccessResponseSubscriber) MarshalJSON() ([]byte, err
 
 // UnmarshalJSON implements stdjson.Unmarshaler.
 func (s *OptCreateSubscriberSuccessResponseSubscriber) UnmarshalJSON(data []byte) error {
+	d := jx.DecodeBytes(data)
+	return s.Decode(d)
+}
+
+// Encode encodes CreateUserBillingCustomerResponseBillingCustomer as json.
+func (o OptCreateUserBillingCustomerResponseBillingCustomer) Encode(e *jx.Encoder) {
+	if !o.Set {
+		return
+	}
+	o.Value.Encode(e)
+}
+
+// Decode decodes CreateUserBillingCustomerResponseBillingCustomer from json.
+func (o *OptCreateUserBillingCustomerResponseBillingCustomer) Decode(d *jx.Decoder) error {
+	if o == nil {
+		return errors.New("invalid: unable to decode OptCreateUserBillingCustomerResponseBillingCustomer to nil")
+	}
+	o.Set = true
+	if err := o.Value.Decode(d); err != nil {
+		return err
+	}
+	return nil
+}
+
+// MarshalJSON implements stdjson.Marshaler.
+func (s OptCreateUserBillingCustomerResponseBillingCustomer) MarshalJSON() ([]byte, error) {
+	e := jx.Encoder{}
+	s.Encode(&e)
+	return e.Bytes(), nil
+}
+
+// UnmarshalJSON implements stdjson.Unmarshaler.
+func (s *OptCreateUserBillingCustomerResponseBillingCustomer) UnmarshalJSON(data []byte) error {
 	d := jx.DecodeBytes(data)
 	return s.Decode(d)
 }
@@ -30036,6 +36371,72 @@ func (s OptDateTime) MarshalJSON() ([]byte, error) {
 func (s *OptDateTime) UnmarshalJSON(data []byte) error {
 	d := jx.DecodeBytes(data)
 	return s.Decode(d, json.DecodeDateTime)
+}
+
+// Encode encodes Directory as json.
+func (o OptDirectory) Encode(e *jx.Encoder) {
+	if !o.Set {
+		return
+	}
+	o.Value.Encode(e)
+}
+
+// Decode decodes Directory from json.
+func (o *OptDirectory) Decode(d *jx.Decoder) error {
+	if o == nil {
+		return errors.New("invalid: unable to decode OptDirectory to nil")
+	}
+	o.Set = true
+	if err := o.Value.Decode(d); err != nil {
+		return err
+	}
+	return nil
+}
+
+// MarshalJSON implements stdjson.Marshaler.
+func (s OptDirectory) MarshalJSON() ([]byte, error) {
+	e := jx.Encoder{}
+	s.Encode(&e)
+	return e.Bytes(), nil
+}
+
+// UnmarshalJSON implements stdjson.Unmarshaler.
+func (s *OptDirectory) UnmarshalJSON(data []byte) error {
+	d := jx.DecodeBytes(data)
+	return s.Decode(d)
+}
+
+// Encode encodes DirectoryStatus as json.
+func (o OptDirectoryStatus) Encode(e *jx.Encoder) {
+	if !o.Set {
+		return
+	}
+	e.Str(string(o.Value))
+}
+
+// Decode decodes DirectoryStatus from json.
+func (o *OptDirectoryStatus) Decode(d *jx.Decoder) error {
+	if o == nil {
+		return errors.New("invalid: unable to decode OptDirectoryStatus to nil")
+	}
+	o.Set = true
+	if err := o.Value.Decode(d); err != nil {
+		return err
+	}
+	return nil
+}
+
+// MarshalJSON implements stdjson.Marshaler.
+func (s OptDirectoryStatus) MarshalJSON() ([]byte, error) {
+	e := jx.Encoder{}
+	s.Encode(&e)
+	return e.Bytes(), nil
+}
+
+// UnmarshalJSON implements stdjson.Unmarshaler.
+func (s *OptDirectoryStatus) UnmarshalJSON(data []byte) error {
+	d := jx.DecodeBytes(data)
+	return s.Decode(d)
 }
 
 // Encode encodes EnvironmentVariable as json.
@@ -30568,6 +36969,72 @@ func (s *OptGetOrganizationFeatureFlagsResponseFeatureFlagsItemType) UnmarshalJS
 	return s.Decode(d)
 }
 
+// Encode encodes GetOrganizationPasskeyOKEnvironmentPolicy as json.
+func (o OptGetOrganizationPasskeyOKEnvironmentPolicy) Encode(e *jx.Encoder) {
+	if !o.Set {
+		return
+	}
+	e.Str(string(o.Value))
+}
+
+// Decode decodes GetOrganizationPasskeyOKEnvironmentPolicy from json.
+func (o *OptGetOrganizationPasskeyOKEnvironmentPolicy) Decode(d *jx.Decoder) error {
+	if o == nil {
+		return errors.New("invalid: unable to decode OptGetOrganizationPasskeyOKEnvironmentPolicy to nil")
+	}
+	o.Set = true
+	if err := o.Value.Decode(d); err != nil {
+		return err
+	}
+	return nil
+}
+
+// MarshalJSON implements stdjson.Marshaler.
+func (s OptGetOrganizationPasskeyOKEnvironmentPolicy) MarshalJSON() ([]byte, error) {
+	e := jx.Encoder{}
+	s.Encode(&e)
+	return e.Bytes(), nil
+}
+
+// UnmarshalJSON implements stdjson.Unmarshaler.
+func (s *OptGetOrganizationPasskeyOKEnvironmentPolicy) UnmarshalJSON(data []byte) error {
+	d := jx.DecodeBytes(data)
+	return s.Decode(d)
+}
+
+// Encode encodes GetOrganizationPasskeyOKPolicy as json.
+func (o OptGetOrganizationPasskeyOKPolicy) Encode(e *jx.Encoder) {
+	if !o.Set {
+		return
+	}
+	e.Str(string(o.Value))
+}
+
+// Decode decodes GetOrganizationPasskeyOKPolicy from json.
+func (o *OptGetOrganizationPasskeyOKPolicy) Decode(d *jx.Decoder) error {
+	if o == nil {
+		return errors.New("invalid: unable to decode OptGetOrganizationPasskeyOKPolicy to nil")
+	}
+	o.Set = true
+	if err := o.Value.Decode(d); err != nil {
+		return err
+	}
+	return nil
+}
+
+// MarshalJSON implements stdjson.Marshaler.
+func (s OptGetOrganizationPasskeyOKPolicy) MarshalJSON() ([]byte, error) {
+	e := jx.Encoder{}
+	s.Encode(&e)
+	return e.Bytes(), nil
+}
+
+// UnmarshalJSON implements stdjson.Unmarshaler.
+func (s *OptGetOrganizationPasskeyOKPolicy) UnmarshalJSON(data []byte) error {
+	d := jx.DecodeBytes(data)
+	return s.Decode(d)
+}
+
 // Encode encodes GetOrganizationResponseBilling as json.
 func (o OptGetOrganizationResponseBilling) Encode(e *jx.Encoder) {
 	if !o.Set {
@@ -30663,6 +37130,39 @@ func (s OptGetOrganizationResponseThemeCode) MarshalJSON() ([]byte, error) {
 
 // UnmarshalJSON implements stdjson.Unmarshaler.
 func (s *OptGetOrganizationResponseThemeCode) UnmarshalJSON(data []byte) error {
+	d := jx.DecodeBytes(data)
+	return s.Decode(d)
+}
+
+// Encode encodes GetPasskeyOKPolicy as json.
+func (o OptGetPasskeyOKPolicy) Encode(e *jx.Encoder) {
+	if !o.Set {
+		return
+	}
+	e.Str(string(o.Value))
+}
+
+// Decode decodes GetPasskeyOKPolicy from json.
+func (o *OptGetPasskeyOKPolicy) Decode(d *jx.Decoder) error {
+	if o == nil {
+		return errors.New("invalid: unable to decode OptGetPasskeyOKPolicy to nil")
+	}
+	o.Set = true
+	if err := o.Value.Decode(d); err != nil {
+		return err
+	}
+	return nil
+}
+
+// MarshalJSON implements stdjson.Marshaler.
+func (s OptGetPasskeyOKPolicy) MarshalJSON() ([]byte, error) {
+	e := jx.Encoder{}
+	s.Encode(&e)
+	return e.Bytes(), nil
+}
+
+// UnmarshalJSON implements stdjson.Unmarshaler.
+func (s *OptGetPasskeyOKPolicy) UnmarshalJSON(data []byte) error {
 	d := jx.DecodeBytes(data)
 	return s.Decode(d)
 }
@@ -31870,6 +38370,67 @@ func (s *OptNilUUID) UnmarshalJSON(data []byte) error {
 	return s.Decode(d)
 }
 
+// Encode encodes []UsersResponseUsersItemLastOrganizationSignInsItem as json.
+func (o OptNilUsersResponseUsersItemLastOrganizationSignInsItemArray) Encode(e *jx.Encoder) {
+	if !o.Set {
+		return
+	}
+	if o.Null {
+		e.Null()
+		return
+	}
+	e.ArrStart()
+	for _, elem := range o.Value {
+		elem.Encode(e)
+	}
+	e.ArrEnd()
+}
+
+// Decode decodes []UsersResponseUsersItemLastOrganizationSignInsItem from json.
+func (o *OptNilUsersResponseUsersItemLastOrganizationSignInsItemArray) Decode(d *jx.Decoder) error {
+	if o == nil {
+		return errors.New("invalid: unable to decode OptNilUsersResponseUsersItemLastOrganizationSignInsItemArray to nil")
+	}
+	if d.Next() == jx.Null {
+		if err := d.Null(); err != nil {
+			return err
+		}
+
+		var v []UsersResponseUsersItemLastOrganizationSignInsItem
+		o.Value = v
+		o.Set = true
+		o.Null = true
+		return nil
+	}
+	o.Set = true
+	o.Null = false
+	o.Value = make([]UsersResponseUsersItemLastOrganizationSignInsItem, 0)
+	if err := d.Arr(func(d *jx.Decoder) error {
+		var elem UsersResponseUsersItemLastOrganizationSignInsItem
+		if err := elem.Decode(d); err != nil {
+			return err
+		}
+		o.Value = append(o.Value, elem)
+		return nil
+	}); err != nil {
+		return err
+	}
+	return nil
+}
+
+// MarshalJSON implements stdjson.Marshaler.
+func (s OptNilUsersResponseUsersItemLastOrganizationSignInsItemArray) MarshalJSON() ([]byte, error) {
+	e := jx.Encoder{}
+	s.Encode(&e)
+	return e.Bytes(), nil
+}
+
+// UnmarshalJSON implements stdjson.Unmarshaler.
+func (s *OptNilUsersResponseUsersItemLastOrganizationSignInsItemArray) UnmarshalJSON(data []byte) error {
+	d := jx.DecodeBytes(data)
+	return s.Decode(d)
+}
+
 // Encode encodes NotFoundResponseErrors as json.
 func (o OptNotFoundResponseErrors) Encode(e *jx.Encoder) {
 	if !o.Set {
@@ -31936,6 +38497,39 @@ func (s *OptReplaceConnectionReqOptions) UnmarshalJSON(data []byte) error {
 	return s.Decode(d)
 }
 
+// Encode encodes ReplaceConnectionReqOptions1SSOButtonDisplay as json.
+func (o OptReplaceConnectionReqOptions1SSOButtonDisplay) Encode(e *jx.Encoder) {
+	if !o.Set {
+		return
+	}
+	e.Str(string(o.Value))
+}
+
+// Decode decodes ReplaceConnectionReqOptions1SSOButtonDisplay from json.
+func (o *OptReplaceConnectionReqOptions1SSOButtonDisplay) Decode(d *jx.Decoder) error {
+	if o == nil {
+		return errors.New("invalid: unable to decode OptReplaceConnectionReqOptions1SSOButtonDisplay to nil")
+	}
+	o.Set = true
+	if err := o.Value.Decode(d); err != nil {
+		return err
+	}
+	return nil
+}
+
+// MarshalJSON implements stdjson.Marshaler.
+func (s OptReplaceConnectionReqOptions1SSOButtonDisplay) MarshalJSON() ([]byte, error) {
+	e := jx.Encoder{}
+	s.Encode(&e)
+	return e.Bytes(), nil
+}
+
+// UnmarshalJSON implements stdjson.Unmarshaler.
+func (s *OptReplaceConnectionReqOptions1SSOButtonDisplay) UnmarshalJSON(data []byte) error {
+	d := jx.DecodeBytes(data)
+	return s.Decode(d)
+}
+
 // Encode encodes ReplaceConnectionReqOptions1UpstreamParams as json.
 func (o OptReplaceConnectionReqOptions1UpstreamParams) Encode(e *jx.Encoder) {
 	if !o.Set {
@@ -31966,6 +38560,138 @@ func (s OptReplaceConnectionReqOptions1UpstreamParams) MarshalJSON() ([]byte, er
 
 // UnmarshalJSON implements stdjson.Unmarshaler.
 func (s *OptReplaceConnectionReqOptions1UpstreamParams) UnmarshalJSON(data []byte) error {
+	d := jx.DecodeBytes(data)
+	return s.Decode(d)
+}
+
+// Encode encodes ReplaceConnectionReqOptions2NameIDFormat as json.
+func (o OptReplaceConnectionReqOptions2NameIDFormat) Encode(e *jx.Encoder) {
+	if !o.Set {
+		return
+	}
+	e.Str(string(o.Value))
+}
+
+// Decode decodes ReplaceConnectionReqOptions2NameIDFormat from json.
+func (o *OptReplaceConnectionReqOptions2NameIDFormat) Decode(d *jx.Decoder) error {
+	if o == nil {
+		return errors.New("invalid: unable to decode OptReplaceConnectionReqOptions2NameIDFormat to nil")
+	}
+	o.Set = true
+	if err := o.Value.Decode(d); err != nil {
+		return err
+	}
+	return nil
+}
+
+// MarshalJSON implements stdjson.Marshaler.
+func (s OptReplaceConnectionReqOptions2NameIDFormat) MarshalJSON() ([]byte, error) {
+	e := jx.Encoder{}
+	s.Encode(&e)
+	return e.Bytes(), nil
+}
+
+// UnmarshalJSON implements stdjson.Unmarshaler.
+func (s *OptReplaceConnectionReqOptions2NameIDFormat) UnmarshalJSON(data []byte) error {
+	d := jx.DecodeBytes(data)
+	return s.Decode(d)
+}
+
+// Encode encodes ReplaceConnectionReqOptions2ProtocolBinding as json.
+func (o OptReplaceConnectionReqOptions2ProtocolBinding) Encode(e *jx.Encoder) {
+	if !o.Set {
+		return
+	}
+	e.Str(string(o.Value))
+}
+
+// Decode decodes ReplaceConnectionReqOptions2ProtocolBinding from json.
+func (o *OptReplaceConnectionReqOptions2ProtocolBinding) Decode(d *jx.Decoder) error {
+	if o == nil {
+		return errors.New("invalid: unable to decode OptReplaceConnectionReqOptions2ProtocolBinding to nil")
+	}
+	o.Set = true
+	if err := o.Value.Decode(d); err != nil {
+		return err
+	}
+	return nil
+}
+
+// MarshalJSON implements stdjson.Marshaler.
+func (s OptReplaceConnectionReqOptions2ProtocolBinding) MarshalJSON() ([]byte, error) {
+	e := jx.Encoder{}
+	s.Encode(&e)
+	return e.Bytes(), nil
+}
+
+// UnmarshalJSON implements stdjson.Unmarshaler.
+func (s *OptReplaceConnectionReqOptions2ProtocolBinding) UnmarshalJSON(data []byte) error {
+	d := jx.DecodeBytes(data)
+	return s.Decode(d)
+}
+
+// Encode encodes ReplaceConnectionReqOptions2SSOButtonDisplay as json.
+func (o OptReplaceConnectionReqOptions2SSOButtonDisplay) Encode(e *jx.Encoder) {
+	if !o.Set {
+		return
+	}
+	e.Str(string(o.Value))
+}
+
+// Decode decodes ReplaceConnectionReqOptions2SSOButtonDisplay from json.
+func (o *OptReplaceConnectionReqOptions2SSOButtonDisplay) Decode(d *jx.Decoder) error {
+	if o == nil {
+		return errors.New("invalid: unable to decode OptReplaceConnectionReqOptions2SSOButtonDisplay to nil")
+	}
+	o.Set = true
+	if err := o.Value.Decode(d); err != nil {
+		return err
+	}
+	return nil
+}
+
+// MarshalJSON implements stdjson.Marshaler.
+func (s OptReplaceConnectionReqOptions2SSOButtonDisplay) MarshalJSON() ([]byte, error) {
+	e := jx.Encoder{}
+	s.Encode(&e)
+	return e.Bytes(), nil
+}
+
+// UnmarshalJSON implements stdjson.Unmarshaler.
+func (s *OptReplaceConnectionReqOptions2SSOButtonDisplay) UnmarshalJSON(data []byte) error {
+	d := jx.DecodeBytes(data)
+	return s.Decode(d)
+}
+
+// Encode encodes ReplaceConnectionReqOptions2SignRequestAlgorithm as json.
+func (o OptReplaceConnectionReqOptions2SignRequestAlgorithm) Encode(e *jx.Encoder) {
+	if !o.Set {
+		return
+	}
+	e.Str(string(o.Value))
+}
+
+// Decode decodes ReplaceConnectionReqOptions2SignRequestAlgorithm from json.
+func (o *OptReplaceConnectionReqOptions2SignRequestAlgorithm) Decode(d *jx.Decoder) error {
+	if o == nil {
+		return errors.New("invalid: unable to decode OptReplaceConnectionReqOptions2SignRequestAlgorithm to nil")
+	}
+	o.Set = true
+	if err := o.Value.Decode(d); err != nil {
+		return err
+	}
+	return nil
+}
+
+// MarshalJSON implements stdjson.Marshaler.
+func (s OptReplaceConnectionReqOptions2SignRequestAlgorithm) MarshalJSON() ([]byte, error) {
+	e := jx.Encoder{}
+	s.Encode(&e)
+	return e.Bytes(), nil
+}
+
+// UnmarshalJSON implements stdjson.Unmarshaler.
+func (s *OptReplaceConnectionReqOptions2SignRequestAlgorithm) UnmarshalJSON(data []byte) error {
 	d := jx.DecodeBytes(data)
 	return s.Decode(d)
 }
@@ -32249,6 +38975,39 @@ func (s *OptUpdateConnectionReqOptions) UnmarshalJSON(data []byte) error {
 	return s.Decode(d)
 }
 
+// Encode encodes UpdateConnectionReqOptions1SSOButtonDisplay as json.
+func (o OptUpdateConnectionReqOptions1SSOButtonDisplay) Encode(e *jx.Encoder) {
+	if !o.Set {
+		return
+	}
+	e.Str(string(o.Value))
+}
+
+// Decode decodes UpdateConnectionReqOptions1SSOButtonDisplay from json.
+func (o *OptUpdateConnectionReqOptions1SSOButtonDisplay) Decode(d *jx.Decoder) error {
+	if o == nil {
+		return errors.New("invalid: unable to decode OptUpdateConnectionReqOptions1SSOButtonDisplay to nil")
+	}
+	o.Set = true
+	if err := o.Value.Decode(d); err != nil {
+		return err
+	}
+	return nil
+}
+
+// MarshalJSON implements stdjson.Marshaler.
+func (s OptUpdateConnectionReqOptions1SSOButtonDisplay) MarshalJSON() ([]byte, error) {
+	e := jx.Encoder{}
+	s.Encode(&e)
+	return e.Bytes(), nil
+}
+
+// UnmarshalJSON implements stdjson.Unmarshaler.
+func (s *OptUpdateConnectionReqOptions1SSOButtonDisplay) UnmarshalJSON(data []byte) error {
+	d := jx.DecodeBytes(data)
+	return s.Decode(d)
+}
+
 // Encode encodes UpdateConnectionReqOptions1UpstreamParams as json.
 func (o OptUpdateConnectionReqOptions1UpstreamParams) Encode(e *jx.Encoder) {
 	if !o.Set {
@@ -32283,6 +39042,138 @@ func (s *OptUpdateConnectionReqOptions1UpstreamParams) UnmarshalJSON(data []byte
 	return s.Decode(d)
 }
 
+// Encode encodes UpdateConnectionReqOptions2NameIDFormat as json.
+func (o OptUpdateConnectionReqOptions2NameIDFormat) Encode(e *jx.Encoder) {
+	if !o.Set {
+		return
+	}
+	e.Str(string(o.Value))
+}
+
+// Decode decodes UpdateConnectionReqOptions2NameIDFormat from json.
+func (o *OptUpdateConnectionReqOptions2NameIDFormat) Decode(d *jx.Decoder) error {
+	if o == nil {
+		return errors.New("invalid: unable to decode OptUpdateConnectionReqOptions2NameIDFormat to nil")
+	}
+	o.Set = true
+	if err := o.Value.Decode(d); err != nil {
+		return err
+	}
+	return nil
+}
+
+// MarshalJSON implements stdjson.Marshaler.
+func (s OptUpdateConnectionReqOptions2NameIDFormat) MarshalJSON() ([]byte, error) {
+	e := jx.Encoder{}
+	s.Encode(&e)
+	return e.Bytes(), nil
+}
+
+// UnmarshalJSON implements stdjson.Unmarshaler.
+func (s *OptUpdateConnectionReqOptions2NameIDFormat) UnmarshalJSON(data []byte) error {
+	d := jx.DecodeBytes(data)
+	return s.Decode(d)
+}
+
+// Encode encodes UpdateConnectionReqOptions2ProtocolBinding as json.
+func (o OptUpdateConnectionReqOptions2ProtocolBinding) Encode(e *jx.Encoder) {
+	if !o.Set {
+		return
+	}
+	e.Str(string(o.Value))
+}
+
+// Decode decodes UpdateConnectionReqOptions2ProtocolBinding from json.
+func (o *OptUpdateConnectionReqOptions2ProtocolBinding) Decode(d *jx.Decoder) error {
+	if o == nil {
+		return errors.New("invalid: unable to decode OptUpdateConnectionReqOptions2ProtocolBinding to nil")
+	}
+	o.Set = true
+	if err := o.Value.Decode(d); err != nil {
+		return err
+	}
+	return nil
+}
+
+// MarshalJSON implements stdjson.Marshaler.
+func (s OptUpdateConnectionReqOptions2ProtocolBinding) MarshalJSON() ([]byte, error) {
+	e := jx.Encoder{}
+	s.Encode(&e)
+	return e.Bytes(), nil
+}
+
+// UnmarshalJSON implements stdjson.Unmarshaler.
+func (s *OptUpdateConnectionReqOptions2ProtocolBinding) UnmarshalJSON(data []byte) error {
+	d := jx.DecodeBytes(data)
+	return s.Decode(d)
+}
+
+// Encode encodes UpdateConnectionReqOptions2SSOButtonDisplay as json.
+func (o OptUpdateConnectionReqOptions2SSOButtonDisplay) Encode(e *jx.Encoder) {
+	if !o.Set {
+		return
+	}
+	e.Str(string(o.Value))
+}
+
+// Decode decodes UpdateConnectionReqOptions2SSOButtonDisplay from json.
+func (o *OptUpdateConnectionReqOptions2SSOButtonDisplay) Decode(d *jx.Decoder) error {
+	if o == nil {
+		return errors.New("invalid: unable to decode OptUpdateConnectionReqOptions2SSOButtonDisplay to nil")
+	}
+	o.Set = true
+	if err := o.Value.Decode(d); err != nil {
+		return err
+	}
+	return nil
+}
+
+// MarshalJSON implements stdjson.Marshaler.
+func (s OptUpdateConnectionReqOptions2SSOButtonDisplay) MarshalJSON() ([]byte, error) {
+	e := jx.Encoder{}
+	s.Encode(&e)
+	return e.Bytes(), nil
+}
+
+// UnmarshalJSON implements stdjson.Unmarshaler.
+func (s *OptUpdateConnectionReqOptions2SSOButtonDisplay) UnmarshalJSON(data []byte) error {
+	d := jx.DecodeBytes(data)
+	return s.Decode(d)
+}
+
+// Encode encodes UpdateConnectionReqOptions2SignRequestAlgorithm as json.
+func (o OptUpdateConnectionReqOptions2SignRequestAlgorithm) Encode(e *jx.Encoder) {
+	if !o.Set {
+		return
+	}
+	e.Str(string(o.Value))
+}
+
+// Decode decodes UpdateConnectionReqOptions2SignRequestAlgorithm from json.
+func (o *OptUpdateConnectionReqOptions2SignRequestAlgorithm) Decode(d *jx.Decoder) error {
+	if o == nil {
+		return errors.New("invalid: unable to decode OptUpdateConnectionReqOptions2SignRequestAlgorithm to nil")
+	}
+	o.Set = true
+	if err := o.Value.Decode(d); err != nil {
+		return err
+	}
+	return nil
+}
+
+// MarshalJSON implements stdjson.Marshaler.
+func (s OptUpdateConnectionReqOptions2SignRequestAlgorithm) MarshalJSON() ([]byte, error) {
+	e := jx.Encoder{}
+	s.Encode(&e)
+	return e.Bytes(), nil
+}
+
+// UnmarshalJSON implements stdjson.Unmarshaler.
+func (s *OptUpdateConnectionReqOptions2SignRequestAlgorithm) UnmarshalJSON(data []byte) error {
+	d := jx.DecodeBytes(data)
+	return s.Decode(d)
+}
+
 // Encode encodes UpdateConnectionReqOptions2UpstreamParams as json.
 func (o OptUpdateConnectionReqOptions2UpstreamParams) Encode(e *jx.Encoder) {
 	if !o.Set {
@@ -32313,6 +39204,72 @@ func (s OptUpdateConnectionReqOptions2UpstreamParams) MarshalJSON() ([]byte, err
 
 // UnmarshalJSON implements stdjson.Unmarshaler.
 func (s *OptUpdateConnectionReqOptions2UpstreamParams) UnmarshalJSON(data []byte) error {
+	d := jx.DecodeBytes(data)
+	return s.Decode(d)
+}
+
+// Encode encodes UpdateOrganizationPasskeyOKPolicy as json.
+func (o OptUpdateOrganizationPasskeyOKPolicy) Encode(e *jx.Encoder) {
+	if !o.Set {
+		return
+	}
+	e.Str(string(o.Value))
+}
+
+// Decode decodes UpdateOrganizationPasskeyOKPolicy from json.
+func (o *OptUpdateOrganizationPasskeyOKPolicy) Decode(d *jx.Decoder) error {
+	if o == nil {
+		return errors.New("invalid: unable to decode OptUpdateOrganizationPasskeyOKPolicy to nil")
+	}
+	o.Set = true
+	if err := o.Value.Decode(d); err != nil {
+		return err
+	}
+	return nil
+}
+
+// MarshalJSON implements stdjson.Marshaler.
+func (s OptUpdateOrganizationPasskeyOKPolicy) MarshalJSON() ([]byte, error) {
+	e := jx.Encoder{}
+	s.Encode(&e)
+	return e.Bytes(), nil
+}
+
+// UnmarshalJSON implements stdjson.Unmarshaler.
+func (s *OptUpdateOrganizationPasskeyOKPolicy) UnmarshalJSON(data []byte) error {
+	d := jx.DecodeBytes(data)
+	return s.Decode(d)
+}
+
+// Encode encodes UpdateOrganizationPasskeyReqPolicy as json.
+func (o OptUpdateOrganizationPasskeyReqPolicy) Encode(e *jx.Encoder) {
+	if !o.Set {
+		return
+	}
+	e.Str(string(o.Value))
+}
+
+// Decode decodes UpdateOrganizationPasskeyReqPolicy from json.
+func (o *OptUpdateOrganizationPasskeyReqPolicy) Decode(d *jx.Decoder) error {
+	if o == nil {
+		return errors.New("invalid: unable to decode OptUpdateOrganizationPasskeyReqPolicy to nil")
+	}
+	o.Set = true
+	if err := o.Value.Decode(d); err != nil {
+		return err
+	}
+	return nil
+}
+
+// MarshalJSON implements stdjson.Marshaler.
+func (s OptUpdateOrganizationPasskeyReqPolicy) MarshalJSON() ([]byte, error) {
+	e := jx.Encoder{}
+	s.Encode(&e)
+	return e.Bytes(), nil
+}
+
+// UnmarshalJSON implements stdjson.Unmarshaler.
+func (s *OptUpdateOrganizationPasskeyReqPolicy) UnmarshalJSON(data []byte) error {
 	d := jx.DecodeBytes(data)
 	return s.Decode(d)
 }
@@ -32449,6 +39406,39 @@ func (s *OptUpdateOrganizationUsersReq) UnmarshalJSON(data []byte) error {
 	return s.Decode(d)
 }
 
+// Encode encodes UpdatePasskeyOKPolicy as json.
+func (o OptUpdatePasskeyOKPolicy) Encode(e *jx.Encoder) {
+	if !o.Set {
+		return
+	}
+	e.Str(string(o.Value))
+}
+
+// Decode decodes UpdatePasskeyOKPolicy from json.
+func (o *OptUpdatePasskeyOKPolicy) Decode(d *jx.Decoder) error {
+	if o == nil {
+		return errors.New("invalid: unable to decode OptUpdatePasskeyOKPolicy to nil")
+	}
+	o.Set = true
+	if err := o.Value.Decode(d); err != nil {
+		return err
+	}
+	return nil
+}
+
+// MarshalJSON implements stdjson.Marshaler.
+func (s OptUpdatePasskeyOKPolicy) MarshalJSON() ([]byte, error) {
+	e := jx.Encoder{}
+	s.Encode(&e)
+	return e.Bytes(), nil
+}
+
+// UnmarshalJSON implements stdjson.Unmarshaler.
+func (s *OptUpdatePasskeyOKPolicy) UnmarshalJSON(data []byte) error {
+	d := jx.DecodeBytes(data)
+	return s.Decode(d)
+}
+
 // Encode encodes UpdatePermissionsReq as json.
 func (o OptUpdatePermissionsReq) Encode(e *jx.Encoder) {
 	if !o.Set {
@@ -32548,6 +39538,39 @@ func (s *OptUpdateWebhookResponseWebhook) UnmarshalJSON(data []byte) error {
 	return s.Decode(d)
 }
 
+// Encode encodes UserBilling as json.
+func (o OptUserBilling) Encode(e *jx.Encoder) {
+	if !o.Set {
+		return
+	}
+	o.Value.Encode(e)
+}
+
+// Decode decodes UserBilling from json.
+func (o *OptUserBilling) Decode(d *jx.Decoder) error {
+	if o == nil {
+		return errors.New("invalid: unable to decode OptUserBilling to nil")
+	}
+	o.Set = true
+	if err := o.Value.Decode(d); err != nil {
+		return err
+	}
+	return nil
+}
+
+// MarshalJSON implements stdjson.Marshaler.
+func (s OptUserBilling) MarshalJSON() ([]byte, error) {
+	e := jx.Encoder{}
+	s.Encode(&e)
+	return e.Bytes(), nil
+}
+
+// UnmarshalJSON implements stdjson.Unmarshaler.
+func (s *OptUserBilling) UnmarshalJSON(data []byte) error {
+	d := jx.DecodeBytes(data)
+	return s.Decode(d)
+}
+
 // Encode encodes UserIdentityResult as json.
 func (o OptUserIdentityResult) Encode(e *jx.Encoder) {
 	if !o.Set {
@@ -32610,6 +39633,347 @@ func (s OptUsersResponseUsersItemBilling) MarshalJSON() ([]byte, error) {
 
 // UnmarshalJSON implements stdjson.Unmarshaler.
 func (s *OptUsersResponseUsersItemBilling) UnmarshalJSON(data []byte) error {
+	d := jx.DecodeBytes(data)
+	return s.Decode(d)
+}
+
+// Encode implements json.Marshaler.
+func (s *OrganizationInvite) Encode(e *jx.Encoder) {
+	e.ObjStart()
+	s.encodeFields(e)
+	e.ObjEnd()
+}
+
+// encodeFields encodes fields.
+func (s *OrganizationInvite) encodeFields(e *jx.Encoder) {
+	{
+		if s.ID.Set {
+			e.FieldStart("id")
+			s.ID.Encode(e)
+		}
+	}
+	{
+		if s.Code.Set {
+			e.FieldStart("code")
+			s.Code.Encode(e)
+		}
+	}
+	{
+		if s.Email.Set {
+			e.FieldStart("email")
+			s.Email.Encode(e)
+		}
+	}
+	{
+		if s.FirstName.Set {
+			e.FieldStart("first_name")
+			s.FirstName.Encode(e)
+		}
+	}
+	{
+		if s.LastName.Set {
+			e.FieldStart("last_name")
+			s.LastName.Encode(e)
+		}
+	}
+	{
+		if s.FullName.Set {
+			e.FieldStart("full_name")
+			s.FullName.Encode(e)
+		}
+	}
+	{
+		if s.CreatedOn.Set {
+			e.FieldStart("created_on")
+			s.CreatedOn.Encode(e, json.EncodeDateTime)
+		}
+	}
+	{
+		if s.IsSent.Set {
+			e.FieldStart("is_sent")
+			s.IsSent.Encode(e)
+		}
+	}
+	{
+		if s.AcceptedOn.Set {
+			e.FieldStart("accepted_on")
+			s.AcceptedOn.Encode(e, json.EncodeDateTime)
+		}
+	}
+	{
+		if s.Roles != nil {
+			e.FieldStart("roles")
+			e.ArrStart()
+			for _, elem := range s.Roles {
+				elem.Encode(e)
+			}
+			e.ArrEnd()
+		}
+	}
+	{
+		if s.IsRevoked.Set {
+			e.FieldStart("is_revoked")
+			s.IsRevoked.Encode(e)
+		}
+	}
+	{
+		if s.InviteLink.Set {
+			e.FieldStart("invite_link")
+			s.InviteLink.Encode(e)
+		}
+	}
+}
+
+var jsonFieldsNameOfOrganizationInvite = [12]string{
+	0:  "id",
+	1:  "code",
+	2:  "email",
+	3:  "first_name",
+	4:  "last_name",
+	5:  "full_name",
+	6:  "created_on",
+	7:  "is_sent",
+	8:  "accepted_on",
+	9:  "roles",
+	10: "is_revoked",
+	11: "invite_link",
+}
+
+// Decode decodes OrganizationInvite from json.
+func (s *OrganizationInvite) Decode(d *jx.Decoder) error {
+	if s == nil {
+		return errors.New("invalid: unable to decode OrganizationInvite to nil")
+	}
+
+	if err := d.ObjBytes(func(d *jx.Decoder, k []byte) error {
+		switch string(k) {
+		case "id":
+			if err := func() error {
+				s.ID.Reset()
+				if err := s.ID.Decode(d); err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return errors.Wrap(err, "decode field \"id\"")
+			}
+		case "code":
+			if err := func() error {
+				s.Code.Reset()
+				if err := s.Code.Decode(d); err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return errors.Wrap(err, "decode field \"code\"")
+			}
+		case "email":
+			if err := func() error {
+				s.Email.Reset()
+				if err := s.Email.Decode(d); err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return errors.Wrap(err, "decode field \"email\"")
+			}
+		case "first_name":
+			if err := func() error {
+				s.FirstName.Reset()
+				if err := s.FirstName.Decode(d); err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return errors.Wrap(err, "decode field \"first_name\"")
+			}
+		case "last_name":
+			if err := func() error {
+				s.LastName.Reset()
+				if err := s.LastName.Decode(d); err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return errors.Wrap(err, "decode field \"last_name\"")
+			}
+		case "full_name":
+			if err := func() error {
+				s.FullName.Reset()
+				if err := s.FullName.Decode(d); err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return errors.Wrap(err, "decode field \"full_name\"")
+			}
+		case "created_on":
+			if err := func() error {
+				s.CreatedOn.Reset()
+				if err := s.CreatedOn.Decode(d, json.DecodeDateTime); err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return errors.Wrap(err, "decode field \"created_on\"")
+			}
+		case "is_sent":
+			if err := func() error {
+				s.IsSent.Reset()
+				if err := s.IsSent.Decode(d); err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return errors.Wrap(err, "decode field \"is_sent\"")
+			}
+		case "accepted_on":
+			if err := func() error {
+				s.AcceptedOn.Reset()
+				if err := s.AcceptedOn.Decode(d, json.DecodeDateTime); err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return errors.Wrap(err, "decode field \"accepted_on\"")
+			}
+		case "roles":
+			if err := func() error {
+				s.Roles = make([]OrganizationInviteRolesItem, 0)
+				if err := d.Arr(func(d *jx.Decoder) error {
+					var elem OrganizationInviteRolesItem
+					if err := elem.Decode(d); err != nil {
+						return err
+					}
+					s.Roles = append(s.Roles, elem)
+					return nil
+				}); err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return errors.Wrap(err, "decode field \"roles\"")
+			}
+		case "is_revoked":
+			if err := func() error {
+				s.IsRevoked.Reset()
+				if err := s.IsRevoked.Decode(d); err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return errors.Wrap(err, "decode field \"is_revoked\"")
+			}
+		case "invite_link":
+			if err := func() error {
+				s.InviteLink.Reset()
+				if err := s.InviteLink.Decode(d); err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return errors.Wrap(err, "decode field \"invite_link\"")
+			}
+		default:
+			return d.Skip()
+		}
+		return nil
+	}); err != nil {
+		return errors.Wrap(err, "decode OrganizationInvite")
+	}
+
+	return nil
+}
+
+// MarshalJSON implements stdjson.Marshaler.
+func (s *OrganizationInvite) MarshalJSON() ([]byte, error) {
+	e := jx.Encoder{}
+	s.Encode(&e)
+	return e.Bytes(), nil
+}
+
+// UnmarshalJSON implements stdjson.Unmarshaler.
+func (s *OrganizationInvite) UnmarshalJSON(data []byte) error {
+	d := jx.DecodeBytes(data)
+	return s.Decode(d)
+}
+
+// Encode implements json.Marshaler.
+func (s *OrganizationInviteRolesItem) Encode(e *jx.Encoder) {
+	e.ObjStart()
+	s.encodeFields(e)
+	e.ObjEnd()
+}
+
+// encodeFields encodes fields.
+func (s *OrganizationInviteRolesItem) encodeFields(e *jx.Encoder) {
+	{
+		if s.Key.Set {
+			e.FieldStart("key")
+			s.Key.Encode(e)
+		}
+	}
+	{
+		if s.Name.Set {
+			e.FieldStart("name")
+			s.Name.Encode(e)
+		}
+	}
+}
+
+var jsonFieldsNameOfOrganizationInviteRolesItem = [2]string{
+	0: "key",
+	1: "name",
+}
+
+// Decode decodes OrganizationInviteRolesItem from json.
+func (s *OrganizationInviteRolesItem) Decode(d *jx.Decoder) error {
+	if s == nil {
+		return errors.New("invalid: unable to decode OrganizationInviteRolesItem to nil")
+	}
+
+	if err := d.ObjBytes(func(d *jx.Decoder, k []byte) error {
+		switch string(k) {
+		case "key":
+			if err := func() error {
+				s.Key.Reset()
+				if err := s.Key.Decode(d); err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return errors.Wrap(err, "decode field \"key\"")
+			}
+		case "name":
+			if err := func() error {
+				s.Name.Reset()
+				if err := s.Name.Decode(d); err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return errors.Wrap(err, "decode field \"name\"")
+			}
+		default:
+			return d.Skip()
+		}
+		return nil
+	}); err != nil {
+		return errors.Wrap(err, "decode OrganizationInviteRolesItem")
+	}
+
+	return nil
+}
+
+// MarshalJSON implements stdjson.Marshaler.
+func (s *OrganizationInviteRolesItem) MarshalJSON() ([]byte, error) {
+	e := jx.Encoder{}
+	s.Encode(&e)
+	return e.Bytes(), nil
+}
+
+// UnmarshalJSON implements stdjson.Unmarshaler.
+func (s *OrganizationInviteRolesItem) UnmarshalJSON(data []byte) error {
 	d := jx.DecodeBytes(data)
 	return s.Decode(d)
 }
@@ -32820,6 +40184,12 @@ func (s *OrganizationUser) encodeFields(e *jx.Encoder) {
 		}
 	}
 	{
+		if s.IsSuspended.Set {
+			e.FieldStart("is_suspended")
+			s.IsSuspended.Encode(e)
+		}
+	}
+	{
 		if s.Roles != nil {
 			e.FieldStart("roles")
 			e.ArrStart()
@@ -32831,7 +40201,7 @@ func (s *OrganizationUser) encodeFields(e *jx.Encoder) {
 	}
 }
 
-var jsonFieldsNameOfOrganizationUser = [9]string{
+var jsonFieldsNameOfOrganizationUser = [10]string{
 	0: "id",
 	1: "email",
 	2: "full_name",
@@ -32840,7 +40210,8 @@ var jsonFieldsNameOfOrganizationUser = [9]string{
 	5: "picture",
 	6: "joined_on",
 	7: "last_accessed_on",
-	8: "roles",
+	8: "is_suspended",
+	9: "roles",
 }
 
 // Decode decodes OrganizationUser from json.
@@ -32930,6 +40301,16 @@ func (s *OrganizationUser) Decode(d *jx.Decoder) error {
 				return nil
 			}(); err != nil {
 				return errors.Wrap(err, "decode field \"last_accessed_on\"")
+			}
+		case "is_suspended":
+			if err := func() error {
+				s.IsSuspended.Reset()
+				if err := s.IsSuspended.Decode(d); err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return errors.Wrap(err, "decode field \"is_suspended\"")
 			}
 		case "roles":
 			if err := func() error {
@@ -34459,6 +41840,120 @@ func (s *RefreshUserClaimsForbidden) UnmarshalJSON(data []byte) error {
 	return s.Decode(d)
 }
 
+// Encode encodes RemoveApplicationAccessRoleBadRequest as json.
+func (s *RemoveApplicationAccessRoleBadRequest) Encode(e *jx.Encoder) {
+	unwrapped := (*ErrorResponse)(s)
+
+	unwrapped.Encode(e)
+}
+
+// Decode decodes RemoveApplicationAccessRoleBadRequest from json.
+func (s *RemoveApplicationAccessRoleBadRequest) Decode(d *jx.Decoder) error {
+	if s == nil {
+		return errors.New("invalid: unable to decode RemoveApplicationAccessRoleBadRequest to nil")
+	}
+	var unwrapped ErrorResponse
+	if err := func() error {
+		if err := unwrapped.Decode(d); err != nil {
+			return err
+		}
+		return nil
+	}(); err != nil {
+		return errors.Wrap(err, "alias")
+	}
+	*s = RemoveApplicationAccessRoleBadRequest(unwrapped)
+	return nil
+}
+
+// MarshalJSON implements stdjson.Marshaler.
+func (s *RemoveApplicationAccessRoleBadRequest) MarshalJSON() ([]byte, error) {
+	e := jx.Encoder{}
+	s.Encode(&e)
+	return e.Bytes(), nil
+}
+
+// UnmarshalJSON implements stdjson.Unmarshaler.
+func (s *RemoveApplicationAccessRoleBadRequest) UnmarshalJSON(data []byte) error {
+	d := jx.DecodeBytes(data)
+	return s.Decode(d)
+}
+
+// Encode encodes RemoveApplicationAccessRoleForbidden as json.
+func (s *RemoveApplicationAccessRoleForbidden) Encode(e *jx.Encoder) {
+	unwrapped := (*ErrorResponse)(s)
+
+	unwrapped.Encode(e)
+}
+
+// Decode decodes RemoveApplicationAccessRoleForbidden from json.
+func (s *RemoveApplicationAccessRoleForbidden) Decode(d *jx.Decoder) error {
+	if s == nil {
+		return errors.New("invalid: unable to decode RemoveApplicationAccessRoleForbidden to nil")
+	}
+	var unwrapped ErrorResponse
+	if err := func() error {
+		if err := unwrapped.Decode(d); err != nil {
+			return err
+		}
+		return nil
+	}(); err != nil {
+		return errors.Wrap(err, "alias")
+	}
+	*s = RemoveApplicationAccessRoleForbidden(unwrapped)
+	return nil
+}
+
+// MarshalJSON implements stdjson.Marshaler.
+func (s *RemoveApplicationAccessRoleForbidden) MarshalJSON() ([]byte, error) {
+	e := jx.Encoder{}
+	s.Encode(&e)
+	return e.Bytes(), nil
+}
+
+// UnmarshalJSON implements stdjson.Unmarshaler.
+func (s *RemoveApplicationAccessRoleForbidden) UnmarshalJSON(data []byte) error {
+	d := jx.DecodeBytes(data)
+	return s.Decode(d)
+}
+
+// Encode encodes RemoveApplicationAccessRoleTooManyRequests as json.
+func (s *RemoveApplicationAccessRoleTooManyRequests) Encode(e *jx.Encoder) {
+	unwrapped := (*ErrorResponse)(s)
+
+	unwrapped.Encode(e)
+}
+
+// Decode decodes RemoveApplicationAccessRoleTooManyRequests from json.
+func (s *RemoveApplicationAccessRoleTooManyRequests) Decode(d *jx.Decoder) error {
+	if s == nil {
+		return errors.New("invalid: unable to decode RemoveApplicationAccessRoleTooManyRequests to nil")
+	}
+	var unwrapped ErrorResponse
+	if err := func() error {
+		if err := unwrapped.Decode(d); err != nil {
+			return err
+		}
+		return nil
+	}(); err != nil {
+		return errors.Wrap(err, "alias")
+	}
+	*s = RemoveApplicationAccessRoleTooManyRequests(unwrapped)
+	return nil
+}
+
+// MarshalJSON implements stdjson.Marshaler.
+func (s *RemoveApplicationAccessRoleTooManyRequests) MarshalJSON() ([]byte, error) {
+	e := jx.Encoder{}
+	s.Encode(&e)
+	return e.Bytes(), nil
+}
+
+// UnmarshalJSON implements stdjson.Unmarshaler.
+func (s *RemoveApplicationAccessRoleTooManyRequests) UnmarshalJSON(data []byte) error {
+	d := jx.DecodeBytes(data)
+	return s.Decode(d)
+}
+
 // Encode encodes RemoveConnectionBadRequest as json.
 func (s *RemoveConnectionBadRequest) Encode(e *jx.Encoder) {
 	unwrapped := (*ErrorResponse)(s)
@@ -34927,14 +42422,6 @@ func (s *ReplaceConnectionReqOptions) Decode(d *jx.Decoder) error {
 	if err := d.Capture(func(d *jx.Decoder) error {
 		return d.ObjBytes(func(d *jx.Decoder, key []byte) error {
 			switch string(key) {
-			case "is_use_custom_domain":
-				match := ReplaceConnectionReqOptions0ReplaceConnectionReqOptions
-				if found && s.Type != match {
-					s.Type = ""
-					return errors.Errorf("multiple oneOf matches: (%v, %v)", s.Type, match)
-				}
-				found = true
-				s.Type = match
 			case "entra_id_domain":
 				match := ReplaceConnectionReqOptions1ReplaceConnectionReqOptions
 				if found && s.Type != match {
@@ -34983,14 +42470,6 @@ func (s *ReplaceConnectionReqOptions) Decode(d *jx.Decoder) error {
 				}
 				found = true
 				s.Type = match
-			case "saml_acs_url":
-				match := ReplaceConnectionReqOptions2ReplaceConnectionReqOptions
-				if found && s.Type != match {
-					s.Type = ""
-					return errors.Errorf("multiple oneOf matches: (%v, %v)", s.Type, match)
-				}
-				found = true
-				s.Type = match
 			case "saml_idp_metadata_url":
 				match := ReplaceConnectionReqOptions2ReplaceConnectionReqOptions
 				if found && s.Type != match {
@@ -34999,7 +42478,47 @@ func (s *ReplaceConnectionReqOptions) Decode(d *jx.Decoder) error {
 				}
 				found = true
 				s.Type = match
+			case "saml_idp_metadata_xml":
+				match := ReplaceConnectionReqOptions2ReplaceConnectionReqOptions
+				if found && s.Type != match {
+					s.Type = ""
+					return errors.Errorf("multiple oneOf matches: (%v, %v)", s.Type, match)
+				}
+				found = true
+				s.Type = match
+			case "sign_request_algorithm":
+				match := ReplaceConnectionReqOptions2ReplaceConnectionReqOptions
+				if found && s.Type != match {
+					s.Type = ""
+					return errors.Errorf("multiple oneOf matches: (%v, %v)", s.Type, match)
+				}
+				found = true
+				s.Type = match
+			case "protocol_binding":
+				match := ReplaceConnectionReqOptions2ReplaceConnectionReqOptions
+				if found && s.Type != match {
+					s.Type = ""
+					return errors.Errorf("multiple oneOf matches: (%v, %v)", s.Type, match)
+				}
+				found = true
+				s.Type = match
+			case "name_id_format":
+				match := ReplaceConnectionReqOptions2ReplaceConnectionReqOptions
+				if found && s.Type != match {
+					s.Type = ""
+					return errors.Errorf("multiple oneOf matches: (%v, %v)", s.Type, match)
+				}
+				found = true
+				s.Type = match
 			case "saml_email_key_attr":
+				match := ReplaceConnectionReqOptions2ReplaceConnectionReqOptions
+				if found && s.Type != match {
+					s.Type = ""
+					return errors.Errorf("multiple oneOf matches: (%v, %v)", s.Type, match)
+				}
+				found = true
+				s.Type = match
+			case "saml_user_id_key_attr":
 				match := ReplaceConnectionReqOptions2ReplaceConnectionReqOptions
 				if found && s.Type != match {
 					s.Type = ""
@@ -35107,12 +42626,19 @@ func (s *ReplaceConnectionReqOptions0) encodeFields(e *jx.Encoder) {
 			s.IsUseCustomDomain.Encode(e)
 		}
 	}
+	{
+		if s.IsTrusted.Set {
+			e.FieldStart("is_trusted")
+			s.IsTrusted.Encode(e)
+		}
+	}
 }
 
-var jsonFieldsNameOfReplaceConnectionReqOptions0 = [3]string{
+var jsonFieldsNameOfReplaceConnectionReqOptions0 = [4]string{
 	0: "client_id",
 	1: "client_secret",
 	2: "is_use_custom_domain",
+	3: "is_trusted",
 }
 
 // Decode decodes ReplaceConnectionReqOptions0 from json.
@@ -35152,6 +42678,16 @@ func (s *ReplaceConnectionReqOptions0) Decode(d *jx.Decoder) error {
 				return nil
 			}(); err != nil {
 				return errors.Wrap(err, "decode field \"is_use_custom_domain\"")
+			}
+		case "is_trusted":
+			if err := func() error {
+				s.IsTrusted.Reset()
+				if err := s.IsTrusted.Decode(d); err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return errors.Wrap(err, "decode field \"is_trusted\"")
 			}
 		default:
 			return d.Skip()
@@ -35251,14 +42787,32 @@ func (s *ReplaceConnectionReqOptions1) encodeFields(e *jx.Encoder) {
 		}
 	}
 	{
+		if s.SSOButtonDisplay.Set {
+			e.FieldStart("sso_button_display")
+			s.SSOButtonDisplay.Encode(e)
+		}
+	}
+	{
 		if s.UpstreamParams.Set {
 			e.FieldStart("upstream_params")
 			s.UpstreamParams.Encode(e)
 		}
 	}
+	{
+		if s.IsUseCustomDomain.Set {
+			e.FieldStart("is_use_custom_domain")
+			s.IsUseCustomDomain.Encode(e)
+		}
+	}
+	{
+		if s.IsTrusted.Set {
+			e.FieldStart("is_trusted")
+			s.IsTrusted.Encode(e)
+		}
+	}
 }
 
-var jsonFieldsNameOfReplaceConnectionReqOptions1 = [11]string{
+var jsonFieldsNameOfReplaceConnectionReqOptions1 = [14]string{
 	0:  "client_id",
 	1:  "client_secret",
 	2:  "home_realm_domains",
@@ -35269,7 +42823,10 @@ var jsonFieldsNameOfReplaceConnectionReqOptions1 = [11]string{
 	7:  "is_extended_attributes_required",
 	8:  "is_create_missing_user",
 	9:  "is_force_show_sso_button",
-	10: "upstream_params",
+	10: "sso_button_display",
+	11: "upstream_params",
+	12: "is_use_custom_domain",
+	13: "is_trusted",
 }
 
 // Decode decodes ReplaceConnectionReqOptions1 from json.
@@ -35389,6 +42946,16 @@ func (s *ReplaceConnectionReqOptions1) Decode(d *jx.Decoder) error {
 			}(); err != nil {
 				return errors.Wrap(err, "decode field \"is_force_show_sso_button\"")
 			}
+		case "sso_button_display":
+			if err := func() error {
+				s.SSOButtonDisplay.Reset()
+				if err := s.SSOButtonDisplay.Decode(d); err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return errors.Wrap(err, "decode field \"sso_button_display\"")
+			}
 		case "upstream_params":
 			if err := func() error {
 				s.UpstreamParams.Reset()
@@ -35398,6 +42965,26 @@ func (s *ReplaceConnectionReqOptions1) Decode(d *jx.Decoder) error {
 				return nil
 			}(); err != nil {
 				return errors.Wrap(err, "decode field \"upstream_params\"")
+			}
+		case "is_use_custom_domain":
+			if err := func() error {
+				s.IsUseCustomDomain.Reset()
+				if err := s.IsUseCustomDomain.Decode(d); err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return errors.Wrap(err, "decode field \"is_use_custom_domain\"")
+			}
+		case "is_trusted":
+			if err := func() error {
+				s.IsTrusted.Reset()
+				if err := s.IsTrusted.Decode(d); err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return errors.Wrap(err, "decode field \"is_trusted\"")
 			}
 		default:
 			return d.Skip()
@@ -35419,6 +43006,48 @@ func (s *ReplaceConnectionReqOptions1) MarshalJSON() ([]byte, error) {
 
 // UnmarshalJSON implements stdjson.Unmarshaler.
 func (s *ReplaceConnectionReqOptions1) UnmarshalJSON(data []byte) error {
+	d := jx.DecodeBytes(data)
+	return s.Decode(d)
+}
+
+// Encode encodes ReplaceConnectionReqOptions1SSOButtonDisplay as json.
+func (s ReplaceConnectionReqOptions1SSOButtonDisplay) Encode(e *jx.Encoder) {
+	e.Str(string(s))
+}
+
+// Decode decodes ReplaceConnectionReqOptions1SSOButtonDisplay from json.
+func (s *ReplaceConnectionReqOptions1SSOButtonDisplay) Decode(d *jx.Decoder) error {
+	if s == nil {
+		return errors.New("invalid: unable to decode ReplaceConnectionReqOptions1SSOButtonDisplay to nil")
+	}
+	v, err := d.StrBytes()
+	if err != nil {
+		return err
+	}
+	// Try to use constant string.
+	switch ReplaceConnectionReqOptions1SSOButtonDisplay(v) {
+	case ReplaceConnectionReqOptions1SSOButtonDisplayAuto:
+		*s = ReplaceConnectionReqOptions1SSOButtonDisplayAuto
+	case ReplaceConnectionReqOptions1SSOButtonDisplayShow:
+		*s = ReplaceConnectionReqOptions1SSOButtonDisplayShow
+	case ReplaceConnectionReqOptions1SSOButtonDisplayHide:
+		*s = ReplaceConnectionReqOptions1SSOButtonDisplayHide
+	default:
+		*s = ReplaceConnectionReqOptions1SSOButtonDisplay(v)
+	}
+
+	return nil
+}
+
+// MarshalJSON implements stdjson.Marshaler.
+func (s ReplaceConnectionReqOptions1SSOButtonDisplay) MarshalJSON() ([]byte, error) {
+	e := jx.Encoder{}
+	s.Encode(&e)
+	return e.Bytes(), nil
+}
+
+// UnmarshalJSON implements stdjson.Unmarshaler.
+func (s *ReplaceConnectionReqOptions1SSOButtonDisplay) UnmarshalJSON(data []byte) error {
 	d := jx.DecodeBytes(data)
 	return s.Decode(d)
 }
@@ -35507,21 +43136,45 @@ func (s *ReplaceConnectionReqOptions2) encodeFields(e *jx.Encoder) {
 		}
 	}
 	{
-		if s.SamlAcsURL.Set {
-			e.FieldStart("saml_acs_url")
-			s.SamlAcsURL.Encode(e)
-		}
-	}
-	{
 		if s.SamlIdpMetadataURL.Set {
 			e.FieldStart("saml_idp_metadata_url")
 			s.SamlIdpMetadataURL.Encode(e)
 		}
 	}
 	{
+		if s.SamlIdpMetadataXML.Set {
+			e.FieldStart("saml_idp_metadata_xml")
+			s.SamlIdpMetadataXML.Encode(e)
+		}
+	}
+	{
+		if s.SignRequestAlgorithm.Set {
+			e.FieldStart("sign_request_algorithm")
+			s.SignRequestAlgorithm.Encode(e)
+		}
+	}
+	{
+		if s.ProtocolBinding.Set {
+			e.FieldStart("protocol_binding")
+			s.ProtocolBinding.Encode(e)
+		}
+	}
+	{
+		if s.NameIDFormat.Set {
+			e.FieldStart("name_id_format")
+			s.NameIDFormat.Encode(e)
+		}
+	}
+	{
 		if s.SamlEmailKeyAttr.Set {
 			e.FieldStart("saml_email_key_attr")
 			s.SamlEmailKeyAttr.Encode(e)
+		}
+	}
+	{
+		if s.SamlUserIDKeyAttr.Set {
+			e.FieldStart("saml_user_id_key_attr")
+			s.SamlUserIDKeyAttr.Encode(e)
 		}
 	}
 	{
@@ -35549,6 +43202,12 @@ func (s *ReplaceConnectionReqOptions2) encodeFields(e *jx.Encoder) {
 		}
 	}
 	{
+		if s.SSOButtonDisplay.Set {
+			e.FieldStart("sso_button_display")
+			s.SSOButtonDisplay.Encode(e)
+		}
+	}
+	{
 		if s.UpstreamParams.Set {
 			e.FieldStart("upstream_params")
 			s.UpstreamParams.Encode(e)
@@ -35566,21 +43225,40 @@ func (s *ReplaceConnectionReqOptions2) encodeFields(e *jx.Encoder) {
 			s.SamlSigningPrivateKey.Encode(e)
 		}
 	}
+	{
+		if s.IsUseCustomDomain.Set {
+			e.FieldStart("is_use_custom_domain")
+			s.IsUseCustomDomain.Encode(e)
+		}
+	}
+	{
+		if s.IsTrusted.Set {
+			e.FieldStart("is_trusted")
+			s.IsTrusted.Encode(e)
+		}
+	}
 }
 
-var jsonFieldsNameOfReplaceConnectionReqOptions2 = [12]string{
+var jsonFieldsNameOfReplaceConnectionReqOptions2 = [19]string{
 	0:  "home_realm_domains",
 	1:  "saml_entity_id",
-	2:  "saml_acs_url",
-	3:  "saml_idp_metadata_url",
-	4:  "saml_email_key_attr",
-	5:  "saml_first_name_key_attr",
-	6:  "saml_last_name_key_attr",
-	7:  "is_create_missing_user",
-	8:  "is_force_show_sso_button",
-	9:  "upstream_params",
-	10: "saml_signing_certificate",
-	11: "saml_signing_private_key",
+	2:  "saml_idp_metadata_url",
+	3:  "saml_idp_metadata_xml",
+	4:  "sign_request_algorithm",
+	5:  "protocol_binding",
+	6:  "name_id_format",
+	7:  "saml_email_key_attr",
+	8:  "saml_user_id_key_attr",
+	9:  "saml_first_name_key_attr",
+	10: "saml_last_name_key_attr",
+	11: "is_create_missing_user",
+	12: "is_force_show_sso_button",
+	13: "sso_button_display",
+	14: "upstream_params",
+	15: "saml_signing_certificate",
+	16: "saml_signing_private_key",
+	17: "is_use_custom_domain",
+	18: "is_trusted",
 }
 
 // Decode decodes ReplaceConnectionReqOptions2 from json.
@@ -35620,16 +43298,6 @@ func (s *ReplaceConnectionReqOptions2) Decode(d *jx.Decoder) error {
 			}(); err != nil {
 				return errors.Wrap(err, "decode field \"saml_entity_id\"")
 			}
-		case "saml_acs_url":
-			if err := func() error {
-				s.SamlAcsURL.Reset()
-				if err := s.SamlAcsURL.Decode(d); err != nil {
-					return err
-				}
-				return nil
-			}(); err != nil {
-				return errors.Wrap(err, "decode field \"saml_acs_url\"")
-			}
 		case "saml_idp_metadata_url":
 			if err := func() error {
 				s.SamlIdpMetadataURL.Reset()
@@ -35640,6 +43308,46 @@ func (s *ReplaceConnectionReqOptions2) Decode(d *jx.Decoder) error {
 			}(); err != nil {
 				return errors.Wrap(err, "decode field \"saml_idp_metadata_url\"")
 			}
+		case "saml_idp_metadata_xml":
+			if err := func() error {
+				s.SamlIdpMetadataXML.Reset()
+				if err := s.SamlIdpMetadataXML.Decode(d); err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return errors.Wrap(err, "decode field \"saml_idp_metadata_xml\"")
+			}
+		case "sign_request_algorithm":
+			if err := func() error {
+				s.SignRequestAlgorithm.Reset()
+				if err := s.SignRequestAlgorithm.Decode(d); err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return errors.Wrap(err, "decode field \"sign_request_algorithm\"")
+			}
+		case "protocol_binding":
+			if err := func() error {
+				s.ProtocolBinding.Reset()
+				if err := s.ProtocolBinding.Decode(d); err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return errors.Wrap(err, "decode field \"protocol_binding\"")
+			}
+		case "name_id_format":
+			if err := func() error {
+				s.NameIDFormat.Reset()
+				if err := s.NameIDFormat.Decode(d); err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return errors.Wrap(err, "decode field \"name_id_format\"")
+			}
 		case "saml_email_key_attr":
 			if err := func() error {
 				s.SamlEmailKeyAttr.Reset()
@@ -35649,6 +43357,16 @@ func (s *ReplaceConnectionReqOptions2) Decode(d *jx.Decoder) error {
 				return nil
 			}(); err != nil {
 				return errors.Wrap(err, "decode field \"saml_email_key_attr\"")
+			}
+		case "saml_user_id_key_attr":
+			if err := func() error {
+				s.SamlUserIDKeyAttr.Reset()
+				if err := s.SamlUserIDKeyAttr.Decode(d); err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return errors.Wrap(err, "decode field \"saml_user_id_key_attr\"")
 			}
 		case "saml_first_name_key_attr":
 			if err := func() error {
@@ -35690,6 +43408,16 @@ func (s *ReplaceConnectionReqOptions2) Decode(d *jx.Decoder) error {
 			}(); err != nil {
 				return errors.Wrap(err, "decode field \"is_force_show_sso_button\"")
 			}
+		case "sso_button_display":
+			if err := func() error {
+				s.SSOButtonDisplay.Reset()
+				if err := s.SSOButtonDisplay.Decode(d); err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return errors.Wrap(err, "decode field \"sso_button_display\"")
+			}
 		case "upstream_params":
 			if err := func() error {
 				s.UpstreamParams.Reset()
@@ -35720,6 +43448,26 @@ func (s *ReplaceConnectionReqOptions2) Decode(d *jx.Decoder) error {
 			}(); err != nil {
 				return errors.Wrap(err, "decode field \"saml_signing_private_key\"")
 			}
+		case "is_use_custom_domain":
+			if err := func() error {
+				s.IsUseCustomDomain.Reset()
+				if err := s.IsUseCustomDomain.Decode(d); err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return errors.Wrap(err, "decode field \"is_use_custom_domain\"")
+			}
+		case "is_trusted":
+			if err := func() error {
+				s.IsTrusted.Reset()
+				if err := s.IsTrusted.Decode(d); err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return errors.Wrap(err, "decode field \"is_trusted\"")
+			}
 		default:
 			return d.Skip()
 		}
@@ -35740,6 +43488,172 @@ func (s *ReplaceConnectionReqOptions2) MarshalJSON() ([]byte, error) {
 
 // UnmarshalJSON implements stdjson.Unmarshaler.
 func (s *ReplaceConnectionReqOptions2) UnmarshalJSON(data []byte) error {
+	d := jx.DecodeBytes(data)
+	return s.Decode(d)
+}
+
+// Encode encodes ReplaceConnectionReqOptions2NameIDFormat as json.
+func (s ReplaceConnectionReqOptions2NameIDFormat) Encode(e *jx.Encoder) {
+	e.Str(string(s))
+}
+
+// Decode decodes ReplaceConnectionReqOptions2NameIDFormat from json.
+func (s *ReplaceConnectionReqOptions2NameIDFormat) Decode(d *jx.Decoder) error {
+	if s == nil {
+		return errors.New("invalid: unable to decode ReplaceConnectionReqOptions2NameIDFormat to nil")
+	}
+	v, err := d.StrBytes()
+	if err != nil {
+		return err
+	}
+	// Try to use constant string.
+	switch ReplaceConnectionReqOptions2NameIDFormat(v) {
+	case ReplaceConnectionReqOptions2NameIDFormatPersistent:
+		*s = ReplaceConnectionReqOptions2NameIDFormatPersistent
+	case ReplaceConnectionReqOptions2NameIDFormatTransient:
+		*s = ReplaceConnectionReqOptions2NameIDFormatTransient
+	case ReplaceConnectionReqOptions2NameIDFormatEmailAddress:
+		*s = ReplaceConnectionReqOptions2NameIDFormatEmailAddress
+	case ReplaceConnectionReqOptions2NameIDFormatUnspecified:
+		*s = ReplaceConnectionReqOptions2NameIDFormatUnspecified
+	default:
+		*s = ReplaceConnectionReqOptions2NameIDFormat(v)
+	}
+
+	return nil
+}
+
+// MarshalJSON implements stdjson.Marshaler.
+func (s ReplaceConnectionReqOptions2NameIDFormat) MarshalJSON() ([]byte, error) {
+	e := jx.Encoder{}
+	s.Encode(&e)
+	return e.Bytes(), nil
+}
+
+// UnmarshalJSON implements stdjson.Unmarshaler.
+func (s *ReplaceConnectionReqOptions2NameIDFormat) UnmarshalJSON(data []byte) error {
+	d := jx.DecodeBytes(data)
+	return s.Decode(d)
+}
+
+// Encode encodes ReplaceConnectionReqOptions2ProtocolBinding as json.
+func (s ReplaceConnectionReqOptions2ProtocolBinding) Encode(e *jx.Encoder) {
+	e.Str(string(s))
+}
+
+// Decode decodes ReplaceConnectionReqOptions2ProtocolBinding from json.
+func (s *ReplaceConnectionReqOptions2ProtocolBinding) Decode(d *jx.Decoder) error {
+	if s == nil {
+		return errors.New("invalid: unable to decode ReplaceConnectionReqOptions2ProtocolBinding to nil")
+	}
+	v, err := d.StrBytes()
+	if err != nil {
+		return err
+	}
+	// Try to use constant string.
+	switch ReplaceConnectionReqOptions2ProtocolBinding(v) {
+	case ReplaceConnectionReqOptions2ProtocolBindingHTTPREDIRECT:
+		*s = ReplaceConnectionReqOptions2ProtocolBindingHTTPREDIRECT
+	case ReplaceConnectionReqOptions2ProtocolBindingHTTPPOST:
+		*s = ReplaceConnectionReqOptions2ProtocolBindingHTTPPOST
+	default:
+		*s = ReplaceConnectionReqOptions2ProtocolBinding(v)
+	}
+
+	return nil
+}
+
+// MarshalJSON implements stdjson.Marshaler.
+func (s ReplaceConnectionReqOptions2ProtocolBinding) MarshalJSON() ([]byte, error) {
+	e := jx.Encoder{}
+	s.Encode(&e)
+	return e.Bytes(), nil
+}
+
+// UnmarshalJSON implements stdjson.Unmarshaler.
+func (s *ReplaceConnectionReqOptions2ProtocolBinding) UnmarshalJSON(data []byte) error {
+	d := jx.DecodeBytes(data)
+	return s.Decode(d)
+}
+
+// Encode encodes ReplaceConnectionReqOptions2SSOButtonDisplay as json.
+func (s ReplaceConnectionReqOptions2SSOButtonDisplay) Encode(e *jx.Encoder) {
+	e.Str(string(s))
+}
+
+// Decode decodes ReplaceConnectionReqOptions2SSOButtonDisplay from json.
+func (s *ReplaceConnectionReqOptions2SSOButtonDisplay) Decode(d *jx.Decoder) error {
+	if s == nil {
+		return errors.New("invalid: unable to decode ReplaceConnectionReqOptions2SSOButtonDisplay to nil")
+	}
+	v, err := d.StrBytes()
+	if err != nil {
+		return err
+	}
+	// Try to use constant string.
+	switch ReplaceConnectionReqOptions2SSOButtonDisplay(v) {
+	case ReplaceConnectionReqOptions2SSOButtonDisplayAuto:
+		*s = ReplaceConnectionReqOptions2SSOButtonDisplayAuto
+	case ReplaceConnectionReqOptions2SSOButtonDisplayShow:
+		*s = ReplaceConnectionReqOptions2SSOButtonDisplayShow
+	case ReplaceConnectionReqOptions2SSOButtonDisplayHide:
+		*s = ReplaceConnectionReqOptions2SSOButtonDisplayHide
+	default:
+		*s = ReplaceConnectionReqOptions2SSOButtonDisplay(v)
+	}
+
+	return nil
+}
+
+// MarshalJSON implements stdjson.Marshaler.
+func (s ReplaceConnectionReqOptions2SSOButtonDisplay) MarshalJSON() ([]byte, error) {
+	e := jx.Encoder{}
+	s.Encode(&e)
+	return e.Bytes(), nil
+}
+
+// UnmarshalJSON implements stdjson.Unmarshaler.
+func (s *ReplaceConnectionReqOptions2SSOButtonDisplay) UnmarshalJSON(data []byte) error {
+	d := jx.DecodeBytes(data)
+	return s.Decode(d)
+}
+
+// Encode encodes ReplaceConnectionReqOptions2SignRequestAlgorithm as json.
+func (s ReplaceConnectionReqOptions2SignRequestAlgorithm) Encode(e *jx.Encoder) {
+	e.Str(string(s))
+}
+
+// Decode decodes ReplaceConnectionReqOptions2SignRequestAlgorithm from json.
+func (s *ReplaceConnectionReqOptions2SignRequestAlgorithm) Decode(d *jx.Decoder) error {
+	if s == nil {
+		return errors.New("invalid: unable to decode ReplaceConnectionReqOptions2SignRequestAlgorithm to nil")
+	}
+	v, err := d.StrBytes()
+	if err != nil {
+		return err
+	}
+	// Try to use constant string.
+	switch ReplaceConnectionReqOptions2SignRequestAlgorithm(v) {
+	case ReplaceConnectionReqOptions2SignRequestAlgorithmRSASHA256:
+		*s = ReplaceConnectionReqOptions2SignRequestAlgorithmRSASHA256
+	case ReplaceConnectionReqOptions2SignRequestAlgorithmRSASHA1:
+		*s = ReplaceConnectionReqOptions2SignRequestAlgorithmRSASHA1
+	default:
+		*s = ReplaceConnectionReqOptions2SignRequestAlgorithm(v)
+	}
+
+	return nil
+}
+
+// MarshalJSON implements stdjson.Marshaler.
+func (s ReplaceConnectionReqOptions2SignRequestAlgorithm) MarshalJSON() ([]byte, error) {
+	e := jx.Encoder{}
+	s.Encode(&e)
+	return e.Bytes(), nil
+}
+
+// UnmarshalJSON implements stdjson.Unmarshaler.
+func (s *ReplaceConnectionReqOptions2SignRequestAlgorithm) UnmarshalJSON(data []byte) error {
 	d := jx.DecodeBytes(data)
 	return s.Decode(d)
 }
@@ -36127,11 +44041,18 @@ func (s *ReplaceMFAReq) encodeFields(e *jx.Encoder) {
 		}
 		e.ArrEnd()
 	}
+	{
+		if s.IsRecoveryCodesEnabled.Set {
+			e.FieldStart("is_recovery_codes_enabled")
+			s.IsRecoveryCodesEnabled.Encode(e)
+		}
+	}
 }
 
-var jsonFieldsNameOfReplaceMFAReq = [2]string{
+var jsonFieldsNameOfReplaceMFAReq = [3]string{
 	0: "policy",
 	1: "enabled_factors",
+	2: "is_recovery_codes_enabled",
 }
 
 // Decode decodes ReplaceMFAReq from json.
@@ -36140,6 +44061,7 @@ func (s *ReplaceMFAReq) Decode(d *jx.Decoder) error {
 		return errors.New("invalid: unable to decode ReplaceMFAReq to nil")
 	}
 	var requiredBitSet [1]uint8
+	s.setDefaults()
 
 	if err := d.ObjBytes(func(d *jx.Decoder, k []byte) error {
 		switch string(k) {
@@ -36170,6 +44092,16 @@ func (s *ReplaceMFAReq) Decode(d *jx.Decoder) error {
 				return nil
 			}(); err != nil {
 				return errors.Wrap(err, "decode field \"enabled_factors\"")
+			}
+		case "is_recovery_codes_enabled":
+			if err := func() error {
+				s.IsRecoveryCodesEnabled.Reset()
+				if err := s.IsRecoveryCodesEnabled.Decode(d); err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return errors.Wrap(err, "decode field \"is_recovery_codes_enabled\"")
 			}
 		default:
 			return d.Skip()
@@ -36442,10 +44374,17 @@ func (s *ReplaceOrganizationMFAReq) encodeFields(e *jx.Encoder) {
 		}
 		e.ArrEnd()
 	}
+	{
+		if s.IsRecoveryCodesEnabled.Set {
+			e.FieldStart("is_recovery_codes_enabled")
+			s.IsRecoveryCodesEnabled.Encode(e)
+		}
+	}
 }
 
-var jsonFieldsNameOfReplaceOrganizationMFAReq = [1]string{
+var jsonFieldsNameOfReplaceOrganizationMFAReq = [2]string{
 	0: "enabled_factors",
+	1: "is_recovery_codes_enabled",
 }
 
 // Decode decodes ReplaceOrganizationMFAReq from json.
@@ -36454,6 +44393,7 @@ func (s *ReplaceOrganizationMFAReq) Decode(d *jx.Decoder) error {
 		return errors.New("invalid: unable to decode ReplaceOrganizationMFAReq to nil")
 	}
 	var requiredBitSet [1]uint8
+	s.setDefaults()
 
 	if err := d.ObjBytes(func(d *jx.Decoder, k []byte) error {
 		switch string(k) {
@@ -36474,6 +44414,16 @@ func (s *ReplaceOrganizationMFAReq) Decode(d *jx.Decoder) error {
 				return nil
 			}(); err != nil {
 				return errors.Wrap(err, "decode field \"enabled_factors\"")
+			}
+		case "is_recovery_codes_enabled":
+			if err := func() error {
+				s.IsRecoveryCodesEnabled.Reset()
+				if err := s.IsRecoveryCodesEnabled.Decode(d); err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return errors.Wrap(err, "decode field \"is_recovery_codes_enabled\"")
 			}
 		default:
 			return d.Skip()
@@ -37453,6 +45403,131 @@ func (s *RoleScopesResponse) UnmarshalJSON(data []byte) error {
 }
 
 // Encode implements json.Marshaler.
+func (s *RoleSystemPermissionsResponse) Encode(e *jx.Encoder) {
+	e.ObjStart()
+	s.encodeFields(e)
+	e.ObjEnd()
+}
+
+// encodeFields encodes fields.
+func (s *RoleSystemPermissionsResponse) encodeFields(e *jx.Encoder) {
+	{
+		if s.Code.Set {
+			e.FieldStart("code")
+			s.Code.Encode(e)
+		}
+	}
+	{
+		if s.Message.Set {
+			e.FieldStart("message")
+			s.Message.Encode(e)
+		}
+	}
+	{
+		if s.SystemPermissions != nil {
+			e.FieldStart("system_permissions")
+			e.ArrStart()
+			for _, elem := range s.SystemPermissions {
+				elem.Encode(e)
+			}
+			e.ArrEnd()
+		}
+	}
+	{
+		if s.NextToken.Set {
+			e.FieldStart("next_token")
+			s.NextToken.Encode(e)
+		}
+	}
+}
+
+var jsonFieldsNameOfRoleSystemPermissionsResponse = [4]string{
+	0: "code",
+	1: "message",
+	2: "system_permissions",
+	3: "next_token",
+}
+
+// Decode decodes RoleSystemPermissionsResponse from json.
+func (s *RoleSystemPermissionsResponse) Decode(d *jx.Decoder) error {
+	if s == nil {
+		return errors.New("invalid: unable to decode RoleSystemPermissionsResponse to nil")
+	}
+
+	if err := d.ObjBytes(func(d *jx.Decoder, k []byte) error {
+		switch string(k) {
+		case "code":
+			if err := func() error {
+				s.Code.Reset()
+				if err := s.Code.Decode(d); err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return errors.Wrap(err, "decode field \"code\"")
+			}
+		case "message":
+			if err := func() error {
+				s.Message.Reset()
+				if err := s.Message.Decode(d); err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return errors.Wrap(err, "decode field \"message\"")
+			}
+		case "system_permissions":
+			if err := func() error {
+				s.SystemPermissions = make([]SystemPermissions, 0)
+				if err := d.Arr(func(d *jx.Decoder) error {
+					var elem SystemPermissions
+					if err := elem.Decode(d); err != nil {
+						return err
+					}
+					s.SystemPermissions = append(s.SystemPermissions, elem)
+					return nil
+				}); err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return errors.Wrap(err, "decode field \"system_permissions\"")
+			}
+		case "next_token":
+			if err := func() error {
+				s.NextToken.Reset()
+				if err := s.NextToken.Decode(d); err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return errors.Wrap(err, "decode field \"next_token\"")
+			}
+		default:
+			return d.Skip()
+		}
+		return nil
+	}); err != nil {
+		return errors.Wrap(err, "decode RoleSystemPermissionsResponse")
+	}
+
+	return nil
+}
+
+// MarshalJSON implements stdjson.Marshaler.
+func (s *RoleSystemPermissionsResponse) MarshalJSON() ([]byte, error) {
+	e := jx.Encoder{}
+	s.Encode(&e)
+	return e.Bytes(), nil
+}
+
+// UnmarshalJSON implements stdjson.Unmarshaler.
+func (s *RoleSystemPermissionsResponse) UnmarshalJSON(data []byte) error {
+	d := jx.DecodeBytes(data)
+	return s.Decode(d)
+}
+
+// Encode implements json.Marshaler.
 func (s *Roles) Encode(e *jx.Encoder) {
 	e.ObjStart()
 	s.encodeFields(e)
@@ -38279,9 +46354,19 @@ func (s *SearchUsersResponseResultsItem) encodeFields(e *jx.Encoder) {
 			s.Properties.Encode(e)
 		}
 	}
+	{
+		if s.APIScopes != nil {
+			e.FieldStart("api_scopes")
+			e.ArrStart()
+			for _, elem := range s.APIScopes {
+				elem.Encode(e)
+			}
+			e.ArrEnd()
+		}
+	}
 }
 
-var jsonFieldsNameOfSearchUsersResponseResultsItem = [15]string{
+var jsonFieldsNameOfSearchUsersResponseResultsItem = [16]string{
 	0:  "id",
 	1:  "provided_id",
 	2:  "email",
@@ -38297,6 +46382,7 @@ var jsonFieldsNameOfSearchUsersResponseResultsItem = [15]string{
 	12: "organizations",
 	13: "identities",
 	14: "properties",
+	15: "api_scopes",
 }
 
 // Decode decodes SearchUsersResponseResultsItem from json.
@@ -38473,6 +46559,23 @@ func (s *SearchUsersResponseResultsItem) Decode(d *jx.Decoder) error {
 			}(); err != nil {
 				return errors.Wrap(err, "decode field \"properties\"")
 			}
+		case "api_scopes":
+			if err := func() error {
+				s.APIScopes = make([]SearchUsersResponseResultsItemAPIScopesItem, 0)
+				if err := d.Arr(func(d *jx.Decoder) error {
+					var elem SearchUsersResponseResultsItemAPIScopesItem
+					if err := elem.Decode(d); err != nil {
+						return err
+					}
+					s.APIScopes = append(s.APIScopes, elem)
+					return nil
+				}); err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return errors.Wrap(err, "decode field \"api_scopes\"")
+			}
 		default:
 			return d.Skip()
 		}
@@ -38493,6 +46596,103 @@ func (s *SearchUsersResponseResultsItem) MarshalJSON() ([]byte, error) {
 
 // UnmarshalJSON implements stdjson.Unmarshaler.
 func (s *SearchUsersResponseResultsItem) UnmarshalJSON(data []byte) error {
+	d := jx.DecodeBytes(data)
+	return s.Decode(d)
+}
+
+// Encode implements json.Marshaler.
+func (s *SearchUsersResponseResultsItemAPIScopesItem) Encode(e *jx.Encoder) {
+	e.ObjStart()
+	s.encodeFields(e)
+	e.ObjEnd()
+}
+
+// encodeFields encodes fields.
+func (s *SearchUsersResponseResultsItemAPIScopesItem) encodeFields(e *jx.Encoder) {
+	{
+		if s.OrgCode.Set {
+			e.FieldStart("org_code")
+			s.OrgCode.Encode(e)
+		}
+	}
+	{
+		if s.Scope.Set {
+			e.FieldStart("scope")
+			s.Scope.Encode(e)
+		}
+	}
+	{
+		if s.APIID.Set {
+			e.FieldStart("api_id")
+			s.APIID.Encode(e)
+		}
+	}
+}
+
+var jsonFieldsNameOfSearchUsersResponseResultsItemAPIScopesItem = [3]string{
+	0: "org_code",
+	1: "scope",
+	2: "api_id",
+}
+
+// Decode decodes SearchUsersResponseResultsItemAPIScopesItem from json.
+func (s *SearchUsersResponseResultsItemAPIScopesItem) Decode(d *jx.Decoder) error {
+	if s == nil {
+		return errors.New("invalid: unable to decode SearchUsersResponseResultsItemAPIScopesItem to nil")
+	}
+
+	if err := d.ObjBytes(func(d *jx.Decoder, k []byte) error {
+		switch string(k) {
+		case "org_code":
+			if err := func() error {
+				s.OrgCode.Reset()
+				if err := s.OrgCode.Decode(d); err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return errors.Wrap(err, "decode field \"org_code\"")
+			}
+		case "scope":
+			if err := func() error {
+				s.Scope.Reset()
+				if err := s.Scope.Decode(d); err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return errors.Wrap(err, "decode field \"scope\"")
+			}
+		case "api_id":
+			if err := func() error {
+				s.APIID.Reset()
+				if err := s.APIID.Decode(d); err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return errors.Wrap(err, "decode field \"api_id\"")
+			}
+		default:
+			return d.Skip()
+		}
+		return nil
+	}); err != nil {
+		return errors.Wrap(err, "decode SearchUsersResponseResultsItemAPIScopesItem")
+	}
+
+	return nil
+}
+
+// MarshalJSON implements stdjson.Marshaler.
+func (s *SearchUsersResponseResultsItemAPIScopesItem) MarshalJSON() ([]byte, error) {
+	e := jx.Encoder{}
+	s.Encode(&e)
+	return e.Bytes(), nil
+}
+
+// UnmarshalJSON implements stdjson.Unmarshaler.
+func (s *SearchUsersResponseResultsItemAPIScopesItem) UnmarshalJSON(data []byte) error {
 	d := jx.DecodeBytes(data)
 	return s.Decode(d)
 }
@@ -38703,6 +46903,42 @@ func (s *SetUserPasswordReq) encodeFields(e *jx.Encoder) {
 		}
 	}
 	{
+		if s.Iterations.Set {
+			e.FieldStart("iterations")
+			s.Iterations.Encode(e)
+		}
+	}
+	{
+		if s.Variant.Set {
+			e.FieldStart("variant")
+			s.Variant.Encode(e)
+		}
+	}
+	{
+		if s.SignerKey.Set {
+			e.FieldStart("signer_key")
+			s.SignerKey.Encode(e)
+		}
+	}
+	{
+		if s.SaltSeparator.Set {
+			e.FieldStart("salt_separator")
+			s.SaltSeparator.Encode(e)
+		}
+	}
+	{
+		if s.Rounds.Set {
+			e.FieldStart("rounds")
+			s.Rounds.Encode(e)
+		}
+	}
+	{
+		if s.MemCost.Set {
+			e.FieldStart("mem_cost")
+			s.MemCost.Encode(e)
+		}
+	}
+	{
 		if s.IsTemporaryPassword.Set {
 			e.FieldStart("is_temporary_password")
 			s.IsTemporaryPassword.Encode(e)
@@ -38710,12 +46946,18 @@ func (s *SetUserPasswordReq) encodeFields(e *jx.Encoder) {
 	}
 }
 
-var jsonFieldsNameOfSetUserPasswordReq = [5]string{
-	0: "hashed_password",
-	1: "hashing_method",
-	2: "salt",
-	3: "salt_position",
-	4: "is_temporary_password",
+var jsonFieldsNameOfSetUserPasswordReq = [11]string{
+	0:  "hashed_password",
+	1:  "hashing_method",
+	2:  "salt",
+	3:  "salt_position",
+	4:  "iterations",
+	5:  "variant",
+	6:  "signer_key",
+	7:  "salt_separator",
+	8:  "rounds",
+	9:  "mem_cost",
+	10: "is_temporary_password",
 }
 
 // Decode decodes SetUserPasswordReq from json.
@@ -38723,7 +46965,7 @@ func (s *SetUserPasswordReq) Decode(d *jx.Decoder) error {
 	if s == nil {
 		return errors.New("invalid: unable to decode SetUserPasswordReq to nil")
 	}
-	var requiredBitSet [1]uint8
+	var requiredBitSet [2]uint8
 
 	if err := d.ObjBytes(func(d *jx.Decoder, k []byte) error {
 		switch string(k) {
@@ -38769,6 +47011,66 @@ func (s *SetUserPasswordReq) Decode(d *jx.Decoder) error {
 			}(); err != nil {
 				return errors.Wrap(err, "decode field \"salt_position\"")
 			}
+		case "iterations":
+			if err := func() error {
+				s.Iterations.Reset()
+				if err := s.Iterations.Decode(d); err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return errors.Wrap(err, "decode field \"iterations\"")
+			}
+		case "variant":
+			if err := func() error {
+				s.Variant.Reset()
+				if err := s.Variant.Decode(d); err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return errors.Wrap(err, "decode field \"variant\"")
+			}
+		case "signer_key":
+			if err := func() error {
+				s.SignerKey.Reset()
+				if err := s.SignerKey.Decode(d); err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return errors.Wrap(err, "decode field \"signer_key\"")
+			}
+		case "salt_separator":
+			if err := func() error {
+				s.SaltSeparator.Reset()
+				if err := s.SaltSeparator.Decode(d); err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return errors.Wrap(err, "decode field \"salt_separator\"")
+			}
+		case "rounds":
+			if err := func() error {
+				s.Rounds.Reset()
+				if err := s.Rounds.Decode(d); err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return errors.Wrap(err, "decode field \"rounds\"")
+			}
+		case "mem_cost":
+			if err := func() error {
+				s.MemCost.Reset()
+				if err := s.MemCost.Decode(d); err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return errors.Wrap(err, "decode field \"mem_cost\"")
+			}
 		case "is_temporary_password":
 			if err := func() error {
 				s.IsTemporaryPassword.Reset()
@@ -38788,8 +47090,9 @@ func (s *SetUserPasswordReq) Decode(d *jx.Decoder) error {
 	}
 	// Validate required fields.
 	var failures []validate.FieldError
-	for i, mask := range [1]uint8{
+	for i, mask := range [2]uint8{
 		0b00000001,
+		0b00000000,
 	} {
 		if result := (requiredBitSet[i] & mask) ^ mask; result != 0 {
 			// Mask only required fields and check equality to mask using XOR.
@@ -38857,8 +47160,16 @@ func (s *SetUserPasswordReqHashingMethod) Decode(d *jx.Decoder) error {
 		*s = SetUserPasswordReqHashingMethodCrypt
 	case SetUserPasswordReqHashingMethodMD5:
 		*s = SetUserPasswordReqHashingMethodMD5
+	case SetUserPasswordReqHashingMethodSHA256:
+		*s = SetUserPasswordReqHashingMethodSHA256
 	case SetUserPasswordReqHashingMethodWordpress:
 		*s = SetUserPasswordReqHashingMethodWordpress
+	case SetUserPasswordReqHashingMethodPbkdf2:
+		*s = SetUserPasswordReqHashingMethodPbkdf2
+	case SetUserPasswordReqHashingMethodFirebaseScrypt:
+		*s = SetUserPasswordReqHashingMethodFirebaseScrypt
+	case SetUserPasswordReqHashingMethodAspnetIdentityV2:
+		*s = SetUserPasswordReqHashingMethodAspnetIdentityV2
 	default:
 		*s = SetUserPasswordReqHashingMethod(v)
 	}
@@ -39240,6 +47551,120 @@ func (s *SuccessResponse) MarshalJSON() ([]byte, error) {
 
 // UnmarshalJSON implements stdjson.Unmarshaler.
 func (s *SuccessResponse) UnmarshalJSON(data []byte) error {
+	d := jx.DecodeBytes(data)
+	return s.Decode(d)
+}
+
+// Encode implements json.Marshaler.
+func (s *SystemPermissions) Encode(e *jx.Encoder) {
+	e.ObjStart()
+	s.encodeFields(e)
+	e.ObjEnd()
+}
+
+// encodeFields encodes fields.
+func (s *SystemPermissions) encodeFields(e *jx.Encoder) {
+	{
+		if s.ID.Set {
+			e.FieldStart("id")
+			s.ID.Encode(e)
+		}
+	}
+	{
+		if s.Key.Set {
+			e.FieldStart("key")
+			s.Key.Encode(e)
+		}
+	}
+	{
+		if s.Name.Set {
+			e.FieldStart("name")
+			s.Name.Encode(e)
+		}
+	}
+	{
+		if s.Description.Set {
+			e.FieldStart("description")
+			s.Description.Encode(e)
+		}
+	}
+}
+
+var jsonFieldsNameOfSystemPermissions = [4]string{
+	0: "id",
+	1: "key",
+	2: "name",
+	3: "description",
+}
+
+// Decode decodes SystemPermissions from json.
+func (s *SystemPermissions) Decode(d *jx.Decoder) error {
+	if s == nil {
+		return errors.New("invalid: unable to decode SystemPermissions to nil")
+	}
+
+	if err := d.ObjBytes(func(d *jx.Decoder, k []byte) error {
+		switch string(k) {
+		case "id":
+			if err := func() error {
+				s.ID.Reset()
+				if err := s.ID.Decode(d); err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return errors.Wrap(err, "decode field \"id\"")
+			}
+		case "key":
+			if err := func() error {
+				s.Key.Reset()
+				if err := s.Key.Decode(d); err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return errors.Wrap(err, "decode field \"key\"")
+			}
+		case "name":
+			if err := func() error {
+				s.Name.Reset()
+				if err := s.Name.Decode(d); err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return errors.Wrap(err, "decode field \"name\"")
+			}
+		case "description":
+			if err := func() error {
+				s.Description.Reset()
+				if err := s.Description.Decode(d); err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return errors.Wrap(err, "decode field \"description\"")
+			}
+		default:
+			return d.Skip()
+		}
+		return nil
+	}); err != nil {
+		return errors.Wrap(err, "decode SystemPermissions")
+	}
+
+	return nil
+}
+
+// MarshalJSON implements stdjson.Marshaler.
+func (s *SystemPermissions) MarshalJSON() ([]byte, error) {
+	e := jx.Encoder{}
+	s.Encode(&e)
+	return e.Bytes(), nil
+}
+
+// UnmarshalJSON implements stdjson.Unmarshaler.
+func (s *SystemPermissions) UnmarshalJSON(data []byte) error {
 	d := jx.DecodeBytes(data)
 	return s.Decode(d)
 }
@@ -39883,15 +48308,71 @@ func (s *UpdateApplicationReq) encodeFields(e *jx.Encoder) {
 			s.HomepageURI.Encode(e)
 		}
 	}
+	{
+		if s.IsAllowFacelessAuth.Set {
+			e.FieldStart("is_allow_faceless_auth")
+			s.IsAllowFacelessAuth.Encode(e)
+		}
+	}
+	{
+		if s.IsAskForName.Set {
+			e.FieldStart("is_ask_for_name")
+			s.IsAskForName.Encode(e)
+		}
+	}
+	{
+		if s.HasMarketingConsent.Set {
+			e.FieldStart("has_marketing_consent")
+			s.HasMarketingConsent.Encode(e)
+		}
+	}
+	{
+		if s.HasSignInLinkOnSignUpPage.Set {
+			e.FieldStart("has_sign_in_link_on_sign_up_page")
+			s.HasSignInLinkOnSignUpPage.Encode(e)
+		}
+	}
+	{
+		if s.HasRegisterLinkOnSignInPage.Set {
+			e.FieldStart("has_register_link_on_sign_in_page")
+			s.HasRegisterLinkOnSignInPage.Encode(e)
+		}
+	}
+	{
+		if s.HasSignInWithSSOButton.Set {
+			e.FieldStart("has_sign_in_with_sso_button")
+			s.HasSignInWithSSOButton.Encode(e)
+		}
+	}
+	{
+		if s.UseGravatarFallback.Set {
+			e.FieldStart("use_gravatar_fallback")
+			s.UseGravatarFallback.Encode(e)
+		}
+	}
+	{
+		if s.IsAccessControlEnabled.Set {
+			e.FieldStart("is_access_control_enabled")
+			s.IsAccessControlEnabled.Encode(e)
+		}
+	}
 }
 
-var jsonFieldsNameOfUpdateApplicationReq = [6]string{
-	0: "name",
-	1: "language_key",
-	2: "logout_uris",
-	3: "redirect_uris",
-	4: "login_uri",
-	5: "homepage_uri",
+var jsonFieldsNameOfUpdateApplicationReq = [14]string{
+	0:  "name",
+	1:  "language_key",
+	2:  "logout_uris",
+	3:  "redirect_uris",
+	4:  "login_uri",
+	5:  "homepage_uri",
+	6:  "is_allow_faceless_auth",
+	7:  "is_ask_for_name",
+	8:  "has_marketing_consent",
+	9:  "has_sign_in_link_on_sign_up_page",
+	10: "has_register_link_on_sign_in_page",
+	11: "has_sign_in_with_sso_button",
+	12: "use_gravatar_fallback",
+	13: "is_access_control_enabled",
 }
 
 // Decode decodes UpdateApplicationReq from json.
@@ -39979,6 +48460,86 @@ func (s *UpdateApplicationReq) Decode(d *jx.Decoder) error {
 				return nil
 			}(); err != nil {
 				return errors.Wrap(err, "decode field \"homepage_uri\"")
+			}
+		case "is_allow_faceless_auth":
+			if err := func() error {
+				s.IsAllowFacelessAuth.Reset()
+				if err := s.IsAllowFacelessAuth.Decode(d); err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return errors.Wrap(err, "decode field \"is_allow_faceless_auth\"")
+			}
+		case "is_ask_for_name":
+			if err := func() error {
+				s.IsAskForName.Reset()
+				if err := s.IsAskForName.Decode(d); err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return errors.Wrap(err, "decode field \"is_ask_for_name\"")
+			}
+		case "has_marketing_consent":
+			if err := func() error {
+				s.HasMarketingConsent.Reset()
+				if err := s.HasMarketingConsent.Decode(d); err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return errors.Wrap(err, "decode field \"has_marketing_consent\"")
+			}
+		case "has_sign_in_link_on_sign_up_page":
+			if err := func() error {
+				s.HasSignInLinkOnSignUpPage.Reset()
+				if err := s.HasSignInLinkOnSignUpPage.Decode(d); err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return errors.Wrap(err, "decode field \"has_sign_in_link_on_sign_up_page\"")
+			}
+		case "has_register_link_on_sign_in_page":
+			if err := func() error {
+				s.HasRegisterLinkOnSignInPage.Reset()
+				if err := s.HasRegisterLinkOnSignInPage.Decode(d); err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return errors.Wrap(err, "decode field \"has_register_link_on_sign_in_page\"")
+			}
+		case "has_sign_in_with_sso_button":
+			if err := func() error {
+				s.HasSignInWithSSOButton.Reset()
+				if err := s.HasSignInWithSSOButton.Decode(d); err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return errors.Wrap(err, "decode field \"has_sign_in_with_sso_button\"")
+			}
+		case "use_gravatar_fallback":
+			if err := func() error {
+				s.UseGravatarFallback.Reset()
+				if err := s.UseGravatarFallback.Decode(d); err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return errors.Wrap(err, "decode field \"use_gravatar_fallback\"")
+			}
+		case "is_access_control_enabled":
+			if err := func() error {
+				s.IsAccessControlEnabled.Reset()
+				if err := s.IsAccessControlEnabled.Decode(d); err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return errors.Wrap(err, "decode field \"is_access_control_enabled\"")
 			}
 		default:
 			return d.Skip()
@@ -41178,14 +49739,6 @@ func (s *UpdateConnectionReqOptions) Decode(d *jx.Decoder) error {
 	if err := d.Capture(func(d *jx.Decoder) error {
 		return d.ObjBytes(func(d *jx.Decoder, key []byte) error {
 			switch string(key) {
-			case "is_use_custom_domain":
-				match := UpdateConnectionReqOptions0UpdateConnectionReqOptions
-				if found && s.Type != match {
-					s.Type = ""
-					return errors.Errorf("multiple oneOf matches: (%v, %v)", s.Type, match)
-				}
-				found = true
-				s.Type = match
 			case "entra_id_domain":
 				match := UpdateConnectionReqOptions1UpdateConnectionReqOptions
 				if found && s.Type != match {
@@ -41234,14 +49787,6 @@ func (s *UpdateConnectionReqOptions) Decode(d *jx.Decoder) error {
 				}
 				found = true
 				s.Type = match
-			case "saml_acs_url":
-				match := UpdateConnectionReqOptions2UpdateConnectionReqOptions
-				if found && s.Type != match {
-					s.Type = ""
-					return errors.Errorf("multiple oneOf matches: (%v, %v)", s.Type, match)
-				}
-				found = true
-				s.Type = match
 			case "saml_idp_metadata_url":
 				match := UpdateConnectionReqOptions2UpdateConnectionReqOptions
 				if found && s.Type != match {
@@ -41250,7 +49795,55 @@ func (s *UpdateConnectionReqOptions) Decode(d *jx.Decoder) error {
 				}
 				found = true
 				s.Type = match
+			case "saml_idp_metadata_xml":
+				match := UpdateConnectionReqOptions2UpdateConnectionReqOptions
+				if found && s.Type != match {
+					s.Type = ""
+					return errors.Errorf("multiple oneOf matches: (%v, %v)", s.Type, match)
+				}
+				found = true
+				s.Type = match
+			case "saml_sign_in_url":
+				match := UpdateConnectionReqOptions2UpdateConnectionReqOptions
+				if found && s.Type != match {
+					s.Type = ""
+					return errors.Errorf("multiple oneOf matches: (%v, %v)", s.Type, match)
+				}
+				found = true
+				s.Type = match
+			case "sign_request_algorithm":
+				match := UpdateConnectionReqOptions2UpdateConnectionReqOptions
+				if found && s.Type != match {
+					s.Type = ""
+					return errors.Errorf("multiple oneOf matches: (%v, %v)", s.Type, match)
+				}
+				found = true
+				s.Type = match
+			case "protocol_binding":
+				match := UpdateConnectionReqOptions2UpdateConnectionReqOptions
+				if found && s.Type != match {
+					s.Type = ""
+					return errors.Errorf("multiple oneOf matches: (%v, %v)", s.Type, match)
+				}
+				found = true
+				s.Type = match
+			case "name_id_format":
+				match := UpdateConnectionReqOptions2UpdateConnectionReqOptions
+				if found && s.Type != match {
+					s.Type = ""
+					return errors.Errorf("multiple oneOf matches: (%v, %v)", s.Type, match)
+				}
+				found = true
+				s.Type = match
 			case "saml_email_key_attr":
+				match := UpdateConnectionReqOptions2UpdateConnectionReqOptions
+				if found && s.Type != match {
+					s.Type = ""
+					return errors.Errorf("multiple oneOf matches: (%v, %v)", s.Type, match)
+				}
+				found = true
+				s.Type = match
+			case "saml_user_id_key_attr":
 				match := UpdateConnectionReqOptions2UpdateConnectionReqOptions
 				if found && s.Type != match {
 					s.Type = ""
@@ -41358,12 +49951,19 @@ func (s *UpdateConnectionReqOptions0) encodeFields(e *jx.Encoder) {
 			s.IsUseCustomDomain.Encode(e)
 		}
 	}
+	{
+		if s.IsTrusted.Set {
+			e.FieldStart("is_trusted")
+			s.IsTrusted.Encode(e)
+		}
+	}
 }
 
-var jsonFieldsNameOfUpdateConnectionReqOptions0 = [3]string{
+var jsonFieldsNameOfUpdateConnectionReqOptions0 = [4]string{
 	0: "client_id",
 	1: "client_secret",
 	2: "is_use_custom_domain",
+	3: "is_trusted",
 }
 
 // Decode decodes UpdateConnectionReqOptions0 from json.
@@ -41403,6 +50003,16 @@ func (s *UpdateConnectionReqOptions0) Decode(d *jx.Decoder) error {
 				return nil
 			}(); err != nil {
 				return errors.Wrap(err, "decode field \"is_use_custom_domain\"")
+			}
+		case "is_trusted":
+			if err := func() error {
+				s.IsTrusted.Reset()
+				if err := s.IsTrusted.Decode(d); err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return errors.Wrap(err, "decode field \"is_trusted\"")
 			}
 		default:
 			return d.Skip()
@@ -41502,14 +50112,32 @@ func (s *UpdateConnectionReqOptions1) encodeFields(e *jx.Encoder) {
 		}
 	}
 	{
+		if s.SSOButtonDisplay.Set {
+			e.FieldStart("sso_button_display")
+			s.SSOButtonDisplay.Encode(e)
+		}
+	}
+	{
 		if s.UpstreamParams.Set {
 			e.FieldStart("upstream_params")
 			s.UpstreamParams.Encode(e)
 		}
 	}
+	{
+		if s.IsUseCustomDomain.Set {
+			e.FieldStart("is_use_custom_domain")
+			s.IsUseCustomDomain.Encode(e)
+		}
+	}
+	{
+		if s.IsTrusted.Set {
+			e.FieldStart("is_trusted")
+			s.IsTrusted.Encode(e)
+		}
+	}
 }
 
-var jsonFieldsNameOfUpdateConnectionReqOptions1 = [11]string{
+var jsonFieldsNameOfUpdateConnectionReqOptions1 = [14]string{
 	0:  "client_id",
 	1:  "client_secret",
 	2:  "home_realm_domains",
@@ -41520,7 +50148,10 @@ var jsonFieldsNameOfUpdateConnectionReqOptions1 = [11]string{
 	7:  "is_extended_attributes_required",
 	8:  "is_create_missing_user",
 	9:  "is_force_show_sso_button",
-	10: "upstream_params",
+	10: "sso_button_display",
+	11: "upstream_params",
+	12: "is_use_custom_domain",
+	13: "is_trusted",
 }
 
 // Decode decodes UpdateConnectionReqOptions1 from json.
@@ -41640,6 +50271,16 @@ func (s *UpdateConnectionReqOptions1) Decode(d *jx.Decoder) error {
 			}(); err != nil {
 				return errors.Wrap(err, "decode field \"is_force_show_sso_button\"")
 			}
+		case "sso_button_display":
+			if err := func() error {
+				s.SSOButtonDisplay.Reset()
+				if err := s.SSOButtonDisplay.Decode(d); err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return errors.Wrap(err, "decode field \"sso_button_display\"")
+			}
 		case "upstream_params":
 			if err := func() error {
 				s.UpstreamParams.Reset()
@@ -41649,6 +50290,26 @@ func (s *UpdateConnectionReqOptions1) Decode(d *jx.Decoder) error {
 				return nil
 			}(); err != nil {
 				return errors.Wrap(err, "decode field \"upstream_params\"")
+			}
+		case "is_use_custom_domain":
+			if err := func() error {
+				s.IsUseCustomDomain.Reset()
+				if err := s.IsUseCustomDomain.Decode(d); err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return errors.Wrap(err, "decode field \"is_use_custom_domain\"")
+			}
+		case "is_trusted":
+			if err := func() error {
+				s.IsTrusted.Reset()
+				if err := s.IsTrusted.Decode(d); err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return errors.Wrap(err, "decode field \"is_trusted\"")
 			}
 		default:
 			return d.Skip()
@@ -41670,6 +50331,48 @@ func (s *UpdateConnectionReqOptions1) MarshalJSON() ([]byte, error) {
 
 // UnmarshalJSON implements stdjson.Unmarshaler.
 func (s *UpdateConnectionReqOptions1) UnmarshalJSON(data []byte) error {
+	d := jx.DecodeBytes(data)
+	return s.Decode(d)
+}
+
+// Encode encodes UpdateConnectionReqOptions1SSOButtonDisplay as json.
+func (s UpdateConnectionReqOptions1SSOButtonDisplay) Encode(e *jx.Encoder) {
+	e.Str(string(s))
+}
+
+// Decode decodes UpdateConnectionReqOptions1SSOButtonDisplay from json.
+func (s *UpdateConnectionReqOptions1SSOButtonDisplay) Decode(d *jx.Decoder) error {
+	if s == nil {
+		return errors.New("invalid: unable to decode UpdateConnectionReqOptions1SSOButtonDisplay to nil")
+	}
+	v, err := d.StrBytes()
+	if err != nil {
+		return err
+	}
+	// Try to use constant string.
+	switch UpdateConnectionReqOptions1SSOButtonDisplay(v) {
+	case UpdateConnectionReqOptions1SSOButtonDisplayAuto:
+		*s = UpdateConnectionReqOptions1SSOButtonDisplayAuto
+	case UpdateConnectionReqOptions1SSOButtonDisplayShow:
+		*s = UpdateConnectionReqOptions1SSOButtonDisplayShow
+	case UpdateConnectionReqOptions1SSOButtonDisplayHide:
+		*s = UpdateConnectionReqOptions1SSOButtonDisplayHide
+	default:
+		*s = UpdateConnectionReqOptions1SSOButtonDisplay(v)
+	}
+
+	return nil
+}
+
+// MarshalJSON implements stdjson.Marshaler.
+func (s UpdateConnectionReqOptions1SSOButtonDisplay) MarshalJSON() ([]byte, error) {
+	e := jx.Encoder{}
+	s.Encode(&e)
+	return e.Bytes(), nil
+}
+
+// UnmarshalJSON implements stdjson.Unmarshaler.
+func (s *UpdateConnectionReqOptions1SSOButtonDisplay) UnmarshalJSON(data []byte) error {
 	d := jx.DecodeBytes(data)
 	return s.Decode(d)
 }
@@ -41758,21 +50461,51 @@ func (s *UpdateConnectionReqOptions2) encodeFields(e *jx.Encoder) {
 		}
 	}
 	{
-		if s.SamlAcsURL.Set {
-			e.FieldStart("saml_acs_url")
-			s.SamlAcsURL.Encode(e)
-		}
-	}
-	{
 		if s.SamlIdpMetadataURL.Set {
 			e.FieldStart("saml_idp_metadata_url")
 			s.SamlIdpMetadataURL.Encode(e)
 		}
 	}
 	{
+		if s.SamlIdpMetadataXML.Set {
+			e.FieldStart("saml_idp_metadata_xml")
+			s.SamlIdpMetadataXML.Encode(e)
+		}
+	}
+	{
+		if s.SamlSignInURL.Set {
+			e.FieldStart("saml_sign_in_url")
+			s.SamlSignInURL.Encode(e)
+		}
+	}
+	{
+		if s.SignRequestAlgorithm.Set {
+			e.FieldStart("sign_request_algorithm")
+			s.SignRequestAlgorithm.Encode(e)
+		}
+	}
+	{
+		if s.ProtocolBinding.Set {
+			e.FieldStart("protocol_binding")
+			s.ProtocolBinding.Encode(e)
+		}
+	}
+	{
+		if s.NameIDFormat.Set {
+			e.FieldStart("name_id_format")
+			s.NameIDFormat.Encode(e)
+		}
+	}
+	{
 		if s.SamlEmailKeyAttr.Set {
 			e.FieldStart("saml_email_key_attr")
 			s.SamlEmailKeyAttr.Encode(e)
+		}
+	}
+	{
+		if s.SamlUserIDKeyAttr.Set {
+			e.FieldStart("saml_user_id_key_attr")
+			s.SamlUserIDKeyAttr.Encode(e)
 		}
 	}
 	{
@@ -41800,6 +50533,12 @@ func (s *UpdateConnectionReqOptions2) encodeFields(e *jx.Encoder) {
 		}
 	}
 	{
+		if s.SSOButtonDisplay.Set {
+			e.FieldStart("sso_button_display")
+			s.SSOButtonDisplay.Encode(e)
+		}
+	}
+	{
 		if s.UpstreamParams.Set {
 			e.FieldStart("upstream_params")
 			s.UpstreamParams.Encode(e)
@@ -41817,21 +50556,41 @@ func (s *UpdateConnectionReqOptions2) encodeFields(e *jx.Encoder) {
 			s.SamlSigningPrivateKey.Encode(e)
 		}
 	}
+	{
+		if s.IsUseCustomDomain.Set {
+			e.FieldStart("is_use_custom_domain")
+			s.IsUseCustomDomain.Encode(e)
+		}
+	}
+	{
+		if s.IsTrusted.Set {
+			e.FieldStart("is_trusted")
+			s.IsTrusted.Encode(e)
+		}
+	}
 }
 
-var jsonFieldsNameOfUpdateConnectionReqOptions2 = [12]string{
+var jsonFieldsNameOfUpdateConnectionReqOptions2 = [20]string{
 	0:  "home_realm_domains",
 	1:  "saml_entity_id",
-	2:  "saml_acs_url",
-	3:  "saml_idp_metadata_url",
-	4:  "saml_email_key_attr",
-	5:  "saml_first_name_key_attr",
-	6:  "saml_last_name_key_attr",
-	7:  "is_create_missing_user",
-	8:  "is_force_show_sso_button",
-	9:  "upstream_params",
-	10: "saml_signing_certificate",
-	11: "saml_signing_private_key",
+	2:  "saml_idp_metadata_url",
+	3:  "saml_idp_metadata_xml",
+	4:  "saml_sign_in_url",
+	5:  "sign_request_algorithm",
+	6:  "protocol_binding",
+	7:  "name_id_format",
+	8:  "saml_email_key_attr",
+	9:  "saml_user_id_key_attr",
+	10: "saml_first_name_key_attr",
+	11: "saml_last_name_key_attr",
+	12: "is_create_missing_user",
+	13: "is_force_show_sso_button",
+	14: "sso_button_display",
+	15: "upstream_params",
+	16: "saml_signing_certificate",
+	17: "saml_signing_private_key",
+	18: "is_use_custom_domain",
+	19: "is_trusted",
 }
 
 // Decode decodes UpdateConnectionReqOptions2 from json.
@@ -41871,16 +50630,6 @@ func (s *UpdateConnectionReqOptions2) Decode(d *jx.Decoder) error {
 			}(); err != nil {
 				return errors.Wrap(err, "decode field \"saml_entity_id\"")
 			}
-		case "saml_acs_url":
-			if err := func() error {
-				s.SamlAcsURL.Reset()
-				if err := s.SamlAcsURL.Decode(d); err != nil {
-					return err
-				}
-				return nil
-			}(); err != nil {
-				return errors.Wrap(err, "decode field \"saml_acs_url\"")
-			}
 		case "saml_idp_metadata_url":
 			if err := func() error {
 				s.SamlIdpMetadataURL.Reset()
@@ -41891,6 +50640,56 @@ func (s *UpdateConnectionReqOptions2) Decode(d *jx.Decoder) error {
 			}(); err != nil {
 				return errors.Wrap(err, "decode field \"saml_idp_metadata_url\"")
 			}
+		case "saml_idp_metadata_xml":
+			if err := func() error {
+				s.SamlIdpMetadataXML.Reset()
+				if err := s.SamlIdpMetadataXML.Decode(d); err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return errors.Wrap(err, "decode field \"saml_idp_metadata_xml\"")
+			}
+		case "saml_sign_in_url":
+			if err := func() error {
+				s.SamlSignInURL.Reset()
+				if err := s.SamlSignInURL.Decode(d); err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return errors.Wrap(err, "decode field \"saml_sign_in_url\"")
+			}
+		case "sign_request_algorithm":
+			if err := func() error {
+				s.SignRequestAlgorithm.Reset()
+				if err := s.SignRequestAlgorithm.Decode(d); err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return errors.Wrap(err, "decode field \"sign_request_algorithm\"")
+			}
+		case "protocol_binding":
+			if err := func() error {
+				s.ProtocolBinding.Reset()
+				if err := s.ProtocolBinding.Decode(d); err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return errors.Wrap(err, "decode field \"protocol_binding\"")
+			}
+		case "name_id_format":
+			if err := func() error {
+				s.NameIDFormat.Reset()
+				if err := s.NameIDFormat.Decode(d); err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return errors.Wrap(err, "decode field \"name_id_format\"")
+			}
 		case "saml_email_key_attr":
 			if err := func() error {
 				s.SamlEmailKeyAttr.Reset()
@@ -41900,6 +50699,16 @@ func (s *UpdateConnectionReqOptions2) Decode(d *jx.Decoder) error {
 				return nil
 			}(); err != nil {
 				return errors.Wrap(err, "decode field \"saml_email_key_attr\"")
+			}
+		case "saml_user_id_key_attr":
+			if err := func() error {
+				s.SamlUserIDKeyAttr.Reset()
+				if err := s.SamlUserIDKeyAttr.Decode(d); err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return errors.Wrap(err, "decode field \"saml_user_id_key_attr\"")
 			}
 		case "saml_first_name_key_attr":
 			if err := func() error {
@@ -41941,6 +50750,16 @@ func (s *UpdateConnectionReqOptions2) Decode(d *jx.Decoder) error {
 			}(); err != nil {
 				return errors.Wrap(err, "decode field \"is_force_show_sso_button\"")
 			}
+		case "sso_button_display":
+			if err := func() error {
+				s.SSOButtonDisplay.Reset()
+				if err := s.SSOButtonDisplay.Decode(d); err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return errors.Wrap(err, "decode field \"sso_button_display\"")
+			}
 		case "upstream_params":
 			if err := func() error {
 				s.UpstreamParams.Reset()
@@ -41971,6 +50790,26 @@ func (s *UpdateConnectionReqOptions2) Decode(d *jx.Decoder) error {
 			}(); err != nil {
 				return errors.Wrap(err, "decode field \"saml_signing_private_key\"")
 			}
+		case "is_use_custom_domain":
+			if err := func() error {
+				s.IsUseCustomDomain.Reset()
+				if err := s.IsUseCustomDomain.Decode(d); err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return errors.Wrap(err, "decode field \"is_use_custom_domain\"")
+			}
+		case "is_trusted":
+			if err := func() error {
+				s.IsTrusted.Reset()
+				if err := s.IsTrusted.Decode(d); err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return errors.Wrap(err, "decode field \"is_trusted\"")
+			}
 		default:
 			return d.Skip()
 		}
@@ -41991,6 +50830,172 @@ func (s *UpdateConnectionReqOptions2) MarshalJSON() ([]byte, error) {
 
 // UnmarshalJSON implements stdjson.Unmarshaler.
 func (s *UpdateConnectionReqOptions2) UnmarshalJSON(data []byte) error {
+	d := jx.DecodeBytes(data)
+	return s.Decode(d)
+}
+
+// Encode encodes UpdateConnectionReqOptions2NameIDFormat as json.
+func (s UpdateConnectionReqOptions2NameIDFormat) Encode(e *jx.Encoder) {
+	e.Str(string(s))
+}
+
+// Decode decodes UpdateConnectionReqOptions2NameIDFormat from json.
+func (s *UpdateConnectionReqOptions2NameIDFormat) Decode(d *jx.Decoder) error {
+	if s == nil {
+		return errors.New("invalid: unable to decode UpdateConnectionReqOptions2NameIDFormat to nil")
+	}
+	v, err := d.StrBytes()
+	if err != nil {
+		return err
+	}
+	// Try to use constant string.
+	switch UpdateConnectionReqOptions2NameIDFormat(v) {
+	case UpdateConnectionReqOptions2NameIDFormatPersistent:
+		*s = UpdateConnectionReqOptions2NameIDFormatPersistent
+	case UpdateConnectionReqOptions2NameIDFormatTransient:
+		*s = UpdateConnectionReqOptions2NameIDFormatTransient
+	case UpdateConnectionReqOptions2NameIDFormatEmailAddress:
+		*s = UpdateConnectionReqOptions2NameIDFormatEmailAddress
+	case UpdateConnectionReqOptions2NameIDFormatUnspecified:
+		*s = UpdateConnectionReqOptions2NameIDFormatUnspecified
+	default:
+		*s = UpdateConnectionReqOptions2NameIDFormat(v)
+	}
+
+	return nil
+}
+
+// MarshalJSON implements stdjson.Marshaler.
+func (s UpdateConnectionReqOptions2NameIDFormat) MarshalJSON() ([]byte, error) {
+	e := jx.Encoder{}
+	s.Encode(&e)
+	return e.Bytes(), nil
+}
+
+// UnmarshalJSON implements stdjson.Unmarshaler.
+func (s *UpdateConnectionReqOptions2NameIDFormat) UnmarshalJSON(data []byte) error {
+	d := jx.DecodeBytes(data)
+	return s.Decode(d)
+}
+
+// Encode encodes UpdateConnectionReqOptions2ProtocolBinding as json.
+func (s UpdateConnectionReqOptions2ProtocolBinding) Encode(e *jx.Encoder) {
+	e.Str(string(s))
+}
+
+// Decode decodes UpdateConnectionReqOptions2ProtocolBinding from json.
+func (s *UpdateConnectionReqOptions2ProtocolBinding) Decode(d *jx.Decoder) error {
+	if s == nil {
+		return errors.New("invalid: unable to decode UpdateConnectionReqOptions2ProtocolBinding to nil")
+	}
+	v, err := d.StrBytes()
+	if err != nil {
+		return err
+	}
+	// Try to use constant string.
+	switch UpdateConnectionReqOptions2ProtocolBinding(v) {
+	case UpdateConnectionReqOptions2ProtocolBindingHTTPREDIRECT:
+		*s = UpdateConnectionReqOptions2ProtocolBindingHTTPREDIRECT
+	case UpdateConnectionReqOptions2ProtocolBindingHTTPPOST:
+		*s = UpdateConnectionReqOptions2ProtocolBindingHTTPPOST
+	default:
+		*s = UpdateConnectionReqOptions2ProtocolBinding(v)
+	}
+
+	return nil
+}
+
+// MarshalJSON implements stdjson.Marshaler.
+func (s UpdateConnectionReqOptions2ProtocolBinding) MarshalJSON() ([]byte, error) {
+	e := jx.Encoder{}
+	s.Encode(&e)
+	return e.Bytes(), nil
+}
+
+// UnmarshalJSON implements stdjson.Unmarshaler.
+func (s *UpdateConnectionReqOptions2ProtocolBinding) UnmarshalJSON(data []byte) error {
+	d := jx.DecodeBytes(data)
+	return s.Decode(d)
+}
+
+// Encode encodes UpdateConnectionReqOptions2SSOButtonDisplay as json.
+func (s UpdateConnectionReqOptions2SSOButtonDisplay) Encode(e *jx.Encoder) {
+	e.Str(string(s))
+}
+
+// Decode decodes UpdateConnectionReqOptions2SSOButtonDisplay from json.
+func (s *UpdateConnectionReqOptions2SSOButtonDisplay) Decode(d *jx.Decoder) error {
+	if s == nil {
+		return errors.New("invalid: unable to decode UpdateConnectionReqOptions2SSOButtonDisplay to nil")
+	}
+	v, err := d.StrBytes()
+	if err != nil {
+		return err
+	}
+	// Try to use constant string.
+	switch UpdateConnectionReqOptions2SSOButtonDisplay(v) {
+	case UpdateConnectionReqOptions2SSOButtonDisplayAuto:
+		*s = UpdateConnectionReqOptions2SSOButtonDisplayAuto
+	case UpdateConnectionReqOptions2SSOButtonDisplayShow:
+		*s = UpdateConnectionReqOptions2SSOButtonDisplayShow
+	case UpdateConnectionReqOptions2SSOButtonDisplayHide:
+		*s = UpdateConnectionReqOptions2SSOButtonDisplayHide
+	default:
+		*s = UpdateConnectionReqOptions2SSOButtonDisplay(v)
+	}
+
+	return nil
+}
+
+// MarshalJSON implements stdjson.Marshaler.
+func (s UpdateConnectionReqOptions2SSOButtonDisplay) MarshalJSON() ([]byte, error) {
+	e := jx.Encoder{}
+	s.Encode(&e)
+	return e.Bytes(), nil
+}
+
+// UnmarshalJSON implements stdjson.Unmarshaler.
+func (s *UpdateConnectionReqOptions2SSOButtonDisplay) UnmarshalJSON(data []byte) error {
+	d := jx.DecodeBytes(data)
+	return s.Decode(d)
+}
+
+// Encode encodes UpdateConnectionReqOptions2SignRequestAlgorithm as json.
+func (s UpdateConnectionReqOptions2SignRequestAlgorithm) Encode(e *jx.Encoder) {
+	e.Str(string(s))
+}
+
+// Decode decodes UpdateConnectionReqOptions2SignRequestAlgorithm from json.
+func (s *UpdateConnectionReqOptions2SignRequestAlgorithm) Decode(d *jx.Decoder) error {
+	if s == nil {
+		return errors.New("invalid: unable to decode UpdateConnectionReqOptions2SignRequestAlgorithm to nil")
+	}
+	v, err := d.StrBytes()
+	if err != nil {
+		return err
+	}
+	// Try to use constant string.
+	switch UpdateConnectionReqOptions2SignRequestAlgorithm(v) {
+	case UpdateConnectionReqOptions2SignRequestAlgorithmRSASHA256:
+		*s = UpdateConnectionReqOptions2SignRequestAlgorithmRSASHA256
+	case UpdateConnectionReqOptions2SignRequestAlgorithmRSASHA1:
+		*s = UpdateConnectionReqOptions2SignRequestAlgorithmRSASHA1
+	default:
+		*s = UpdateConnectionReqOptions2SignRequestAlgorithm(v)
+	}
+
+	return nil
+}
+
+// MarshalJSON implements stdjson.Marshaler.
+func (s UpdateConnectionReqOptions2SignRequestAlgorithm) MarshalJSON() ([]byte, error) {
+	e := jx.Encoder{}
+	s.Encode(&e)
+	return e.Bytes(), nil
+}
+
+// UnmarshalJSON implements stdjson.Unmarshaler.
+func (s *UpdateConnectionReqOptions2SignRequestAlgorithm) UnmarshalJSON(data []byte) error {
 	d := jx.DecodeBytes(data)
 	return s.Decode(d)
 }
@@ -42087,6 +51092,318 @@ func (s *UpdateConnectionTooManyRequests) MarshalJSON() ([]byte, error) {
 
 // UnmarshalJSON implements stdjson.Unmarshaler.
 func (s *UpdateConnectionTooManyRequests) UnmarshalJSON(data []byte) error {
+	d := jx.DecodeBytes(data)
+	return s.Decode(d)
+}
+
+// Encode encodes UpdateDirectoryBadRequest as json.
+func (s *UpdateDirectoryBadRequest) Encode(e *jx.Encoder) {
+	unwrapped := (*ErrorResponse)(s)
+
+	unwrapped.Encode(e)
+}
+
+// Decode decodes UpdateDirectoryBadRequest from json.
+func (s *UpdateDirectoryBadRequest) Decode(d *jx.Decoder) error {
+	if s == nil {
+		return errors.New("invalid: unable to decode UpdateDirectoryBadRequest to nil")
+	}
+	var unwrapped ErrorResponse
+	if err := func() error {
+		if err := unwrapped.Decode(d); err != nil {
+			return err
+		}
+		return nil
+	}(); err != nil {
+		return errors.Wrap(err, "alias")
+	}
+	*s = UpdateDirectoryBadRequest(unwrapped)
+	return nil
+}
+
+// MarshalJSON implements stdjson.Marshaler.
+func (s *UpdateDirectoryBadRequest) MarshalJSON() ([]byte, error) {
+	e := jx.Encoder{}
+	s.Encode(&e)
+	return e.Bytes(), nil
+}
+
+// UnmarshalJSON implements stdjson.Unmarshaler.
+func (s *UpdateDirectoryBadRequest) UnmarshalJSON(data []byte) error {
+	d := jx.DecodeBytes(data)
+	return s.Decode(d)
+}
+
+// Encode encodes UpdateDirectoryForbidden as json.
+func (s *UpdateDirectoryForbidden) Encode(e *jx.Encoder) {
+	unwrapped := (*ErrorResponse)(s)
+
+	unwrapped.Encode(e)
+}
+
+// Decode decodes UpdateDirectoryForbidden from json.
+func (s *UpdateDirectoryForbidden) Decode(d *jx.Decoder) error {
+	if s == nil {
+		return errors.New("invalid: unable to decode UpdateDirectoryForbidden to nil")
+	}
+	var unwrapped ErrorResponse
+	if err := func() error {
+		if err := unwrapped.Decode(d); err != nil {
+			return err
+		}
+		return nil
+	}(); err != nil {
+		return errors.Wrap(err, "alias")
+	}
+	*s = UpdateDirectoryForbidden(unwrapped)
+	return nil
+}
+
+// MarshalJSON implements stdjson.Marshaler.
+func (s *UpdateDirectoryForbidden) MarshalJSON() ([]byte, error) {
+	e := jx.Encoder{}
+	s.Encode(&e)
+	return e.Bytes(), nil
+}
+
+// UnmarshalJSON implements stdjson.Unmarshaler.
+func (s *UpdateDirectoryForbidden) UnmarshalJSON(data []byte) error {
+	d := jx.DecodeBytes(data)
+	return s.Decode(d)
+}
+
+// Encode encodes UpdateDirectoryNotFound as json.
+func (s *UpdateDirectoryNotFound) Encode(e *jx.Encoder) {
+	unwrapped := (*ErrorResponse)(s)
+
+	unwrapped.Encode(e)
+}
+
+// Decode decodes UpdateDirectoryNotFound from json.
+func (s *UpdateDirectoryNotFound) Decode(d *jx.Decoder) error {
+	if s == nil {
+		return errors.New("invalid: unable to decode UpdateDirectoryNotFound to nil")
+	}
+	var unwrapped ErrorResponse
+	if err := func() error {
+		if err := unwrapped.Decode(d); err != nil {
+			return err
+		}
+		return nil
+	}(); err != nil {
+		return errors.Wrap(err, "alias")
+	}
+	*s = UpdateDirectoryNotFound(unwrapped)
+	return nil
+}
+
+// MarshalJSON implements stdjson.Marshaler.
+func (s *UpdateDirectoryNotFound) MarshalJSON() ([]byte, error) {
+	e := jx.Encoder{}
+	s.Encode(&e)
+	return e.Bytes(), nil
+}
+
+// UnmarshalJSON implements stdjson.Unmarshaler.
+func (s *UpdateDirectoryNotFound) UnmarshalJSON(data []byte) error {
+	d := jx.DecodeBytes(data)
+	return s.Decode(d)
+}
+
+// Encode implements json.Marshaler.
+func (s *UpdateDirectoryReq) Encode(e *jx.Encoder) {
+	e.ObjStart()
+	s.encodeFields(e)
+	e.ObjEnd()
+}
+
+// encodeFields encodes fields.
+func (s *UpdateDirectoryReq) encodeFields(e *jx.Encoder) {
+	{
+		if s.DirectoryName.Set {
+			e.FieldStart("directory_name")
+			s.DirectoryName.Encode(e)
+		}
+	}
+}
+
+var jsonFieldsNameOfUpdateDirectoryReq = [1]string{
+	0: "directory_name",
+}
+
+// Decode decodes UpdateDirectoryReq from json.
+func (s *UpdateDirectoryReq) Decode(d *jx.Decoder) error {
+	if s == nil {
+		return errors.New("invalid: unable to decode UpdateDirectoryReq to nil")
+	}
+
+	if err := d.ObjBytes(func(d *jx.Decoder, k []byte) error {
+		switch string(k) {
+		case "directory_name":
+			if err := func() error {
+				s.DirectoryName.Reset()
+				if err := s.DirectoryName.Decode(d); err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return errors.Wrap(err, "decode field \"directory_name\"")
+			}
+		default:
+			return d.Skip()
+		}
+		return nil
+	}); err != nil {
+		return errors.Wrap(err, "decode UpdateDirectoryReq")
+	}
+
+	return nil
+}
+
+// MarshalJSON implements stdjson.Marshaler.
+func (s *UpdateDirectoryReq) MarshalJSON() ([]byte, error) {
+	e := jx.Encoder{}
+	s.Encode(&e)
+	return e.Bytes(), nil
+}
+
+// UnmarshalJSON implements stdjson.Unmarshaler.
+func (s *UpdateDirectoryReq) UnmarshalJSON(data []byte) error {
+	d := jx.DecodeBytes(data)
+	return s.Decode(d)
+}
+
+// Encode implements json.Marshaler.
+func (s *UpdateDirectoryResponse) Encode(e *jx.Encoder) {
+	e.ObjStart()
+	s.encodeFields(e)
+	e.ObjEnd()
+}
+
+// encodeFields encodes fields.
+func (s *UpdateDirectoryResponse) encodeFields(e *jx.Encoder) {
+	{
+		if s.Code.Set {
+			e.FieldStart("code")
+			s.Code.Encode(e)
+		}
+	}
+	{
+		if s.Message.Set {
+			e.FieldStart("message")
+			s.Message.Encode(e)
+		}
+	}
+	{
+		if s.Directory.Set {
+			e.FieldStart("directory")
+			s.Directory.Encode(e)
+		}
+	}
+}
+
+var jsonFieldsNameOfUpdateDirectoryResponse = [3]string{
+	0: "code",
+	1: "message",
+	2: "directory",
+}
+
+// Decode decodes UpdateDirectoryResponse from json.
+func (s *UpdateDirectoryResponse) Decode(d *jx.Decoder) error {
+	if s == nil {
+		return errors.New("invalid: unable to decode UpdateDirectoryResponse to nil")
+	}
+
+	if err := d.ObjBytes(func(d *jx.Decoder, k []byte) error {
+		switch string(k) {
+		case "code":
+			if err := func() error {
+				s.Code.Reset()
+				if err := s.Code.Decode(d); err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return errors.Wrap(err, "decode field \"code\"")
+			}
+		case "message":
+			if err := func() error {
+				s.Message.Reset()
+				if err := s.Message.Decode(d); err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return errors.Wrap(err, "decode field \"message\"")
+			}
+		case "directory":
+			if err := func() error {
+				s.Directory.Reset()
+				if err := s.Directory.Decode(d); err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return errors.Wrap(err, "decode field \"directory\"")
+			}
+		default:
+			return d.Skip()
+		}
+		return nil
+	}); err != nil {
+		return errors.Wrap(err, "decode UpdateDirectoryResponse")
+	}
+
+	return nil
+}
+
+// MarshalJSON implements stdjson.Marshaler.
+func (s *UpdateDirectoryResponse) MarshalJSON() ([]byte, error) {
+	e := jx.Encoder{}
+	s.Encode(&e)
+	return e.Bytes(), nil
+}
+
+// UnmarshalJSON implements stdjson.Unmarshaler.
+func (s *UpdateDirectoryResponse) UnmarshalJSON(data []byte) error {
+	d := jx.DecodeBytes(data)
+	return s.Decode(d)
+}
+
+// Encode encodes UpdateDirectoryTooManyRequests as json.
+func (s *UpdateDirectoryTooManyRequests) Encode(e *jx.Encoder) {
+	unwrapped := (*ErrorResponse)(s)
+
+	unwrapped.Encode(e)
+}
+
+// Decode decodes UpdateDirectoryTooManyRequests from json.
+func (s *UpdateDirectoryTooManyRequests) Decode(d *jx.Decoder) error {
+	if s == nil {
+		return errors.New("invalid: unable to decode UpdateDirectoryTooManyRequests to nil")
+	}
+	var unwrapped ErrorResponse
+	if err := func() error {
+		if err := unwrapped.Decode(d); err != nil {
+			return err
+		}
+		return nil
+	}(); err != nil {
+		return errors.Wrap(err, "alias")
+	}
+	*s = UpdateDirectoryTooManyRequests(unwrapped)
+	return nil
+}
+
+// MarshalJSON implements stdjson.Marshaler.
+func (s *UpdateDirectoryTooManyRequests) MarshalJSON() ([]byte, error) {
+	e := jx.Encoder{}
+	s.Encode(&e)
+	return e.Bytes(), nil
+}
+
+// UnmarshalJSON implements stdjson.Unmarshaler.
+func (s *UpdateDirectoryTooManyRequests) UnmarshalJSON(data []byte) error {
 	d := jx.DecodeBytes(data)
 	return s.Decode(d)
 }
@@ -42617,6 +51934,415 @@ func (s *UpdateOrganizationForbidden) UnmarshalJSON(data []byte) error {
 	return s.Decode(d)
 }
 
+// Encode encodes UpdateOrganizationPasskeyBadRequest as json.
+func (s *UpdateOrganizationPasskeyBadRequest) Encode(e *jx.Encoder) {
+	unwrapped := (*ErrorResponse)(s)
+
+	unwrapped.Encode(e)
+}
+
+// Decode decodes UpdateOrganizationPasskeyBadRequest from json.
+func (s *UpdateOrganizationPasskeyBadRequest) Decode(d *jx.Decoder) error {
+	if s == nil {
+		return errors.New("invalid: unable to decode UpdateOrganizationPasskeyBadRequest to nil")
+	}
+	var unwrapped ErrorResponse
+	if err := func() error {
+		if err := unwrapped.Decode(d); err != nil {
+			return err
+		}
+		return nil
+	}(); err != nil {
+		return errors.Wrap(err, "alias")
+	}
+	*s = UpdateOrganizationPasskeyBadRequest(unwrapped)
+	return nil
+}
+
+// MarshalJSON implements stdjson.Marshaler.
+func (s *UpdateOrganizationPasskeyBadRequest) MarshalJSON() ([]byte, error) {
+	e := jx.Encoder{}
+	s.Encode(&e)
+	return e.Bytes(), nil
+}
+
+// UnmarshalJSON implements stdjson.Unmarshaler.
+func (s *UpdateOrganizationPasskeyBadRequest) UnmarshalJSON(data []byte) error {
+	d := jx.DecodeBytes(data)
+	return s.Decode(d)
+}
+
+// Encode encodes UpdateOrganizationPasskeyForbidden as json.
+func (s *UpdateOrganizationPasskeyForbidden) Encode(e *jx.Encoder) {
+	unwrapped := (*ErrorResponse)(s)
+
+	unwrapped.Encode(e)
+}
+
+// Decode decodes UpdateOrganizationPasskeyForbidden from json.
+func (s *UpdateOrganizationPasskeyForbidden) Decode(d *jx.Decoder) error {
+	if s == nil {
+		return errors.New("invalid: unable to decode UpdateOrganizationPasskeyForbidden to nil")
+	}
+	var unwrapped ErrorResponse
+	if err := func() error {
+		if err := unwrapped.Decode(d); err != nil {
+			return err
+		}
+		return nil
+	}(); err != nil {
+		return errors.Wrap(err, "alias")
+	}
+	*s = UpdateOrganizationPasskeyForbidden(unwrapped)
+	return nil
+}
+
+// MarshalJSON implements stdjson.Marshaler.
+func (s *UpdateOrganizationPasskeyForbidden) MarshalJSON() ([]byte, error) {
+	e := jx.Encoder{}
+	s.Encode(&e)
+	return e.Bytes(), nil
+}
+
+// UnmarshalJSON implements stdjson.Unmarshaler.
+func (s *UpdateOrganizationPasskeyForbidden) UnmarshalJSON(data []byte) error {
+	d := jx.DecodeBytes(data)
+	return s.Decode(d)
+}
+
+// Encode implements json.Marshaler.
+func (s *UpdateOrganizationPasskeyOK) Encode(e *jx.Encoder) {
+	e.ObjStart()
+	s.encodeFields(e)
+	e.ObjEnd()
+}
+
+// encodeFields encodes fields.
+func (s *UpdateOrganizationPasskeyOK) encodeFields(e *jx.Encoder) {
+	{
+		if s.Message.Set {
+			e.FieldStart("message")
+			s.Message.Encode(e)
+		}
+	}
+	{
+		if s.Code.Set {
+			e.FieldStart("code")
+			s.Code.Encode(e)
+		}
+	}
+	{
+		if s.Enabled.Set {
+			e.FieldStart("enabled")
+			s.Enabled.Encode(e)
+		}
+	}
+	{
+		if s.Policy.Set {
+			e.FieldStart("policy")
+			s.Policy.Encode(e)
+		}
+	}
+	{
+		if s.IsOverrideEnvironmentPasskeySettings.Set {
+			e.FieldStart("is_override_environment_passkey_settings")
+			s.IsOverrideEnvironmentPasskeySettings.Encode(e)
+		}
+	}
+}
+
+var jsonFieldsNameOfUpdateOrganizationPasskeyOK = [5]string{
+	0: "message",
+	1: "code",
+	2: "enabled",
+	3: "policy",
+	4: "is_override_environment_passkey_settings",
+}
+
+// Decode decodes UpdateOrganizationPasskeyOK from json.
+func (s *UpdateOrganizationPasskeyOK) Decode(d *jx.Decoder) error {
+	if s == nil {
+		return errors.New("invalid: unable to decode UpdateOrganizationPasskeyOK to nil")
+	}
+
+	if err := d.ObjBytes(func(d *jx.Decoder, k []byte) error {
+		switch string(k) {
+		case "message":
+			if err := func() error {
+				s.Message.Reset()
+				if err := s.Message.Decode(d); err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return errors.Wrap(err, "decode field \"message\"")
+			}
+		case "code":
+			if err := func() error {
+				s.Code.Reset()
+				if err := s.Code.Decode(d); err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return errors.Wrap(err, "decode field \"code\"")
+			}
+		case "enabled":
+			if err := func() error {
+				s.Enabled.Reset()
+				if err := s.Enabled.Decode(d); err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return errors.Wrap(err, "decode field \"enabled\"")
+			}
+		case "policy":
+			if err := func() error {
+				s.Policy.Reset()
+				if err := s.Policy.Decode(d); err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return errors.Wrap(err, "decode field \"policy\"")
+			}
+		case "is_override_environment_passkey_settings":
+			if err := func() error {
+				s.IsOverrideEnvironmentPasskeySettings.Reset()
+				if err := s.IsOverrideEnvironmentPasskeySettings.Decode(d); err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return errors.Wrap(err, "decode field \"is_override_environment_passkey_settings\"")
+			}
+		default:
+			return d.Skip()
+		}
+		return nil
+	}); err != nil {
+		return errors.Wrap(err, "decode UpdateOrganizationPasskeyOK")
+	}
+
+	return nil
+}
+
+// MarshalJSON implements stdjson.Marshaler.
+func (s *UpdateOrganizationPasskeyOK) MarshalJSON() ([]byte, error) {
+	e := jx.Encoder{}
+	s.Encode(&e)
+	return e.Bytes(), nil
+}
+
+// UnmarshalJSON implements stdjson.Unmarshaler.
+func (s *UpdateOrganizationPasskeyOK) UnmarshalJSON(data []byte) error {
+	d := jx.DecodeBytes(data)
+	return s.Decode(d)
+}
+
+// Encode encodes UpdateOrganizationPasskeyOKPolicy as json.
+func (s UpdateOrganizationPasskeyOKPolicy) Encode(e *jx.Encoder) {
+	e.Str(string(s))
+}
+
+// Decode decodes UpdateOrganizationPasskeyOKPolicy from json.
+func (s *UpdateOrganizationPasskeyOKPolicy) Decode(d *jx.Decoder) error {
+	if s == nil {
+		return errors.New("invalid: unable to decode UpdateOrganizationPasskeyOKPolicy to nil")
+	}
+	v, err := d.StrBytes()
+	if err != nil {
+		return err
+	}
+	// Try to use constant string.
+	switch UpdateOrganizationPasskeyOKPolicy(v) {
+	case UpdateOrganizationPasskeyOKPolicyOff:
+		*s = UpdateOrganizationPasskeyOKPolicyOff
+	case UpdateOrganizationPasskeyOKPolicyOptional:
+		*s = UpdateOrganizationPasskeyOKPolicyOptional
+	case UpdateOrganizationPasskeyOKPolicyMandatory:
+		*s = UpdateOrganizationPasskeyOKPolicyMandatory
+	default:
+		*s = UpdateOrganizationPasskeyOKPolicy(v)
+	}
+
+	return nil
+}
+
+// MarshalJSON implements stdjson.Marshaler.
+func (s UpdateOrganizationPasskeyOKPolicy) MarshalJSON() ([]byte, error) {
+	e := jx.Encoder{}
+	s.Encode(&e)
+	return e.Bytes(), nil
+}
+
+// UnmarshalJSON implements stdjson.Unmarshaler.
+func (s *UpdateOrganizationPasskeyOKPolicy) UnmarshalJSON(data []byte) error {
+	d := jx.DecodeBytes(data)
+	return s.Decode(d)
+}
+
+// Encode implements json.Marshaler.
+func (s *UpdateOrganizationPasskeyReq) Encode(e *jx.Encoder) {
+	e.ObjStart()
+	s.encodeFields(e)
+	e.ObjEnd()
+}
+
+// encodeFields encodes fields.
+func (s *UpdateOrganizationPasskeyReq) encodeFields(e *jx.Encoder) {
+	{
+		if s.Policy.Set {
+			e.FieldStart("policy")
+			s.Policy.Encode(e)
+		}
+	}
+	{
+		if s.IsOverrideEnvironmentPasskeySettings.Set {
+			e.FieldStart("is_override_environment_passkey_settings")
+			s.IsOverrideEnvironmentPasskeySettings.Encode(e)
+		}
+	}
+}
+
+var jsonFieldsNameOfUpdateOrganizationPasskeyReq = [2]string{
+	0: "policy",
+	1: "is_override_environment_passkey_settings",
+}
+
+// Decode decodes UpdateOrganizationPasskeyReq from json.
+func (s *UpdateOrganizationPasskeyReq) Decode(d *jx.Decoder) error {
+	if s == nil {
+		return errors.New("invalid: unable to decode UpdateOrganizationPasskeyReq to nil")
+	}
+
+	if err := d.ObjBytes(func(d *jx.Decoder, k []byte) error {
+		switch string(k) {
+		case "policy":
+			if err := func() error {
+				s.Policy.Reset()
+				if err := s.Policy.Decode(d); err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return errors.Wrap(err, "decode field \"policy\"")
+			}
+		case "is_override_environment_passkey_settings":
+			if err := func() error {
+				s.IsOverrideEnvironmentPasskeySettings.Reset()
+				if err := s.IsOverrideEnvironmentPasskeySettings.Decode(d); err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return errors.Wrap(err, "decode field \"is_override_environment_passkey_settings\"")
+			}
+		default:
+			return d.Skip()
+		}
+		return nil
+	}); err != nil {
+		return errors.Wrap(err, "decode UpdateOrganizationPasskeyReq")
+	}
+
+	return nil
+}
+
+// MarshalJSON implements stdjson.Marshaler.
+func (s *UpdateOrganizationPasskeyReq) MarshalJSON() ([]byte, error) {
+	e := jx.Encoder{}
+	s.Encode(&e)
+	return e.Bytes(), nil
+}
+
+// UnmarshalJSON implements stdjson.Unmarshaler.
+func (s *UpdateOrganizationPasskeyReq) UnmarshalJSON(data []byte) error {
+	d := jx.DecodeBytes(data)
+	return s.Decode(d)
+}
+
+// Encode encodes UpdateOrganizationPasskeyReqPolicy as json.
+func (s UpdateOrganizationPasskeyReqPolicy) Encode(e *jx.Encoder) {
+	e.Str(string(s))
+}
+
+// Decode decodes UpdateOrganizationPasskeyReqPolicy from json.
+func (s *UpdateOrganizationPasskeyReqPolicy) Decode(d *jx.Decoder) error {
+	if s == nil {
+		return errors.New("invalid: unable to decode UpdateOrganizationPasskeyReqPolicy to nil")
+	}
+	v, err := d.StrBytes()
+	if err != nil {
+		return err
+	}
+	// Try to use constant string.
+	switch UpdateOrganizationPasskeyReqPolicy(v) {
+	case UpdateOrganizationPasskeyReqPolicyOff:
+		*s = UpdateOrganizationPasskeyReqPolicyOff
+	case UpdateOrganizationPasskeyReqPolicyOptional:
+		*s = UpdateOrganizationPasskeyReqPolicyOptional
+	case UpdateOrganizationPasskeyReqPolicyMandatory:
+		*s = UpdateOrganizationPasskeyReqPolicyMandatory
+	default:
+		*s = UpdateOrganizationPasskeyReqPolicy(v)
+	}
+
+	return nil
+}
+
+// MarshalJSON implements stdjson.Marshaler.
+func (s UpdateOrganizationPasskeyReqPolicy) MarshalJSON() ([]byte, error) {
+	e := jx.Encoder{}
+	s.Encode(&e)
+	return e.Bytes(), nil
+}
+
+// UnmarshalJSON implements stdjson.Unmarshaler.
+func (s *UpdateOrganizationPasskeyReqPolicy) UnmarshalJSON(data []byte) error {
+	d := jx.DecodeBytes(data)
+	return s.Decode(d)
+}
+
+// Encode encodes UpdateOrganizationPasskeyTooManyRequests as json.
+func (s *UpdateOrganizationPasskeyTooManyRequests) Encode(e *jx.Encoder) {
+	unwrapped := (*ErrorResponse)(s)
+
+	unwrapped.Encode(e)
+}
+
+// Decode decodes UpdateOrganizationPasskeyTooManyRequests from json.
+func (s *UpdateOrganizationPasskeyTooManyRequests) Decode(d *jx.Decoder) error {
+	if s == nil {
+		return errors.New("invalid: unable to decode UpdateOrganizationPasskeyTooManyRequests to nil")
+	}
+	var unwrapped ErrorResponse
+	if err := func() error {
+		if err := unwrapped.Decode(d); err != nil {
+			return err
+		}
+		return nil
+	}(); err != nil {
+		return errors.Wrap(err, "alias")
+	}
+	*s = UpdateOrganizationPasskeyTooManyRequests(unwrapped)
+	return nil
+}
+
+// MarshalJSON implements stdjson.Marshaler.
+func (s *UpdateOrganizationPasskeyTooManyRequests) MarshalJSON() ([]byte, error) {
+	e := jx.Encoder{}
+	s.Encode(&e)
+	return e.Bytes(), nil
+}
+
+// UnmarshalJSON implements stdjson.Unmarshaler.
+func (s *UpdateOrganizationPasskeyTooManyRequests) UnmarshalJSON(data []byte) error {
+	d := jx.DecodeBytes(data)
+	return s.Decode(d)
+}
+
 // Encode implements json.Marshaler.
 func (s *UpdateOrganizationPropertiesReq) Encode(e *jx.Encoder) {
 	e.ObjStart()
@@ -42843,6 +52569,12 @@ func (s *UpdateOrganizationReq) encodeFields(e *jx.Encoder) {
 		}
 	}
 	{
+		if s.IsAutoMembershipEnabled.Set {
+			e.FieldStart("is_auto_membership_enabled")
+			s.IsAutoMembershipEnabled.Encode(e)
+		}
+	}
+	{
 		if s.IsAutoJoinDomainList.Set {
 			e.FieldStart("is_auto_join_domain_list")
 			s.IsAutoJoinDomainList.Encode(e)
@@ -42882,9 +52614,15 @@ func (s *UpdateOrganizationReq) encodeFields(e *jx.Encoder) {
 			s.SenderEmail.Encode(e)
 		}
 	}
+	{
+		if s.IsSuspended.Set {
+			e.FieldStart("is_suspended")
+			s.IsSuspended.Encode(e)
+		}
+	}
 }
 
-var jsonFieldsNameOfUpdateOrganizationReq = [19]string{
+var jsonFieldsNameOfUpdateOrganizationReq = [21]string{
 	0:  "name",
 	1:  "external_id",
 	2:  "background_color",
@@ -42898,12 +52636,14 @@ var jsonFieldsNameOfUpdateOrganizationReq = [19]string{
 	10: "theme_code",
 	11: "handle",
 	12: "is_allow_registrations",
-	13: "is_auto_join_domain_list",
-	14: "allowed_domains",
-	15: "is_enable_advanced_orgs",
-	16: "is_enforce_mfa",
-	17: "sender_name",
-	18: "sender_email",
+	13: "is_auto_membership_enabled",
+	14: "is_auto_join_domain_list",
+	15: "allowed_domains",
+	16: "is_enable_advanced_orgs",
+	17: "is_enforce_mfa",
+	18: "sender_name",
+	19: "sender_email",
+	20: "is_suspended",
 }
 
 // Decode decodes UpdateOrganizationReq from json.
@@ -43044,6 +52784,16 @@ func (s *UpdateOrganizationReq) Decode(d *jx.Decoder) error {
 			}(); err != nil {
 				return errors.Wrap(err, "decode field \"is_allow_registrations\"")
 			}
+		case "is_auto_membership_enabled":
+			if err := func() error {
+				s.IsAutoMembershipEnabled.Reset()
+				if err := s.IsAutoMembershipEnabled.Decode(d); err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return errors.Wrap(err, "decode field \"is_auto_membership_enabled\"")
+			}
 		case "is_auto_join_domain_list":
 			if err := func() error {
 				s.IsAutoJoinDomainList.Reset()
@@ -43112,6 +52862,16 @@ func (s *UpdateOrganizationReq) Decode(d *jx.Decoder) error {
 				return nil
 			}(); err != nil {
 				return errors.Wrap(err, "decode field \"sender_email\"")
+			}
+		case "is_suspended":
+			if err := func() error {
+				s.IsSuspended.Reset()
+				if err := s.IsSuspended.Decode(d); err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return errors.Wrap(err, "decode field \"is_suspended\"")
 			}
 		default:
 			return d.Skip()
@@ -43983,6 +53743,412 @@ func (s *UpdateOrganizationUsersTooManyRequests) UnmarshalJSON(data []byte) erro
 	return s.Decode(d)
 }
 
+// Encode encodes UpdatePasskeyBadRequest as json.
+func (s *UpdatePasskeyBadRequest) Encode(e *jx.Encoder) {
+	unwrapped := (*ErrorResponse)(s)
+
+	unwrapped.Encode(e)
+}
+
+// Decode decodes UpdatePasskeyBadRequest from json.
+func (s *UpdatePasskeyBadRequest) Decode(d *jx.Decoder) error {
+	if s == nil {
+		return errors.New("invalid: unable to decode UpdatePasskeyBadRequest to nil")
+	}
+	var unwrapped ErrorResponse
+	if err := func() error {
+		if err := unwrapped.Decode(d); err != nil {
+			return err
+		}
+		return nil
+	}(); err != nil {
+		return errors.Wrap(err, "alias")
+	}
+	*s = UpdatePasskeyBadRequest(unwrapped)
+	return nil
+}
+
+// MarshalJSON implements stdjson.Marshaler.
+func (s *UpdatePasskeyBadRequest) MarshalJSON() ([]byte, error) {
+	e := jx.Encoder{}
+	s.Encode(&e)
+	return e.Bytes(), nil
+}
+
+// UnmarshalJSON implements stdjson.Unmarshaler.
+func (s *UpdatePasskeyBadRequest) UnmarshalJSON(data []byte) error {
+	d := jx.DecodeBytes(data)
+	return s.Decode(d)
+}
+
+// Encode encodes UpdatePasskeyForbidden as json.
+func (s *UpdatePasskeyForbidden) Encode(e *jx.Encoder) {
+	unwrapped := (*ErrorResponse)(s)
+
+	unwrapped.Encode(e)
+}
+
+// Decode decodes UpdatePasskeyForbidden from json.
+func (s *UpdatePasskeyForbidden) Decode(d *jx.Decoder) error {
+	if s == nil {
+		return errors.New("invalid: unable to decode UpdatePasskeyForbidden to nil")
+	}
+	var unwrapped ErrorResponse
+	if err := func() error {
+		if err := unwrapped.Decode(d); err != nil {
+			return err
+		}
+		return nil
+	}(); err != nil {
+		return errors.Wrap(err, "alias")
+	}
+	*s = UpdatePasskeyForbidden(unwrapped)
+	return nil
+}
+
+// MarshalJSON implements stdjson.Marshaler.
+func (s *UpdatePasskeyForbidden) MarshalJSON() ([]byte, error) {
+	e := jx.Encoder{}
+	s.Encode(&e)
+	return e.Bytes(), nil
+}
+
+// UnmarshalJSON implements stdjson.Unmarshaler.
+func (s *UpdatePasskeyForbidden) UnmarshalJSON(data []byte) error {
+	d := jx.DecodeBytes(data)
+	return s.Decode(d)
+}
+
+// Encode implements json.Marshaler.
+func (s *UpdatePasskeyOK) Encode(e *jx.Encoder) {
+	e.ObjStart()
+	s.encodeFields(e)
+	e.ObjEnd()
+}
+
+// encodeFields encodes fields.
+func (s *UpdatePasskeyOK) encodeFields(e *jx.Encoder) {
+	{
+		if s.Message.Set {
+			e.FieldStart("message")
+			s.Message.Encode(e)
+		}
+	}
+	{
+		if s.Code.Set {
+			e.FieldStart("code")
+			s.Code.Encode(e)
+		}
+	}
+	{
+		if s.Enabled.Set {
+			e.FieldStart("enabled")
+			s.Enabled.Encode(e)
+		}
+	}
+	{
+		if s.Policy.Set {
+			e.FieldStart("policy")
+			s.Policy.Encode(e)
+		}
+	}
+}
+
+var jsonFieldsNameOfUpdatePasskeyOK = [4]string{
+	0: "message",
+	1: "code",
+	2: "enabled",
+	3: "policy",
+}
+
+// Decode decodes UpdatePasskeyOK from json.
+func (s *UpdatePasskeyOK) Decode(d *jx.Decoder) error {
+	if s == nil {
+		return errors.New("invalid: unable to decode UpdatePasskeyOK to nil")
+	}
+
+	if err := d.ObjBytes(func(d *jx.Decoder, k []byte) error {
+		switch string(k) {
+		case "message":
+			if err := func() error {
+				s.Message.Reset()
+				if err := s.Message.Decode(d); err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return errors.Wrap(err, "decode field \"message\"")
+			}
+		case "code":
+			if err := func() error {
+				s.Code.Reset()
+				if err := s.Code.Decode(d); err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return errors.Wrap(err, "decode field \"code\"")
+			}
+		case "enabled":
+			if err := func() error {
+				s.Enabled.Reset()
+				if err := s.Enabled.Decode(d); err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return errors.Wrap(err, "decode field \"enabled\"")
+			}
+		case "policy":
+			if err := func() error {
+				s.Policy.Reset()
+				if err := s.Policy.Decode(d); err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return errors.Wrap(err, "decode field \"policy\"")
+			}
+		default:
+			return d.Skip()
+		}
+		return nil
+	}); err != nil {
+		return errors.Wrap(err, "decode UpdatePasskeyOK")
+	}
+
+	return nil
+}
+
+// MarshalJSON implements stdjson.Marshaler.
+func (s *UpdatePasskeyOK) MarshalJSON() ([]byte, error) {
+	e := jx.Encoder{}
+	s.Encode(&e)
+	return e.Bytes(), nil
+}
+
+// UnmarshalJSON implements stdjson.Unmarshaler.
+func (s *UpdatePasskeyOK) UnmarshalJSON(data []byte) error {
+	d := jx.DecodeBytes(data)
+	return s.Decode(d)
+}
+
+// Encode encodes UpdatePasskeyOKPolicy as json.
+func (s UpdatePasskeyOKPolicy) Encode(e *jx.Encoder) {
+	e.Str(string(s))
+}
+
+// Decode decodes UpdatePasskeyOKPolicy from json.
+func (s *UpdatePasskeyOKPolicy) Decode(d *jx.Decoder) error {
+	if s == nil {
+		return errors.New("invalid: unable to decode UpdatePasskeyOKPolicy to nil")
+	}
+	v, err := d.StrBytes()
+	if err != nil {
+		return err
+	}
+	// Try to use constant string.
+	switch UpdatePasskeyOKPolicy(v) {
+	case UpdatePasskeyOKPolicyOff:
+		*s = UpdatePasskeyOKPolicyOff
+	case UpdatePasskeyOKPolicyOptional:
+		*s = UpdatePasskeyOKPolicyOptional
+	case UpdatePasskeyOKPolicyMandatory:
+		*s = UpdatePasskeyOKPolicyMandatory
+	default:
+		*s = UpdatePasskeyOKPolicy(v)
+	}
+
+	return nil
+}
+
+// MarshalJSON implements stdjson.Marshaler.
+func (s UpdatePasskeyOKPolicy) MarshalJSON() ([]byte, error) {
+	e := jx.Encoder{}
+	s.Encode(&e)
+	return e.Bytes(), nil
+}
+
+// UnmarshalJSON implements stdjson.Unmarshaler.
+func (s *UpdatePasskeyOKPolicy) UnmarshalJSON(data []byte) error {
+	d := jx.DecodeBytes(data)
+	return s.Decode(d)
+}
+
+// Encode implements json.Marshaler.
+func (s *UpdatePasskeyReq) Encode(e *jx.Encoder) {
+	e.ObjStart()
+	s.encodeFields(e)
+	e.ObjEnd()
+}
+
+// encodeFields encodes fields.
+func (s *UpdatePasskeyReq) encodeFields(e *jx.Encoder) {
+	{
+		e.FieldStart("policy")
+		s.Policy.Encode(e)
+	}
+}
+
+var jsonFieldsNameOfUpdatePasskeyReq = [1]string{
+	0: "policy",
+}
+
+// Decode decodes UpdatePasskeyReq from json.
+func (s *UpdatePasskeyReq) Decode(d *jx.Decoder) error {
+	if s == nil {
+		return errors.New("invalid: unable to decode UpdatePasskeyReq to nil")
+	}
+	var requiredBitSet [1]uint8
+
+	if err := d.ObjBytes(func(d *jx.Decoder, k []byte) error {
+		switch string(k) {
+		case "policy":
+			requiredBitSet[0] |= 1 << 0
+			if err := func() error {
+				if err := s.Policy.Decode(d); err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return errors.Wrap(err, "decode field \"policy\"")
+			}
+		default:
+			return d.Skip()
+		}
+		return nil
+	}); err != nil {
+		return errors.Wrap(err, "decode UpdatePasskeyReq")
+	}
+	// Validate required fields.
+	var failures []validate.FieldError
+	for i, mask := range [1]uint8{
+		0b00000001,
+	} {
+		if result := (requiredBitSet[i] & mask) ^ mask; result != 0 {
+			// Mask only required fields and check equality to mask using XOR.
+			//
+			// If XOR result is not zero, result is not equal to expected, so some fields are missed.
+			// Bits of fields which would be set are actually bits of missed fields.
+			missed := bits.OnesCount8(result)
+			for bitN := 0; bitN < missed; bitN++ {
+				bitIdx := bits.TrailingZeros8(result)
+				fieldIdx := i*8 + bitIdx
+				var name string
+				if fieldIdx < len(jsonFieldsNameOfUpdatePasskeyReq) {
+					name = jsonFieldsNameOfUpdatePasskeyReq[fieldIdx]
+				} else {
+					name = strconv.Itoa(fieldIdx)
+				}
+				failures = append(failures, validate.FieldError{
+					Name:  name,
+					Error: validate.ErrFieldRequired,
+				})
+				// Reset bit.
+				result &^= 1 << bitIdx
+			}
+		}
+	}
+	if len(failures) > 0 {
+		return &validate.Error{Fields: failures}
+	}
+
+	return nil
+}
+
+// MarshalJSON implements stdjson.Marshaler.
+func (s *UpdatePasskeyReq) MarshalJSON() ([]byte, error) {
+	e := jx.Encoder{}
+	s.Encode(&e)
+	return e.Bytes(), nil
+}
+
+// UnmarshalJSON implements stdjson.Unmarshaler.
+func (s *UpdatePasskeyReq) UnmarshalJSON(data []byte) error {
+	d := jx.DecodeBytes(data)
+	return s.Decode(d)
+}
+
+// Encode encodes UpdatePasskeyReqPolicy as json.
+func (s UpdatePasskeyReqPolicy) Encode(e *jx.Encoder) {
+	e.Str(string(s))
+}
+
+// Decode decodes UpdatePasskeyReqPolicy from json.
+func (s *UpdatePasskeyReqPolicy) Decode(d *jx.Decoder) error {
+	if s == nil {
+		return errors.New("invalid: unable to decode UpdatePasskeyReqPolicy to nil")
+	}
+	v, err := d.StrBytes()
+	if err != nil {
+		return err
+	}
+	// Try to use constant string.
+	switch UpdatePasskeyReqPolicy(v) {
+	case UpdatePasskeyReqPolicyOff:
+		*s = UpdatePasskeyReqPolicyOff
+	case UpdatePasskeyReqPolicyOptional:
+		*s = UpdatePasskeyReqPolicyOptional
+	case UpdatePasskeyReqPolicyMandatory:
+		*s = UpdatePasskeyReqPolicyMandatory
+	default:
+		*s = UpdatePasskeyReqPolicy(v)
+	}
+
+	return nil
+}
+
+// MarshalJSON implements stdjson.Marshaler.
+func (s UpdatePasskeyReqPolicy) MarshalJSON() ([]byte, error) {
+	e := jx.Encoder{}
+	s.Encode(&e)
+	return e.Bytes(), nil
+}
+
+// UnmarshalJSON implements stdjson.Unmarshaler.
+func (s *UpdatePasskeyReqPolicy) UnmarshalJSON(data []byte) error {
+	d := jx.DecodeBytes(data)
+	return s.Decode(d)
+}
+
+// Encode encodes UpdatePasskeyTooManyRequests as json.
+func (s *UpdatePasskeyTooManyRequests) Encode(e *jx.Encoder) {
+	unwrapped := (*ErrorResponse)(s)
+
+	unwrapped.Encode(e)
+}
+
+// Decode decodes UpdatePasskeyTooManyRequests from json.
+func (s *UpdatePasskeyTooManyRequests) Decode(d *jx.Decoder) error {
+	if s == nil {
+		return errors.New("invalid: unable to decode UpdatePasskeyTooManyRequests to nil")
+	}
+	var unwrapped ErrorResponse
+	if err := func() error {
+		if err := unwrapped.Decode(d); err != nil {
+			return err
+		}
+		return nil
+	}(); err != nil {
+		return errors.Wrap(err, "alias")
+	}
+	*s = UpdatePasskeyTooManyRequests(unwrapped)
+	return nil
+}
+
+// MarshalJSON implements stdjson.Marshaler.
+func (s *UpdatePasskeyTooManyRequests) MarshalJSON() ([]byte, error) {
+	e := jx.Encoder{}
+	s.Encode(&e)
+	return e.Bytes(), nil
+}
+
+// UnmarshalJSON implements stdjson.Unmarshaler.
+func (s *UpdatePasskeyTooManyRequests) UnmarshalJSON(data []byte) error {
+	d := jx.DecodeBytes(data)
+	return s.Decode(d)
+}
+
 // Encode encodes UpdatePermissionsBadRequest as json.
 func (s *UpdatePermissionsBadRequest) Encode(e *jx.Encoder) {
 	unwrapped := (*ErrorResponse)(s)
@@ -44593,6 +54759,376 @@ func (s *UpdateRolePermissionsResponse) MarshalJSON() ([]byte, error) {
 
 // UnmarshalJSON implements stdjson.Unmarshaler.
 func (s *UpdateRolePermissionsResponse) UnmarshalJSON(data []byte) error {
+	d := jx.DecodeBytes(data)
+	return s.Decode(d)
+}
+
+// Encode encodes UpdateRoleSystemPermissionsBadRequest as json.
+func (s *UpdateRoleSystemPermissionsBadRequest) Encode(e *jx.Encoder) {
+	unwrapped := (*ErrorResponse)(s)
+
+	unwrapped.Encode(e)
+}
+
+// Decode decodes UpdateRoleSystemPermissionsBadRequest from json.
+func (s *UpdateRoleSystemPermissionsBadRequest) Decode(d *jx.Decoder) error {
+	if s == nil {
+		return errors.New("invalid: unable to decode UpdateRoleSystemPermissionsBadRequest to nil")
+	}
+	var unwrapped ErrorResponse
+	if err := func() error {
+		if err := unwrapped.Decode(d); err != nil {
+			return err
+		}
+		return nil
+	}(); err != nil {
+		return errors.Wrap(err, "alias")
+	}
+	*s = UpdateRoleSystemPermissionsBadRequest(unwrapped)
+	return nil
+}
+
+// MarshalJSON implements stdjson.Marshaler.
+func (s *UpdateRoleSystemPermissionsBadRequest) MarshalJSON() ([]byte, error) {
+	e := jx.Encoder{}
+	s.Encode(&e)
+	return e.Bytes(), nil
+}
+
+// UnmarshalJSON implements stdjson.Unmarshaler.
+func (s *UpdateRoleSystemPermissionsBadRequest) UnmarshalJSON(data []byte) error {
+	d := jx.DecodeBytes(data)
+	return s.Decode(d)
+}
+
+// Encode encodes UpdateRoleSystemPermissionsForbidden as json.
+func (s *UpdateRoleSystemPermissionsForbidden) Encode(e *jx.Encoder) {
+	unwrapped := (*ErrorResponse)(s)
+
+	unwrapped.Encode(e)
+}
+
+// Decode decodes UpdateRoleSystemPermissionsForbidden from json.
+func (s *UpdateRoleSystemPermissionsForbidden) Decode(d *jx.Decoder) error {
+	if s == nil {
+		return errors.New("invalid: unable to decode UpdateRoleSystemPermissionsForbidden to nil")
+	}
+	var unwrapped ErrorResponse
+	if err := func() error {
+		if err := unwrapped.Decode(d); err != nil {
+			return err
+		}
+		return nil
+	}(); err != nil {
+		return errors.Wrap(err, "alias")
+	}
+	*s = UpdateRoleSystemPermissionsForbidden(unwrapped)
+	return nil
+}
+
+// MarshalJSON implements stdjson.Marshaler.
+func (s *UpdateRoleSystemPermissionsForbidden) MarshalJSON() ([]byte, error) {
+	e := jx.Encoder{}
+	s.Encode(&e)
+	return e.Bytes(), nil
+}
+
+// UnmarshalJSON implements stdjson.Unmarshaler.
+func (s *UpdateRoleSystemPermissionsForbidden) UnmarshalJSON(data []byte) error {
+	d := jx.DecodeBytes(data)
+	return s.Decode(d)
+}
+
+// Encode implements json.Marshaler.
+func (s *UpdateRoleSystemPermissionsReq) Encode(e *jx.Encoder) {
+	e.ObjStart()
+	s.encodeFields(e)
+	e.ObjEnd()
+}
+
+// encodeFields encodes fields.
+func (s *UpdateRoleSystemPermissionsReq) encodeFields(e *jx.Encoder) {
+	{
+		if s.SystemPermissions != nil {
+			e.FieldStart("system_permissions")
+			e.ArrStart()
+			for _, elem := range s.SystemPermissions {
+				elem.Encode(e)
+			}
+			e.ArrEnd()
+		}
+	}
+}
+
+var jsonFieldsNameOfUpdateRoleSystemPermissionsReq = [1]string{
+	0: "system_permissions",
+}
+
+// Decode decodes UpdateRoleSystemPermissionsReq from json.
+func (s *UpdateRoleSystemPermissionsReq) Decode(d *jx.Decoder) error {
+	if s == nil {
+		return errors.New("invalid: unable to decode UpdateRoleSystemPermissionsReq to nil")
+	}
+
+	if err := d.ObjBytes(func(d *jx.Decoder, k []byte) error {
+		switch string(k) {
+		case "system_permissions":
+			if err := func() error {
+				s.SystemPermissions = make([]UpdateRoleSystemPermissionsReqSystemPermissionsItem, 0)
+				if err := d.Arr(func(d *jx.Decoder) error {
+					var elem UpdateRoleSystemPermissionsReqSystemPermissionsItem
+					if err := elem.Decode(d); err != nil {
+						return err
+					}
+					s.SystemPermissions = append(s.SystemPermissions, elem)
+					return nil
+				}); err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return errors.Wrap(err, "decode field \"system_permissions\"")
+			}
+		default:
+			return d.Skip()
+		}
+		return nil
+	}); err != nil {
+		return errors.Wrap(err, "decode UpdateRoleSystemPermissionsReq")
+	}
+
+	return nil
+}
+
+// MarshalJSON implements stdjson.Marshaler.
+func (s *UpdateRoleSystemPermissionsReq) MarshalJSON() ([]byte, error) {
+	e := jx.Encoder{}
+	s.Encode(&e)
+	return e.Bytes(), nil
+}
+
+// UnmarshalJSON implements stdjson.Unmarshaler.
+func (s *UpdateRoleSystemPermissionsReq) UnmarshalJSON(data []byte) error {
+	d := jx.DecodeBytes(data)
+	return s.Decode(d)
+}
+
+// Encode implements json.Marshaler.
+func (s *UpdateRoleSystemPermissionsReqSystemPermissionsItem) Encode(e *jx.Encoder) {
+	e.ObjStart()
+	s.encodeFields(e)
+	e.ObjEnd()
+}
+
+// encodeFields encodes fields.
+func (s *UpdateRoleSystemPermissionsReqSystemPermissionsItem) encodeFields(e *jx.Encoder) {
+	{
+		if s.ID.Set {
+			e.FieldStart("id")
+			s.ID.Encode(e)
+		}
+	}
+	{
+		if s.Operation.Set {
+			e.FieldStart("operation")
+			s.Operation.Encode(e)
+		}
+	}
+}
+
+var jsonFieldsNameOfUpdateRoleSystemPermissionsReqSystemPermissionsItem = [2]string{
+	0: "id",
+	1: "operation",
+}
+
+// Decode decodes UpdateRoleSystemPermissionsReqSystemPermissionsItem from json.
+func (s *UpdateRoleSystemPermissionsReqSystemPermissionsItem) Decode(d *jx.Decoder) error {
+	if s == nil {
+		return errors.New("invalid: unable to decode UpdateRoleSystemPermissionsReqSystemPermissionsItem to nil")
+	}
+
+	if err := d.ObjBytes(func(d *jx.Decoder, k []byte) error {
+		switch string(k) {
+		case "id":
+			if err := func() error {
+				s.ID.Reset()
+				if err := s.ID.Decode(d); err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return errors.Wrap(err, "decode field \"id\"")
+			}
+		case "operation":
+			if err := func() error {
+				s.Operation.Reset()
+				if err := s.Operation.Decode(d); err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return errors.Wrap(err, "decode field \"operation\"")
+			}
+		default:
+			return d.Skip()
+		}
+		return nil
+	}); err != nil {
+		return errors.Wrap(err, "decode UpdateRoleSystemPermissionsReqSystemPermissionsItem")
+	}
+
+	return nil
+}
+
+// MarshalJSON implements stdjson.Marshaler.
+func (s *UpdateRoleSystemPermissionsReqSystemPermissionsItem) MarshalJSON() ([]byte, error) {
+	e := jx.Encoder{}
+	s.Encode(&e)
+	return e.Bytes(), nil
+}
+
+// UnmarshalJSON implements stdjson.Unmarshaler.
+func (s *UpdateRoleSystemPermissionsReqSystemPermissionsItem) UnmarshalJSON(data []byte) error {
+	d := jx.DecodeBytes(data)
+	return s.Decode(d)
+}
+
+// Encode implements json.Marshaler.
+func (s *UpdateRoleSystemPermissionsResponse) Encode(e *jx.Encoder) {
+	e.ObjStart()
+	s.encodeFields(e)
+	e.ObjEnd()
+}
+
+// encodeFields encodes fields.
+func (s *UpdateRoleSystemPermissionsResponse) encodeFields(e *jx.Encoder) {
+	{
+		if s.Code.Set {
+			e.FieldStart("code")
+			s.Code.Encode(e)
+		}
+	}
+	{
+		if s.Message.Set {
+			e.FieldStart("message")
+			s.Message.Encode(e)
+		}
+	}
+	{
+		if s.SystemPermissionsAdded != nil {
+			e.FieldStart("system_permissions_added")
+			e.ArrStart()
+			for _, elem := range s.SystemPermissionsAdded {
+				e.Str(elem)
+			}
+			e.ArrEnd()
+		}
+	}
+	{
+		if s.SystemPermissionsRemoved != nil {
+			e.FieldStart("system_permissions_removed")
+			e.ArrStart()
+			for _, elem := range s.SystemPermissionsRemoved {
+				e.Str(elem)
+			}
+			e.ArrEnd()
+		}
+	}
+}
+
+var jsonFieldsNameOfUpdateRoleSystemPermissionsResponse = [4]string{
+	0: "code",
+	1: "message",
+	2: "system_permissions_added",
+	3: "system_permissions_removed",
+}
+
+// Decode decodes UpdateRoleSystemPermissionsResponse from json.
+func (s *UpdateRoleSystemPermissionsResponse) Decode(d *jx.Decoder) error {
+	if s == nil {
+		return errors.New("invalid: unable to decode UpdateRoleSystemPermissionsResponse to nil")
+	}
+
+	if err := d.ObjBytes(func(d *jx.Decoder, k []byte) error {
+		switch string(k) {
+		case "code":
+			if err := func() error {
+				s.Code.Reset()
+				if err := s.Code.Decode(d); err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return errors.Wrap(err, "decode field \"code\"")
+			}
+		case "message":
+			if err := func() error {
+				s.Message.Reset()
+				if err := s.Message.Decode(d); err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return errors.Wrap(err, "decode field \"message\"")
+			}
+		case "system_permissions_added":
+			if err := func() error {
+				s.SystemPermissionsAdded = make([]string, 0)
+				if err := d.Arr(func(d *jx.Decoder) error {
+					var elem string
+					v, err := d.Str()
+					elem = string(v)
+					if err != nil {
+						return err
+					}
+					s.SystemPermissionsAdded = append(s.SystemPermissionsAdded, elem)
+					return nil
+				}); err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return errors.Wrap(err, "decode field \"system_permissions_added\"")
+			}
+		case "system_permissions_removed":
+			if err := func() error {
+				s.SystemPermissionsRemoved = make([]string, 0)
+				if err := d.Arr(func(d *jx.Decoder) error {
+					var elem string
+					v, err := d.Str()
+					elem = string(v)
+					if err != nil {
+						return err
+					}
+					s.SystemPermissionsRemoved = append(s.SystemPermissionsRemoved, elem)
+					return nil
+				}); err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return errors.Wrap(err, "decode field \"system_permissions_removed\"")
+			}
+		default:
+			return d.Skip()
+		}
+		return nil
+	}); err != nil {
+		return errors.Wrap(err, "decode UpdateRoleSystemPermissionsResponse")
+	}
+
+	return nil
+}
+
+// MarshalJSON implements stdjson.Marshaler.
+func (s *UpdateRoleSystemPermissionsResponse) MarshalJSON() ([]byte, error) {
+	e := jx.Encoder{}
+	s.Encode(&e)
+	return e.Bytes(), nil
+}
+
+// UnmarshalJSON implements stdjson.Unmarshaler.
+func (s *UpdateRoleSystemPermissionsResponse) UnmarshalJSON(data []byte) error {
 	d := jx.DecodeBytes(data)
 	return s.Decode(d)
 }
@@ -45893,9 +56429,15 @@ func (s *User) encodeFields(e *jx.Encoder) {
 			e.ArrEnd()
 		}
 	}
+	{
+		if s.Billing.Set {
+			e.FieldStart("billing")
+			s.Billing.Encode(e)
+		}
+	}
 }
 
-var jsonFieldsNameOfUser = [15]string{
+var jsonFieldsNameOfUser = [16]string{
 	0:  "id",
 	1:  "provided_id",
 	2:  "preferred_email",
@@ -45911,6 +56453,7 @@ var jsonFieldsNameOfUser = [15]string{
 	12: "created_on",
 	13: "organizations",
 	14: "identities",
+	15: "billing",
 }
 
 // Decode decodes User from json.
@@ -46087,6 +56630,16 @@ func (s *User) Decode(d *jx.Decoder) error {
 			}(); err != nil {
 				return errors.Wrap(err, "decode field \"identities\"")
 			}
+		case "billing":
+			if err := func() error {
+				s.Billing.Reset()
+				if err := s.Billing.Decode(d); err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return errors.Wrap(err, "decode field \"billing\"")
+			}
 		default:
 			return d.Skip()
 		}
@@ -46107,6 +56660,69 @@ func (s *User) MarshalJSON() ([]byte, error) {
 
 // UnmarshalJSON implements stdjson.Unmarshaler.
 func (s *User) UnmarshalJSON(data []byte) error {
+	d := jx.DecodeBytes(data)
+	return s.Decode(d)
+}
+
+// Encode implements json.Marshaler.
+func (s *UserBilling) Encode(e *jx.Encoder) {
+	e.ObjStart()
+	s.encodeFields(e)
+	e.ObjEnd()
+}
+
+// encodeFields encodes fields.
+func (s *UserBilling) encodeFields(e *jx.Encoder) {
+	{
+		if s.CustomerID.Set {
+			e.FieldStart("customer_id")
+			s.CustomerID.Encode(e)
+		}
+	}
+}
+
+var jsonFieldsNameOfUserBilling = [1]string{
+	0: "customer_id",
+}
+
+// Decode decodes UserBilling from json.
+func (s *UserBilling) Decode(d *jx.Decoder) error {
+	if s == nil {
+		return errors.New("invalid: unable to decode UserBilling to nil")
+	}
+
+	if err := d.ObjBytes(func(d *jx.Decoder, k []byte) error {
+		switch string(k) {
+		case "customer_id":
+			if err := func() error {
+				s.CustomerID.Reset()
+				if err := s.CustomerID.Decode(d); err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return errors.Wrap(err, "decode field \"customer_id\"")
+			}
+		default:
+			return d.Skip()
+		}
+		return nil
+	}); err != nil {
+		return errors.Wrap(err, "decode UserBilling")
+	}
+
+	return nil
+}
+
+// MarshalJSON implements stdjson.Marshaler.
+func (s *UserBilling) MarshalJSON() ([]byte, error) {
+	e := jx.Encoder{}
+	s.Encode(&e)
+	return e.Bytes(), nil
+}
+
+// UnmarshalJSON implements stdjson.Unmarshaler.
+func (s *UserBilling) UnmarshalJSON(data []byte) error {
 	d := jx.DecodeBytes(data)
 	return s.Decode(d)
 }
@@ -46547,6 +57163,12 @@ func (s *UsersResponseUsersItem) encodeFields(e *jx.Encoder) {
 		}
 	}
 	{
+		if s.LastOrganizationSignIns.Set {
+			e.FieldStart("last_organization_sign_ins")
+			s.LastOrganizationSignIns.Encode(e)
+		}
+	}
+	{
 		if s.Organizations != nil {
 			e.FieldStart("organizations")
 			e.ArrStart()
@@ -46574,7 +57196,7 @@ func (s *UsersResponseUsersItem) encodeFields(e *jx.Encoder) {
 	}
 }
 
-var jsonFieldsNameOfUsersResponseUsersItem = [16]string{
+var jsonFieldsNameOfUsersResponseUsersItem = [17]string{
 	0:  "id",
 	1:  "provided_id",
 	2:  "email",
@@ -46588,9 +57210,10 @@ var jsonFieldsNameOfUsersResponseUsersItem = [16]string{
 	10: "failed_sign_ins",
 	11: "last_signed_in",
 	12: "created_on",
-	13: "organizations",
-	14: "identities",
-	15: "billing",
+	13: "last_organization_sign_ins",
+	14: "organizations",
+	15: "identities",
+	16: "billing",
 }
 
 // Decode decodes UsersResponseUsersItem from json.
@@ -46730,6 +57353,16 @@ func (s *UsersResponseUsersItem) Decode(d *jx.Decoder) error {
 				return nil
 			}(); err != nil {
 				return errors.Wrap(err, "decode field \"created_on\"")
+			}
+		case "last_organization_sign_ins":
+			if err := func() error {
+				s.LastOrganizationSignIns.Reset()
+				if err := s.LastOrganizationSignIns.Decode(d); err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return errors.Wrap(err, "decode field \"last_organization_sign_ins\"")
 			}
 		case "organizations":
 			if err := func() error {
@@ -46885,11 +57518,18 @@ func (s *UsersResponseUsersItemIdentitiesItem) encodeFields(e *jx.Encoder) {
 			s.Identity.Encode(e)
 		}
 	}
+	{
+		if s.ConnectionID.Set {
+			e.FieldStart("connection_id")
+			s.ConnectionID.Encode(e)
+		}
+	}
 }
 
-var jsonFieldsNameOfUsersResponseUsersItemIdentitiesItem = [2]string{
+var jsonFieldsNameOfUsersResponseUsersItemIdentitiesItem = [3]string{
 	0: "type",
 	1: "identity",
+	2: "connection_id",
 }
 
 // Decode decodes UsersResponseUsersItemIdentitiesItem from json.
@@ -46920,6 +57560,16 @@ func (s *UsersResponseUsersItemIdentitiesItem) Decode(d *jx.Decoder) error {
 			}(); err != nil {
 				return errors.Wrap(err, "decode field \"identity\"")
 			}
+		case "connection_id":
+			if err := func() error {
+				s.ConnectionID.Reset()
+				if err := s.ConnectionID.Decode(d); err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return errors.Wrap(err, "decode field \"connection_id\"")
+			}
 		default:
 			return d.Skip()
 		}
@@ -46940,6 +57590,86 @@ func (s *UsersResponseUsersItemIdentitiesItem) MarshalJSON() ([]byte, error) {
 
 // UnmarshalJSON implements stdjson.Unmarshaler.
 func (s *UsersResponseUsersItemIdentitiesItem) UnmarshalJSON(data []byte) error {
+	d := jx.DecodeBytes(data)
+	return s.Decode(d)
+}
+
+// Encode implements json.Marshaler.
+func (s *UsersResponseUsersItemLastOrganizationSignInsItem) Encode(e *jx.Encoder) {
+	e.ObjStart()
+	s.encodeFields(e)
+	e.ObjEnd()
+}
+
+// encodeFields encodes fields.
+func (s *UsersResponseUsersItemLastOrganizationSignInsItem) encodeFields(e *jx.Encoder) {
+	{
+		if s.OrgCode.Set {
+			e.FieldStart("org_code")
+			s.OrgCode.Encode(e)
+		}
+	}
+	{
+		if s.LastSignedIn.Set {
+			e.FieldStart("last_signed_in")
+			s.LastSignedIn.Encode(e, json.EncodeDateTime)
+		}
+	}
+}
+
+var jsonFieldsNameOfUsersResponseUsersItemLastOrganizationSignInsItem = [2]string{
+	0: "org_code",
+	1: "last_signed_in",
+}
+
+// Decode decodes UsersResponseUsersItemLastOrganizationSignInsItem from json.
+func (s *UsersResponseUsersItemLastOrganizationSignInsItem) Decode(d *jx.Decoder) error {
+	if s == nil {
+		return errors.New("invalid: unable to decode UsersResponseUsersItemLastOrganizationSignInsItem to nil")
+	}
+
+	if err := d.ObjBytes(func(d *jx.Decoder, k []byte) error {
+		switch string(k) {
+		case "org_code":
+			if err := func() error {
+				s.OrgCode.Reset()
+				if err := s.OrgCode.Decode(d); err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return errors.Wrap(err, "decode field \"org_code\"")
+			}
+		case "last_signed_in":
+			if err := func() error {
+				s.LastSignedIn.Reset()
+				if err := s.LastSignedIn.Decode(d, json.DecodeDateTime); err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return errors.Wrap(err, "decode field \"last_signed_in\"")
+			}
+		default:
+			return d.Skip()
+		}
+		return nil
+	}); err != nil {
+		return errors.Wrap(err, "decode UsersResponseUsersItemLastOrganizationSignInsItem")
+	}
+
+	return nil
+}
+
+// MarshalJSON implements stdjson.Marshaler.
+func (s *UsersResponseUsersItemLastOrganizationSignInsItem) MarshalJSON() ([]byte, error) {
+	e := jx.Encoder{}
+	s.Encode(&e)
+	return e.Bytes(), nil
+}
+
+// UnmarshalJSON implements stdjson.Unmarshaler.
+func (s *UsersResponseUsersItemLastOrganizationSignInsItem) UnmarshalJSON(data []byte) error {
 	d := jx.DecodeBytes(data)
 	return s.Decode(d)
 }

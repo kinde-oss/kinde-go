@@ -217,6 +217,20 @@ func encodeCreateConnectionRequest(
 	return nil
 }
 
+func encodeCreateDirectoryRequest(
+	req *CreateDirectoryReq,
+	r *http.Request,
+) error {
+	const contentType = "application/json"
+	e := new(jx.Encoder)
+	{
+		req.Encode(e)
+	}
+	encoded := e.Bytes()
+	ht.SetBody(r, bytes.NewReader(encoded), contentType)
+	return nil
+}
+
 func encodeCreateEnvironmentVariableRequest(
 	req *CreateEnvironmentVariableReq,
 	r *http.Request,
@@ -261,6 +275,20 @@ func encodeCreateMeterUsageRecordRequest(
 
 func encodeCreateOrganizationRequest(
 	req *CreateOrganizationReq,
+	r *http.Request,
+) error {
+	const contentType = "application/json"
+	e := new(jx.Encoder)
+	{
+		req.Encode(e)
+	}
+	encoded := e.Bytes()
+	ht.SetBody(r, bytes.NewReader(encoded), contentType)
+	return nil
+}
+
+func encodeCreateOrganizationInviteRequest(
+	req *CreateOrganizationInviteReq,
 	r *http.Request,
 ) error {
 	const contentType = "application/json"
@@ -369,6 +397,20 @@ func encodeCreateUserRequest(
 		if req.Set {
 			req.Encode(e)
 		}
+	}
+	encoded := e.Bytes()
+	ht.SetBody(r, bytes.NewReader(encoded), contentType)
+	return nil
+}
+
+func encodeCreateUserBillingCustomerRequest(
+	req *CreateUserBillingCustomerReq,
+	r *http.Request,
+) error {
+	const contentType = "application/json"
+	e := new(jx.Encoder)
+	{
+		req.Encode(e)
 	}
 	encoded := e.Bytes()
 	ht.SetBody(r, bytes.NewReader(encoded), contentType)
@@ -611,6 +653,20 @@ func encodeUpdateConnectionRequest(
 	return nil
 }
 
+func encodeUpdateDirectoryRequest(
+	req *UpdateDirectoryReq,
+	r *http.Request,
+) error {
+	const contentType = "application/json"
+	e := new(jx.Encoder)
+	{
+		req.Encode(e)
+	}
+	encoded := e.Bytes()
+	ht.SetBody(r, bytes.NewReader(encoded), contentType)
+	return nil
+}
+
 func encodeUpdateEnvironementFeatureFlagOverrideRequest(
 	req *UpdateEnvironementFeatureFlagOverrideReq,
 	r *http.Request,
@@ -673,6 +729,20 @@ func encodeUpdateOrganizationRequest(
 	return nil
 }
 
+func encodeUpdateOrganizationPasskeyRequest(
+	req *UpdateOrganizationPasskeyReq,
+	r *http.Request,
+) error {
+	const contentType = "application/json"
+	e := new(jx.Encoder)
+	{
+		req.Encode(e)
+	}
+	encoded := e.Bytes()
+	ht.SetBody(r, bytes.NewReader(encoded), contentType)
+	return nil
+}
+
 func encodeUpdateOrganizationPropertiesRequest(
 	req *UpdateOrganizationPropertiesReq,
 	r *http.Request,
@@ -721,6 +791,20 @@ func encodeUpdateOrganizationUsersRequest(
 	return nil
 }
 
+func encodeUpdatePasskeyRequest(
+	req *UpdatePasskeyReq,
+	r *http.Request,
+) error {
+	const contentType = "application/json"
+	e := new(jx.Encoder)
+	{
+		req.Encode(e)
+	}
+	encoded := e.Bytes()
+	ht.SetBody(r, bytes.NewReader(encoded), contentType)
+	return nil
+}
+
 func encodeUpdatePermissionsRequest(
 	req OptUpdatePermissionsReq,
 	r *http.Request,
@@ -757,6 +841,20 @@ func encodeUpdatePropertyRequest(
 
 func encodeUpdateRolePermissionsRequest(
 	req *UpdateRolePermissionsReq,
+	r *http.Request,
+) error {
+	const contentType = "application/json"
+	e := new(jx.Encoder)
+	{
+		req.Encode(e)
+	}
+	encoded := e.Bytes()
+	ht.SetBody(r, bytes.NewReader(encoded), contentType)
+	return nil
+}
+
+func encodeUpdateRoleSystemPermissionsRequest(
+	req *UpdateRoleSystemPermissionsReq,
 	r *http.Request,
 ) error {
 	const contentType = "application/json"

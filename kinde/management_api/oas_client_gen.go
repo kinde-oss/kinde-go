@@ -57,6 +57,17 @@ type Invoker interface {
 	//
 	// POST /api/v1/apis
 	AddAPIs(ctx context.Context, request *AddAPIsReq) (AddAPIsRes, error)
+	// AddApplicationAccessRole invokes AddApplicationAccessRole operation.
+	//
+	// Add a role to the set configured as allowed to access an application.
+	// Adding a role does not enable role-based access control for the
+	// application.
+	// <div>
+	// <code>update:applications</code>
+	// </div>.
+	//
+	// POST /api/v1/applications/{application_id}/access_roles/{role_id}
+	AddApplicationAccessRole(ctx context.Context, params AddApplicationAccessRoleParams) (AddApplicationAccessRoleRes, error)
 	// AddLogo invokes AddLogo operation.
 	//
 	// Add environment logo
@@ -166,6 +177,15 @@ type Invoker interface {
 	//
 	// POST /api/v1/connections
 	CreateConnection(ctx context.Context, request *CreateConnectionReq) (CreateConnectionRes, error)
+	// CreateDirectory invokes createDirectory operation.
+	//
+	// Create a new SCIM directory for user and group synchronization.
+	// <div>
+	// <code>create:scim_directories</code>
+	// </div>.
+	//
+	// POST /api/v1/directories
+	CreateDirectory(ctx context.Context, request *CreateDirectoryReq) (CreateDirectoryRes, error)
 	// CreateEnvironmentVariable invokes createEnvironmentVariable operation.
 	//
 	// Create a new environment variable. This feature is in beta and admin UI is not yet available.
@@ -203,6 +223,24 @@ type Invoker interface {
 	//
 	// POST /api/v1/organization
 	CreateOrganization(ctx context.Context, request *CreateOrganizationReq) (CreateOrganizationRes, error)
+	// CreateOrganizationInvite invokes createOrganizationInvite operation.
+	//
+	// Create a new invitation for an organization. An invitation email will be sent to the provided
+	// email address if `send_email` is set to `true`.
+	// Invitations cannot be created for organizations that are managed by directory sync; user and role
+	// changes for those organizations must be made in the upstream identity provider.
+	// Roles that require an explicit assignment permission cannot be granted to an invitee unless the
+	// caller (or the user the token represents) holds that permission. On Kinde-hosted plans, roles
+	// outside `owner`/`admin` additionally require the `extended_roles` entitlement.
+	// Per-organization rate limits apply: a maximum number of invitations may be created per rolling 24
+	// hour window, and a maximum number of active (non-accepted, non-revoked) invitations may exist at
+	// any time. Requests that exceed either limit are rejected.
+	// <div>
+	// <code>create:organization_invites</code>
+	// </div>.
+	//
+	// POST /api/v1/organization/{org_code}/invites
+	CreateOrganizationInvite(ctx context.Context, request *CreateOrganizationInviteReq, params CreateOrganizationInviteParams) (CreateOrganizationInviteRes, error)
 	// CreateOrganizationUserPermission invokes CreateOrganizationUserPermission operation.
 	//
 	// Add permission to an organization user.
@@ -268,6 +306,22 @@ type Invoker interface {
 	//
 	// POST /api/v1/user
 	CreateUser(ctx context.Context, request OptCreateUserReq) (CreateUserRes, error)
+	// CreateUserBillingCustomer invokes createUserBillingCustomer operation.
+	//
+	// Creates a billing customer for a user in an organization, and assigns a published user billing
+	// plan.
+	// This mirrors the admin "Start billing customer" action on the user billing page.
+	// At most one billing customer is created per user in an organization. If one
+	// already exists, the request fails with `BILLING_CUSTOMER_EXISTS`. Concurrent
+	// creates that both pass the existence check before either finishes may both
+	// return success with the same customer and agreement ids (onboarding reuses
+	// the row created under the advisory lock).
+	// <div>
+	// <code>create:user_billing_customers</code>
+	// </div>.
+	//
+	// POST /api/v1/users/{user_id}/billing_customer
+	CreateUserBillingCustomer(ctx context.Context, request *CreateUserBillingCustomerReq, params CreateUserBillingCustomerParams) (CreateUserBillingCustomerRes, error)
 	// CreateUserIdentity invokes CreateUserIdentity operation.
 	//
 	// Creates an identity for a user.
@@ -295,7 +349,7 @@ type Invoker interface {
 	//
 	// DELETE /api/v1/apis/{api_id}
 	DeleteAPI(ctx context.Context, params DeleteAPIParams) (DeleteAPIRes, error)
-	// DeleteAPIAppliationScope invokes deleteAPIAppliationScope operation.
+	// DeleteAPIApplicationScope invokes deleteAPIApplicationScope operation.
 	//
 	// Delete an API application scope you previously created.
 	// <div>
@@ -303,7 +357,7 @@ type Invoker interface {
 	// </div>.
 	//
 	// DELETE /api/v1/apis/{api_id}/applications/{application_id}/scopes/{scope_id}
-	DeleteAPIAppliationScope(ctx context.Context, params DeleteAPIAppliationScopeParams) (DeleteAPIAppliationScopeRes, error)
+	DeleteAPIApplicationScope(ctx context.Context, params DeleteAPIApplicationScopeParams) (DeleteAPIApplicationScopeRes, error)
 	// DeleteAPIScope invokes deleteAPIScope operation.
 	//
 	// Delete an API scope you previously created.
@@ -349,6 +403,15 @@ type Invoker interface {
 	//
 	// DELETE /api/v1/connections/{connection_id}
 	DeleteConnection(ctx context.Context, params DeleteConnectionParams) (DeleteConnectionRes, error)
+	// DeleteDirectory invokes deleteDirectory operation.
+	//
+	// Delete a SCIM directory and all associated data.
+	// <div>
+	// <code>delete:scim_directories</code>
+	// </div>.
+	//
+	// DELETE /api/v1/directories/{directory_id}
+	DeleteDirectory(ctx context.Context, params DeleteDirectoryParams) (DeleteDirectoryRes, error)
 	// DeleteEnvironementFeatureFlagOverride invokes DeleteEnvironementFeatureFlagOverride operation.
 	//
 	// Delete environment feature flag override.
@@ -449,6 +512,16 @@ type Invoker interface {
 	//
 	// DELETE /api/v1/organization/{org_code}/handle
 	DeleteOrganizationHandle(ctx context.Context, params DeleteOrganizationHandleParams) (DeleteOrganizationHandleRes, error)
+	// DeleteOrganizationInvite invokes deleteOrganizationInvite operation.
+	//
+	// Revoke (delete) an invitation. This will mark the invitation as revoked and prevent it from being
+	// accepted.
+	// <div>
+	// <code>delete:organization_invites</code>
+	// </div>.
+	//
+	// DELETE /api/v1/organization/{org_code}/invites/{invite_code}
+	DeleteOrganizationInvite(ctx context.Context, params DeleteOrganizationInviteParams) (DeleteOrganizationInviteRes, error)
 	// DeleteOrganizationLogo invokes DeleteOrganizationLogo operation.
 	//
 	// Delete organization logo
@@ -629,6 +702,17 @@ type Invoker interface {
 	//
 	// GET /api/v1/applications/{application_id}
 	GetApplication(ctx context.Context, params GetApplicationParams) (GetApplicationRes, error)
+	// GetApplicationAccessRoles invokes GetApplicationAccessRoles operation.
+	//
+	// Gets the roles configured as allowed to access an application. These
+	// roles are enforced only when role-based access control is enabled for
+	// the application.
+	// <div>
+	// <code>read:applications</code>
+	// </div>.
+	//
+	// GET /api/v1/applications/{application_id}/access_roles
+	GetApplicationAccessRoles(ctx context.Context, params GetApplicationAccessRolesParams) (GetApplicationAccessRolesRes, error)
 	// GetApplicationConnections invokes GetApplicationConnections operation.
 	//
 	// Gets all connections for an application.
@@ -738,6 +822,24 @@ type Invoker interface {
 	//
 	// GET /api/v1/connections
 	GetConnections(ctx context.Context, params GetConnectionsParams) (GetConnectionsRes, error)
+	// GetDirectories invokes getDirectories operation.
+	//
+	// Returns a list of SCIM directories for your organization.
+	// <div>
+	// <code>read:scim_directories</code>
+	// </div>.
+	//
+	// GET /api/v1/directories
+	GetDirectories(ctx context.Context, params GetDirectoriesParams) (GetDirectoriesRes, error)
+	// GetDirectory invokes getDirectory operation.
+	//
+	// Retrieve SCIM directory details by ID.
+	// <div>
+	// <code>read:scim_directories</code>
+	// </div>.
+	//
+	// GET /api/v1/directories/{directory_id}
+	GetDirectory(ctx context.Context, params GetDirectoryParams) (GetDirectoryRes, error)
 	// GetEnvironementFeatureFlags invokes GetEnvironementFeatureFlags operation.
 	//
 	// Get environment feature flags.
@@ -856,6 +958,35 @@ type Invoker interface {
 	//
 	// GET /api/v1/organizations/{org_code}/feature_flags
 	GetOrganizationFeatureFlags(ctx context.Context, params GetOrganizationFeatureFlagsParams) (GetOrganizationFeatureFlagsRes, error)
+	// GetOrganizationInvite invokes getOrganizationInvite operation.
+	//
+	// Get details of a specific invitation by its code.
+	// <div>
+	// <code>read:organization_invites</code>
+	// </div>.
+	//
+	// GET /api/v1/organization/{org_code}/invites/{invite_code}
+	GetOrganizationInvite(ctx context.Context, params GetOrganizationInviteParams) (GetOrganizationInviteRes, error)
+	// GetOrganizationInvites invokes getOrganizationInvites operation.
+	//
+	// Get a list of invitations for an organization. By default, only pending (non-revoked,
+	// non-accepted) invitations are returned.
+	// <div>
+	// <code>read:organization_invites</code>
+	// </div>.
+	//
+	// GET /api/v1/organization/{org_code}/invites
+	GetOrganizationInvites(ctx context.Context, params GetOrganizationInvitesParams) (GetOrganizationInvitesRes, error)
+	// GetOrganizationPasskey invokes GetOrganizationPasskey operation.
+	//
+	// Retrieve passkey settings for an organization, including whether the organization overrides the
+	// environment default.
+	// <div>
+	// <code>read:organization_passkey</code>
+	// </div>.
+	//
+	// GET /api/v1/organizations/{org_code}/passkey
+	GetOrganizationPasskey(ctx context.Context, params GetOrganizationPasskeyParams) (GetOrganizationPasskeyRes, error)
 	// GetOrganizationPropertyValues invokes GetOrganizationPropertyValues operation.
 	//
 	// Gets properties for an organization by org code.
@@ -865,6 +996,52 @@ type Invoker interface {
 	//
 	// GET /api/v1/organizations/{org_code}/properties
 	GetOrganizationPropertyValues(ctx context.Context, params GetOrganizationPropertyValuesParams) (GetOrganizationPropertyValuesRes, error)
+	// GetOrganizationRoleActiveUsersCount invokes GetOrganizationRoleActiveUsersCount operation.
+	//
+	// Get the number of active users that hold a given role within a specific organization.
+	// A user is counted as active if they were issued at least one access token during the requested
+	// period,
+	// regardless of organization context on the token. Only users who currently hold the role in the
+	// organization are included. The count is scoped to the current environment.
+	// Both `date_time_from` and `date_time_to` are required, inclusive, and must be ISO 8601 datetimes
+	// in UTC.
+	// Provide them at second precision (no fractional seconds). If a value includes fractional seconds,
+	// it is
+	// normalized before any other processing: `date_time_from` is rounded down and `date_time_to` is
+	// rounded up
+	// to the nearest second. Window validation, the active-user query, and the echoed response bounds
+	// all use
+	// those normalized values.
+	// The requested window must not exceed 3 days. Because both bounds are inclusive, this means
+	// `date_time_to`
+	// must be earlier than `date_time_from` plus 3 days. For example, `2026-07-01T00:00:00Z` to
+	// `2026-07-03T23:59:59Z` is a full 3 day window covering the whole of 1, 2 and 3 July. A longer
+	// window is
+	// rejected with `DATE_TIME_RANGE_TOO_LARGE`.
+	// <div>
+	// <code>read:organization_user_roles</code>
+	// </div>.
+	//
+	// GET /api/v1/organizations/{org_code}/roles/{role_id}/active_users/count
+	GetOrganizationRoleActiveUsersCount(ctx context.Context, params GetOrganizationRoleActiveUsersCountParams) (GetOrganizationRoleActiveUsersCountRes, error)
+	// GetOrganizationRoleUsers invokes GetOrganizationRoleUsers operation.
+	//
+	// Get users that have a given role within a specific organization.
+	// <div>
+	// <code>read:organization_user_roles</code>
+	// </div>.
+	//
+	// GET /api/v1/organizations/{org_code}/roles/{role_id}/users
+	GetOrganizationRoleUsers(ctx context.Context, params GetOrganizationRoleUsersParams) (GetOrganizationRoleUsersRes, error)
+	// GetOrganizationRoleUsersCount invokes GetOrganizationRoleUsersCount operation.
+	//
+	// Get the number of users that have a given role within a specific organization.
+	// <div>
+	// <code>read:organization_user_roles</code>
+	// </div>.
+	//
+	// GET /api/v1/organizations/{org_code}/roles/{role_id}/users/count
+	GetOrganizationRoleUsersCount(ctx context.Context, params GetOrganizationRoleUsersCountParams) (GetOrganizationRoleUsersCountRes, error)
 	// GetOrganizationUserPermissions invokes GetOrganizationUserPermissions operation.
 	//
 	// Get permissions for an organization user.
@@ -901,6 +1078,15 @@ type Invoker interface {
 	//
 	// GET /api/v1/organizations
 	GetOrganizations(ctx context.Context, params GetOrganizationsParams) (GetOrganizationsRes, error)
+	// GetPasskey invokes GetPasskey operation.
+	//
+	// Retrieve passkey policy for the current environment.
+	// <div>
+	// <code>read:passkey</code>
+	// </div>.
+	//
+	// GET /api/v1/passkey
+	GetPasskey(ctx context.Context) (GetPasskeyRes, error)
 	// GetPermissions invokes GetPermissions operation.
 	//
 	// The returned list can be sorted by permission name or permission ID in ascending or descending
@@ -948,9 +1134,29 @@ type Invoker interface {
 	//
 	// GET /api/v1/roles/{role_id}/scopes
 	GetRoleScopes(ctx context.Context, params GetRoleScopesParams) (GetRoleScopesRes, error)
+	// GetRoleSystemPermissions invokes GetRoleSystemPermissions operation.
+	//
+	// Get system permissions for a role.
+	// System permissions control what organization users can do in the self-serve portal.
+	// <div>
+	// <code>read:role_system_permissions</code>
+	// </div>.
+	//
+	// GET /api/v1/roles/{role_id}/system_permissions
+	GetRoleSystemPermissions(ctx context.Context, params GetRoleSystemPermissionsParams) (GetRoleSystemPermissionsRes, error)
+	// GetRoleUsers invokes GetRoleUsers operation.
+	//
+	// Get users that have a given role, across all organizations. Each user entry
+	// includes the organization codes where they hold that role.
+	// <div>
+	// <code>read:organization_user_roles</code>
+	// </div>.
+	//
+	// GET /api/v1/roles/{role_id}/users
+	GetRoleUsers(ctx context.Context, params GetRoleUsersParams) (GetRoleUsersRes, error)
 	// GetRoles invokes GetRoles operation.
 	//
-	// The returned list can be sorted by role name or role ID in ascending or descending order. The
+	// The returned list can be sorted by role name or role key in ascending or descending order. The
 	// number of records to return at a time can also be controlled using the `page_size` query string
 	// parameter.
 	// <div>
@@ -980,6 +1186,18 @@ type Invoker interface {
 	//
 	// GET /api/v1/subscribers
 	GetSubscribers(ctx context.Context, params GetSubscribersParams) (GetSubscribersRes, error)
+	// GetSystemPermissions invokes GetSystemPermissions operation.
+	//
+	// The returned list can be sorted by system permission name or ID in ascending or descending order.
+	// The number of records to return at a time can also be controlled using the `page_size` query
+	// string parameter.
+	// System permissions control what organization users can do in the self-serve portal.
+	// <div>
+	// <code>read:system_permissions</code>
+	// </div>.
+	//
+	// GET /api/v1/system_permissions
+	GetSystemPermissions(ctx context.Context, params GetSystemPermissionsParams) (GetSystemPermissionsRes, error)
 	// GetTimezones invokes getTimezones operation.
 	//
 	// Get a list of timezones and associated timezone keys.
@@ -1081,6 +1299,17 @@ type Invoker interface {
 	//
 	// POST /api/v1/users/{user_id}/refresh_claims
 	RefreshUserClaims(ctx context.Context, params RefreshUserClaimsParams) (RefreshUserClaimsRes, error)
+	// RemoveApplicationAccessRole invokes RemoveApplicationAccessRole operation.
+	//
+	// Remove a role from the set that is allowed to access an application.
+	// Removing a role does not change whether role-based access control is
+	// enabled for the application.
+	// <div>
+	// <code>update:applications</code>
+	// </div>.
+	//
+	// DELETE /api/v1/applications/{application_id}/access_roles/{role_id}
+	RemoveApplicationAccessRole(ctx context.Context, params RemoveApplicationAccessRoleParams) (RemoveApplicationAccessRoleRes, error)
 	// RemoveConnection invokes RemoveConnection operation.
 	//
 	// Turn off an auth connection for an application
@@ -1310,6 +1539,15 @@ type Invoker interface {
 	//
 	// PATCH /api/v1/connections/{connection_id}
 	UpdateConnection(ctx context.Context, request *UpdateConnectionReq, params UpdateConnectionParams) (UpdateConnectionRes, error)
+	// UpdateDirectory invokes updateDirectory operation.
+	//
+	// Update SCIM directory configuration.
+	// <div>
+	// <code>update:scim_directories</code>
+	// </div>.
+	//
+	// PATCH /api/v1/directories/{directory_id}
+	UpdateDirectory(ctx context.Context, request *UpdateDirectoryReq, params UpdateDirectoryParams) (UpdateDirectoryRes, error)
 	// UpdateEnvironementFeatureFlagOverride invokes UpdateEnvironementFeatureFlagOverride operation.
 	//
 	// Update environment feature flag override.
@@ -1350,6 +1588,9 @@ type Invoker interface {
 	// UpdateOrganization invokes updateOrganization operation.
 	//
 	// Update an organization.
+	// When the organization name is updated and the organization is a billing
+	// customer, the change is also propagated to the corresponding billing
+	// customer details.
 	// <div>
 	// <code>update:organizations</code>
 	// </div>.
@@ -1365,6 +1606,16 @@ type Invoker interface {
 	//
 	// PATCH /api/v1/organizations/{org_code}/feature_flags/{feature_flag_key}
 	UpdateOrganizationFeatureFlagOverride(ctx context.Context, params UpdateOrganizationFeatureFlagOverrideParams) (UpdateOrganizationFeatureFlagOverrideRes, error)
+	// UpdateOrganizationPasskey invokes UpdateOrganizationPasskey operation.
+	//
+	// Update passkey settings for an organization. Set `is_override_environment_passkey_settings` to
+	// `false` to revert to the environment default without providing a policy.
+	// <div>
+	// <code>update:organization_passkey</code>
+	// </div>.
+	//
+	// PUT /api/v1/organizations/{org_code}/passkey
+	UpdateOrganizationPasskey(ctx context.Context, request *UpdateOrganizationPasskeyReq, params UpdateOrganizationPasskeyParams) (UpdateOrganizationPasskeyRes, error)
 	// UpdateOrganizationProperties invokes UpdateOrganizationProperties operation.
 	//
 	// Update organization property values.
@@ -1401,6 +1652,16 @@ type Invoker interface {
 	//
 	// PATCH /api/v1/organizations/{org_code}/users
 	UpdateOrganizationUsers(ctx context.Context, request OptUpdateOrganizationUsersReq, params UpdateOrganizationUsersParams) (UpdateOrganizationUsersRes, error)
+	// UpdatePasskey invokes UpdatePasskey operation.
+	//
+	// Set the passkey policy for the current environment. Policies other than `off` require the
+	// `passkeys` entitlement.
+	// <div>
+	// <code>update:passkey</code>
+	// </div>.
+	//
+	// PUT /api/v1/passkey
+	UpdatePasskey(ctx context.Context, request *UpdatePasskeyReq) (UpdatePasskeyRes, error)
 	// UpdatePermissions invokes UpdatePermissions operation.
 	//
 	// Update permission
@@ -1428,6 +1689,16 @@ type Invoker interface {
 	//
 	// PATCH /api/v1/roles/{role_id}/permissions
 	UpdateRolePermissions(ctx context.Context, request *UpdateRolePermissionsReq, params UpdateRolePermissionsParams) (UpdateRolePermissionsRes, error)
+	// UpdateRoleSystemPermissions invokes UpdateRoleSystemPermissions operation.
+	//
+	// Update role system permissions.
+	// System permissions control what organization users can do in the self-serve portal.
+	// <div>
+	// <code>update:role_system_permissions</code>
+	// </div>.
+	//
+	// PATCH /api/v1/roles/{role_id}/system_permissions
+	UpdateRoleSystemPermissions(ctx context.Context, request *UpdateRoleSystemPermissionsReq, params UpdateRoleSystemPermissionsParams) (UpdateRoleSystemPermissionsRes, error)
 	// UpdateRoles invokes UpdateRoles operation.
 	//
 	// Update a role
@@ -1440,6 +1711,9 @@ type Invoker interface {
 	// UpdateUser invokes updateUser operation.
 	//
 	// Update a user record.
+	// When `given_name` or `family_name` is updated and the user is the
+	// owner of a family billing customer, the change is also propagated to
+	// the corresponding billing customer details.
 	// <div>
 	// <code>update:users</code>
 	// </div>.
@@ -1934,6 +2208,153 @@ func (c *Client) sendAddAPIs(ctx context.Context, request *AddAPIsReq) (res AddA
 
 	stage = "DecodeResponse"
 	result, err := decodeAddAPIsResponse(resp)
+	if err != nil {
+		return res, errors.Wrap(err, "decode response")
+	}
+
+	return result, nil
+}
+
+// AddApplicationAccessRole invokes AddApplicationAccessRole operation.
+//
+// Add a role to the set configured as allowed to access an application.
+// Adding a role does not enable role-based access control for the
+// application.
+// <div>
+// <code>update:applications</code>
+// </div>.
+//
+// POST /api/v1/applications/{application_id}/access_roles/{role_id}
+func (c *Client) AddApplicationAccessRole(ctx context.Context, params AddApplicationAccessRoleParams) (AddApplicationAccessRoleRes, error) {
+	res, err := c.sendAddApplicationAccessRole(ctx, params)
+	return res, err
+}
+
+func (c *Client) sendAddApplicationAccessRole(ctx context.Context, params AddApplicationAccessRoleParams) (res AddApplicationAccessRoleRes, err error) {
+	otelAttrs := []attribute.KeyValue{
+		otelogen.OperationID("AddApplicationAccessRole"),
+		semconv.HTTPRequestMethodKey.String("POST"),
+		semconv.HTTPRouteKey.String("/api/v1/applications/{application_id}/access_roles/{role_id}"),
+	}
+
+	// Run stopwatch.
+	startTime := time.Now()
+	defer func() {
+		// Use floating point division here for higher precision (instead of Millisecond method).
+		elapsedDuration := time.Since(startTime)
+		c.duration.Record(ctx, float64(elapsedDuration)/float64(time.Millisecond), metric.WithAttributes(otelAttrs...))
+	}()
+
+	// Increment request counter.
+	c.requests.Add(ctx, 1, metric.WithAttributes(otelAttrs...))
+
+	// Start a span for this request.
+	ctx, span := c.cfg.Tracer.Start(ctx, AddApplicationAccessRoleOperation,
+		trace.WithAttributes(otelAttrs...),
+		clientSpanKind,
+	)
+	// Track stage for error reporting.
+	var stage string
+	defer func() {
+		if err != nil {
+			span.RecordError(err)
+			span.SetStatus(codes.Error, stage)
+			c.errors.Add(ctx, 1, metric.WithAttributes(otelAttrs...))
+		}
+		span.End()
+	}()
+
+	stage = "BuildURL"
+	u := uri.Clone(c.requestURL(ctx))
+	var pathParts [4]string
+	pathParts[0] = "/api/v1/applications/"
+	{
+		// Encode "application_id" parameter.
+		e := uri.NewPathEncoder(uri.PathEncoderConfig{
+			Param:   "application_id",
+			Style:   uri.PathStyleSimple,
+			Explode: false,
+		})
+		if err := func() error {
+			return e.EncodeValue(conv.StringToString(params.ApplicationID))
+		}(); err != nil {
+			return res, errors.Wrap(err, "encode path")
+		}
+		encoded, err := e.Result()
+		if err != nil {
+			return res, errors.Wrap(err, "encode path")
+		}
+		pathParts[1] = encoded
+	}
+	pathParts[2] = "/access_roles/"
+	{
+		// Encode "role_id" parameter.
+		e := uri.NewPathEncoder(uri.PathEncoderConfig{
+			Param:   "role_id",
+			Style:   uri.PathStyleSimple,
+			Explode: false,
+		})
+		if err := func() error {
+			return e.EncodeValue(conv.StringToString(params.RoleID))
+		}(); err != nil {
+			return res, errors.Wrap(err, "encode path")
+		}
+		encoded, err := e.Result()
+		if err != nil {
+			return res, errors.Wrap(err, "encode path")
+		}
+		pathParts[3] = encoded
+	}
+	uri.AddPathParts(u, pathParts[:]...)
+
+	stage = "EncodeRequest"
+	r, err := ht.NewRequest(ctx, "POST", u)
+	if err != nil {
+		return res, errors.Wrap(err, "create request")
+	}
+
+	{
+		type bitset = [1]uint8
+		var satisfied bitset
+		{
+			stage = "Security:KindeBearerAuth"
+			switch err := c.securityKindeBearerAuth(ctx, AddApplicationAccessRoleOperation, r); {
+			case err == nil: // if NO error
+				satisfied[0] |= 1 << 0
+			case errors.Is(err, ogenerrors.ErrSkipClientSecurity):
+				// Skip this security.
+			default:
+				return res, errors.Wrap(err, "security \"KindeBearerAuth\"")
+			}
+		}
+
+		if ok := func() bool {
+		nextRequirement:
+			for _, requirement := range []bitset{
+				{0b00000001},
+			} {
+				for i, mask := range requirement {
+					if satisfied[i]&mask != mask {
+						continue nextRequirement
+					}
+				}
+				return true
+			}
+			return false
+		}(); !ok {
+			return res, ogenerrors.ErrSecurityRequirementIsNotSatisfied
+		}
+	}
+
+	stage = "SendRequest"
+	resp, err := c.cfg.Client.Do(r)
+	if err != nil {
+		return res, errors.Wrap(err, "do request")
+	}
+	defer resp.Body.Close()
+
+	stage = "DecodeResponse"
+	result, err := decodeAddApplicationAccessRoleResponse(resp)
 	if err != nil {
 		return res, errors.Wrap(err, "decode response")
 	}
@@ -3477,6 +3898,117 @@ func (c *Client) sendCreateConnection(ctx context.Context, request *CreateConnec
 	return result, nil
 }
 
+// CreateDirectory invokes createDirectory operation.
+//
+// Create a new SCIM directory for user and group synchronization.
+// <div>
+// <code>create:scim_directories</code>
+// </div>.
+//
+// POST /api/v1/directories
+func (c *Client) CreateDirectory(ctx context.Context, request *CreateDirectoryReq) (CreateDirectoryRes, error) {
+	res, err := c.sendCreateDirectory(ctx, request)
+	return res, err
+}
+
+func (c *Client) sendCreateDirectory(ctx context.Context, request *CreateDirectoryReq) (res CreateDirectoryRes, err error) {
+	otelAttrs := []attribute.KeyValue{
+		otelogen.OperationID("createDirectory"),
+		semconv.HTTPRequestMethodKey.String("POST"),
+		semconv.HTTPRouteKey.String("/api/v1/directories"),
+	}
+
+	// Run stopwatch.
+	startTime := time.Now()
+	defer func() {
+		// Use floating point division here for higher precision (instead of Millisecond method).
+		elapsedDuration := time.Since(startTime)
+		c.duration.Record(ctx, float64(elapsedDuration)/float64(time.Millisecond), metric.WithAttributes(otelAttrs...))
+	}()
+
+	// Increment request counter.
+	c.requests.Add(ctx, 1, metric.WithAttributes(otelAttrs...))
+
+	// Start a span for this request.
+	ctx, span := c.cfg.Tracer.Start(ctx, CreateDirectoryOperation,
+		trace.WithAttributes(otelAttrs...),
+		clientSpanKind,
+	)
+	// Track stage for error reporting.
+	var stage string
+	defer func() {
+		if err != nil {
+			span.RecordError(err)
+			span.SetStatus(codes.Error, stage)
+			c.errors.Add(ctx, 1, metric.WithAttributes(otelAttrs...))
+		}
+		span.End()
+	}()
+
+	stage = "BuildURL"
+	u := uri.Clone(c.requestURL(ctx))
+	var pathParts [1]string
+	pathParts[0] = "/api/v1/directories"
+	uri.AddPathParts(u, pathParts[:]...)
+
+	stage = "EncodeRequest"
+	r, err := ht.NewRequest(ctx, "POST", u)
+	if err != nil {
+		return res, errors.Wrap(err, "create request")
+	}
+	if err := encodeCreateDirectoryRequest(request, r); err != nil {
+		return res, errors.Wrap(err, "encode request")
+	}
+
+	{
+		type bitset = [1]uint8
+		var satisfied bitset
+		{
+			stage = "Security:KindeBearerAuth"
+			switch err := c.securityKindeBearerAuth(ctx, CreateDirectoryOperation, r); {
+			case err == nil: // if NO error
+				satisfied[0] |= 1 << 0
+			case errors.Is(err, ogenerrors.ErrSkipClientSecurity):
+				// Skip this security.
+			default:
+				return res, errors.Wrap(err, "security \"KindeBearerAuth\"")
+			}
+		}
+
+		if ok := func() bool {
+		nextRequirement:
+			for _, requirement := range []bitset{
+				{0b00000001},
+			} {
+				for i, mask := range requirement {
+					if satisfied[i]&mask != mask {
+						continue nextRequirement
+					}
+				}
+				return true
+			}
+			return false
+		}(); !ok {
+			return res, ogenerrors.ErrSecurityRequirementIsNotSatisfied
+		}
+	}
+
+	stage = "SendRequest"
+	resp, err := c.cfg.Client.Do(r)
+	if err != nil {
+		return res, errors.Wrap(err, "do request")
+	}
+	defer resp.Body.Close()
+
+	stage = "DecodeResponse"
+	result, err := decodeCreateDirectoryResponse(resp)
+	if err != nil {
+		return res, errors.Wrap(err, "decode response")
+	}
+
+	return result, nil
+}
+
 // CreateEnvironmentVariable invokes createEnvironmentVariable operation.
 //
 // Create a new environment variable. This feature is in beta and admin UI is not yet available.
@@ -3915,6 +4447,145 @@ func (c *Client) sendCreateOrganization(ctx context.Context, request *CreateOrga
 
 	stage = "DecodeResponse"
 	result, err := decodeCreateOrganizationResponse(resp)
+	if err != nil {
+		return res, errors.Wrap(err, "decode response")
+	}
+
+	return result, nil
+}
+
+// CreateOrganizationInvite invokes createOrganizationInvite operation.
+//
+// Create a new invitation for an organization. An invitation email will be sent to the provided
+// email address if `send_email` is set to `true`.
+// Invitations cannot be created for organizations that are managed by directory sync; user and role
+// changes for those organizations must be made in the upstream identity provider.
+// Roles that require an explicit assignment permission cannot be granted to an invitee unless the
+// caller (or the user the token represents) holds that permission. On Kinde-hosted plans, roles
+// outside `owner`/`admin` additionally require the `extended_roles` entitlement.
+// Per-organization rate limits apply: a maximum number of invitations may be created per rolling 24
+// hour window, and a maximum number of active (non-accepted, non-revoked) invitations may exist at
+// any time. Requests that exceed either limit are rejected.
+// <div>
+// <code>create:organization_invites</code>
+// </div>.
+//
+// POST /api/v1/organization/{org_code}/invites
+func (c *Client) CreateOrganizationInvite(ctx context.Context, request *CreateOrganizationInviteReq, params CreateOrganizationInviteParams) (CreateOrganizationInviteRes, error) {
+	res, err := c.sendCreateOrganizationInvite(ctx, request, params)
+	return res, err
+}
+
+func (c *Client) sendCreateOrganizationInvite(ctx context.Context, request *CreateOrganizationInviteReq, params CreateOrganizationInviteParams) (res CreateOrganizationInviteRes, err error) {
+	otelAttrs := []attribute.KeyValue{
+		otelogen.OperationID("createOrganizationInvite"),
+		semconv.HTTPRequestMethodKey.String("POST"),
+		semconv.HTTPRouteKey.String("/api/v1/organization/{org_code}/invites"),
+	}
+
+	// Run stopwatch.
+	startTime := time.Now()
+	defer func() {
+		// Use floating point division here for higher precision (instead of Millisecond method).
+		elapsedDuration := time.Since(startTime)
+		c.duration.Record(ctx, float64(elapsedDuration)/float64(time.Millisecond), metric.WithAttributes(otelAttrs...))
+	}()
+
+	// Increment request counter.
+	c.requests.Add(ctx, 1, metric.WithAttributes(otelAttrs...))
+
+	// Start a span for this request.
+	ctx, span := c.cfg.Tracer.Start(ctx, CreateOrganizationInviteOperation,
+		trace.WithAttributes(otelAttrs...),
+		clientSpanKind,
+	)
+	// Track stage for error reporting.
+	var stage string
+	defer func() {
+		if err != nil {
+			span.RecordError(err)
+			span.SetStatus(codes.Error, stage)
+			c.errors.Add(ctx, 1, metric.WithAttributes(otelAttrs...))
+		}
+		span.End()
+	}()
+
+	stage = "BuildURL"
+	u := uri.Clone(c.requestURL(ctx))
+	var pathParts [3]string
+	pathParts[0] = "/api/v1/organization/"
+	{
+		// Encode "org_code" parameter.
+		e := uri.NewPathEncoder(uri.PathEncoderConfig{
+			Param:   "org_code",
+			Style:   uri.PathStyleSimple,
+			Explode: false,
+		})
+		if err := func() error {
+			return e.EncodeValue(conv.StringToString(params.OrgCode))
+		}(); err != nil {
+			return res, errors.Wrap(err, "encode path")
+		}
+		encoded, err := e.Result()
+		if err != nil {
+			return res, errors.Wrap(err, "encode path")
+		}
+		pathParts[1] = encoded
+	}
+	pathParts[2] = "/invites"
+	uri.AddPathParts(u, pathParts[:]...)
+
+	stage = "EncodeRequest"
+	r, err := ht.NewRequest(ctx, "POST", u)
+	if err != nil {
+		return res, errors.Wrap(err, "create request")
+	}
+	if err := encodeCreateOrganizationInviteRequest(request, r); err != nil {
+		return res, errors.Wrap(err, "encode request")
+	}
+
+	{
+		type bitset = [1]uint8
+		var satisfied bitset
+		{
+			stage = "Security:KindeBearerAuth"
+			switch err := c.securityKindeBearerAuth(ctx, CreateOrganizationInviteOperation, r); {
+			case err == nil: // if NO error
+				satisfied[0] |= 1 << 0
+			case errors.Is(err, ogenerrors.ErrSkipClientSecurity):
+				// Skip this security.
+			default:
+				return res, errors.Wrap(err, "security \"KindeBearerAuth\"")
+			}
+		}
+
+		if ok := func() bool {
+		nextRequirement:
+			for _, requirement := range []bitset{
+				{0b00000001},
+			} {
+				for i, mask := range requirement {
+					if satisfied[i]&mask != mask {
+						continue nextRequirement
+					}
+				}
+				return true
+			}
+			return false
+		}(); !ok {
+			return res, ogenerrors.ErrSecurityRequirementIsNotSatisfied
+		}
+	}
+
+	stage = "SendRequest"
+	resp, err := c.cfg.Client.Do(r)
+	if err != nil {
+		return res, errors.Wrap(err, "do request")
+	}
+	defer resp.Body.Close()
+
+	stage = "DecodeResponse"
+	result, err := decodeCreateOrganizationInviteResponse(resp)
 	if err != nil {
 		return res, errors.Wrap(err, "decode response")
 	}
@@ -4826,6 +5497,143 @@ func (c *Client) sendCreateUser(ctx context.Context, request OptCreateUserReq) (
 	return result, nil
 }
 
+// CreateUserBillingCustomer invokes createUserBillingCustomer operation.
+//
+// Creates a billing customer for a user in an organization, and assigns a published user billing
+// plan.
+// This mirrors the admin "Start billing customer" action on the user billing page.
+// At most one billing customer is created per user in an organization. If one
+// already exists, the request fails with `BILLING_CUSTOMER_EXISTS`. Concurrent
+// creates that both pass the existence check before either finishes may both
+// return success with the same customer and agreement ids (onboarding reuses
+// the row created under the advisory lock).
+// <div>
+// <code>create:user_billing_customers</code>
+// </div>.
+//
+// POST /api/v1/users/{user_id}/billing_customer
+func (c *Client) CreateUserBillingCustomer(ctx context.Context, request *CreateUserBillingCustomerReq, params CreateUserBillingCustomerParams) (CreateUserBillingCustomerRes, error) {
+	res, err := c.sendCreateUserBillingCustomer(ctx, request, params)
+	return res, err
+}
+
+func (c *Client) sendCreateUserBillingCustomer(ctx context.Context, request *CreateUserBillingCustomerReq, params CreateUserBillingCustomerParams) (res CreateUserBillingCustomerRes, err error) {
+	otelAttrs := []attribute.KeyValue{
+		otelogen.OperationID("createUserBillingCustomer"),
+		semconv.HTTPRequestMethodKey.String("POST"),
+		semconv.HTTPRouteKey.String("/api/v1/users/{user_id}/billing_customer"),
+	}
+
+	// Run stopwatch.
+	startTime := time.Now()
+	defer func() {
+		// Use floating point division here for higher precision (instead of Millisecond method).
+		elapsedDuration := time.Since(startTime)
+		c.duration.Record(ctx, float64(elapsedDuration)/float64(time.Millisecond), metric.WithAttributes(otelAttrs...))
+	}()
+
+	// Increment request counter.
+	c.requests.Add(ctx, 1, metric.WithAttributes(otelAttrs...))
+
+	// Start a span for this request.
+	ctx, span := c.cfg.Tracer.Start(ctx, CreateUserBillingCustomerOperation,
+		trace.WithAttributes(otelAttrs...),
+		clientSpanKind,
+	)
+	// Track stage for error reporting.
+	var stage string
+	defer func() {
+		if err != nil {
+			span.RecordError(err)
+			span.SetStatus(codes.Error, stage)
+			c.errors.Add(ctx, 1, metric.WithAttributes(otelAttrs...))
+		}
+		span.End()
+	}()
+
+	stage = "BuildURL"
+	u := uri.Clone(c.requestURL(ctx))
+	var pathParts [3]string
+	pathParts[0] = "/api/v1/users/"
+	{
+		// Encode "user_id" parameter.
+		e := uri.NewPathEncoder(uri.PathEncoderConfig{
+			Param:   "user_id",
+			Style:   uri.PathStyleSimple,
+			Explode: false,
+		})
+		if err := func() error {
+			return e.EncodeValue(conv.StringToString(params.UserID))
+		}(); err != nil {
+			return res, errors.Wrap(err, "encode path")
+		}
+		encoded, err := e.Result()
+		if err != nil {
+			return res, errors.Wrap(err, "encode path")
+		}
+		pathParts[1] = encoded
+	}
+	pathParts[2] = "/billing_customer"
+	uri.AddPathParts(u, pathParts[:]...)
+
+	stage = "EncodeRequest"
+	r, err := ht.NewRequest(ctx, "POST", u)
+	if err != nil {
+		return res, errors.Wrap(err, "create request")
+	}
+	if err := encodeCreateUserBillingCustomerRequest(request, r); err != nil {
+		return res, errors.Wrap(err, "encode request")
+	}
+
+	{
+		type bitset = [1]uint8
+		var satisfied bitset
+		{
+			stage = "Security:KindeBearerAuth"
+			switch err := c.securityKindeBearerAuth(ctx, CreateUserBillingCustomerOperation, r); {
+			case err == nil: // if NO error
+				satisfied[0] |= 1 << 0
+			case errors.Is(err, ogenerrors.ErrSkipClientSecurity):
+				// Skip this security.
+			default:
+				return res, errors.Wrap(err, "security \"KindeBearerAuth\"")
+			}
+		}
+
+		if ok := func() bool {
+		nextRequirement:
+			for _, requirement := range []bitset{
+				{0b00000001},
+			} {
+				for i, mask := range requirement {
+					if satisfied[i]&mask != mask {
+						continue nextRequirement
+					}
+				}
+				return true
+			}
+			return false
+		}(); !ok {
+			return res, ogenerrors.ErrSecurityRequirementIsNotSatisfied
+		}
+	}
+
+	stage = "SendRequest"
+	resp, err := c.cfg.Client.Do(r)
+	if err != nil {
+		return res, errors.Wrap(err, "do request")
+	}
+	defer resp.Body.Close()
+
+	stage = "DecodeResponse"
+	result, err := decodeCreateUserBillingCustomerResponse(resp)
+	if err != nil {
+		return res, errors.Wrap(err, "decode response")
+	}
+
+	return result, nil
+}
+
 // CreateUserIdentity invokes CreateUserIdentity operation.
 //
 // Creates an identity for a user.
@@ -5193,7 +6001,7 @@ func (c *Client) sendDeleteAPI(ctx context.Context, params DeleteAPIParams) (res
 	return result, nil
 }
 
-// DeleteAPIAppliationScope invokes deleteAPIAppliationScope operation.
+// DeleteAPIApplicationScope invokes deleteAPIApplicationScope operation.
 //
 // Delete an API application scope you previously created.
 // <div>
@@ -5201,14 +6009,14 @@ func (c *Client) sendDeleteAPI(ctx context.Context, params DeleteAPIParams) (res
 // </div>.
 //
 // DELETE /api/v1/apis/{api_id}/applications/{application_id}/scopes/{scope_id}
-func (c *Client) DeleteAPIAppliationScope(ctx context.Context, params DeleteAPIAppliationScopeParams) (DeleteAPIAppliationScopeRes, error) {
-	res, err := c.sendDeleteAPIAppliationScope(ctx, params)
+func (c *Client) DeleteAPIApplicationScope(ctx context.Context, params DeleteAPIApplicationScopeParams) (DeleteAPIApplicationScopeRes, error) {
+	res, err := c.sendDeleteAPIApplicationScope(ctx, params)
 	return res, err
 }
 
-func (c *Client) sendDeleteAPIAppliationScope(ctx context.Context, params DeleteAPIAppliationScopeParams) (res DeleteAPIAppliationScopeRes, err error) {
+func (c *Client) sendDeleteAPIApplicationScope(ctx context.Context, params DeleteAPIApplicationScopeParams) (res DeleteAPIApplicationScopeRes, err error) {
 	otelAttrs := []attribute.KeyValue{
-		otelogen.OperationID("deleteAPIAppliationScope"),
+		otelogen.OperationID("deleteAPIApplicationScope"),
 		semconv.HTTPRequestMethodKey.String("DELETE"),
 		semconv.HTTPRouteKey.String("/api/v1/apis/{api_id}/applications/{application_id}/scopes/{scope_id}"),
 	}
@@ -5225,7 +6033,7 @@ func (c *Client) sendDeleteAPIAppliationScope(ctx context.Context, params Delete
 	c.requests.Add(ctx, 1, metric.WithAttributes(otelAttrs...))
 
 	// Start a span for this request.
-	ctx, span := c.cfg.Tracer.Start(ctx, DeleteAPIAppliationScopeOperation,
+	ctx, span := c.cfg.Tracer.Start(ctx, DeleteAPIApplicationScopeOperation,
 		trace.WithAttributes(otelAttrs...),
 		clientSpanKind,
 	)
@@ -5313,7 +6121,7 @@ func (c *Client) sendDeleteAPIAppliationScope(ctx context.Context, params Delete
 		var satisfied bitset
 		{
 			stage = "Security:KindeBearerAuth"
-			switch err := c.securityKindeBearerAuth(ctx, DeleteAPIAppliationScopeOperation, r); {
+			switch err := c.securityKindeBearerAuth(ctx, DeleteAPIApplicationScopeOperation, r); {
 			case err == nil: // if NO error
 				satisfied[0] |= 1 << 0
 			case errors.Is(err, ogenerrors.ErrSkipClientSecurity):
@@ -5349,7 +6157,7 @@ func (c *Client) sendDeleteAPIAppliationScope(ctx context.Context, params Delete
 	defer resp.Body.Close()
 
 	stage = "DecodeResponse"
-	result, err := decodeDeleteAPIAppliationScopeResponse(resp)
+	result, err := decodeDeleteAPIApplicationScopeResponse(resp)
 	if err != nil {
 		return res, errors.Wrap(err, "decode response")
 	}
@@ -6018,6 +6826,132 @@ func (c *Client) sendDeleteConnection(ctx context.Context, params DeleteConnecti
 
 	stage = "DecodeResponse"
 	result, err := decodeDeleteConnectionResponse(resp)
+	if err != nil {
+		return res, errors.Wrap(err, "decode response")
+	}
+
+	return result, nil
+}
+
+// DeleteDirectory invokes deleteDirectory operation.
+//
+// Delete a SCIM directory and all associated data.
+// <div>
+// <code>delete:scim_directories</code>
+// </div>.
+//
+// DELETE /api/v1/directories/{directory_id}
+func (c *Client) DeleteDirectory(ctx context.Context, params DeleteDirectoryParams) (DeleteDirectoryRes, error) {
+	res, err := c.sendDeleteDirectory(ctx, params)
+	return res, err
+}
+
+func (c *Client) sendDeleteDirectory(ctx context.Context, params DeleteDirectoryParams) (res DeleteDirectoryRes, err error) {
+	otelAttrs := []attribute.KeyValue{
+		otelogen.OperationID("deleteDirectory"),
+		semconv.HTTPRequestMethodKey.String("DELETE"),
+		semconv.HTTPRouteKey.String("/api/v1/directories/{directory_id}"),
+	}
+
+	// Run stopwatch.
+	startTime := time.Now()
+	defer func() {
+		// Use floating point division here for higher precision (instead of Millisecond method).
+		elapsedDuration := time.Since(startTime)
+		c.duration.Record(ctx, float64(elapsedDuration)/float64(time.Millisecond), metric.WithAttributes(otelAttrs...))
+	}()
+
+	// Increment request counter.
+	c.requests.Add(ctx, 1, metric.WithAttributes(otelAttrs...))
+
+	// Start a span for this request.
+	ctx, span := c.cfg.Tracer.Start(ctx, DeleteDirectoryOperation,
+		trace.WithAttributes(otelAttrs...),
+		clientSpanKind,
+	)
+	// Track stage for error reporting.
+	var stage string
+	defer func() {
+		if err != nil {
+			span.RecordError(err)
+			span.SetStatus(codes.Error, stage)
+			c.errors.Add(ctx, 1, metric.WithAttributes(otelAttrs...))
+		}
+		span.End()
+	}()
+
+	stage = "BuildURL"
+	u := uri.Clone(c.requestURL(ctx))
+	var pathParts [2]string
+	pathParts[0] = "/api/v1/directories/"
+	{
+		// Encode "directory_id" parameter.
+		e := uri.NewPathEncoder(uri.PathEncoderConfig{
+			Param:   "directory_id",
+			Style:   uri.PathStyleSimple,
+			Explode: false,
+		})
+		if err := func() error {
+			return e.EncodeValue(conv.StringToString(params.DirectoryID))
+		}(); err != nil {
+			return res, errors.Wrap(err, "encode path")
+		}
+		encoded, err := e.Result()
+		if err != nil {
+			return res, errors.Wrap(err, "encode path")
+		}
+		pathParts[1] = encoded
+	}
+	uri.AddPathParts(u, pathParts[:]...)
+
+	stage = "EncodeRequest"
+	r, err := ht.NewRequest(ctx, "DELETE", u)
+	if err != nil {
+		return res, errors.Wrap(err, "create request")
+	}
+
+	{
+		type bitset = [1]uint8
+		var satisfied bitset
+		{
+			stage = "Security:KindeBearerAuth"
+			switch err := c.securityKindeBearerAuth(ctx, DeleteDirectoryOperation, r); {
+			case err == nil: // if NO error
+				satisfied[0] |= 1 << 0
+			case errors.Is(err, ogenerrors.ErrSkipClientSecurity):
+				// Skip this security.
+			default:
+				return res, errors.Wrap(err, "security \"KindeBearerAuth\"")
+			}
+		}
+
+		if ok := func() bool {
+		nextRequirement:
+			for _, requirement := range []bitset{
+				{0b00000001},
+			} {
+				for i, mask := range requirement {
+					if satisfied[i]&mask != mask {
+						continue nextRequirement
+					}
+				}
+				return true
+			}
+			return false
+		}(); !ok {
+			return res, ogenerrors.ErrSecurityRequirementIsNotSatisfied
+		}
+	}
+
+	stage = "SendRequest"
+	resp, err := c.cfg.Client.Do(r)
+	if err != nil {
+		return res, errors.Wrap(err, "do request")
+	}
+	defer resp.Body.Close()
+
+	stage = "DecodeResponse"
+	result, err := decodeDeleteDirectoryResponse(resp)
 	if err != nil {
 		return res, errors.Wrap(err, "decode response")
 	}
@@ -7427,6 +8361,152 @@ func (c *Client) sendDeleteOrganizationHandle(ctx context.Context, params Delete
 
 	stage = "DecodeResponse"
 	result, err := decodeDeleteOrganizationHandleResponse(resp)
+	if err != nil {
+		return res, errors.Wrap(err, "decode response")
+	}
+
+	return result, nil
+}
+
+// DeleteOrganizationInvite invokes deleteOrganizationInvite operation.
+//
+// Revoke (delete) an invitation. This will mark the invitation as revoked and prevent it from being
+// accepted.
+// <div>
+// <code>delete:organization_invites</code>
+// </div>.
+//
+// DELETE /api/v1/organization/{org_code}/invites/{invite_code}
+func (c *Client) DeleteOrganizationInvite(ctx context.Context, params DeleteOrganizationInviteParams) (DeleteOrganizationInviteRes, error) {
+	res, err := c.sendDeleteOrganizationInvite(ctx, params)
+	return res, err
+}
+
+func (c *Client) sendDeleteOrganizationInvite(ctx context.Context, params DeleteOrganizationInviteParams) (res DeleteOrganizationInviteRes, err error) {
+	otelAttrs := []attribute.KeyValue{
+		otelogen.OperationID("deleteOrganizationInvite"),
+		semconv.HTTPRequestMethodKey.String("DELETE"),
+		semconv.HTTPRouteKey.String("/api/v1/organization/{org_code}/invites/{invite_code}"),
+	}
+
+	// Run stopwatch.
+	startTime := time.Now()
+	defer func() {
+		// Use floating point division here for higher precision (instead of Millisecond method).
+		elapsedDuration := time.Since(startTime)
+		c.duration.Record(ctx, float64(elapsedDuration)/float64(time.Millisecond), metric.WithAttributes(otelAttrs...))
+	}()
+
+	// Increment request counter.
+	c.requests.Add(ctx, 1, metric.WithAttributes(otelAttrs...))
+
+	// Start a span for this request.
+	ctx, span := c.cfg.Tracer.Start(ctx, DeleteOrganizationInviteOperation,
+		trace.WithAttributes(otelAttrs...),
+		clientSpanKind,
+	)
+	// Track stage for error reporting.
+	var stage string
+	defer func() {
+		if err != nil {
+			span.RecordError(err)
+			span.SetStatus(codes.Error, stage)
+			c.errors.Add(ctx, 1, metric.WithAttributes(otelAttrs...))
+		}
+		span.End()
+	}()
+
+	stage = "BuildURL"
+	u := uri.Clone(c.requestURL(ctx))
+	var pathParts [4]string
+	pathParts[0] = "/api/v1/organization/"
+	{
+		// Encode "org_code" parameter.
+		e := uri.NewPathEncoder(uri.PathEncoderConfig{
+			Param:   "org_code",
+			Style:   uri.PathStyleSimple,
+			Explode: false,
+		})
+		if err := func() error {
+			return e.EncodeValue(conv.StringToString(params.OrgCode))
+		}(); err != nil {
+			return res, errors.Wrap(err, "encode path")
+		}
+		encoded, err := e.Result()
+		if err != nil {
+			return res, errors.Wrap(err, "encode path")
+		}
+		pathParts[1] = encoded
+	}
+	pathParts[2] = "/invites/"
+	{
+		// Encode "invite_code" parameter.
+		e := uri.NewPathEncoder(uri.PathEncoderConfig{
+			Param:   "invite_code",
+			Style:   uri.PathStyleSimple,
+			Explode: false,
+		})
+		if err := func() error {
+			return e.EncodeValue(conv.StringToString(params.InviteCode))
+		}(); err != nil {
+			return res, errors.Wrap(err, "encode path")
+		}
+		encoded, err := e.Result()
+		if err != nil {
+			return res, errors.Wrap(err, "encode path")
+		}
+		pathParts[3] = encoded
+	}
+	uri.AddPathParts(u, pathParts[:]...)
+
+	stage = "EncodeRequest"
+	r, err := ht.NewRequest(ctx, "DELETE", u)
+	if err != nil {
+		return res, errors.Wrap(err, "create request")
+	}
+
+	{
+		type bitset = [1]uint8
+		var satisfied bitset
+		{
+			stage = "Security:KindeBearerAuth"
+			switch err := c.securityKindeBearerAuth(ctx, DeleteOrganizationInviteOperation, r); {
+			case err == nil: // if NO error
+				satisfied[0] |= 1 << 0
+			case errors.Is(err, ogenerrors.ErrSkipClientSecurity):
+				// Skip this security.
+			default:
+				return res, errors.Wrap(err, "security \"KindeBearerAuth\"")
+			}
+		}
+
+		if ok := func() bool {
+		nextRequirement:
+			for _, requirement := range []bitset{
+				{0b00000001},
+			} {
+				for i, mask := range requirement {
+					if satisfied[i]&mask != mask {
+						continue nextRequirement
+					}
+				}
+				return true
+			}
+			return false
+		}(); !ok {
+			return res, ogenerrors.ErrSecurityRequirementIsNotSatisfied
+		}
+	}
+
+	stage = "SendRequest"
+	resp, err := c.cfg.Client.Do(r)
+	if err != nil {
+		return res, errors.Wrap(err, "do request")
+	}
+	defer resp.Body.Close()
+
+	stage = "DecodeResponse"
+	result, err := decodeDeleteOrganizationInviteResponse(resp)
 	if err != nil {
 		return res, errors.Wrap(err, "decode response")
 	}
@@ -10292,6 +11372,190 @@ func (c *Client) sendGetApplication(ctx context.Context, params GetApplicationPa
 	return result, nil
 }
 
+// GetApplicationAccessRoles invokes GetApplicationAccessRoles operation.
+//
+// Gets the roles configured as allowed to access an application. These
+// roles are enforced only when role-based access control is enabled for
+// the application.
+// <div>
+// <code>read:applications</code>
+// </div>.
+//
+// GET /api/v1/applications/{application_id}/access_roles
+func (c *Client) GetApplicationAccessRoles(ctx context.Context, params GetApplicationAccessRolesParams) (GetApplicationAccessRolesRes, error) {
+	res, err := c.sendGetApplicationAccessRoles(ctx, params)
+	return res, err
+}
+
+func (c *Client) sendGetApplicationAccessRoles(ctx context.Context, params GetApplicationAccessRolesParams) (res GetApplicationAccessRolesRes, err error) {
+	otelAttrs := []attribute.KeyValue{
+		otelogen.OperationID("GetApplicationAccessRoles"),
+		semconv.HTTPRequestMethodKey.String("GET"),
+		semconv.HTTPRouteKey.String("/api/v1/applications/{application_id}/access_roles"),
+	}
+
+	// Run stopwatch.
+	startTime := time.Now()
+	defer func() {
+		// Use floating point division here for higher precision (instead of Millisecond method).
+		elapsedDuration := time.Since(startTime)
+		c.duration.Record(ctx, float64(elapsedDuration)/float64(time.Millisecond), metric.WithAttributes(otelAttrs...))
+	}()
+
+	// Increment request counter.
+	c.requests.Add(ctx, 1, metric.WithAttributes(otelAttrs...))
+
+	// Start a span for this request.
+	ctx, span := c.cfg.Tracer.Start(ctx, GetApplicationAccessRolesOperation,
+		trace.WithAttributes(otelAttrs...),
+		clientSpanKind,
+	)
+	// Track stage for error reporting.
+	var stage string
+	defer func() {
+		if err != nil {
+			span.RecordError(err)
+			span.SetStatus(codes.Error, stage)
+			c.errors.Add(ctx, 1, metric.WithAttributes(otelAttrs...))
+		}
+		span.End()
+	}()
+
+	stage = "BuildURL"
+	u := uri.Clone(c.requestURL(ctx))
+	var pathParts [3]string
+	pathParts[0] = "/api/v1/applications/"
+	{
+		// Encode "application_id" parameter.
+		e := uri.NewPathEncoder(uri.PathEncoderConfig{
+			Param:   "application_id",
+			Style:   uri.PathStyleSimple,
+			Explode: false,
+		})
+		if err := func() error {
+			return e.EncodeValue(conv.StringToString(params.ApplicationID))
+		}(); err != nil {
+			return res, errors.Wrap(err, "encode path")
+		}
+		encoded, err := e.Result()
+		if err != nil {
+			return res, errors.Wrap(err, "encode path")
+		}
+		pathParts[1] = encoded
+	}
+	pathParts[2] = "/access_roles"
+	uri.AddPathParts(u, pathParts[:]...)
+
+	stage = "EncodeQueryParams"
+	q := uri.NewQueryEncoder()
+	{
+		// Encode "page_size" parameter.
+		cfg := uri.QueryParameterEncodingConfig{
+			Name:    "page_size",
+			Style:   uri.QueryStyleForm,
+			Explode: true,
+		}
+
+		if err := q.EncodeParam(cfg, func(e uri.Encoder) error {
+			if val, ok := params.PageSize.Get(); ok {
+				return e.EncodeValue(conv.IntToString(val))
+			}
+			return nil
+		}); err != nil {
+			return res, errors.Wrap(err, "encode query")
+		}
+	}
+	{
+		// Encode "starting_after" parameter.
+		cfg := uri.QueryParameterEncodingConfig{
+			Name:    "starting_after",
+			Style:   uri.QueryStyleForm,
+			Explode: true,
+		}
+
+		if err := q.EncodeParam(cfg, func(e uri.Encoder) error {
+			if val, ok := params.StartingAfter.Get(); ok {
+				return e.EncodeValue(conv.StringToString(val))
+			}
+			return nil
+		}); err != nil {
+			return res, errors.Wrap(err, "encode query")
+		}
+	}
+	{
+		// Encode "ending_before" parameter.
+		cfg := uri.QueryParameterEncodingConfig{
+			Name:    "ending_before",
+			Style:   uri.QueryStyleForm,
+			Explode: true,
+		}
+
+		if err := q.EncodeParam(cfg, func(e uri.Encoder) error {
+			if val, ok := params.EndingBefore.Get(); ok {
+				return e.EncodeValue(conv.StringToString(val))
+			}
+			return nil
+		}); err != nil {
+			return res, errors.Wrap(err, "encode query")
+		}
+	}
+	u.RawQuery = q.Values().Encode()
+
+	stage = "EncodeRequest"
+	r, err := ht.NewRequest(ctx, "GET", u)
+	if err != nil {
+		return res, errors.Wrap(err, "create request")
+	}
+
+	{
+		type bitset = [1]uint8
+		var satisfied bitset
+		{
+			stage = "Security:KindeBearerAuth"
+			switch err := c.securityKindeBearerAuth(ctx, GetApplicationAccessRolesOperation, r); {
+			case err == nil: // if NO error
+				satisfied[0] |= 1 << 0
+			case errors.Is(err, ogenerrors.ErrSkipClientSecurity):
+				// Skip this security.
+			default:
+				return res, errors.Wrap(err, "security \"KindeBearerAuth\"")
+			}
+		}
+
+		if ok := func() bool {
+		nextRequirement:
+			for _, requirement := range []bitset{
+				{0b00000001},
+			} {
+				for i, mask := range requirement {
+					if satisfied[i]&mask != mask {
+						continue nextRequirement
+					}
+				}
+				return true
+			}
+			return false
+		}(); !ok {
+			return res, ogenerrors.ErrSecurityRequirementIsNotSatisfied
+		}
+	}
+
+	stage = "SendRequest"
+	resp, err := c.cfg.Client.Do(r)
+	if err != nil {
+		return res, errors.Wrap(err, "do request")
+	}
+	defer resp.Body.Close()
+
+	stage = "DecodeResponse"
+	result, err := decodeGetApplicationAccessRolesResponse(resp)
+	if err != nil {
+		return res, errors.Wrap(err, "decode response")
+	}
+
+	return result, nil
+}
+
 // GetApplicationConnections invokes GetApplicationConnections operation.
 //
 // Gets all connections for an application.
@@ -12139,6 +13403,295 @@ func (c *Client) sendGetConnections(ctx context.Context, params GetConnectionsPa
 	return result, nil
 }
 
+// GetDirectories invokes getDirectories operation.
+//
+// Returns a list of SCIM directories for your organization.
+// <div>
+// <code>read:scim_directories</code>
+// </div>.
+//
+// GET /api/v1/directories
+func (c *Client) GetDirectories(ctx context.Context, params GetDirectoriesParams) (GetDirectoriesRes, error) {
+	res, err := c.sendGetDirectories(ctx, params)
+	return res, err
+}
+
+func (c *Client) sendGetDirectories(ctx context.Context, params GetDirectoriesParams) (res GetDirectoriesRes, err error) {
+	otelAttrs := []attribute.KeyValue{
+		otelogen.OperationID("getDirectories"),
+		semconv.HTTPRequestMethodKey.String("GET"),
+		semconv.HTTPRouteKey.String("/api/v1/directories"),
+	}
+
+	// Run stopwatch.
+	startTime := time.Now()
+	defer func() {
+		// Use floating point division here for higher precision (instead of Millisecond method).
+		elapsedDuration := time.Since(startTime)
+		c.duration.Record(ctx, float64(elapsedDuration)/float64(time.Millisecond), metric.WithAttributes(otelAttrs...))
+	}()
+
+	// Increment request counter.
+	c.requests.Add(ctx, 1, metric.WithAttributes(otelAttrs...))
+
+	// Start a span for this request.
+	ctx, span := c.cfg.Tracer.Start(ctx, GetDirectoriesOperation,
+		trace.WithAttributes(otelAttrs...),
+		clientSpanKind,
+	)
+	// Track stage for error reporting.
+	var stage string
+	defer func() {
+		if err != nil {
+			span.RecordError(err)
+			span.SetStatus(codes.Error, stage)
+			c.errors.Add(ctx, 1, metric.WithAttributes(otelAttrs...))
+		}
+		span.End()
+	}()
+
+	stage = "BuildURL"
+	u := uri.Clone(c.requestURL(ctx))
+	var pathParts [1]string
+	pathParts[0] = "/api/v1/directories"
+	uri.AddPathParts(u, pathParts[:]...)
+
+	stage = "EncodeQueryParams"
+	q := uri.NewQueryEncoder()
+	{
+		// Encode "page_size" parameter.
+		cfg := uri.QueryParameterEncodingConfig{
+			Name:    "page_size",
+			Style:   uri.QueryStyleForm,
+			Explode: true,
+		}
+
+		if err := q.EncodeParam(cfg, func(e uri.Encoder) error {
+			if val, ok := params.PageSize.Get(); ok {
+				return e.EncodeValue(conv.IntToString(val))
+			}
+			return nil
+		}); err != nil {
+			return res, errors.Wrap(err, "encode query")
+		}
+	}
+	{
+		// Encode "starting_after" parameter.
+		cfg := uri.QueryParameterEncodingConfig{
+			Name:    "starting_after",
+			Style:   uri.QueryStyleForm,
+			Explode: true,
+		}
+
+		if err := q.EncodeParam(cfg, func(e uri.Encoder) error {
+			if val, ok := params.StartingAfter.Get(); ok {
+				return e.EncodeValue(conv.StringToString(val))
+			}
+			return nil
+		}); err != nil {
+			return res, errors.Wrap(err, "encode query")
+		}
+	}
+	{
+		// Encode "organization_code" parameter.
+		cfg := uri.QueryParameterEncodingConfig{
+			Name:    "organization_code",
+			Style:   uri.QueryStyleForm,
+			Explode: true,
+		}
+
+		if err := q.EncodeParam(cfg, func(e uri.Encoder) error {
+			if val, ok := params.OrganizationCode.Get(); ok {
+				return e.EncodeValue(conv.StringToString(val))
+			}
+			return nil
+		}); err != nil {
+			return res, errors.Wrap(err, "encode query")
+		}
+	}
+	u.RawQuery = q.Values().Encode()
+
+	stage = "EncodeRequest"
+	r, err := ht.NewRequest(ctx, "GET", u)
+	if err != nil {
+		return res, errors.Wrap(err, "create request")
+	}
+
+	{
+		type bitset = [1]uint8
+		var satisfied bitset
+		{
+			stage = "Security:KindeBearerAuth"
+			switch err := c.securityKindeBearerAuth(ctx, GetDirectoriesOperation, r); {
+			case err == nil: // if NO error
+				satisfied[0] |= 1 << 0
+			case errors.Is(err, ogenerrors.ErrSkipClientSecurity):
+				// Skip this security.
+			default:
+				return res, errors.Wrap(err, "security \"KindeBearerAuth\"")
+			}
+		}
+
+		if ok := func() bool {
+		nextRequirement:
+			for _, requirement := range []bitset{
+				{0b00000001},
+			} {
+				for i, mask := range requirement {
+					if satisfied[i]&mask != mask {
+						continue nextRequirement
+					}
+				}
+				return true
+			}
+			return false
+		}(); !ok {
+			return res, ogenerrors.ErrSecurityRequirementIsNotSatisfied
+		}
+	}
+
+	stage = "SendRequest"
+	resp, err := c.cfg.Client.Do(r)
+	if err != nil {
+		return res, errors.Wrap(err, "do request")
+	}
+	defer resp.Body.Close()
+
+	stage = "DecodeResponse"
+	result, err := decodeGetDirectoriesResponse(resp)
+	if err != nil {
+		return res, errors.Wrap(err, "decode response")
+	}
+
+	return result, nil
+}
+
+// GetDirectory invokes getDirectory operation.
+//
+// Retrieve SCIM directory details by ID.
+// <div>
+// <code>read:scim_directories</code>
+// </div>.
+//
+// GET /api/v1/directories/{directory_id}
+func (c *Client) GetDirectory(ctx context.Context, params GetDirectoryParams) (GetDirectoryRes, error) {
+	res, err := c.sendGetDirectory(ctx, params)
+	return res, err
+}
+
+func (c *Client) sendGetDirectory(ctx context.Context, params GetDirectoryParams) (res GetDirectoryRes, err error) {
+	otelAttrs := []attribute.KeyValue{
+		otelogen.OperationID("getDirectory"),
+		semconv.HTTPRequestMethodKey.String("GET"),
+		semconv.HTTPRouteKey.String("/api/v1/directories/{directory_id}"),
+	}
+
+	// Run stopwatch.
+	startTime := time.Now()
+	defer func() {
+		// Use floating point division here for higher precision (instead of Millisecond method).
+		elapsedDuration := time.Since(startTime)
+		c.duration.Record(ctx, float64(elapsedDuration)/float64(time.Millisecond), metric.WithAttributes(otelAttrs...))
+	}()
+
+	// Increment request counter.
+	c.requests.Add(ctx, 1, metric.WithAttributes(otelAttrs...))
+
+	// Start a span for this request.
+	ctx, span := c.cfg.Tracer.Start(ctx, GetDirectoryOperation,
+		trace.WithAttributes(otelAttrs...),
+		clientSpanKind,
+	)
+	// Track stage for error reporting.
+	var stage string
+	defer func() {
+		if err != nil {
+			span.RecordError(err)
+			span.SetStatus(codes.Error, stage)
+			c.errors.Add(ctx, 1, metric.WithAttributes(otelAttrs...))
+		}
+		span.End()
+	}()
+
+	stage = "BuildURL"
+	u := uri.Clone(c.requestURL(ctx))
+	var pathParts [2]string
+	pathParts[0] = "/api/v1/directories/"
+	{
+		// Encode "directory_id" parameter.
+		e := uri.NewPathEncoder(uri.PathEncoderConfig{
+			Param:   "directory_id",
+			Style:   uri.PathStyleSimple,
+			Explode: false,
+		})
+		if err := func() error {
+			return e.EncodeValue(conv.StringToString(params.DirectoryID))
+		}(); err != nil {
+			return res, errors.Wrap(err, "encode path")
+		}
+		encoded, err := e.Result()
+		if err != nil {
+			return res, errors.Wrap(err, "encode path")
+		}
+		pathParts[1] = encoded
+	}
+	uri.AddPathParts(u, pathParts[:]...)
+
+	stage = "EncodeRequest"
+	r, err := ht.NewRequest(ctx, "GET", u)
+	if err != nil {
+		return res, errors.Wrap(err, "create request")
+	}
+
+	{
+		type bitset = [1]uint8
+		var satisfied bitset
+		{
+			stage = "Security:KindeBearerAuth"
+			switch err := c.securityKindeBearerAuth(ctx, GetDirectoryOperation, r); {
+			case err == nil: // if NO error
+				satisfied[0] |= 1 << 0
+			case errors.Is(err, ogenerrors.ErrSkipClientSecurity):
+				// Skip this security.
+			default:
+				return res, errors.Wrap(err, "security \"KindeBearerAuth\"")
+			}
+		}
+
+		if ok := func() bool {
+		nextRequirement:
+			for _, requirement := range []bitset{
+				{0b00000001},
+			} {
+				for i, mask := range requirement {
+					if satisfied[i]&mask != mask {
+						continue nextRequirement
+					}
+				}
+				return true
+			}
+			return false
+		}(); !ok {
+			return res, ogenerrors.ErrSecurityRequirementIsNotSatisfied
+		}
+	}
+
+	stage = "SendRequest"
+	resp, err := c.cfg.Client.Do(r)
+	if err != nil {
+		return res, errors.Wrap(err, "do request")
+	}
+	defer resp.Body.Close()
+
+	stage = "DecodeResponse"
+	result, err := decodeGetDirectoryResponse(resp)
+	if err != nil {
+		return res, errors.Wrap(err, "decode response")
+	}
+
+	return result, nil
+}
+
 // GetEnvironementFeatureFlags invokes GetEnvironementFeatureFlags operation.
 //
 // Get environment feature flags.
@@ -13395,10 +14948,7 @@ func (c *Client) sendGetOrganization(ctx context.Context, params GetOrganization
 		}
 
 		if err := q.EncodeParam(cfg, func(e uri.Encoder) error {
-			if val, ok := params.Code.Get(); ok {
-				return e.EncodeValue(conv.StringToString(val))
-			}
-			return nil
+			return e.EncodeValue(conv.StringToString(params.Code))
 		}); err != nil {
 			return res, errors.Wrap(err, "encode query")
 		}
@@ -13731,6 +15281,496 @@ func (c *Client) sendGetOrganizationFeatureFlags(ctx context.Context, params Get
 	return result, nil
 }
 
+// GetOrganizationInvite invokes getOrganizationInvite operation.
+//
+// Get details of a specific invitation by its code.
+// <div>
+// <code>read:organization_invites</code>
+// </div>.
+//
+// GET /api/v1/organization/{org_code}/invites/{invite_code}
+func (c *Client) GetOrganizationInvite(ctx context.Context, params GetOrganizationInviteParams) (GetOrganizationInviteRes, error) {
+	res, err := c.sendGetOrganizationInvite(ctx, params)
+	return res, err
+}
+
+func (c *Client) sendGetOrganizationInvite(ctx context.Context, params GetOrganizationInviteParams) (res GetOrganizationInviteRes, err error) {
+	otelAttrs := []attribute.KeyValue{
+		otelogen.OperationID("getOrganizationInvite"),
+		semconv.HTTPRequestMethodKey.String("GET"),
+		semconv.HTTPRouteKey.String("/api/v1/organization/{org_code}/invites/{invite_code}"),
+	}
+
+	// Run stopwatch.
+	startTime := time.Now()
+	defer func() {
+		// Use floating point division here for higher precision (instead of Millisecond method).
+		elapsedDuration := time.Since(startTime)
+		c.duration.Record(ctx, float64(elapsedDuration)/float64(time.Millisecond), metric.WithAttributes(otelAttrs...))
+	}()
+
+	// Increment request counter.
+	c.requests.Add(ctx, 1, metric.WithAttributes(otelAttrs...))
+
+	// Start a span for this request.
+	ctx, span := c.cfg.Tracer.Start(ctx, GetOrganizationInviteOperation,
+		trace.WithAttributes(otelAttrs...),
+		clientSpanKind,
+	)
+	// Track stage for error reporting.
+	var stage string
+	defer func() {
+		if err != nil {
+			span.RecordError(err)
+			span.SetStatus(codes.Error, stage)
+			c.errors.Add(ctx, 1, metric.WithAttributes(otelAttrs...))
+		}
+		span.End()
+	}()
+
+	stage = "BuildURL"
+	u := uri.Clone(c.requestURL(ctx))
+	var pathParts [4]string
+	pathParts[0] = "/api/v1/organization/"
+	{
+		// Encode "org_code" parameter.
+		e := uri.NewPathEncoder(uri.PathEncoderConfig{
+			Param:   "org_code",
+			Style:   uri.PathStyleSimple,
+			Explode: false,
+		})
+		if err := func() error {
+			return e.EncodeValue(conv.StringToString(params.OrgCode))
+		}(); err != nil {
+			return res, errors.Wrap(err, "encode path")
+		}
+		encoded, err := e.Result()
+		if err != nil {
+			return res, errors.Wrap(err, "encode path")
+		}
+		pathParts[1] = encoded
+	}
+	pathParts[2] = "/invites/"
+	{
+		// Encode "invite_code" parameter.
+		e := uri.NewPathEncoder(uri.PathEncoderConfig{
+			Param:   "invite_code",
+			Style:   uri.PathStyleSimple,
+			Explode: false,
+		})
+		if err := func() error {
+			return e.EncodeValue(conv.StringToString(params.InviteCode))
+		}(); err != nil {
+			return res, errors.Wrap(err, "encode path")
+		}
+		encoded, err := e.Result()
+		if err != nil {
+			return res, errors.Wrap(err, "encode path")
+		}
+		pathParts[3] = encoded
+	}
+	uri.AddPathParts(u, pathParts[:]...)
+
+	stage = "EncodeRequest"
+	r, err := ht.NewRequest(ctx, "GET", u)
+	if err != nil {
+		return res, errors.Wrap(err, "create request")
+	}
+
+	{
+		type bitset = [1]uint8
+		var satisfied bitset
+		{
+			stage = "Security:KindeBearerAuth"
+			switch err := c.securityKindeBearerAuth(ctx, GetOrganizationInviteOperation, r); {
+			case err == nil: // if NO error
+				satisfied[0] |= 1 << 0
+			case errors.Is(err, ogenerrors.ErrSkipClientSecurity):
+				// Skip this security.
+			default:
+				return res, errors.Wrap(err, "security \"KindeBearerAuth\"")
+			}
+		}
+
+		if ok := func() bool {
+		nextRequirement:
+			for _, requirement := range []bitset{
+				{0b00000001},
+			} {
+				for i, mask := range requirement {
+					if satisfied[i]&mask != mask {
+						continue nextRequirement
+					}
+				}
+				return true
+			}
+			return false
+		}(); !ok {
+			return res, ogenerrors.ErrSecurityRequirementIsNotSatisfied
+		}
+	}
+
+	stage = "SendRequest"
+	resp, err := c.cfg.Client.Do(r)
+	if err != nil {
+		return res, errors.Wrap(err, "do request")
+	}
+	defer resp.Body.Close()
+
+	stage = "DecodeResponse"
+	result, err := decodeGetOrganizationInviteResponse(resp)
+	if err != nil {
+		return res, errors.Wrap(err, "decode response")
+	}
+
+	return result, nil
+}
+
+// GetOrganizationInvites invokes getOrganizationInvites operation.
+//
+// Get a list of invitations for an organization. By default, only pending (non-revoked,
+// non-accepted) invitations are returned.
+// <div>
+// <code>read:organization_invites</code>
+// </div>.
+//
+// GET /api/v1/organization/{org_code}/invites
+func (c *Client) GetOrganizationInvites(ctx context.Context, params GetOrganizationInvitesParams) (GetOrganizationInvitesRes, error) {
+	res, err := c.sendGetOrganizationInvites(ctx, params)
+	return res, err
+}
+
+func (c *Client) sendGetOrganizationInvites(ctx context.Context, params GetOrganizationInvitesParams) (res GetOrganizationInvitesRes, err error) {
+	otelAttrs := []attribute.KeyValue{
+		otelogen.OperationID("getOrganizationInvites"),
+		semconv.HTTPRequestMethodKey.String("GET"),
+		semconv.HTTPRouteKey.String("/api/v1/organization/{org_code}/invites"),
+	}
+
+	// Run stopwatch.
+	startTime := time.Now()
+	defer func() {
+		// Use floating point division here for higher precision (instead of Millisecond method).
+		elapsedDuration := time.Since(startTime)
+		c.duration.Record(ctx, float64(elapsedDuration)/float64(time.Millisecond), metric.WithAttributes(otelAttrs...))
+	}()
+
+	// Increment request counter.
+	c.requests.Add(ctx, 1, metric.WithAttributes(otelAttrs...))
+
+	// Start a span for this request.
+	ctx, span := c.cfg.Tracer.Start(ctx, GetOrganizationInvitesOperation,
+		trace.WithAttributes(otelAttrs...),
+		clientSpanKind,
+	)
+	// Track stage for error reporting.
+	var stage string
+	defer func() {
+		if err != nil {
+			span.RecordError(err)
+			span.SetStatus(codes.Error, stage)
+			c.errors.Add(ctx, 1, metric.WithAttributes(otelAttrs...))
+		}
+		span.End()
+	}()
+
+	stage = "BuildURL"
+	u := uri.Clone(c.requestURL(ctx))
+	var pathParts [3]string
+	pathParts[0] = "/api/v1/organization/"
+	{
+		// Encode "org_code" parameter.
+		e := uri.NewPathEncoder(uri.PathEncoderConfig{
+			Param:   "org_code",
+			Style:   uri.PathStyleSimple,
+			Explode: false,
+		})
+		if err := func() error {
+			return e.EncodeValue(conv.StringToString(params.OrgCode))
+		}(); err != nil {
+			return res, errors.Wrap(err, "encode path")
+		}
+		encoded, err := e.Result()
+		if err != nil {
+			return res, errors.Wrap(err, "encode path")
+		}
+		pathParts[1] = encoded
+	}
+	pathParts[2] = "/invites"
+	uri.AddPathParts(u, pathParts[:]...)
+
+	stage = "EncodeQueryParams"
+	q := uri.NewQueryEncoder()
+	{
+		// Encode "sort" parameter.
+		cfg := uri.QueryParameterEncodingConfig{
+			Name:    "sort",
+			Style:   uri.QueryStyleForm,
+			Explode: true,
+		}
+
+		if err := q.EncodeParam(cfg, func(e uri.Encoder) error {
+			if val, ok := params.Sort.Get(); ok {
+				return e.EncodeValue(conv.StringToString(string(val)))
+			}
+			return nil
+		}); err != nil {
+			return res, errors.Wrap(err, "encode query")
+		}
+	}
+	{
+		// Encode "page_size" parameter.
+		cfg := uri.QueryParameterEncodingConfig{
+			Name:    "page_size",
+			Style:   uri.QueryStyleForm,
+			Explode: true,
+		}
+
+		if err := q.EncodeParam(cfg, func(e uri.Encoder) error {
+			if val, ok := params.PageSize.Get(); ok {
+				return e.EncodeValue(conv.IntToString(val))
+			}
+			return nil
+		}); err != nil {
+			return res, errors.Wrap(err, "encode query")
+		}
+	}
+	{
+		// Encode "next_token" parameter.
+		cfg := uri.QueryParameterEncodingConfig{
+			Name:    "next_token",
+			Style:   uri.QueryStyleForm,
+			Explode: true,
+		}
+
+		if err := q.EncodeParam(cfg, func(e uri.Encoder) error {
+			if val, ok := params.NextToken.Get(); ok {
+				return e.EncodeValue(conv.StringToString(val))
+			}
+			return nil
+		}); err != nil {
+			return res, errors.Wrap(err, "encode query")
+		}
+	}
+	{
+		// Encode "include_revoked" parameter.
+		cfg := uri.QueryParameterEncodingConfig{
+			Name:    "include_revoked",
+			Style:   uri.QueryStyleForm,
+			Explode: true,
+		}
+
+		if err := q.EncodeParam(cfg, func(e uri.Encoder) error {
+			if val, ok := params.IncludeRevoked.Get(); ok {
+				return e.EncodeValue(conv.BoolToString(val))
+			}
+			return nil
+		}); err != nil {
+			return res, errors.Wrap(err, "encode query")
+		}
+	}
+	{
+		// Encode "include_accepted" parameter.
+		cfg := uri.QueryParameterEncodingConfig{
+			Name:    "include_accepted",
+			Style:   uri.QueryStyleForm,
+			Explode: true,
+		}
+
+		if err := q.EncodeParam(cfg, func(e uri.Encoder) error {
+			if val, ok := params.IncludeAccepted.Get(); ok {
+				return e.EncodeValue(conv.BoolToString(val))
+			}
+			return nil
+		}); err != nil {
+			return res, errors.Wrap(err, "encode query")
+		}
+	}
+	u.RawQuery = q.Values().Encode()
+
+	stage = "EncodeRequest"
+	r, err := ht.NewRequest(ctx, "GET", u)
+	if err != nil {
+		return res, errors.Wrap(err, "create request")
+	}
+
+	{
+		type bitset = [1]uint8
+		var satisfied bitset
+		{
+			stage = "Security:KindeBearerAuth"
+			switch err := c.securityKindeBearerAuth(ctx, GetOrganizationInvitesOperation, r); {
+			case err == nil: // if NO error
+				satisfied[0] |= 1 << 0
+			case errors.Is(err, ogenerrors.ErrSkipClientSecurity):
+				// Skip this security.
+			default:
+				return res, errors.Wrap(err, "security \"KindeBearerAuth\"")
+			}
+		}
+
+		if ok := func() bool {
+		nextRequirement:
+			for _, requirement := range []bitset{
+				{0b00000001},
+			} {
+				for i, mask := range requirement {
+					if satisfied[i]&mask != mask {
+						continue nextRequirement
+					}
+				}
+				return true
+			}
+			return false
+		}(); !ok {
+			return res, ogenerrors.ErrSecurityRequirementIsNotSatisfied
+		}
+	}
+
+	stage = "SendRequest"
+	resp, err := c.cfg.Client.Do(r)
+	if err != nil {
+		return res, errors.Wrap(err, "do request")
+	}
+	defer resp.Body.Close()
+
+	stage = "DecodeResponse"
+	result, err := decodeGetOrganizationInvitesResponse(resp)
+	if err != nil {
+		return res, errors.Wrap(err, "decode response")
+	}
+
+	return result, nil
+}
+
+// GetOrganizationPasskey invokes GetOrganizationPasskey operation.
+//
+// Retrieve passkey settings for an organization, including whether the organization overrides the
+// environment default.
+// <div>
+// <code>read:organization_passkey</code>
+// </div>.
+//
+// GET /api/v1/organizations/{org_code}/passkey
+func (c *Client) GetOrganizationPasskey(ctx context.Context, params GetOrganizationPasskeyParams) (GetOrganizationPasskeyRes, error) {
+	res, err := c.sendGetOrganizationPasskey(ctx, params)
+	return res, err
+}
+
+func (c *Client) sendGetOrganizationPasskey(ctx context.Context, params GetOrganizationPasskeyParams) (res GetOrganizationPasskeyRes, err error) {
+	otelAttrs := []attribute.KeyValue{
+		otelogen.OperationID("GetOrganizationPasskey"),
+		semconv.HTTPRequestMethodKey.String("GET"),
+		semconv.HTTPRouteKey.String("/api/v1/organizations/{org_code}/passkey"),
+	}
+
+	// Run stopwatch.
+	startTime := time.Now()
+	defer func() {
+		// Use floating point division here for higher precision (instead of Millisecond method).
+		elapsedDuration := time.Since(startTime)
+		c.duration.Record(ctx, float64(elapsedDuration)/float64(time.Millisecond), metric.WithAttributes(otelAttrs...))
+	}()
+
+	// Increment request counter.
+	c.requests.Add(ctx, 1, metric.WithAttributes(otelAttrs...))
+
+	// Start a span for this request.
+	ctx, span := c.cfg.Tracer.Start(ctx, GetOrganizationPasskeyOperation,
+		trace.WithAttributes(otelAttrs...),
+		clientSpanKind,
+	)
+	// Track stage for error reporting.
+	var stage string
+	defer func() {
+		if err != nil {
+			span.RecordError(err)
+			span.SetStatus(codes.Error, stage)
+			c.errors.Add(ctx, 1, metric.WithAttributes(otelAttrs...))
+		}
+		span.End()
+	}()
+
+	stage = "BuildURL"
+	u := uri.Clone(c.requestURL(ctx))
+	var pathParts [3]string
+	pathParts[0] = "/api/v1/organizations/"
+	{
+		// Encode "org_code" parameter.
+		e := uri.NewPathEncoder(uri.PathEncoderConfig{
+			Param:   "org_code",
+			Style:   uri.PathStyleSimple,
+			Explode: false,
+		})
+		if err := func() error {
+			return e.EncodeValue(conv.StringToString(params.OrgCode))
+		}(); err != nil {
+			return res, errors.Wrap(err, "encode path")
+		}
+		encoded, err := e.Result()
+		if err != nil {
+			return res, errors.Wrap(err, "encode path")
+		}
+		pathParts[1] = encoded
+	}
+	pathParts[2] = "/passkey"
+	uri.AddPathParts(u, pathParts[:]...)
+
+	stage = "EncodeRequest"
+	r, err := ht.NewRequest(ctx, "GET", u)
+	if err != nil {
+		return res, errors.Wrap(err, "create request")
+	}
+
+	{
+		type bitset = [1]uint8
+		var satisfied bitset
+		{
+			stage = "Security:KindeBearerAuth"
+			switch err := c.securityKindeBearerAuth(ctx, GetOrganizationPasskeyOperation, r); {
+			case err == nil: // if NO error
+				satisfied[0] |= 1 << 0
+			case errors.Is(err, ogenerrors.ErrSkipClientSecurity):
+				// Skip this security.
+			default:
+				return res, errors.Wrap(err, "security \"KindeBearerAuth\"")
+			}
+		}
+
+		if ok := func() bool {
+		nextRequirement:
+			for _, requirement := range []bitset{
+				{0b00000001},
+			} {
+				for i, mask := range requirement {
+					if satisfied[i]&mask != mask {
+						continue nextRequirement
+					}
+				}
+				return true
+			}
+			return false
+		}(); !ok {
+			return res, ogenerrors.ErrSecurityRequirementIsNotSatisfied
+		}
+	}
+
+	stage = "SendRequest"
+	resp, err := c.cfg.Client.Do(r)
+	if err != nil {
+		return res, errors.Wrap(err, "do request")
+	}
+	defer resp.Body.Close()
+
+	stage = "DecodeResponse"
+	result, err := decodeGetOrganizationPasskeyResponse(resp)
+	if err != nil {
+		return res, errors.Wrap(err, "decode response")
+	}
+
+	return result, nil
+}
+
 // GetOrganizationPropertyValues invokes GetOrganizationPropertyValues operation.
 //
 // Gets properties for an organization by org code.
@@ -13851,6 +15891,533 @@ func (c *Client) sendGetOrganizationPropertyValues(ctx context.Context, params G
 
 	stage = "DecodeResponse"
 	result, err := decodeGetOrganizationPropertyValuesResponse(resp)
+	if err != nil {
+		return res, errors.Wrap(err, "decode response")
+	}
+
+	return result, nil
+}
+
+// GetOrganizationRoleActiveUsersCount invokes GetOrganizationRoleActiveUsersCount operation.
+//
+// Get the number of active users that hold a given role within a specific organization.
+// A user is counted as active if they were issued at least one access token during the requested
+// period,
+// regardless of organization context on the token. Only users who currently hold the role in the
+// organization are included. The count is scoped to the current environment.
+// Both `date_time_from` and `date_time_to` are required, inclusive, and must be ISO 8601 datetimes
+// in UTC.
+// Provide them at second precision (no fractional seconds). If a value includes fractional seconds,
+// it is
+// normalized before any other processing: `date_time_from` is rounded down and `date_time_to` is
+// rounded up
+// to the nearest second. Window validation, the active-user query, and the echoed response bounds
+// all use
+// those normalized values.
+// The requested window must not exceed 3 days. Because both bounds are inclusive, this means
+// `date_time_to`
+// must be earlier than `date_time_from` plus 3 days. For example, `2026-07-01T00:00:00Z` to
+// `2026-07-03T23:59:59Z` is a full 3 day window covering the whole of 1, 2 and 3 July. A longer
+// window is
+// rejected with `DATE_TIME_RANGE_TOO_LARGE`.
+// <div>
+// <code>read:organization_user_roles</code>
+// </div>.
+//
+// GET /api/v1/organizations/{org_code}/roles/{role_id}/active_users/count
+func (c *Client) GetOrganizationRoleActiveUsersCount(ctx context.Context, params GetOrganizationRoleActiveUsersCountParams) (GetOrganizationRoleActiveUsersCountRes, error) {
+	res, err := c.sendGetOrganizationRoleActiveUsersCount(ctx, params)
+	return res, err
+}
+
+func (c *Client) sendGetOrganizationRoleActiveUsersCount(ctx context.Context, params GetOrganizationRoleActiveUsersCountParams) (res GetOrganizationRoleActiveUsersCountRes, err error) {
+	otelAttrs := []attribute.KeyValue{
+		otelogen.OperationID("GetOrganizationRoleActiveUsersCount"),
+		semconv.HTTPRequestMethodKey.String("GET"),
+		semconv.HTTPRouteKey.String("/api/v1/organizations/{org_code}/roles/{role_id}/active_users/count"),
+	}
+
+	// Run stopwatch.
+	startTime := time.Now()
+	defer func() {
+		// Use floating point division here for higher precision (instead of Millisecond method).
+		elapsedDuration := time.Since(startTime)
+		c.duration.Record(ctx, float64(elapsedDuration)/float64(time.Millisecond), metric.WithAttributes(otelAttrs...))
+	}()
+
+	// Increment request counter.
+	c.requests.Add(ctx, 1, metric.WithAttributes(otelAttrs...))
+
+	// Start a span for this request.
+	ctx, span := c.cfg.Tracer.Start(ctx, GetOrganizationRoleActiveUsersCountOperation,
+		trace.WithAttributes(otelAttrs...),
+		clientSpanKind,
+	)
+	// Track stage for error reporting.
+	var stage string
+	defer func() {
+		if err != nil {
+			span.RecordError(err)
+			span.SetStatus(codes.Error, stage)
+			c.errors.Add(ctx, 1, metric.WithAttributes(otelAttrs...))
+		}
+		span.End()
+	}()
+
+	stage = "BuildURL"
+	u := uri.Clone(c.requestURL(ctx))
+	var pathParts [5]string
+	pathParts[0] = "/api/v1/organizations/"
+	{
+		// Encode "org_code" parameter.
+		e := uri.NewPathEncoder(uri.PathEncoderConfig{
+			Param:   "org_code",
+			Style:   uri.PathStyleSimple,
+			Explode: false,
+		})
+		if err := func() error {
+			return e.EncodeValue(conv.StringToString(params.OrgCode))
+		}(); err != nil {
+			return res, errors.Wrap(err, "encode path")
+		}
+		encoded, err := e.Result()
+		if err != nil {
+			return res, errors.Wrap(err, "encode path")
+		}
+		pathParts[1] = encoded
+	}
+	pathParts[2] = "/roles/"
+	{
+		// Encode "role_id" parameter.
+		e := uri.NewPathEncoder(uri.PathEncoderConfig{
+			Param:   "role_id",
+			Style:   uri.PathStyleSimple,
+			Explode: false,
+		})
+		if err := func() error {
+			return e.EncodeValue(conv.StringToString(params.RoleID))
+		}(); err != nil {
+			return res, errors.Wrap(err, "encode path")
+		}
+		encoded, err := e.Result()
+		if err != nil {
+			return res, errors.Wrap(err, "encode path")
+		}
+		pathParts[3] = encoded
+	}
+	pathParts[4] = "/active_users/count"
+	uri.AddPathParts(u, pathParts[:]...)
+
+	stage = "EncodeQueryParams"
+	q := uri.NewQueryEncoder()
+	{
+		// Encode "date_time_from" parameter.
+		cfg := uri.QueryParameterEncodingConfig{
+			Name:    "date_time_from",
+			Style:   uri.QueryStyleForm,
+			Explode: true,
+		}
+
+		if err := q.EncodeParam(cfg, func(e uri.Encoder) error {
+			return e.EncodeValue(conv.DateTimeToString(params.DateTimeFrom))
+		}); err != nil {
+			return res, errors.Wrap(err, "encode query")
+		}
+	}
+	{
+		// Encode "date_time_to" parameter.
+		cfg := uri.QueryParameterEncodingConfig{
+			Name:    "date_time_to",
+			Style:   uri.QueryStyleForm,
+			Explode: true,
+		}
+
+		if err := q.EncodeParam(cfg, func(e uri.Encoder) error {
+			return e.EncodeValue(conv.DateTimeToString(params.DateTimeTo))
+		}); err != nil {
+			return res, errors.Wrap(err, "encode query")
+		}
+	}
+	u.RawQuery = q.Values().Encode()
+
+	stage = "EncodeRequest"
+	r, err := ht.NewRequest(ctx, "GET", u)
+	if err != nil {
+		return res, errors.Wrap(err, "create request")
+	}
+
+	{
+		type bitset = [1]uint8
+		var satisfied bitset
+		{
+			stage = "Security:KindeBearerAuth"
+			switch err := c.securityKindeBearerAuth(ctx, GetOrganizationRoleActiveUsersCountOperation, r); {
+			case err == nil: // if NO error
+				satisfied[0] |= 1 << 0
+			case errors.Is(err, ogenerrors.ErrSkipClientSecurity):
+				// Skip this security.
+			default:
+				return res, errors.Wrap(err, "security \"KindeBearerAuth\"")
+			}
+		}
+
+		if ok := func() bool {
+		nextRequirement:
+			for _, requirement := range []bitset{
+				{0b00000001},
+			} {
+				for i, mask := range requirement {
+					if satisfied[i]&mask != mask {
+						continue nextRequirement
+					}
+				}
+				return true
+			}
+			return false
+		}(); !ok {
+			return res, ogenerrors.ErrSecurityRequirementIsNotSatisfied
+		}
+	}
+
+	stage = "SendRequest"
+	resp, err := c.cfg.Client.Do(r)
+	if err != nil {
+		return res, errors.Wrap(err, "do request")
+	}
+	defer resp.Body.Close()
+
+	stage = "DecodeResponse"
+	result, err := decodeGetOrganizationRoleActiveUsersCountResponse(resp)
+	if err != nil {
+		return res, errors.Wrap(err, "decode response")
+	}
+
+	return result, nil
+}
+
+// GetOrganizationRoleUsers invokes GetOrganizationRoleUsers operation.
+//
+// Get users that have a given role within a specific organization.
+// <div>
+// <code>read:organization_user_roles</code>
+// </div>.
+//
+// GET /api/v1/organizations/{org_code}/roles/{role_id}/users
+func (c *Client) GetOrganizationRoleUsers(ctx context.Context, params GetOrganizationRoleUsersParams) (GetOrganizationRoleUsersRes, error) {
+	res, err := c.sendGetOrganizationRoleUsers(ctx, params)
+	return res, err
+}
+
+func (c *Client) sendGetOrganizationRoleUsers(ctx context.Context, params GetOrganizationRoleUsersParams) (res GetOrganizationRoleUsersRes, err error) {
+	otelAttrs := []attribute.KeyValue{
+		otelogen.OperationID("GetOrganizationRoleUsers"),
+		semconv.HTTPRequestMethodKey.String("GET"),
+		semconv.HTTPRouteKey.String("/api/v1/organizations/{org_code}/roles/{role_id}/users"),
+	}
+
+	// Run stopwatch.
+	startTime := time.Now()
+	defer func() {
+		// Use floating point division here for higher precision (instead of Millisecond method).
+		elapsedDuration := time.Since(startTime)
+		c.duration.Record(ctx, float64(elapsedDuration)/float64(time.Millisecond), metric.WithAttributes(otelAttrs...))
+	}()
+
+	// Increment request counter.
+	c.requests.Add(ctx, 1, metric.WithAttributes(otelAttrs...))
+
+	// Start a span for this request.
+	ctx, span := c.cfg.Tracer.Start(ctx, GetOrganizationRoleUsersOperation,
+		trace.WithAttributes(otelAttrs...),
+		clientSpanKind,
+	)
+	// Track stage for error reporting.
+	var stage string
+	defer func() {
+		if err != nil {
+			span.RecordError(err)
+			span.SetStatus(codes.Error, stage)
+			c.errors.Add(ctx, 1, metric.WithAttributes(otelAttrs...))
+		}
+		span.End()
+	}()
+
+	stage = "BuildURL"
+	u := uri.Clone(c.requestURL(ctx))
+	var pathParts [5]string
+	pathParts[0] = "/api/v1/organizations/"
+	{
+		// Encode "org_code" parameter.
+		e := uri.NewPathEncoder(uri.PathEncoderConfig{
+			Param:   "org_code",
+			Style:   uri.PathStyleSimple,
+			Explode: false,
+		})
+		if err := func() error {
+			return e.EncodeValue(conv.StringToString(params.OrgCode))
+		}(); err != nil {
+			return res, errors.Wrap(err, "encode path")
+		}
+		encoded, err := e.Result()
+		if err != nil {
+			return res, errors.Wrap(err, "encode path")
+		}
+		pathParts[1] = encoded
+	}
+	pathParts[2] = "/roles/"
+	{
+		// Encode "role_id" parameter.
+		e := uri.NewPathEncoder(uri.PathEncoderConfig{
+			Param:   "role_id",
+			Style:   uri.PathStyleSimple,
+			Explode: false,
+		})
+		if err := func() error {
+			return e.EncodeValue(conv.StringToString(params.RoleID))
+		}(); err != nil {
+			return res, errors.Wrap(err, "encode path")
+		}
+		encoded, err := e.Result()
+		if err != nil {
+			return res, errors.Wrap(err, "encode path")
+		}
+		pathParts[3] = encoded
+	}
+	pathParts[4] = "/users"
+	uri.AddPathParts(u, pathParts[:]...)
+
+	stage = "EncodeQueryParams"
+	q := uri.NewQueryEncoder()
+	{
+		// Encode "page_size" parameter.
+		cfg := uri.QueryParameterEncodingConfig{
+			Name:    "page_size",
+			Style:   uri.QueryStyleForm,
+			Explode: true,
+		}
+
+		if err := q.EncodeParam(cfg, func(e uri.Encoder) error {
+			if val, ok := params.PageSize.Get(); ok {
+				return e.EncodeValue(conv.IntToString(val))
+			}
+			return nil
+		}); err != nil {
+			return res, errors.Wrap(err, "encode query")
+		}
+	}
+	{
+		// Encode "next_token" parameter.
+		cfg := uri.QueryParameterEncodingConfig{
+			Name:    "next_token",
+			Style:   uri.QueryStyleForm,
+			Explode: true,
+		}
+
+		if err := q.EncodeParam(cfg, func(e uri.Encoder) error {
+			if val, ok := params.NextToken.Get(); ok {
+				return e.EncodeValue(conv.StringToString(val))
+			}
+			return nil
+		}); err != nil {
+			return res, errors.Wrap(err, "encode query")
+		}
+	}
+	u.RawQuery = q.Values().Encode()
+
+	stage = "EncodeRequest"
+	r, err := ht.NewRequest(ctx, "GET", u)
+	if err != nil {
+		return res, errors.Wrap(err, "create request")
+	}
+
+	{
+		type bitset = [1]uint8
+		var satisfied bitset
+		{
+			stage = "Security:KindeBearerAuth"
+			switch err := c.securityKindeBearerAuth(ctx, GetOrganizationRoleUsersOperation, r); {
+			case err == nil: // if NO error
+				satisfied[0] |= 1 << 0
+			case errors.Is(err, ogenerrors.ErrSkipClientSecurity):
+				// Skip this security.
+			default:
+				return res, errors.Wrap(err, "security \"KindeBearerAuth\"")
+			}
+		}
+
+		if ok := func() bool {
+		nextRequirement:
+			for _, requirement := range []bitset{
+				{0b00000001},
+			} {
+				for i, mask := range requirement {
+					if satisfied[i]&mask != mask {
+						continue nextRequirement
+					}
+				}
+				return true
+			}
+			return false
+		}(); !ok {
+			return res, ogenerrors.ErrSecurityRequirementIsNotSatisfied
+		}
+	}
+
+	stage = "SendRequest"
+	resp, err := c.cfg.Client.Do(r)
+	if err != nil {
+		return res, errors.Wrap(err, "do request")
+	}
+	defer resp.Body.Close()
+
+	stage = "DecodeResponse"
+	result, err := decodeGetOrganizationRoleUsersResponse(resp)
+	if err != nil {
+		return res, errors.Wrap(err, "decode response")
+	}
+
+	return result, nil
+}
+
+// GetOrganizationRoleUsersCount invokes GetOrganizationRoleUsersCount operation.
+//
+// Get the number of users that have a given role within a specific organization.
+// <div>
+// <code>read:organization_user_roles</code>
+// </div>.
+//
+// GET /api/v1/organizations/{org_code}/roles/{role_id}/users/count
+func (c *Client) GetOrganizationRoleUsersCount(ctx context.Context, params GetOrganizationRoleUsersCountParams) (GetOrganizationRoleUsersCountRes, error) {
+	res, err := c.sendGetOrganizationRoleUsersCount(ctx, params)
+	return res, err
+}
+
+func (c *Client) sendGetOrganizationRoleUsersCount(ctx context.Context, params GetOrganizationRoleUsersCountParams) (res GetOrganizationRoleUsersCountRes, err error) {
+	otelAttrs := []attribute.KeyValue{
+		otelogen.OperationID("GetOrganizationRoleUsersCount"),
+		semconv.HTTPRequestMethodKey.String("GET"),
+		semconv.HTTPRouteKey.String("/api/v1/organizations/{org_code}/roles/{role_id}/users/count"),
+	}
+
+	// Run stopwatch.
+	startTime := time.Now()
+	defer func() {
+		// Use floating point division here for higher precision (instead of Millisecond method).
+		elapsedDuration := time.Since(startTime)
+		c.duration.Record(ctx, float64(elapsedDuration)/float64(time.Millisecond), metric.WithAttributes(otelAttrs...))
+	}()
+
+	// Increment request counter.
+	c.requests.Add(ctx, 1, metric.WithAttributes(otelAttrs...))
+
+	// Start a span for this request.
+	ctx, span := c.cfg.Tracer.Start(ctx, GetOrganizationRoleUsersCountOperation,
+		trace.WithAttributes(otelAttrs...),
+		clientSpanKind,
+	)
+	// Track stage for error reporting.
+	var stage string
+	defer func() {
+		if err != nil {
+			span.RecordError(err)
+			span.SetStatus(codes.Error, stage)
+			c.errors.Add(ctx, 1, metric.WithAttributes(otelAttrs...))
+		}
+		span.End()
+	}()
+
+	stage = "BuildURL"
+	u := uri.Clone(c.requestURL(ctx))
+	var pathParts [5]string
+	pathParts[0] = "/api/v1/organizations/"
+	{
+		// Encode "org_code" parameter.
+		e := uri.NewPathEncoder(uri.PathEncoderConfig{
+			Param:   "org_code",
+			Style:   uri.PathStyleSimple,
+			Explode: false,
+		})
+		if err := func() error {
+			return e.EncodeValue(conv.StringToString(params.OrgCode))
+		}(); err != nil {
+			return res, errors.Wrap(err, "encode path")
+		}
+		encoded, err := e.Result()
+		if err != nil {
+			return res, errors.Wrap(err, "encode path")
+		}
+		pathParts[1] = encoded
+	}
+	pathParts[2] = "/roles/"
+	{
+		// Encode "role_id" parameter.
+		e := uri.NewPathEncoder(uri.PathEncoderConfig{
+			Param:   "role_id",
+			Style:   uri.PathStyleSimple,
+			Explode: false,
+		})
+		if err := func() error {
+			return e.EncodeValue(conv.StringToString(params.RoleID))
+		}(); err != nil {
+			return res, errors.Wrap(err, "encode path")
+		}
+		encoded, err := e.Result()
+		if err != nil {
+			return res, errors.Wrap(err, "encode path")
+		}
+		pathParts[3] = encoded
+	}
+	pathParts[4] = "/users/count"
+	uri.AddPathParts(u, pathParts[:]...)
+
+	stage = "EncodeRequest"
+	r, err := ht.NewRequest(ctx, "GET", u)
+	if err != nil {
+		return res, errors.Wrap(err, "create request")
+	}
+
+	{
+		type bitset = [1]uint8
+		var satisfied bitset
+		{
+			stage = "Security:KindeBearerAuth"
+			switch err := c.securityKindeBearerAuth(ctx, GetOrganizationRoleUsersCountOperation, r); {
+			case err == nil: // if NO error
+				satisfied[0] |= 1 << 0
+			case errors.Is(err, ogenerrors.ErrSkipClientSecurity):
+				// Skip this security.
+			default:
+				return res, errors.Wrap(err, "security \"KindeBearerAuth\"")
+			}
+		}
+
+		if ok := func() bool {
+		nextRequirement:
+			for _, requirement := range []bitset{
+				{0b00000001},
+			} {
+				for i, mask := range requirement {
+					if satisfied[i]&mask != mask {
+						continue nextRequirement
+					}
+				}
+				return true
+			}
+			return false
+		}(); !ok {
+			return res, ogenerrors.ErrSecurityRequirementIsNotSatisfied
+		}
+	}
+
+	stage = "SendRequest"
+	resp, err := c.cfg.Client.Do(r)
+	if err != nil {
+		return res, errors.Wrap(err, "do request")
+	}
+	defer resp.Body.Close()
+
+	stage = "DecodeResponse"
+	result, err := decodeGetOrganizationRoleUsersCountResponse(resp)
 	if err != nil {
 		return res, errors.Wrap(err, "decode response")
 	}
@@ -14543,6 +17110,114 @@ func (c *Client) sendGetOrganizations(ctx context.Context, params GetOrganizatio
 
 	stage = "DecodeResponse"
 	result, err := decodeGetOrganizationsResponse(resp)
+	if err != nil {
+		return res, errors.Wrap(err, "decode response")
+	}
+
+	return result, nil
+}
+
+// GetPasskey invokes GetPasskey operation.
+//
+// Retrieve passkey policy for the current environment.
+// <div>
+// <code>read:passkey</code>
+// </div>.
+//
+// GET /api/v1/passkey
+func (c *Client) GetPasskey(ctx context.Context) (GetPasskeyRes, error) {
+	res, err := c.sendGetPasskey(ctx)
+	return res, err
+}
+
+func (c *Client) sendGetPasskey(ctx context.Context) (res GetPasskeyRes, err error) {
+	otelAttrs := []attribute.KeyValue{
+		otelogen.OperationID("GetPasskey"),
+		semconv.HTTPRequestMethodKey.String("GET"),
+		semconv.HTTPRouteKey.String("/api/v1/passkey"),
+	}
+
+	// Run stopwatch.
+	startTime := time.Now()
+	defer func() {
+		// Use floating point division here for higher precision (instead of Millisecond method).
+		elapsedDuration := time.Since(startTime)
+		c.duration.Record(ctx, float64(elapsedDuration)/float64(time.Millisecond), metric.WithAttributes(otelAttrs...))
+	}()
+
+	// Increment request counter.
+	c.requests.Add(ctx, 1, metric.WithAttributes(otelAttrs...))
+
+	// Start a span for this request.
+	ctx, span := c.cfg.Tracer.Start(ctx, GetPasskeyOperation,
+		trace.WithAttributes(otelAttrs...),
+		clientSpanKind,
+	)
+	// Track stage for error reporting.
+	var stage string
+	defer func() {
+		if err != nil {
+			span.RecordError(err)
+			span.SetStatus(codes.Error, stage)
+			c.errors.Add(ctx, 1, metric.WithAttributes(otelAttrs...))
+		}
+		span.End()
+	}()
+
+	stage = "BuildURL"
+	u := uri.Clone(c.requestURL(ctx))
+	var pathParts [1]string
+	pathParts[0] = "/api/v1/passkey"
+	uri.AddPathParts(u, pathParts[:]...)
+
+	stage = "EncodeRequest"
+	r, err := ht.NewRequest(ctx, "GET", u)
+	if err != nil {
+		return res, errors.Wrap(err, "create request")
+	}
+
+	{
+		type bitset = [1]uint8
+		var satisfied bitset
+		{
+			stage = "Security:KindeBearerAuth"
+			switch err := c.securityKindeBearerAuth(ctx, GetPasskeyOperation, r); {
+			case err == nil: // if NO error
+				satisfied[0] |= 1 << 0
+			case errors.Is(err, ogenerrors.ErrSkipClientSecurity):
+				// Skip this security.
+			default:
+				return res, errors.Wrap(err, "security \"KindeBearerAuth\"")
+			}
+		}
+
+		if ok := func() bool {
+		nextRequirement:
+			for _, requirement := range []bitset{
+				{0b00000001},
+			} {
+				for i, mask := range requirement {
+					if satisfied[i]&mask != mask {
+						continue nextRequirement
+					}
+				}
+				return true
+			}
+			return false
+		}(); !ok {
+			return res, ogenerrors.ErrSecurityRequirementIsNotSatisfied
+		}
+	}
+
+	stage = "SendRequest"
+	resp, err := c.cfg.Client.Do(r)
+	if err != nil {
+		return res, errors.Wrap(err, "do request")
+	}
+	defer resp.Body.Close()
+
+	stage = "DecodeResponse"
+	result, err := decodeGetPasskeyResponse(resp)
 	if err != nil {
 		return res, errors.Wrap(err, "decode response")
 	}
@@ -15330,9 +18005,358 @@ func (c *Client) sendGetRoleScopes(ctx context.Context, params GetRoleScopesPara
 	return result, nil
 }
 
+// GetRoleSystemPermissions invokes GetRoleSystemPermissions operation.
+//
+// Get system permissions for a role.
+// System permissions control what organization users can do in the self-serve portal.
+// <div>
+// <code>read:role_system_permissions</code>
+// </div>.
+//
+// GET /api/v1/roles/{role_id}/system_permissions
+func (c *Client) GetRoleSystemPermissions(ctx context.Context, params GetRoleSystemPermissionsParams) (GetRoleSystemPermissionsRes, error) {
+	res, err := c.sendGetRoleSystemPermissions(ctx, params)
+	return res, err
+}
+
+func (c *Client) sendGetRoleSystemPermissions(ctx context.Context, params GetRoleSystemPermissionsParams) (res GetRoleSystemPermissionsRes, err error) {
+	otelAttrs := []attribute.KeyValue{
+		otelogen.OperationID("GetRoleSystemPermissions"),
+		semconv.HTTPRequestMethodKey.String("GET"),
+		semconv.HTTPRouteKey.String("/api/v1/roles/{role_id}/system_permissions"),
+	}
+
+	// Run stopwatch.
+	startTime := time.Now()
+	defer func() {
+		// Use floating point division here for higher precision (instead of Millisecond method).
+		elapsedDuration := time.Since(startTime)
+		c.duration.Record(ctx, float64(elapsedDuration)/float64(time.Millisecond), metric.WithAttributes(otelAttrs...))
+	}()
+
+	// Increment request counter.
+	c.requests.Add(ctx, 1, metric.WithAttributes(otelAttrs...))
+
+	// Start a span for this request.
+	ctx, span := c.cfg.Tracer.Start(ctx, GetRoleSystemPermissionsOperation,
+		trace.WithAttributes(otelAttrs...),
+		clientSpanKind,
+	)
+	// Track stage for error reporting.
+	var stage string
+	defer func() {
+		if err != nil {
+			span.RecordError(err)
+			span.SetStatus(codes.Error, stage)
+			c.errors.Add(ctx, 1, metric.WithAttributes(otelAttrs...))
+		}
+		span.End()
+	}()
+
+	stage = "BuildURL"
+	u := uri.Clone(c.requestURL(ctx))
+	var pathParts [3]string
+	pathParts[0] = "/api/v1/roles/"
+	{
+		// Encode "role_id" parameter.
+		e := uri.NewPathEncoder(uri.PathEncoderConfig{
+			Param:   "role_id",
+			Style:   uri.PathStyleSimple,
+			Explode: false,
+		})
+		if err := func() error {
+			return e.EncodeValue(conv.StringToString(params.RoleID))
+		}(); err != nil {
+			return res, errors.Wrap(err, "encode path")
+		}
+		encoded, err := e.Result()
+		if err != nil {
+			return res, errors.Wrap(err, "encode path")
+		}
+		pathParts[1] = encoded
+	}
+	pathParts[2] = "/system_permissions"
+	uri.AddPathParts(u, pathParts[:]...)
+
+	stage = "EncodeQueryParams"
+	q := uri.NewQueryEncoder()
+	{
+		// Encode "sort" parameter.
+		cfg := uri.QueryParameterEncodingConfig{
+			Name:    "sort",
+			Style:   uri.QueryStyleForm,
+			Explode: true,
+		}
+
+		if err := q.EncodeParam(cfg, func(e uri.Encoder) error {
+			if val, ok := params.Sort.Get(); ok {
+				return e.EncodeValue(conv.StringToString(string(val)))
+			}
+			return nil
+		}); err != nil {
+			return res, errors.Wrap(err, "encode query")
+		}
+	}
+	{
+		// Encode "page_size" parameter.
+		cfg := uri.QueryParameterEncodingConfig{
+			Name:    "page_size",
+			Style:   uri.QueryStyleForm,
+			Explode: true,
+		}
+
+		if err := q.EncodeParam(cfg, func(e uri.Encoder) error {
+			if val, ok := params.PageSize.Get(); ok {
+				return e.EncodeValue(conv.IntToString(val))
+			}
+			return nil
+		}); err != nil {
+			return res, errors.Wrap(err, "encode query")
+		}
+	}
+	{
+		// Encode "next_token" parameter.
+		cfg := uri.QueryParameterEncodingConfig{
+			Name:    "next_token",
+			Style:   uri.QueryStyleForm,
+			Explode: true,
+		}
+
+		if err := q.EncodeParam(cfg, func(e uri.Encoder) error {
+			if val, ok := params.NextToken.Get(); ok {
+				return e.EncodeValue(conv.StringToString(val))
+			}
+			return nil
+		}); err != nil {
+			return res, errors.Wrap(err, "encode query")
+		}
+	}
+	u.RawQuery = q.Values().Encode()
+
+	stage = "EncodeRequest"
+	r, err := ht.NewRequest(ctx, "GET", u)
+	if err != nil {
+		return res, errors.Wrap(err, "create request")
+	}
+
+	{
+		type bitset = [1]uint8
+		var satisfied bitset
+		{
+			stage = "Security:KindeBearerAuth"
+			switch err := c.securityKindeBearerAuth(ctx, GetRoleSystemPermissionsOperation, r); {
+			case err == nil: // if NO error
+				satisfied[0] |= 1 << 0
+			case errors.Is(err, ogenerrors.ErrSkipClientSecurity):
+				// Skip this security.
+			default:
+				return res, errors.Wrap(err, "security \"KindeBearerAuth\"")
+			}
+		}
+
+		if ok := func() bool {
+		nextRequirement:
+			for _, requirement := range []bitset{
+				{0b00000001},
+			} {
+				for i, mask := range requirement {
+					if satisfied[i]&mask != mask {
+						continue nextRequirement
+					}
+				}
+				return true
+			}
+			return false
+		}(); !ok {
+			return res, ogenerrors.ErrSecurityRequirementIsNotSatisfied
+		}
+	}
+
+	stage = "SendRequest"
+	resp, err := c.cfg.Client.Do(r)
+	if err != nil {
+		return res, errors.Wrap(err, "do request")
+	}
+	defer resp.Body.Close()
+
+	stage = "DecodeResponse"
+	result, err := decodeGetRoleSystemPermissionsResponse(resp)
+	if err != nil {
+		return res, errors.Wrap(err, "decode response")
+	}
+
+	return result, nil
+}
+
+// GetRoleUsers invokes GetRoleUsers operation.
+//
+// Get users that have a given role, across all organizations. Each user entry
+// includes the organization codes where they hold that role.
+// <div>
+// <code>read:organization_user_roles</code>
+// </div>.
+//
+// GET /api/v1/roles/{role_id}/users
+func (c *Client) GetRoleUsers(ctx context.Context, params GetRoleUsersParams) (GetRoleUsersRes, error) {
+	res, err := c.sendGetRoleUsers(ctx, params)
+	return res, err
+}
+
+func (c *Client) sendGetRoleUsers(ctx context.Context, params GetRoleUsersParams) (res GetRoleUsersRes, err error) {
+	otelAttrs := []attribute.KeyValue{
+		otelogen.OperationID("GetRoleUsers"),
+		semconv.HTTPRequestMethodKey.String("GET"),
+		semconv.HTTPRouteKey.String("/api/v1/roles/{role_id}/users"),
+	}
+
+	// Run stopwatch.
+	startTime := time.Now()
+	defer func() {
+		// Use floating point division here for higher precision (instead of Millisecond method).
+		elapsedDuration := time.Since(startTime)
+		c.duration.Record(ctx, float64(elapsedDuration)/float64(time.Millisecond), metric.WithAttributes(otelAttrs...))
+	}()
+
+	// Increment request counter.
+	c.requests.Add(ctx, 1, metric.WithAttributes(otelAttrs...))
+
+	// Start a span for this request.
+	ctx, span := c.cfg.Tracer.Start(ctx, GetRoleUsersOperation,
+		trace.WithAttributes(otelAttrs...),
+		clientSpanKind,
+	)
+	// Track stage for error reporting.
+	var stage string
+	defer func() {
+		if err != nil {
+			span.RecordError(err)
+			span.SetStatus(codes.Error, stage)
+			c.errors.Add(ctx, 1, metric.WithAttributes(otelAttrs...))
+		}
+		span.End()
+	}()
+
+	stage = "BuildURL"
+	u := uri.Clone(c.requestURL(ctx))
+	var pathParts [3]string
+	pathParts[0] = "/api/v1/roles/"
+	{
+		// Encode "role_id" parameter.
+		e := uri.NewPathEncoder(uri.PathEncoderConfig{
+			Param:   "role_id",
+			Style:   uri.PathStyleSimple,
+			Explode: false,
+		})
+		if err := func() error {
+			return e.EncodeValue(conv.StringToString(params.RoleID))
+		}(); err != nil {
+			return res, errors.Wrap(err, "encode path")
+		}
+		encoded, err := e.Result()
+		if err != nil {
+			return res, errors.Wrap(err, "encode path")
+		}
+		pathParts[1] = encoded
+	}
+	pathParts[2] = "/users"
+	uri.AddPathParts(u, pathParts[:]...)
+
+	stage = "EncodeQueryParams"
+	q := uri.NewQueryEncoder()
+	{
+		// Encode "page_size" parameter.
+		cfg := uri.QueryParameterEncodingConfig{
+			Name:    "page_size",
+			Style:   uri.QueryStyleForm,
+			Explode: true,
+		}
+
+		if err := q.EncodeParam(cfg, func(e uri.Encoder) error {
+			if val, ok := params.PageSize.Get(); ok {
+				return e.EncodeValue(conv.IntToString(val))
+			}
+			return nil
+		}); err != nil {
+			return res, errors.Wrap(err, "encode query")
+		}
+	}
+	{
+		// Encode "next_token" parameter.
+		cfg := uri.QueryParameterEncodingConfig{
+			Name:    "next_token",
+			Style:   uri.QueryStyleForm,
+			Explode: true,
+		}
+
+		if err := q.EncodeParam(cfg, func(e uri.Encoder) error {
+			if val, ok := params.NextToken.Get(); ok {
+				return e.EncodeValue(conv.StringToString(val))
+			}
+			return nil
+		}); err != nil {
+			return res, errors.Wrap(err, "encode query")
+		}
+	}
+	u.RawQuery = q.Values().Encode()
+
+	stage = "EncodeRequest"
+	r, err := ht.NewRequest(ctx, "GET", u)
+	if err != nil {
+		return res, errors.Wrap(err, "create request")
+	}
+
+	{
+		type bitset = [1]uint8
+		var satisfied bitset
+		{
+			stage = "Security:KindeBearerAuth"
+			switch err := c.securityKindeBearerAuth(ctx, GetRoleUsersOperation, r); {
+			case err == nil: // if NO error
+				satisfied[0] |= 1 << 0
+			case errors.Is(err, ogenerrors.ErrSkipClientSecurity):
+				// Skip this security.
+			default:
+				return res, errors.Wrap(err, "security \"KindeBearerAuth\"")
+			}
+		}
+
+		if ok := func() bool {
+		nextRequirement:
+			for _, requirement := range []bitset{
+				{0b00000001},
+			} {
+				for i, mask := range requirement {
+					if satisfied[i]&mask != mask {
+						continue nextRequirement
+					}
+				}
+				return true
+			}
+			return false
+		}(); !ok {
+			return res, ogenerrors.ErrSecurityRequirementIsNotSatisfied
+		}
+	}
+
+	stage = "SendRequest"
+	resp, err := c.cfg.Client.Do(r)
+	if err != nil {
+		return res, errors.Wrap(err, "do request")
+	}
+	defer resp.Body.Close()
+
+	stage = "DecodeResponse"
+	result, err := decodeGetRoleUsersResponse(resp)
+	if err != nil {
+		return res, errors.Wrap(err, "decode response")
+	}
+
+	return result, nil
+}
+
 // GetRoles invokes GetRoles operation.
 //
-// The returned list can be sorted by role name or role ID in ascending or descending order. The
+// The returned list can be sorted by role name or role key in ascending or descending order. The
 // number of records to return at a time can also be controlled using the `page_size` query string
 // parameter.
 // <div>
@@ -15780,6 +18804,172 @@ func (c *Client) sendGetSubscribers(ctx context.Context, params GetSubscribersPa
 
 	stage = "DecodeResponse"
 	result, err := decodeGetSubscribersResponse(resp)
+	if err != nil {
+		return res, errors.Wrap(err, "decode response")
+	}
+
+	return result, nil
+}
+
+// GetSystemPermissions invokes GetSystemPermissions operation.
+//
+// The returned list can be sorted by system permission name or ID in ascending or descending order.
+// The number of records to return at a time can also be controlled using the `page_size` query
+// string parameter.
+// System permissions control what organization users can do in the self-serve portal.
+// <div>
+// <code>read:system_permissions</code>
+// </div>.
+//
+// GET /api/v1/system_permissions
+func (c *Client) GetSystemPermissions(ctx context.Context, params GetSystemPermissionsParams) (GetSystemPermissionsRes, error) {
+	res, err := c.sendGetSystemPermissions(ctx, params)
+	return res, err
+}
+
+func (c *Client) sendGetSystemPermissions(ctx context.Context, params GetSystemPermissionsParams) (res GetSystemPermissionsRes, err error) {
+	otelAttrs := []attribute.KeyValue{
+		otelogen.OperationID("GetSystemPermissions"),
+		semconv.HTTPRequestMethodKey.String("GET"),
+		semconv.HTTPRouteKey.String("/api/v1/system_permissions"),
+	}
+
+	// Run stopwatch.
+	startTime := time.Now()
+	defer func() {
+		// Use floating point division here for higher precision (instead of Millisecond method).
+		elapsedDuration := time.Since(startTime)
+		c.duration.Record(ctx, float64(elapsedDuration)/float64(time.Millisecond), metric.WithAttributes(otelAttrs...))
+	}()
+
+	// Increment request counter.
+	c.requests.Add(ctx, 1, metric.WithAttributes(otelAttrs...))
+
+	// Start a span for this request.
+	ctx, span := c.cfg.Tracer.Start(ctx, GetSystemPermissionsOperation,
+		trace.WithAttributes(otelAttrs...),
+		clientSpanKind,
+	)
+	// Track stage for error reporting.
+	var stage string
+	defer func() {
+		if err != nil {
+			span.RecordError(err)
+			span.SetStatus(codes.Error, stage)
+			c.errors.Add(ctx, 1, metric.WithAttributes(otelAttrs...))
+		}
+		span.End()
+	}()
+
+	stage = "BuildURL"
+	u := uri.Clone(c.requestURL(ctx))
+	var pathParts [1]string
+	pathParts[0] = "/api/v1/system_permissions"
+	uri.AddPathParts(u, pathParts[:]...)
+
+	stage = "EncodeQueryParams"
+	q := uri.NewQueryEncoder()
+	{
+		// Encode "sort" parameter.
+		cfg := uri.QueryParameterEncodingConfig{
+			Name:    "sort",
+			Style:   uri.QueryStyleForm,
+			Explode: true,
+		}
+
+		if err := q.EncodeParam(cfg, func(e uri.Encoder) error {
+			if val, ok := params.Sort.Get(); ok {
+				return e.EncodeValue(conv.StringToString(string(val)))
+			}
+			return nil
+		}); err != nil {
+			return res, errors.Wrap(err, "encode query")
+		}
+	}
+	{
+		// Encode "page_size" parameter.
+		cfg := uri.QueryParameterEncodingConfig{
+			Name:    "page_size",
+			Style:   uri.QueryStyleForm,
+			Explode: true,
+		}
+
+		if err := q.EncodeParam(cfg, func(e uri.Encoder) error {
+			if val, ok := params.PageSize.Get(); ok {
+				return e.EncodeValue(conv.IntToString(val))
+			}
+			return nil
+		}); err != nil {
+			return res, errors.Wrap(err, "encode query")
+		}
+	}
+	{
+		// Encode "next_token" parameter.
+		cfg := uri.QueryParameterEncodingConfig{
+			Name:    "next_token",
+			Style:   uri.QueryStyleForm,
+			Explode: true,
+		}
+
+		if err := q.EncodeParam(cfg, func(e uri.Encoder) error {
+			if val, ok := params.NextToken.Get(); ok {
+				return e.EncodeValue(conv.StringToString(val))
+			}
+			return nil
+		}); err != nil {
+			return res, errors.Wrap(err, "encode query")
+		}
+	}
+	u.RawQuery = q.Values().Encode()
+
+	stage = "EncodeRequest"
+	r, err := ht.NewRequest(ctx, "GET", u)
+	if err != nil {
+		return res, errors.Wrap(err, "create request")
+	}
+
+	{
+		type bitset = [1]uint8
+		var satisfied bitset
+		{
+			stage = "Security:KindeBearerAuth"
+			switch err := c.securityKindeBearerAuth(ctx, GetSystemPermissionsOperation, r); {
+			case err == nil: // if NO error
+				satisfied[0] |= 1 << 0
+			case errors.Is(err, ogenerrors.ErrSkipClientSecurity):
+				// Skip this security.
+			default:
+				return res, errors.Wrap(err, "security \"KindeBearerAuth\"")
+			}
+		}
+
+		if ok := func() bool {
+		nextRequirement:
+			for _, requirement := range []bitset{
+				{0b00000001},
+			} {
+				for i, mask := range requirement {
+					if satisfied[i]&mask != mask {
+						continue nextRequirement
+					}
+				}
+				return true
+			}
+			return false
+		}(); !ok {
+			return res, ogenerrors.ErrSecurityRequirementIsNotSatisfied
+		}
+	}
+
+	stage = "SendRequest"
+	resp, err := c.cfg.Client.Do(r)
+	if err != nil {
+		return res, errors.Wrap(err, "do request")
+	}
+	defer resp.Body.Close()
+
+	stage = "DecodeResponse"
+	result, err := decodeGetSystemPermissionsResponse(resp)
 	if err != nil {
 		return res, errors.Wrap(err, "decode response")
 	}
@@ -16650,6 +19840,23 @@ func (c *Client) sendGetUsers(ctx context.Context, params GetUsersParams) (res G
 			return res, errors.Wrap(err, "encode query")
 		}
 	}
+	{
+		// Encode "active_since" parameter.
+		cfg := uri.QueryParameterEncodingConfig{
+			Name:    "active_since",
+			Style:   uri.QueryStyleForm,
+			Explode: true,
+		}
+
+		if err := q.EncodeParam(cfg, func(e uri.Encoder) error {
+			if val, ok := params.ActiveSince.Get(); ok {
+				return e.EncodeValue(conv.DateTimeToString(val))
+			}
+			return nil
+		}); err != nil {
+			return res, errors.Wrap(err, "encode query")
+		}
+	}
 	u.RawQuery = q.Values().Encode()
 
 	stage = "EncodeRequest"
@@ -17297,6 +20504,153 @@ func (c *Client) sendRefreshUserClaims(ctx context.Context, params RefreshUserCl
 
 	stage = "DecodeResponse"
 	result, err := decodeRefreshUserClaimsResponse(resp)
+	if err != nil {
+		return res, errors.Wrap(err, "decode response")
+	}
+
+	return result, nil
+}
+
+// RemoveApplicationAccessRole invokes RemoveApplicationAccessRole operation.
+//
+// Remove a role from the set that is allowed to access an application.
+// Removing a role does not change whether role-based access control is
+// enabled for the application.
+// <div>
+// <code>update:applications</code>
+// </div>.
+//
+// DELETE /api/v1/applications/{application_id}/access_roles/{role_id}
+func (c *Client) RemoveApplicationAccessRole(ctx context.Context, params RemoveApplicationAccessRoleParams) (RemoveApplicationAccessRoleRes, error) {
+	res, err := c.sendRemoveApplicationAccessRole(ctx, params)
+	return res, err
+}
+
+func (c *Client) sendRemoveApplicationAccessRole(ctx context.Context, params RemoveApplicationAccessRoleParams) (res RemoveApplicationAccessRoleRes, err error) {
+	otelAttrs := []attribute.KeyValue{
+		otelogen.OperationID("RemoveApplicationAccessRole"),
+		semconv.HTTPRequestMethodKey.String("DELETE"),
+		semconv.HTTPRouteKey.String("/api/v1/applications/{application_id}/access_roles/{role_id}"),
+	}
+
+	// Run stopwatch.
+	startTime := time.Now()
+	defer func() {
+		// Use floating point division here for higher precision (instead of Millisecond method).
+		elapsedDuration := time.Since(startTime)
+		c.duration.Record(ctx, float64(elapsedDuration)/float64(time.Millisecond), metric.WithAttributes(otelAttrs...))
+	}()
+
+	// Increment request counter.
+	c.requests.Add(ctx, 1, metric.WithAttributes(otelAttrs...))
+
+	// Start a span for this request.
+	ctx, span := c.cfg.Tracer.Start(ctx, RemoveApplicationAccessRoleOperation,
+		trace.WithAttributes(otelAttrs...),
+		clientSpanKind,
+	)
+	// Track stage for error reporting.
+	var stage string
+	defer func() {
+		if err != nil {
+			span.RecordError(err)
+			span.SetStatus(codes.Error, stage)
+			c.errors.Add(ctx, 1, metric.WithAttributes(otelAttrs...))
+		}
+		span.End()
+	}()
+
+	stage = "BuildURL"
+	u := uri.Clone(c.requestURL(ctx))
+	var pathParts [4]string
+	pathParts[0] = "/api/v1/applications/"
+	{
+		// Encode "application_id" parameter.
+		e := uri.NewPathEncoder(uri.PathEncoderConfig{
+			Param:   "application_id",
+			Style:   uri.PathStyleSimple,
+			Explode: false,
+		})
+		if err := func() error {
+			return e.EncodeValue(conv.StringToString(params.ApplicationID))
+		}(); err != nil {
+			return res, errors.Wrap(err, "encode path")
+		}
+		encoded, err := e.Result()
+		if err != nil {
+			return res, errors.Wrap(err, "encode path")
+		}
+		pathParts[1] = encoded
+	}
+	pathParts[2] = "/access_roles/"
+	{
+		// Encode "role_id" parameter.
+		e := uri.NewPathEncoder(uri.PathEncoderConfig{
+			Param:   "role_id",
+			Style:   uri.PathStyleSimple,
+			Explode: false,
+		})
+		if err := func() error {
+			return e.EncodeValue(conv.StringToString(params.RoleID))
+		}(); err != nil {
+			return res, errors.Wrap(err, "encode path")
+		}
+		encoded, err := e.Result()
+		if err != nil {
+			return res, errors.Wrap(err, "encode path")
+		}
+		pathParts[3] = encoded
+	}
+	uri.AddPathParts(u, pathParts[:]...)
+
+	stage = "EncodeRequest"
+	r, err := ht.NewRequest(ctx, "DELETE", u)
+	if err != nil {
+		return res, errors.Wrap(err, "create request")
+	}
+
+	{
+		type bitset = [1]uint8
+		var satisfied bitset
+		{
+			stage = "Security:KindeBearerAuth"
+			switch err := c.securityKindeBearerAuth(ctx, RemoveApplicationAccessRoleOperation, r); {
+			case err == nil: // if NO error
+				satisfied[0] |= 1 << 0
+			case errors.Is(err, ogenerrors.ErrSkipClientSecurity):
+				// Skip this security.
+			default:
+				return res, errors.Wrap(err, "security \"KindeBearerAuth\"")
+			}
+		}
+
+		if ok := func() bool {
+		nextRequirement:
+			for _, requirement := range []bitset{
+				{0b00000001},
+			} {
+				for i, mask := range requirement {
+					if satisfied[i]&mask != mask {
+						continue nextRequirement
+					}
+				}
+				return true
+			}
+			return false
+		}(); !ok {
+			return res, ogenerrors.ErrSecurityRequirementIsNotSatisfied
+		}
+	}
+
+	stage = "SendRequest"
+	resp, err := c.cfg.Client.Do(r)
+	if err != nil {
+		return res, errors.Wrap(err, "do request")
+	}
+	defer resp.Body.Close()
+
+	stage = "DecodeResponse"
+	result, err := decodeRemoveApplicationAccessRoleResponse(resp)
 	if err != nil {
 		return res, errors.Wrap(err, "decode response")
 	}
@@ -19441,6 +22795,23 @@ func (c *Client) sendSearchUsers(ctx context.Context, params SearchUsersParams) 
 		}
 	}
 	{
+		// Encode "api_scopes" parameter.
+		cfg := uri.QueryParameterEncodingConfig{
+			Name:    "api_scopes",
+			Style:   uri.QueryStyleForm,
+			Explode: true,
+		}
+
+		if err := q.EncodeParam(cfg, func(e uri.Encoder) error {
+			if val, ok := params.APIScopes.Get(); ok {
+				return e.EncodeValue(conv.StringToString(val))
+			}
+			return nil
+		}); err != nil {
+			return res, errors.Wrap(err, "encode query")
+		}
+	}
+	{
 		// Encode "properties" parameter.
 		cfg := uri.QueryParameterEncodingConfig{
 			Name:    "properties",
@@ -20750,6 +24121,135 @@ func (c *Client) sendUpdateConnection(ctx context.Context, request *UpdateConnec
 	return result, nil
 }
 
+// UpdateDirectory invokes updateDirectory operation.
+//
+// Update SCIM directory configuration.
+// <div>
+// <code>update:scim_directories</code>
+// </div>.
+//
+// PATCH /api/v1/directories/{directory_id}
+func (c *Client) UpdateDirectory(ctx context.Context, request *UpdateDirectoryReq, params UpdateDirectoryParams) (UpdateDirectoryRes, error) {
+	res, err := c.sendUpdateDirectory(ctx, request, params)
+	return res, err
+}
+
+func (c *Client) sendUpdateDirectory(ctx context.Context, request *UpdateDirectoryReq, params UpdateDirectoryParams) (res UpdateDirectoryRes, err error) {
+	otelAttrs := []attribute.KeyValue{
+		otelogen.OperationID("updateDirectory"),
+		semconv.HTTPRequestMethodKey.String("PATCH"),
+		semconv.HTTPRouteKey.String("/api/v1/directories/{directory_id}"),
+	}
+
+	// Run stopwatch.
+	startTime := time.Now()
+	defer func() {
+		// Use floating point division here for higher precision (instead of Millisecond method).
+		elapsedDuration := time.Since(startTime)
+		c.duration.Record(ctx, float64(elapsedDuration)/float64(time.Millisecond), metric.WithAttributes(otelAttrs...))
+	}()
+
+	// Increment request counter.
+	c.requests.Add(ctx, 1, metric.WithAttributes(otelAttrs...))
+
+	// Start a span for this request.
+	ctx, span := c.cfg.Tracer.Start(ctx, UpdateDirectoryOperation,
+		trace.WithAttributes(otelAttrs...),
+		clientSpanKind,
+	)
+	// Track stage for error reporting.
+	var stage string
+	defer func() {
+		if err != nil {
+			span.RecordError(err)
+			span.SetStatus(codes.Error, stage)
+			c.errors.Add(ctx, 1, metric.WithAttributes(otelAttrs...))
+		}
+		span.End()
+	}()
+
+	stage = "BuildURL"
+	u := uri.Clone(c.requestURL(ctx))
+	var pathParts [2]string
+	pathParts[0] = "/api/v1/directories/"
+	{
+		// Encode "directory_id" parameter.
+		e := uri.NewPathEncoder(uri.PathEncoderConfig{
+			Param:   "directory_id",
+			Style:   uri.PathStyleSimple,
+			Explode: false,
+		})
+		if err := func() error {
+			return e.EncodeValue(conv.StringToString(params.DirectoryID))
+		}(); err != nil {
+			return res, errors.Wrap(err, "encode path")
+		}
+		encoded, err := e.Result()
+		if err != nil {
+			return res, errors.Wrap(err, "encode path")
+		}
+		pathParts[1] = encoded
+	}
+	uri.AddPathParts(u, pathParts[:]...)
+
+	stage = "EncodeRequest"
+	r, err := ht.NewRequest(ctx, "PATCH", u)
+	if err != nil {
+		return res, errors.Wrap(err, "create request")
+	}
+	if err := encodeUpdateDirectoryRequest(request, r); err != nil {
+		return res, errors.Wrap(err, "encode request")
+	}
+
+	{
+		type bitset = [1]uint8
+		var satisfied bitset
+		{
+			stage = "Security:KindeBearerAuth"
+			switch err := c.securityKindeBearerAuth(ctx, UpdateDirectoryOperation, r); {
+			case err == nil: // if NO error
+				satisfied[0] |= 1 << 0
+			case errors.Is(err, ogenerrors.ErrSkipClientSecurity):
+				// Skip this security.
+			default:
+				return res, errors.Wrap(err, "security \"KindeBearerAuth\"")
+			}
+		}
+
+		if ok := func() bool {
+		nextRequirement:
+			for _, requirement := range []bitset{
+				{0b00000001},
+			} {
+				for i, mask := range requirement {
+					if satisfied[i]&mask != mask {
+						continue nextRequirement
+					}
+				}
+				return true
+			}
+			return false
+		}(); !ok {
+			return res, ogenerrors.ErrSecurityRequirementIsNotSatisfied
+		}
+	}
+
+	stage = "SendRequest"
+	resp, err := c.cfg.Client.Do(r)
+	if err != nil {
+		return res, errors.Wrap(err, "do request")
+	}
+	defer resp.Body.Close()
+
+	stage = "DecodeResponse"
+	result, err := decodeUpdateDirectoryResponse(resp)
+	if err != nil {
+		return res, errors.Wrap(err, "decode response")
+	}
+
+	return result, nil
+}
+
 // UpdateEnvironementFeatureFlagOverride invokes UpdateEnvironementFeatureFlagOverride operation.
 //
 // Update environment feature flag override.
@@ -21341,6 +24841,9 @@ func (c *Client) sendUpdateIdentity(ctx context.Context, request *UpdateIdentity
 // UpdateOrganization invokes updateOrganization operation.
 //
 // Update an organization.
+// When the organization name is updated and the organization is a billing
+// customer, the change is also propagated to the corresponding billing
+// customer details.
 // <div>
 // <code>update:organizations</code>
 // </div>.
@@ -21644,6 +25147,137 @@ func (c *Client) sendUpdateOrganizationFeatureFlagOverride(ctx context.Context, 
 
 	stage = "DecodeResponse"
 	result, err := decodeUpdateOrganizationFeatureFlagOverrideResponse(resp)
+	if err != nil {
+		return res, errors.Wrap(err, "decode response")
+	}
+
+	return result, nil
+}
+
+// UpdateOrganizationPasskey invokes UpdateOrganizationPasskey operation.
+//
+// Update passkey settings for an organization. Set `is_override_environment_passkey_settings` to
+// `false` to revert to the environment default without providing a policy.
+// <div>
+// <code>update:organization_passkey</code>
+// </div>.
+//
+// PUT /api/v1/organizations/{org_code}/passkey
+func (c *Client) UpdateOrganizationPasskey(ctx context.Context, request *UpdateOrganizationPasskeyReq, params UpdateOrganizationPasskeyParams) (UpdateOrganizationPasskeyRes, error) {
+	res, err := c.sendUpdateOrganizationPasskey(ctx, request, params)
+	return res, err
+}
+
+func (c *Client) sendUpdateOrganizationPasskey(ctx context.Context, request *UpdateOrganizationPasskeyReq, params UpdateOrganizationPasskeyParams) (res UpdateOrganizationPasskeyRes, err error) {
+	otelAttrs := []attribute.KeyValue{
+		otelogen.OperationID("UpdateOrganizationPasskey"),
+		semconv.HTTPRequestMethodKey.String("PUT"),
+		semconv.HTTPRouteKey.String("/api/v1/organizations/{org_code}/passkey"),
+	}
+
+	// Run stopwatch.
+	startTime := time.Now()
+	defer func() {
+		// Use floating point division here for higher precision (instead of Millisecond method).
+		elapsedDuration := time.Since(startTime)
+		c.duration.Record(ctx, float64(elapsedDuration)/float64(time.Millisecond), metric.WithAttributes(otelAttrs...))
+	}()
+
+	// Increment request counter.
+	c.requests.Add(ctx, 1, metric.WithAttributes(otelAttrs...))
+
+	// Start a span for this request.
+	ctx, span := c.cfg.Tracer.Start(ctx, UpdateOrganizationPasskeyOperation,
+		trace.WithAttributes(otelAttrs...),
+		clientSpanKind,
+	)
+	// Track stage for error reporting.
+	var stage string
+	defer func() {
+		if err != nil {
+			span.RecordError(err)
+			span.SetStatus(codes.Error, stage)
+			c.errors.Add(ctx, 1, metric.WithAttributes(otelAttrs...))
+		}
+		span.End()
+	}()
+
+	stage = "BuildURL"
+	u := uri.Clone(c.requestURL(ctx))
+	var pathParts [3]string
+	pathParts[0] = "/api/v1/organizations/"
+	{
+		// Encode "org_code" parameter.
+		e := uri.NewPathEncoder(uri.PathEncoderConfig{
+			Param:   "org_code",
+			Style:   uri.PathStyleSimple,
+			Explode: false,
+		})
+		if err := func() error {
+			return e.EncodeValue(conv.StringToString(params.OrgCode))
+		}(); err != nil {
+			return res, errors.Wrap(err, "encode path")
+		}
+		encoded, err := e.Result()
+		if err != nil {
+			return res, errors.Wrap(err, "encode path")
+		}
+		pathParts[1] = encoded
+	}
+	pathParts[2] = "/passkey"
+	uri.AddPathParts(u, pathParts[:]...)
+
+	stage = "EncodeRequest"
+	r, err := ht.NewRequest(ctx, "PUT", u)
+	if err != nil {
+		return res, errors.Wrap(err, "create request")
+	}
+	if err := encodeUpdateOrganizationPasskeyRequest(request, r); err != nil {
+		return res, errors.Wrap(err, "encode request")
+	}
+
+	{
+		type bitset = [1]uint8
+		var satisfied bitset
+		{
+			stage = "Security:KindeBearerAuth"
+			switch err := c.securityKindeBearerAuth(ctx, UpdateOrganizationPasskeyOperation, r); {
+			case err == nil: // if NO error
+				satisfied[0] |= 1 << 0
+			case errors.Is(err, ogenerrors.ErrSkipClientSecurity):
+				// Skip this security.
+			default:
+				return res, errors.Wrap(err, "security \"KindeBearerAuth\"")
+			}
+		}
+
+		if ok := func() bool {
+		nextRequirement:
+			for _, requirement := range []bitset{
+				{0b00000001},
+			} {
+				for i, mask := range requirement {
+					if satisfied[i]&mask != mask {
+						continue nextRequirement
+					}
+				}
+				return true
+			}
+			return false
+		}(); !ok {
+			return res, ogenerrors.ErrSecurityRequirementIsNotSatisfied
+		}
+	}
+
+	stage = "SendRequest"
+	resp, err := c.cfg.Client.Do(r)
+	if err != nil {
+		return res, errors.Wrap(err, "do request")
+	}
+	defer resp.Body.Close()
+
+	stage = "DecodeResponse"
+	result, err := decodeUpdateOrganizationPasskeyResponse(resp)
 	if err != nil {
 		return res, errors.Wrap(err, "decode response")
 	}
@@ -22204,6 +25838,118 @@ func (c *Client) sendUpdateOrganizationUsers(ctx context.Context, request OptUpd
 	return result, nil
 }
 
+// UpdatePasskey invokes UpdatePasskey operation.
+//
+// Set the passkey policy for the current environment. Policies other than `off` require the
+// `passkeys` entitlement.
+// <div>
+// <code>update:passkey</code>
+// </div>.
+//
+// PUT /api/v1/passkey
+func (c *Client) UpdatePasskey(ctx context.Context, request *UpdatePasskeyReq) (UpdatePasskeyRes, error) {
+	res, err := c.sendUpdatePasskey(ctx, request)
+	return res, err
+}
+
+func (c *Client) sendUpdatePasskey(ctx context.Context, request *UpdatePasskeyReq) (res UpdatePasskeyRes, err error) {
+	otelAttrs := []attribute.KeyValue{
+		otelogen.OperationID("UpdatePasskey"),
+		semconv.HTTPRequestMethodKey.String("PUT"),
+		semconv.HTTPRouteKey.String("/api/v1/passkey"),
+	}
+
+	// Run stopwatch.
+	startTime := time.Now()
+	defer func() {
+		// Use floating point division here for higher precision (instead of Millisecond method).
+		elapsedDuration := time.Since(startTime)
+		c.duration.Record(ctx, float64(elapsedDuration)/float64(time.Millisecond), metric.WithAttributes(otelAttrs...))
+	}()
+
+	// Increment request counter.
+	c.requests.Add(ctx, 1, metric.WithAttributes(otelAttrs...))
+
+	// Start a span for this request.
+	ctx, span := c.cfg.Tracer.Start(ctx, UpdatePasskeyOperation,
+		trace.WithAttributes(otelAttrs...),
+		clientSpanKind,
+	)
+	// Track stage for error reporting.
+	var stage string
+	defer func() {
+		if err != nil {
+			span.RecordError(err)
+			span.SetStatus(codes.Error, stage)
+			c.errors.Add(ctx, 1, metric.WithAttributes(otelAttrs...))
+		}
+		span.End()
+	}()
+
+	stage = "BuildURL"
+	u := uri.Clone(c.requestURL(ctx))
+	var pathParts [1]string
+	pathParts[0] = "/api/v1/passkey"
+	uri.AddPathParts(u, pathParts[:]...)
+
+	stage = "EncodeRequest"
+	r, err := ht.NewRequest(ctx, "PUT", u)
+	if err != nil {
+		return res, errors.Wrap(err, "create request")
+	}
+	if err := encodeUpdatePasskeyRequest(request, r); err != nil {
+		return res, errors.Wrap(err, "encode request")
+	}
+
+	{
+		type bitset = [1]uint8
+		var satisfied bitset
+		{
+			stage = "Security:KindeBearerAuth"
+			switch err := c.securityKindeBearerAuth(ctx, UpdatePasskeyOperation, r); {
+			case err == nil: // if NO error
+				satisfied[0] |= 1 << 0
+			case errors.Is(err, ogenerrors.ErrSkipClientSecurity):
+				// Skip this security.
+			default:
+				return res, errors.Wrap(err, "security \"KindeBearerAuth\"")
+			}
+		}
+
+		if ok := func() bool {
+		nextRequirement:
+			for _, requirement := range []bitset{
+				{0b00000001},
+			} {
+				for i, mask := range requirement {
+					if satisfied[i]&mask != mask {
+						continue nextRequirement
+					}
+				}
+				return true
+			}
+			return false
+		}(); !ok {
+			return res, ogenerrors.ErrSecurityRequirementIsNotSatisfied
+		}
+	}
+
+	stage = "SendRequest"
+	resp, err := c.cfg.Client.Do(r)
+	if err != nil {
+		return res, errors.Wrap(err, "do request")
+	}
+	defer resp.Body.Close()
+
+	stage = "DecodeResponse"
+	result, err := decodeUpdatePasskeyResponse(resp)
+	if err != nil {
+		return res, errors.Wrap(err, "decode response")
+	}
+
+	return result, nil
+}
+
 // UpdatePermissions invokes UpdatePermissions operation.
 //
 // Update permission
@@ -22592,6 +26338,137 @@ func (c *Client) sendUpdateRolePermissions(ctx context.Context, request *UpdateR
 	return result, nil
 }
 
+// UpdateRoleSystemPermissions invokes UpdateRoleSystemPermissions operation.
+//
+// Update role system permissions.
+// System permissions control what organization users can do in the self-serve portal.
+// <div>
+// <code>update:role_system_permissions</code>
+// </div>.
+//
+// PATCH /api/v1/roles/{role_id}/system_permissions
+func (c *Client) UpdateRoleSystemPermissions(ctx context.Context, request *UpdateRoleSystemPermissionsReq, params UpdateRoleSystemPermissionsParams) (UpdateRoleSystemPermissionsRes, error) {
+	res, err := c.sendUpdateRoleSystemPermissions(ctx, request, params)
+	return res, err
+}
+
+func (c *Client) sendUpdateRoleSystemPermissions(ctx context.Context, request *UpdateRoleSystemPermissionsReq, params UpdateRoleSystemPermissionsParams) (res UpdateRoleSystemPermissionsRes, err error) {
+	otelAttrs := []attribute.KeyValue{
+		otelogen.OperationID("UpdateRoleSystemPermissions"),
+		semconv.HTTPRequestMethodKey.String("PATCH"),
+		semconv.HTTPRouteKey.String("/api/v1/roles/{role_id}/system_permissions"),
+	}
+
+	// Run stopwatch.
+	startTime := time.Now()
+	defer func() {
+		// Use floating point division here for higher precision (instead of Millisecond method).
+		elapsedDuration := time.Since(startTime)
+		c.duration.Record(ctx, float64(elapsedDuration)/float64(time.Millisecond), metric.WithAttributes(otelAttrs...))
+	}()
+
+	// Increment request counter.
+	c.requests.Add(ctx, 1, metric.WithAttributes(otelAttrs...))
+
+	// Start a span for this request.
+	ctx, span := c.cfg.Tracer.Start(ctx, UpdateRoleSystemPermissionsOperation,
+		trace.WithAttributes(otelAttrs...),
+		clientSpanKind,
+	)
+	// Track stage for error reporting.
+	var stage string
+	defer func() {
+		if err != nil {
+			span.RecordError(err)
+			span.SetStatus(codes.Error, stage)
+			c.errors.Add(ctx, 1, metric.WithAttributes(otelAttrs...))
+		}
+		span.End()
+	}()
+
+	stage = "BuildURL"
+	u := uri.Clone(c.requestURL(ctx))
+	var pathParts [3]string
+	pathParts[0] = "/api/v1/roles/"
+	{
+		// Encode "role_id" parameter.
+		e := uri.NewPathEncoder(uri.PathEncoderConfig{
+			Param:   "role_id",
+			Style:   uri.PathStyleSimple,
+			Explode: false,
+		})
+		if err := func() error {
+			return e.EncodeValue(conv.StringToString(params.RoleID))
+		}(); err != nil {
+			return res, errors.Wrap(err, "encode path")
+		}
+		encoded, err := e.Result()
+		if err != nil {
+			return res, errors.Wrap(err, "encode path")
+		}
+		pathParts[1] = encoded
+	}
+	pathParts[2] = "/system_permissions"
+	uri.AddPathParts(u, pathParts[:]...)
+
+	stage = "EncodeRequest"
+	r, err := ht.NewRequest(ctx, "PATCH", u)
+	if err != nil {
+		return res, errors.Wrap(err, "create request")
+	}
+	if err := encodeUpdateRoleSystemPermissionsRequest(request, r); err != nil {
+		return res, errors.Wrap(err, "encode request")
+	}
+
+	{
+		type bitset = [1]uint8
+		var satisfied bitset
+		{
+			stage = "Security:KindeBearerAuth"
+			switch err := c.securityKindeBearerAuth(ctx, UpdateRoleSystemPermissionsOperation, r); {
+			case err == nil: // if NO error
+				satisfied[0] |= 1 << 0
+			case errors.Is(err, ogenerrors.ErrSkipClientSecurity):
+				// Skip this security.
+			default:
+				return res, errors.Wrap(err, "security \"KindeBearerAuth\"")
+			}
+		}
+
+		if ok := func() bool {
+		nextRequirement:
+			for _, requirement := range []bitset{
+				{0b00000001},
+			} {
+				for i, mask := range requirement {
+					if satisfied[i]&mask != mask {
+						continue nextRequirement
+					}
+				}
+				return true
+			}
+			return false
+		}(); !ok {
+			return res, ogenerrors.ErrSecurityRequirementIsNotSatisfied
+		}
+	}
+
+	stage = "SendRequest"
+	resp, err := c.cfg.Client.Do(r)
+	if err != nil {
+		return res, errors.Wrap(err, "do request")
+	}
+	defer resp.Body.Close()
+
+	stage = "DecodeResponse"
+	result, err := decodeUpdateRoleSystemPermissionsResponse(resp)
+	if err != nil {
+		return res, errors.Wrap(err, "decode response")
+	}
+
+	return result, nil
+}
+
 // UpdateRoles invokes UpdateRoles operation.
 //
 // Update a role
@@ -22724,6 +26601,9 @@ func (c *Client) sendUpdateRoles(ctx context.Context, request OptUpdateRolesReq,
 // UpdateUser invokes updateUser operation.
 //
 // Update a user record.
+// When `given_name` or `family_name` is updated and the user is the
+// owner of a family billing customer, the change is also propagated to
+// the corresponding billing customer details.
 // <div>
 // <code>update:users</code>
 // </div>.

@@ -108,6 +108,18 @@ type AddAPIsTooManyRequests ErrorResponse
 
 func (*AddAPIsTooManyRequests) addAPIsRes() {}
 
+type AddApplicationAccessRoleBadRequest ErrorResponse
+
+func (*AddApplicationAccessRoleBadRequest) addApplicationAccessRoleRes() {}
+
+type AddApplicationAccessRoleForbidden ErrorResponse
+
+func (*AddApplicationAccessRoleForbidden) addApplicationAccessRoleRes() {}
+
+type AddApplicationAccessRoleTooManyRequests ErrorResponse
+
+func (*AddApplicationAccessRoleTooManyRequests) addApplicationAccessRoleRes() {}
+
 type AddLogoBadRequest ErrorResponse
 
 func (*AddLogoBadRequest) addLogoRes() {}
@@ -296,11 +308,6 @@ type AddOrganizationUsersForbidden ErrorResponse
 
 func (*AddOrganizationUsersForbidden) addOrganizationUsersRes() {}
 
-// AddOrganizationUsersNoContent is response for AddOrganizationUsers operation.
-type AddOrganizationUsersNoContent struct{}
-
-func (*AddOrganizationUsersNoContent) addOrganizationUsersRes() {}
-
 type AddOrganizationUsersReq struct {
 	// Users to be added to the organization.
 	Users []AddOrganizationUsersReqUsersItem `json:"users"`
@@ -484,6 +491,59 @@ func (*AddRoleScopeResponse) addRoleScopeRes() {}
 type AddRoleScopeTooManyRequests ErrorResponse
 
 func (*AddRoleScopeTooManyRequests) addRoleScopeRes() {}
+
+// A business role configured as allowed to access an application.
+// Ref: #/components/schemas/application_access_role
+type ApplicationAccessRole struct {
+	// The role's ID.
+	ID OptString `json:"id"`
+	// The role identifier to use in code.
+	Key OptString `json:"key"`
+	// The role's name.
+	Name OptString `json:"name"`
+	// The role's description.
+	Description OptNilString `json:"description"`
+}
+
+// GetID returns the value of ID.
+func (s *ApplicationAccessRole) GetID() OptString {
+	return s.ID
+}
+
+// GetKey returns the value of Key.
+func (s *ApplicationAccessRole) GetKey() OptString {
+	return s.Key
+}
+
+// GetName returns the value of Name.
+func (s *ApplicationAccessRole) GetName() OptString {
+	return s.Name
+}
+
+// GetDescription returns the value of Description.
+func (s *ApplicationAccessRole) GetDescription() OptNilString {
+	return s.Description
+}
+
+// SetID sets the value of ID.
+func (s *ApplicationAccessRole) SetID(val OptString) {
+	s.ID = val
+}
+
+// SetKey sets the value of Key.
+func (s *ApplicationAccessRole) SetKey(val OptString) {
+	s.Key = val
+}
+
+// SetName sets the value of Name.
+func (s *ApplicationAccessRole) SetName(val OptString) {
+	s.Name = val
+}
+
+// SetDescription sets the value of Description.
+func (s *ApplicationAccessRole) SetDescription(val OptNilString) {
+	s.Description = val
+}
 
 // Ref: #/components/schemas/applications
 type Applications struct {
@@ -881,6 +941,8 @@ func (*CreateApiKeyForbidden) createApiKeyRes() {}
 type CreateApiKeyReq struct {
 	// The name of the API key.
 	Name string `json:"name"`
+	// The entity type that will use this API key.
+	Type CreateApiKeyReqType `json:"type"`
 	// The ID of the API this key is associated with.
 	APIID string `json:"api_id"`
 	// Array of scope IDs to associate with this API key.
@@ -894,6 +956,11 @@ type CreateApiKeyReq struct {
 // GetName returns the value of Name.
 func (s *CreateApiKeyReq) GetName() string {
 	return s.Name
+}
+
+// GetType returns the value of Type.
+func (s *CreateApiKeyReq) GetType() CreateApiKeyReqType {
+	return s.Type
 }
 
 // GetAPIID returns the value of APIID.
@@ -921,6 +988,11 @@ func (s *CreateApiKeyReq) SetName(val string) {
 	s.Name = val
 }
 
+// SetType sets the value of Type.
+func (s *CreateApiKeyReq) SetType(val CreateApiKeyReqType) {
+	s.Type = val
+}
+
 // SetAPIID sets the value of APIID.
 func (s *CreateApiKeyReq) SetAPIID(val string) {
 	s.APIID = val
@@ -939,6 +1011,55 @@ func (s *CreateApiKeyReq) SetUserID(val OptNilString) {
 // SetOrgCode sets the value of OrgCode.
 func (s *CreateApiKeyReq) SetOrgCode(val OptNilString) {
 	s.OrgCode = val
+}
+
+// The entity type that will use this API key.
+type CreateApiKeyReqType string
+
+const (
+	CreateApiKeyReqTypeUser         CreateApiKeyReqType = "user"
+	CreateApiKeyReqTypeOrganization CreateApiKeyReqType = "organization"
+	CreateApiKeyReqTypeEnvironment  CreateApiKeyReqType = "environment"
+)
+
+// AllValues returns all CreateApiKeyReqType values.
+func (CreateApiKeyReqType) AllValues() []CreateApiKeyReqType {
+	return []CreateApiKeyReqType{
+		CreateApiKeyReqTypeUser,
+		CreateApiKeyReqTypeOrganization,
+		CreateApiKeyReqTypeEnvironment,
+	}
+}
+
+// MarshalText implements encoding.TextMarshaler.
+func (s CreateApiKeyReqType) MarshalText() ([]byte, error) {
+	switch s {
+	case CreateApiKeyReqTypeUser:
+		return []byte(s), nil
+	case CreateApiKeyReqTypeOrganization:
+		return []byte(s), nil
+	case CreateApiKeyReqTypeEnvironment:
+		return []byte(s), nil
+	default:
+		return nil, errors.Errorf("invalid value: %q", s)
+	}
+}
+
+// UnmarshalText implements encoding.TextUnmarshaler.
+func (s *CreateApiKeyReqType) UnmarshalText(data []byte) error {
+	switch CreateApiKeyReqType(data) {
+	case CreateApiKeyReqTypeUser:
+		*s = CreateApiKeyReqTypeUser
+		return nil
+	case CreateApiKeyReqTypeOrganization:
+		*s = CreateApiKeyReqTypeOrganization
+		return nil
+	case CreateApiKeyReqTypeEnvironment:
+		*s = CreateApiKeyReqTypeEnvironment
+		return nil
+	default:
+		return errors.Errorf("invalid value: %q", data)
+	}
 }
 
 type CreateApiKeyTooManyRequests ErrorResponse
@@ -1579,6 +1700,8 @@ type CreateConnectionReqOptions0 struct {
 	ClientSecret OptString `json:"client_secret"`
 	// Use custom domain callback URL.
 	IsUseCustomDomain OptBool `json:"is_use_custom_domain"`
+	// Trust this connection for account merging.
+	IsTrusted OptBool `json:"is_trusted"`
 }
 
 // GetClientID returns the value of ClientID.
@@ -1596,6 +1719,11 @@ func (s *CreateConnectionReqOptions0) GetIsUseCustomDomain() OptBool {
 	return s.IsUseCustomDomain
 }
 
+// GetIsTrusted returns the value of IsTrusted.
+func (s *CreateConnectionReqOptions0) GetIsTrusted() OptBool {
+	return s.IsTrusted
+}
+
 // SetClientID sets the value of ClientID.
 func (s *CreateConnectionReqOptions0) SetClientID(val OptString) {
 	s.ClientID = val
@@ -1609,6 +1737,11 @@ func (s *CreateConnectionReqOptions0) SetClientSecret(val OptString) {
 // SetIsUseCustomDomain sets the value of IsUseCustomDomain.
 func (s *CreateConnectionReqOptions0) SetIsUseCustomDomain(val OptBool) {
 	s.IsUseCustomDomain = val
+}
+
+// SetIsTrusted sets the value of IsTrusted.
+func (s *CreateConnectionReqOptions0) SetIsTrusted(val OptBool) {
+	s.IsTrusted = val
 }
 
 // Azure AD connection options.
@@ -1633,10 +1766,21 @@ type CreateConnectionReqOptions1 struct {
 	IsAutoJoinOrganizationEnabled OptBool `json:"is_auto_join_organization_enabled"`
 	// Create a user record in Kinde if the user signing in does not exist.
 	IsCreateMissingUser OptBool `json:"is_create_missing_user"`
-	// Force showing the SSO button for this connection.
+	// Deprecated - Use 'sso_button_display' instead. True maps to "show", false maps to "auto". Ignored
+	// when sso_button_display is also sent.
+	//
+	// Deprecated: schema marks this property as deprecated.
 	IsForceShowSSOButton OptBool `json:"is_force_show_sso_button"`
+	// Controls when the SSO sign-in button is shown for this connection. Replaces
+	// is_force_show_sso_button. "auto" shows the button unless a home realm domain is set, "show" always
+	// shows it, "hide" never shows it. Takes precedence over is_force_show_sso_button when both are sent.
+	SSOButtonDisplay OptCreateConnectionReqOptions1SSOButtonDisplay `json:"sso_button_display"`
 	// Additional upstream parameters to pass to the identity provider.
 	UpstreamParams OptCreateConnectionReqOptions1UpstreamParams `json:"upstream_params"`
+	// Use custom domain callback URL.
+	IsUseCustomDomain OptBool `json:"is_use_custom_domain"`
+	// Trust this connection for account merging.
+	IsTrusted OptBool `json:"is_trusted"`
 }
 
 // GetClientID returns the value of ClientID.
@@ -1694,9 +1838,24 @@ func (s *CreateConnectionReqOptions1) GetIsForceShowSSOButton() OptBool {
 	return s.IsForceShowSSOButton
 }
 
+// GetSSOButtonDisplay returns the value of SSOButtonDisplay.
+func (s *CreateConnectionReqOptions1) GetSSOButtonDisplay() OptCreateConnectionReqOptions1SSOButtonDisplay {
+	return s.SSOButtonDisplay
+}
+
 // GetUpstreamParams returns the value of UpstreamParams.
 func (s *CreateConnectionReqOptions1) GetUpstreamParams() OptCreateConnectionReqOptions1UpstreamParams {
 	return s.UpstreamParams
+}
+
+// GetIsUseCustomDomain returns the value of IsUseCustomDomain.
+func (s *CreateConnectionReqOptions1) GetIsUseCustomDomain() OptBool {
+	return s.IsUseCustomDomain
+}
+
+// GetIsTrusted returns the value of IsTrusted.
+func (s *CreateConnectionReqOptions1) GetIsTrusted() OptBool {
+	return s.IsTrusted
 }
 
 // SetClientID sets the value of ClientID.
@@ -1754,9 +1913,75 @@ func (s *CreateConnectionReqOptions1) SetIsForceShowSSOButton(val OptBool) {
 	s.IsForceShowSSOButton = val
 }
 
+// SetSSOButtonDisplay sets the value of SSOButtonDisplay.
+func (s *CreateConnectionReqOptions1) SetSSOButtonDisplay(val OptCreateConnectionReqOptions1SSOButtonDisplay) {
+	s.SSOButtonDisplay = val
+}
+
 // SetUpstreamParams sets the value of UpstreamParams.
 func (s *CreateConnectionReqOptions1) SetUpstreamParams(val OptCreateConnectionReqOptions1UpstreamParams) {
 	s.UpstreamParams = val
+}
+
+// SetIsUseCustomDomain sets the value of IsUseCustomDomain.
+func (s *CreateConnectionReqOptions1) SetIsUseCustomDomain(val OptBool) {
+	s.IsUseCustomDomain = val
+}
+
+// SetIsTrusted sets the value of IsTrusted.
+func (s *CreateConnectionReqOptions1) SetIsTrusted(val OptBool) {
+	s.IsTrusted = val
+}
+
+// Controls when the SSO sign-in button is shown for this connection. Replaces
+// is_force_show_sso_button. "auto" shows the button unless a home realm domain is set, "show" always
+// shows it, "hide" never shows it. Takes precedence over is_force_show_sso_button when both are sent.
+type CreateConnectionReqOptions1SSOButtonDisplay string
+
+const (
+	CreateConnectionReqOptions1SSOButtonDisplayAuto CreateConnectionReqOptions1SSOButtonDisplay = "auto"
+	CreateConnectionReqOptions1SSOButtonDisplayShow CreateConnectionReqOptions1SSOButtonDisplay = "show"
+	CreateConnectionReqOptions1SSOButtonDisplayHide CreateConnectionReqOptions1SSOButtonDisplay = "hide"
+)
+
+// AllValues returns all CreateConnectionReqOptions1SSOButtonDisplay values.
+func (CreateConnectionReqOptions1SSOButtonDisplay) AllValues() []CreateConnectionReqOptions1SSOButtonDisplay {
+	return []CreateConnectionReqOptions1SSOButtonDisplay{
+		CreateConnectionReqOptions1SSOButtonDisplayAuto,
+		CreateConnectionReqOptions1SSOButtonDisplayShow,
+		CreateConnectionReqOptions1SSOButtonDisplayHide,
+	}
+}
+
+// MarshalText implements encoding.TextMarshaler.
+func (s CreateConnectionReqOptions1SSOButtonDisplay) MarshalText() ([]byte, error) {
+	switch s {
+	case CreateConnectionReqOptions1SSOButtonDisplayAuto:
+		return []byte(s), nil
+	case CreateConnectionReqOptions1SSOButtonDisplayShow:
+		return []byte(s), nil
+	case CreateConnectionReqOptions1SSOButtonDisplayHide:
+		return []byte(s), nil
+	default:
+		return nil, errors.Errorf("invalid value: %q", s)
+	}
+}
+
+// UnmarshalText implements encoding.TextUnmarshaler.
+func (s *CreateConnectionReqOptions1SSOButtonDisplay) UnmarshalText(data []byte) error {
+	switch CreateConnectionReqOptions1SSOButtonDisplay(data) {
+	case CreateConnectionReqOptions1SSOButtonDisplayAuto:
+		*s = CreateConnectionReqOptions1SSOButtonDisplayAuto
+		return nil
+	case CreateConnectionReqOptions1SSOButtonDisplayShow:
+		*s = CreateConnectionReqOptions1SSOButtonDisplayShow
+		return nil
+	case CreateConnectionReqOptions1SSOButtonDisplayHide:
+		*s = CreateConnectionReqOptions1SSOButtonDisplayHide
+		return nil
+	default:
+		return errors.Errorf("invalid value: %q", data)
+	}
 }
 
 // Additional upstream parameters to pass to the identity provider.
@@ -1777,22 +2002,38 @@ type CreateConnectionReqOptions2 struct {
 	HomeRealmDomains []string `json:"home_realm_domains"`
 	// SAML Entity ID.
 	SamlEntityID OptString `json:"saml_entity_id"`
-	// Assertion Consumer Service URL.
-	SamlAcsURL OptString `json:"saml_acs_url"`
-	// URL for the IdP metadata.
+	// URL for the IdP metadata. Optional if saml_idp_metadata_xml is provided.
 	SamlIdpMetadataURL OptString `json:"saml_idp_metadata_url"`
+	// Raw IdP metadata XML. Use when the IdP does not host a metadata URL (e.g. Google Workspace). Takes
+	// precedence over saml_idp_metadata_url when both are set.
+	SamlIdpMetadataXML OptString `json:"saml_idp_metadata_xml"`
 	// Override the default SSO endpoint with a URL your IdP recognizes.
 	SamlSignInURL OptString `json:"saml_sign_in_url"`
-	// Attribute key for the user’s email.
+	// Algorithm used to sign SAML requests.
+	SignRequestAlgorithm OptCreateConnectionReqOptions2SignRequestAlgorithm `json:"sign_request_algorithm"`
+	// Protocol binding used to send SAML requests.
+	ProtocolBinding OptCreateConnectionReqOptions2ProtocolBinding `json:"protocol_binding"`
+	// Format for the Name ID used to identify users in SAML responses.
+	NameIDFormat OptCreateConnectionReqOptions2NameIDFormat `json:"name_id_format"`
+	// Attribute key for the user's email.
 	SamlEmailKeyAttr OptString `json:"saml_email_key_attr"`
-	// Attribute key for the user’s first name.
+	// Attribute key for the user's ID.
+	SamlUserIDKeyAttr OptString `json:"saml_user_id_key_attr"`
+	// Attribute key for the user's first name.
 	SamlFirstNameKeyAttr OptString `json:"saml_first_name_key_attr"`
-	// Attribute key for the user’s last name.
+	// Attribute key for the user's last name.
 	SamlLastNameKeyAttr OptString `json:"saml_last_name_key_attr"`
-	// Create user if they don’t exist.
+	// Create user if they don't exist.
 	IsCreateMissingUser OptBool `json:"is_create_missing_user"`
-	// Force showing the SSO button for this connection.
+	// Deprecated - Use 'sso_button_display' instead. True maps to "show", false maps to "auto". Ignored
+	// when sso_button_display is also sent.
+	//
+	// Deprecated: schema marks this property as deprecated.
 	IsForceShowSSOButton OptBool `json:"is_force_show_sso_button"`
+	// Controls when the SSO sign-in button is shown for this connection. Replaces
+	// is_force_show_sso_button. "auto" shows the button unless a home realm domain is set, "show" always
+	// shows it, "hide" never shows it. Takes precedence over is_force_show_sso_button when both are sent.
+	SSOButtonDisplay OptCreateConnectionReqOptions2SSOButtonDisplay `json:"sso_button_display"`
 	// Additional upstream parameters to pass to the identity provider.
 	UpstreamParams OptCreateConnectionReqOptions2UpstreamParams `json:"upstream_params"`
 	// Certificate for signing SAML requests.
@@ -1801,6 +2042,10 @@ type CreateConnectionReqOptions2 struct {
 	SamlSigningPrivateKey OptString `json:"saml_signing_private_key"`
 	// Users automatically join organization when using this connection.
 	IsAutoJoinOrganizationEnabled OptBool `json:"is_auto_join_organization_enabled"`
+	// Use custom domain callback URL.
+	IsUseCustomDomain OptBool `json:"is_use_custom_domain"`
+	// Trust this connection for account merging.
+	IsTrusted OptBool `json:"is_trusted"`
 }
 
 // GetHomeRealmDomains returns the value of HomeRealmDomains.
@@ -1813,14 +2058,14 @@ func (s *CreateConnectionReqOptions2) GetSamlEntityID() OptString {
 	return s.SamlEntityID
 }
 
-// GetSamlAcsURL returns the value of SamlAcsURL.
-func (s *CreateConnectionReqOptions2) GetSamlAcsURL() OptString {
-	return s.SamlAcsURL
-}
-
 // GetSamlIdpMetadataURL returns the value of SamlIdpMetadataURL.
 func (s *CreateConnectionReqOptions2) GetSamlIdpMetadataURL() OptString {
 	return s.SamlIdpMetadataURL
+}
+
+// GetSamlIdpMetadataXML returns the value of SamlIdpMetadataXML.
+func (s *CreateConnectionReqOptions2) GetSamlIdpMetadataXML() OptString {
+	return s.SamlIdpMetadataXML
 }
 
 // GetSamlSignInURL returns the value of SamlSignInURL.
@@ -1828,9 +2073,29 @@ func (s *CreateConnectionReqOptions2) GetSamlSignInURL() OptString {
 	return s.SamlSignInURL
 }
 
+// GetSignRequestAlgorithm returns the value of SignRequestAlgorithm.
+func (s *CreateConnectionReqOptions2) GetSignRequestAlgorithm() OptCreateConnectionReqOptions2SignRequestAlgorithm {
+	return s.SignRequestAlgorithm
+}
+
+// GetProtocolBinding returns the value of ProtocolBinding.
+func (s *CreateConnectionReqOptions2) GetProtocolBinding() OptCreateConnectionReqOptions2ProtocolBinding {
+	return s.ProtocolBinding
+}
+
+// GetNameIDFormat returns the value of NameIDFormat.
+func (s *CreateConnectionReqOptions2) GetNameIDFormat() OptCreateConnectionReqOptions2NameIDFormat {
+	return s.NameIDFormat
+}
+
 // GetSamlEmailKeyAttr returns the value of SamlEmailKeyAttr.
 func (s *CreateConnectionReqOptions2) GetSamlEmailKeyAttr() OptString {
 	return s.SamlEmailKeyAttr
+}
+
+// GetSamlUserIDKeyAttr returns the value of SamlUserIDKeyAttr.
+func (s *CreateConnectionReqOptions2) GetSamlUserIDKeyAttr() OptString {
+	return s.SamlUserIDKeyAttr
 }
 
 // GetSamlFirstNameKeyAttr returns the value of SamlFirstNameKeyAttr.
@@ -1853,6 +2118,11 @@ func (s *CreateConnectionReqOptions2) GetIsForceShowSSOButton() OptBool {
 	return s.IsForceShowSSOButton
 }
 
+// GetSSOButtonDisplay returns the value of SSOButtonDisplay.
+func (s *CreateConnectionReqOptions2) GetSSOButtonDisplay() OptCreateConnectionReqOptions2SSOButtonDisplay {
+	return s.SSOButtonDisplay
+}
+
 // GetUpstreamParams returns the value of UpstreamParams.
 func (s *CreateConnectionReqOptions2) GetUpstreamParams() OptCreateConnectionReqOptions2UpstreamParams {
 	return s.UpstreamParams
@@ -1873,6 +2143,16 @@ func (s *CreateConnectionReqOptions2) GetIsAutoJoinOrganizationEnabled() OptBool
 	return s.IsAutoJoinOrganizationEnabled
 }
 
+// GetIsUseCustomDomain returns the value of IsUseCustomDomain.
+func (s *CreateConnectionReqOptions2) GetIsUseCustomDomain() OptBool {
+	return s.IsUseCustomDomain
+}
+
+// GetIsTrusted returns the value of IsTrusted.
+func (s *CreateConnectionReqOptions2) GetIsTrusted() OptBool {
+	return s.IsTrusted
+}
+
 // SetHomeRealmDomains sets the value of HomeRealmDomains.
 func (s *CreateConnectionReqOptions2) SetHomeRealmDomains(val []string) {
 	s.HomeRealmDomains = val
@@ -1883,14 +2163,14 @@ func (s *CreateConnectionReqOptions2) SetSamlEntityID(val OptString) {
 	s.SamlEntityID = val
 }
 
-// SetSamlAcsURL sets the value of SamlAcsURL.
-func (s *CreateConnectionReqOptions2) SetSamlAcsURL(val OptString) {
-	s.SamlAcsURL = val
-}
-
 // SetSamlIdpMetadataURL sets the value of SamlIdpMetadataURL.
 func (s *CreateConnectionReqOptions2) SetSamlIdpMetadataURL(val OptString) {
 	s.SamlIdpMetadataURL = val
+}
+
+// SetSamlIdpMetadataXML sets the value of SamlIdpMetadataXML.
+func (s *CreateConnectionReqOptions2) SetSamlIdpMetadataXML(val OptString) {
+	s.SamlIdpMetadataXML = val
 }
 
 // SetSamlSignInURL sets the value of SamlSignInURL.
@@ -1898,9 +2178,29 @@ func (s *CreateConnectionReqOptions2) SetSamlSignInURL(val OptString) {
 	s.SamlSignInURL = val
 }
 
+// SetSignRequestAlgorithm sets the value of SignRequestAlgorithm.
+func (s *CreateConnectionReqOptions2) SetSignRequestAlgorithm(val OptCreateConnectionReqOptions2SignRequestAlgorithm) {
+	s.SignRequestAlgorithm = val
+}
+
+// SetProtocolBinding sets the value of ProtocolBinding.
+func (s *CreateConnectionReqOptions2) SetProtocolBinding(val OptCreateConnectionReqOptions2ProtocolBinding) {
+	s.ProtocolBinding = val
+}
+
+// SetNameIDFormat sets the value of NameIDFormat.
+func (s *CreateConnectionReqOptions2) SetNameIDFormat(val OptCreateConnectionReqOptions2NameIDFormat) {
+	s.NameIDFormat = val
+}
+
 // SetSamlEmailKeyAttr sets the value of SamlEmailKeyAttr.
 func (s *CreateConnectionReqOptions2) SetSamlEmailKeyAttr(val OptString) {
 	s.SamlEmailKeyAttr = val
+}
+
+// SetSamlUserIDKeyAttr sets the value of SamlUserIDKeyAttr.
+func (s *CreateConnectionReqOptions2) SetSamlUserIDKeyAttr(val OptString) {
+	s.SamlUserIDKeyAttr = val
 }
 
 // SetSamlFirstNameKeyAttr sets the value of SamlFirstNameKeyAttr.
@@ -1923,6 +2223,11 @@ func (s *CreateConnectionReqOptions2) SetIsForceShowSSOButton(val OptBool) {
 	s.IsForceShowSSOButton = val
 }
 
+// SetSSOButtonDisplay sets the value of SSOButtonDisplay.
+func (s *CreateConnectionReqOptions2) SetSSOButtonDisplay(val OptCreateConnectionReqOptions2SSOButtonDisplay) {
+	s.SSOButtonDisplay = val
+}
+
 // SetUpstreamParams sets the value of UpstreamParams.
 func (s *CreateConnectionReqOptions2) SetUpstreamParams(val OptCreateConnectionReqOptions2UpstreamParams) {
 	s.UpstreamParams = val
@@ -1941,6 +2246,207 @@ func (s *CreateConnectionReqOptions2) SetSamlSigningPrivateKey(val OptString) {
 // SetIsAutoJoinOrganizationEnabled sets the value of IsAutoJoinOrganizationEnabled.
 func (s *CreateConnectionReqOptions2) SetIsAutoJoinOrganizationEnabled(val OptBool) {
 	s.IsAutoJoinOrganizationEnabled = val
+}
+
+// SetIsUseCustomDomain sets the value of IsUseCustomDomain.
+func (s *CreateConnectionReqOptions2) SetIsUseCustomDomain(val OptBool) {
+	s.IsUseCustomDomain = val
+}
+
+// SetIsTrusted sets the value of IsTrusted.
+func (s *CreateConnectionReqOptions2) SetIsTrusted(val OptBool) {
+	s.IsTrusted = val
+}
+
+// Format for the Name ID used to identify users in SAML responses.
+type CreateConnectionReqOptions2NameIDFormat string
+
+const (
+	CreateConnectionReqOptions2NameIDFormatPersistent   CreateConnectionReqOptions2NameIDFormat = "Persistent"
+	CreateConnectionReqOptions2NameIDFormatTransient    CreateConnectionReqOptions2NameIDFormat = "Transient"
+	CreateConnectionReqOptions2NameIDFormatEmailAddress CreateConnectionReqOptions2NameIDFormat = "Email address"
+	CreateConnectionReqOptions2NameIDFormatUnspecified  CreateConnectionReqOptions2NameIDFormat = "Unspecified"
+)
+
+// AllValues returns all CreateConnectionReqOptions2NameIDFormat values.
+func (CreateConnectionReqOptions2NameIDFormat) AllValues() []CreateConnectionReqOptions2NameIDFormat {
+	return []CreateConnectionReqOptions2NameIDFormat{
+		CreateConnectionReqOptions2NameIDFormatPersistent,
+		CreateConnectionReqOptions2NameIDFormatTransient,
+		CreateConnectionReqOptions2NameIDFormatEmailAddress,
+		CreateConnectionReqOptions2NameIDFormatUnspecified,
+	}
+}
+
+// MarshalText implements encoding.TextMarshaler.
+func (s CreateConnectionReqOptions2NameIDFormat) MarshalText() ([]byte, error) {
+	switch s {
+	case CreateConnectionReqOptions2NameIDFormatPersistent:
+		return []byte(s), nil
+	case CreateConnectionReqOptions2NameIDFormatTransient:
+		return []byte(s), nil
+	case CreateConnectionReqOptions2NameIDFormatEmailAddress:
+		return []byte(s), nil
+	case CreateConnectionReqOptions2NameIDFormatUnspecified:
+		return []byte(s), nil
+	default:
+		return nil, errors.Errorf("invalid value: %q", s)
+	}
+}
+
+// UnmarshalText implements encoding.TextUnmarshaler.
+func (s *CreateConnectionReqOptions2NameIDFormat) UnmarshalText(data []byte) error {
+	switch CreateConnectionReqOptions2NameIDFormat(data) {
+	case CreateConnectionReqOptions2NameIDFormatPersistent:
+		*s = CreateConnectionReqOptions2NameIDFormatPersistent
+		return nil
+	case CreateConnectionReqOptions2NameIDFormatTransient:
+		*s = CreateConnectionReqOptions2NameIDFormatTransient
+		return nil
+	case CreateConnectionReqOptions2NameIDFormatEmailAddress:
+		*s = CreateConnectionReqOptions2NameIDFormatEmailAddress
+		return nil
+	case CreateConnectionReqOptions2NameIDFormatUnspecified:
+		*s = CreateConnectionReqOptions2NameIDFormatUnspecified
+		return nil
+	default:
+		return errors.Errorf("invalid value: %q", data)
+	}
+}
+
+// Protocol binding used to send SAML requests.
+type CreateConnectionReqOptions2ProtocolBinding string
+
+const (
+	CreateConnectionReqOptions2ProtocolBindingHTTPREDIRECT CreateConnectionReqOptions2ProtocolBinding = "HTTP-REDIRECT"
+	CreateConnectionReqOptions2ProtocolBindingHTTPPOST     CreateConnectionReqOptions2ProtocolBinding = "HTTP-POST"
+)
+
+// AllValues returns all CreateConnectionReqOptions2ProtocolBinding values.
+func (CreateConnectionReqOptions2ProtocolBinding) AllValues() []CreateConnectionReqOptions2ProtocolBinding {
+	return []CreateConnectionReqOptions2ProtocolBinding{
+		CreateConnectionReqOptions2ProtocolBindingHTTPREDIRECT,
+		CreateConnectionReqOptions2ProtocolBindingHTTPPOST,
+	}
+}
+
+// MarshalText implements encoding.TextMarshaler.
+func (s CreateConnectionReqOptions2ProtocolBinding) MarshalText() ([]byte, error) {
+	switch s {
+	case CreateConnectionReqOptions2ProtocolBindingHTTPREDIRECT:
+		return []byte(s), nil
+	case CreateConnectionReqOptions2ProtocolBindingHTTPPOST:
+		return []byte(s), nil
+	default:
+		return nil, errors.Errorf("invalid value: %q", s)
+	}
+}
+
+// UnmarshalText implements encoding.TextUnmarshaler.
+func (s *CreateConnectionReqOptions2ProtocolBinding) UnmarshalText(data []byte) error {
+	switch CreateConnectionReqOptions2ProtocolBinding(data) {
+	case CreateConnectionReqOptions2ProtocolBindingHTTPREDIRECT:
+		*s = CreateConnectionReqOptions2ProtocolBindingHTTPREDIRECT
+		return nil
+	case CreateConnectionReqOptions2ProtocolBindingHTTPPOST:
+		*s = CreateConnectionReqOptions2ProtocolBindingHTTPPOST
+		return nil
+	default:
+		return errors.Errorf("invalid value: %q", data)
+	}
+}
+
+// Controls when the SSO sign-in button is shown for this connection. Replaces
+// is_force_show_sso_button. "auto" shows the button unless a home realm domain is set, "show" always
+// shows it, "hide" never shows it. Takes precedence over is_force_show_sso_button when both are sent.
+type CreateConnectionReqOptions2SSOButtonDisplay string
+
+const (
+	CreateConnectionReqOptions2SSOButtonDisplayAuto CreateConnectionReqOptions2SSOButtonDisplay = "auto"
+	CreateConnectionReqOptions2SSOButtonDisplayShow CreateConnectionReqOptions2SSOButtonDisplay = "show"
+	CreateConnectionReqOptions2SSOButtonDisplayHide CreateConnectionReqOptions2SSOButtonDisplay = "hide"
+)
+
+// AllValues returns all CreateConnectionReqOptions2SSOButtonDisplay values.
+func (CreateConnectionReqOptions2SSOButtonDisplay) AllValues() []CreateConnectionReqOptions2SSOButtonDisplay {
+	return []CreateConnectionReqOptions2SSOButtonDisplay{
+		CreateConnectionReqOptions2SSOButtonDisplayAuto,
+		CreateConnectionReqOptions2SSOButtonDisplayShow,
+		CreateConnectionReqOptions2SSOButtonDisplayHide,
+	}
+}
+
+// MarshalText implements encoding.TextMarshaler.
+func (s CreateConnectionReqOptions2SSOButtonDisplay) MarshalText() ([]byte, error) {
+	switch s {
+	case CreateConnectionReqOptions2SSOButtonDisplayAuto:
+		return []byte(s), nil
+	case CreateConnectionReqOptions2SSOButtonDisplayShow:
+		return []byte(s), nil
+	case CreateConnectionReqOptions2SSOButtonDisplayHide:
+		return []byte(s), nil
+	default:
+		return nil, errors.Errorf("invalid value: %q", s)
+	}
+}
+
+// UnmarshalText implements encoding.TextUnmarshaler.
+func (s *CreateConnectionReqOptions2SSOButtonDisplay) UnmarshalText(data []byte) error {
+	switch CreateConnectionReqOptions2SSOButtonDisplay(data) {
+	case CreateConnectionReqOptions2SSOButtonDisplayAuto:
+		*s = CreateConnectionReqOptions2SSOButtonDisplayAuto
+		return nil
+	case CreateConnectionReqOptions2SSOButtonDisplayShow:
+		*s = CreateConnectionReqOptions2SSOButtonDisplayShow
+		return nil
+	case CreateConnectionReqOptions2SSOButtonDisplayHide:
+		*s = CreateConnectionReqOptions2SSOButtonDisplayHide
+		return nil
+	default:
+		return errors.Errorf("invalid value: %q", data)
+	}
+}
+
+// Algorithm used to sign SAML requests.
+type CreateConnectionReqOptions2SignRequestAlgorithm string
+
+const (
+	CreateConnectionReqOptions2SignRequestAlgorithmRSASHA256 CreateConnectionReqOptions2SignRequestAlgorithm = "RSA-SHA256"
+	CreateConnectionReqOptions2SignRequestAlgorithmRSASHA1   CreateConnectionReqOptions2SignRequestAlgorithm = "RSA-SHA1"
+)
+
+// AllValues returns all CreateConnectionReqOptions2SignRequestAlgorithm values.
+func (CreateConnectionReqOptions2SignRequestAlgorithm) AllValues() []CreateConnectionReqOptions2SignRequestAlgorithm {
+	return []CreateConnectionReqOptions2SignRequestAlgorithm{
+		CreateConnectionReqOptions2SignRequestAlgorithmRSASHA256,
+		CreateConnectionReqOptions2SignRequestAlgorithmRSASHA1,
+	}
+}
+
+// MarshalText implements encoding.TextMarshaler.
+func (s CreateConnectionReqOptions2SignRequestAlgorithm) MarshalText() ([]byte, error) {
+	switch s {
+	case CreateConnectionReqOptions2SignRequestAlgorithmRSASHA256:
+		return []byte(s), nil
+	case CreateConnectionReqOptions2SignRequestAlgorithmRSASHA1:
+		return []byte(s), nil
+	default:
+		return nil, errors.Errorf("invalid value: %q", s)
+	}
+}
+
+// UnmarshalText implements encoding.TextUnmarshaler.
+func (s *CreateConnectionReqOptions2SignRequestAlgorithm) UnmarshalText(data []byte) error {
+	switch CreateConnectionReqOptions2SignRequestAlgorithm(data) {
+	case CreateConnectionReqOptions2SignRequestAlgorithmRSASHA256:
+		*s = CreateConnectionReqOptions2SignRequestAlgorithmRSASHA256
+		return nil
+	case CreateConnectionReqOptions2SignRequestAlgorithmRSASHA1:
+		*s = CreateConnectionReqOptions2SignRequestAlgorithmRSASHA1
+		return nil
+	default:
+		return errors.Errorf("invalid value: %q", data)
+	}
 }
 
 // Additional upstream parameters to pass to the identity provider.
@@ -1976,6 +2482,10 @@ const (
 	CreateConnectionReqStrategyOAuth2Twitter   CreateConnectionReqStrategy = "oauth2:twitter"
 	CreateConnectionReqStrategyOAuth2Xero      CreateConnectionReqStrategy = "oauth2:xero"
 	CreateConnectionReqStrategySamlCustom      CreateConnectionReqStrategy = "saml:custom"
+	CreateConnectionReqStrategySamlCloudflare  CreateConnectionReqStrategy = "saml:cloudflare"
+	CreateConnectionReqStrategySamlOkta        CreateConnectionReqStrategy = "saml:okta"
+	CreateConnectionReqStrategySamlMicrosoft   CreateConnectionReqStrategy = "saml:microsoft"
+	CreateConnectionReqStrategySamlGoogle      CreateConnectionReqStrategy = "saml:google"
 	CreateConnectionReqStrategyWsfedAzureAd    CreateConnectionReqStrategy = "wsfed:azure_ad"
 )
 
@@ -1999,6 +2509,10 @@ func (CreateConnectionReqStrategy) AllValues() []CreateConnectionReqStrategy {
 		CreateConnectionReqStrategyOAuth2Twitter,
 		CreateConnectionReqStrategyOAuth2Xero,
 		CreateConnectionReqStrategySamlCustom,
+		CreateConnectionReqStrategySamlCloudflare,
+		CreateConnectionReqStrategySamlOkta,
+		CreateConnectionReqStrategySamlMicrosoft,
+		CreateConnectionReqStrategySamlGoogle,
 		CreateConnectionReqStrategyWsfedAzureAd,
 	}
 }
@@ -2039,6 +2553,14 @@ func (s CreateConnectionReqStrategy) MarshalText() ([]byte, error) {
 	case CreateConnectionReqStrategyOAuth2Xero:
 		return []byte(s), nil
 	case CreateConnectionReqStrategySamlCustom:
+		return []byte(s), nil
+	case CreateConnectionReqStrategySamlCloudflare:
+		return []byte(s), nil
+	case CreateConnectionReqStrategySamlOkta:
+		return []byte(s), nil
+	case CreateConnectionReqStrategySamlMicrosoft:
+		return []byte(s), nil
+	case CreateConnectionReqStrategySamlGoogle:
 		return []byte(s), nil
 	case CreateConnectionReqStrategyWsfedAzureAd:
 		return []byte(s), nil
@@ -2100,6 +2622,18 @@ func (s *CreateConnectionReqStrategy) UnmarshalText(data []byte) error {
 		return nil
 	case CreateConnectionReqStrategySamlCustom:
 		*s = CreateConnectionReqStrategySamlCustom
+		return nil
+	case CreateConnectionReqStrategySamlCloudflare:
+		*s = CreateConnectionReqStrategySamlCloudflare
+		return nil
+	case CreateConnectionReqStrategySamlOkta:
+		*s = CreateConnectionReqStrategySamlOkta
+		return nil
+	case CreateConnectionReqStrategySamlMicrosoft:
+		*s = CreateConnectionReqStrategySamlMicrosoft
+		return nil
+	case CreateConnectionReqStrategySamlGoogle:
+		*s = CreateConnectionReqStrategySamlGoogle
 		return nil
 	case CreateConnectionReqStrategyWsfedAzureAd:
 		*s = CreateConnectionReqStrategyWsfedAzureAd
@@ -2166,6 +2700,212 @@ func (s *CreateConnectionResponseConnection) SetID(val OptString) {
 type CreateConnectionTooManyRequests ErrorResponse
 
 func (*CreateConnectionTooManyRequests) createConnectionRes() {}
+
+type CreateDirectoryBadRequest ErrorResponse
+
+func (*CreateDirectoryBadRequest) createDirectoryRes() {}
+
+type CreateDirectoryConflict ErrorResponse
+
+func (*CreateDirectoryConflict) createDirectoryRes() {}
+
+type CreateDirectoryForbidden ErrorResponse
+
+func (*CreateDirectoryForbidden) createDirectoryRes() {}
+
+type CreateDirectoryReq struct {
+	// The organization code to create the SCIM directory for.
+	OrgCode string `json:"org_code"`
+	// An optional descriptive name for the SCIM directory.
+	DirectoryName OptString `json:"directory_name"`
+	// The SCIM provider code to use for this directory. When omitted, the provider
+	// is inferred from the organization enterprise authentication method. If the
+	// inferred (or explicit) provider is disabled or missing endpoint configuration,
+	// INVALID_PROVIDER is returned.
+	ProviderCode OptCreateDirectoryReqProviderCode `json:"provider_code"`
+	// The enterprise connection ID to associate with this directory for SCIM-provisioned users.
+	// Required when the organization has multiple enabled enterprise connections.
+	EnterpriseConnectionID OptString `json:"enterprise_connection_id"`
+}
+
+// GetOrgCode returns the value of OrgCode.
+func (s *CreateDirectoryReq) GetOrgCode() string {
+	return s.OrgCode
+}
+
+// GetDirectoryName returns the value of DirectoryName.
+func (s *CreateDirectoryReq) GetDirectoryName() OptString {
+	return s.DirectoryName
+}
+
+// GetProviderCode returns the value of ProviderCode.
+func (s *CreateDirectoryReq) GetProviderCode() OptCreateDirectoryReqProviderCode {
+	return s.ProviderCode
+}
+
+// GetEnterpriseConnectionID returns the value of EnterpriseConnectionID.
+func (s *CreateDirectoryReq) GetEnterpriseConnectionID() OptString {
+	return s.EnterpriseConnectionID
+}
+
+// SetOrgCode sets the value of OrgCode.
+func (s *CreateDirectoryReq) SetOrgCode(val string) {
+	s.OrgCode = val
+}
+
+// SetDirectoryName sets the value of DirectoryName.
+func (s *CreateDirectoryReq) SetDirectoryName(val OptString) {
+	s.DirectoryName = val
+}
+
+// SetProviderCode sets the value of ProviderCode.
+func (s *CreateDirectoryReq) SetProviderCode(val OptCreateDirectoryReqProviderCode) {
+	s.ProviderCode = val
+}
+
+// SetEnterpriseConnectionID sets the value of EnterpriseConnectionID.
+func (s *CreateDirectoryReq) SetEnterpriseConnectionID(val OptString) {
+	s.EnterpriseConnectionID = val
+}
+
+// The SCIM provider code to use for this directory. When omitted, the provider
+// is inferred from the organization enterprise authentication method. If the
+// inferred (or explicit) provider is disabled or missing endpoint configuration,
+// INVALID_PROVIDER is returned.
+type CreateDirectoryReqProviderCode string
+
+const (
+	CreateDirectoryReqProviderCodeEntraIDAzureAd  CreateDirectoryReqProviderCode = "entra_id_azure_ad"
+	CreateDirectoryReqProviderCodeOkta            CreateDirectoryReqProviderCode = "okta"
+	CreateDirectoryReqProviderCodeGoogleWorkspace CreateDirectoryReqProviderCode = "google_workspace"
+	CreateDirectoryReqProviderCodeCustomScimV2    CreateDirectoryReqProviderCode = "custom_scim_v2"
+	CreateDirectoryReqProviderCodeCyberark        CreateDirectoryReqProviderCode = "cyberark"
+	CreateDirectoryReqProviderCodeJumpcloud       CreateDirectoryReqProviderCode = "jumpcloud"
+	CreateDirectoryReqProviderCodeOnelogin        CreateDirectoryReqProviderCode = "onelogin"
+	CreateDirectoryReqProviderCodePingfederate    CreateDirectoryReqProviderCode = "pingfederate"
+	CreateDirectoryReqProviderCodeRippling        CreateDirectoryReqProviderCode = "rippling"
+)
+
+// AllValues returns all CreateDirectoryReqProviderCode values.
+func (CreateDirectoryReqProviderCode) AllValues() []CreateDirectoryReqProviderCode {
+	return []CreateDirectoryReqProviderCode{
+		CreateDirectoryReqProviderCodeEntraIDAzureAd,
+		CreateDirectoryReqProviderCodeOkta,
+		CreateDirectoryReqProviderCodeGoogleWorkspace,
+		CreateDirectoryReqProviderCodeCustomScimV2,
+		CreateDirectoryReqProviderCodeCyberark,
+		CreateDirectoryReqProviderCodeJumpcloud,
+		CreateDirectoryReqProviderCodeOnelogin,
+		CreateDirectoryReqProviderCodePingfederate,
+		CreateDirectoryReqProviderCodeRippling,
+	}
+}
+
+// MarshalText implements encoding.TextMarshaler.
+func (s CreateDirectoryReqProviderCode) MarshalText() ([]byte, error) {
+	switch s {
+	case CreateDirectoryReqProviderCodeEntraIDAzureAd:
+		return []byte(s), nil
+	case CreateDirectoryReqProviderCodeOkta:
+		return []byte(s), nil
+	case CreateDirectoryReqProviderCodeGoogleWorkspace:
+		return []byte(s), nil
+	case CreateDirectoryReqProviderCodeCustomScimV2:
+		return []byte(s), nil
+	case CreateDirectoryReqProviderCodeCyberark:
+		return []byte(s), nil
+	case CreateDirectoryReqProviderCodeJumpcloud:
+		return []byte(s), nil
+	case CreateDirectoryReqProviderCodeOnelogin:
+		return []byte(s), nil
+	case CreateDirectoryReqProviderCodePingfederate:
+		return []byte(s), nil
+	case CreateDirectoryReqProviderCodeRippling:
+		return []byte(s), nil
+	default:
+		return nil, errors.Errorf("invalid value: %q", s)
+	}
+}
+
+// UnmarshalText implements encoding.TextUnmarshaler.
+func (s *CreateDirectoryReqProviderCode) UnmarshalText(data []byte) error {
+	switch CreateDirectoryReqProviderCode(data) {
+	case CreateDirectoryReqProviderCodeEntraIDAzureAd:
+		*s = CreateDirectoryReqProviderCodeEntraIDAzureAd
+		return nil
+	case CreateDirectoryReqProviderCodeOkta:
+		*s = CreateDirectoryReqProviderCodeOkta
+		return nil
+	case CreateDirectoryReqProviderCodeGoogleWorkspace:
+		*s = CreateDirectoryReqProviderCodeGoogleWorkspace
+		return nil
+	case CreateDirectoryReqProviderCodeCustomScimV2:
+		*s = CreateDirectoryReqProviderCodeCustomScimV2
+		return nil
+	case CreateDirectoryReqProviderCodeCyberark:
+		*s = CreateDirectoryReqProviderCodeCyberark
+		return nil
+	case CreateDirectoryReqProviderCodeJumpcloud:
+		*s = CreateDirectoryReqProviderCodeJumpcloud
+		return nil
+	case CreateDirectoryReqProviderCodeOnelogin:
+		*s = CreateDirectoryReqProviderCodeOnelogin
+		return nil
+	case CreateDirectoryReqProviderCodePingfederate:
+		*s = CreateDirectoryReqProviderCodePingfederate
+		return nil
+	case CreateDirectoryReqProviderCodeRippling:
+		*s = CreateDirectoryReqProviderCodeRippling
+		return nil
+	default:
+		return errors.Errorf("invalid value: %q", data)
+	}
+}
+
+// Ref: #/components/schemas/create_directory_response
+type CreateDirectoryResponse struct {
+	// Response code.
+	Code OptString `json:"code"`
+	// Response message.
+	Message   OptString    `json:"message"`
+	Directory OptDirectory `json:"directory"`
+}
+
+// GetCode returns the value of Code.
+func (s *CreateDirectoryResponse) GetCode() OptString {
+	return s.Code
+}
+
+// GetMessage returns the value of Message.
+func (s *CreateDirectoryResponse) GetMessage() OptString {
+	return s.Message
+}
+
+// GetDirectory returns the value of Directory.
+func (s *CreateDirectoryResponse) GetDirectory() OptDirectory {
+	return s.Directory
+}
+
+// SetCode sets the value of Code.
+func (s *CreateDirectoryResponse) SetCode(val OptString) {
+	s.Code = val
+}
+
+// SetMessage sets the value of Message.
+func (s *CreateDirectoryResponse) SetMessage(val OptString) {
+	s.Message = val
+}
+
+// SetDirectory sets the value of Directory.
+func (s *CreateDirectoryResponse) SetDirectory(val OptDirectory) {
+	s.Directory = val
+}
+
+func (*CreateDirectoryResponse) createDirectoryRes() {}
+
+type CreateDirectoryTooManyRequests ErrorResponse
+
+func (*CreateDirectoryTooManyRequests) createDirectoryRes() {}
 
 type CreateEnvironmentVariableBadRequest ErrorResponse
 
@@ -2667,6 +3407,296 @@ type CreateOrganizationForbidden ErrorResponse
 
 func (*CreateOrganizationForbidden) createOrganizationRes() {}
 
+type CreateOrganizationInviteBadRequest ErrorResponse
+
+func (*CreateOrganizationInviteBadRequest) createOrganizationInviteRes() {}
+
+type CreateOrganizationInviteForbidden ErrorResponse
+
+func (*CreateOrganizationInviteForbidden) createOrganizationInviteRes() {}
+
+type CreateOrganizationInviteReq struct {
+	// The email address of the user to invite. Maximum 254 characters.
+	Email string `json:"email"`
+	// The first name of the user to invite. Maximum 64 characters.
+	FirstName OptNilString `json:"first_name"`
+	// The last name of the user to invite. Maximum 64 characters.
+	LastName OptNilString `json:"last_name"`
+	// Array of role keys to assign to the user.
+	Roles []string `json:"roles"`
+	// Whether to send an invitation email to the user. Defaults to false.
+	SendEmail OptBool `json:"send_email"`
+}
+
+// GetEmail returns the value of Email.
+func (s *CreateOrganizationInviteReq) GetEmail() string {
+	return s.Email
+}
+
+// GetFirstName returns the value of FirstName.
+func (s *CreateOrganizationInviteReq) GetFirstName() OptNilString {
+	return s.FirstName
+}
+
+// GetLastName returns the value of LastName.
+func (s *CreateOrganizationInviteReq) GetLastName() OptNilString {
+	return s.LastName
+}
+
+// GetRoles returns the value of Roles.
+func (s *CreateOrganizationInviteReq) GetRoles() []string {
+	return s.Roles
+}
+
+// GetSendEmail returns the value of SendEmail.
+func (s *CreateOrganizationInviteReq) GetSendEmail() OptBool {
+	return s.SendEmail
+}
+
+// SetEmail sets the value of Email.
+func (s *CreateOrganizationInviteReq) SetEmail(val string) {
+	s.Email = val
+}
+
+// SetFirstName sets the value of FirstName.
+func (s *CreateOrganizationInviteReq) SetFirstName(val OptNilString) {
+	s.FirstName = val
+}
+
+// SetLastName sets the value of LastName.
+func (s *CreateOrganizationInviteReq) SetLastName(val OptNilString) {
+	s.LastName = val
+}
+
+// SetRoles sets the value of Roles.
+func (s *CreateOrganizationInviteReq) SetRoles(val []string) {
+	s.Roles = val
+}
+
+// SetSendEmail sets the value of SendEmail.
+func (s *CreateOrganizationInviteReq) SetSendEmail(val OptBool) {
+	s.SendEmail = val
+}
+
+// Ref: #/components/schemas/create_organization_invite_response
+type CreateOrganizationInviteResponse struct {
+	// Response code.
+	Code OptString `json:"code"`
+	// Response message.
+	Message OptString                                 `json:"message"`
+	Invite  OptCreateOrganizationInviteResponseInvite `json:"invite"`
+}
+
+// GetCode returns the value of Code.
+func (s *CreateOrganizationInviteResponse) GetCode() OptString {
+	return s.Code
+}
+
+// GetMessage returns the value of Message.
+func (s *CreateOrganizationInviteResponse) GetMessage() OptString {
+	return s.Message
+}
+
+// GetInvite returns the value of Invite.
+func (s *CreateOrganizationInviteResponse) GetInvite() OptCreateOrganizationInviteResponseInvite {
+	return s.Invite
+}
+
+// SetCode sets the value of Code.
+func (s *CreateOrganizationInviteResponse) SetCode(val OptString) {
+	s.Code = val
+}
+
+// SetMessage sets the value of Message.
+func (s *CreateOrganizationInviteResponse) SetMessage(val OptString) {
+	s.Message = val
+}
+
+// SetInvite sets the value of Invite.
+func (s *CreateOrganizationInviteResponse) SetInvite(val OptCreateOrganizationInviteResponseInvite) {
+	s.Invite = val
+}
+
+func (*CreateOrganizationInviteResponse) createOrganizationInviteRes() {}
+
+type CreateOrganizationInviteResponseInvite struct {
+	// The invitation's unique identifier.
+	ID OptString `json:"id"`
+	// The invitation's code.
+	Code OptString `json:"code"`
+	// The email address of the invited user.
+	Email OptString `json:"email"`
+	// The first name of the invited user.
+	FirstName OptNilString `json:"first_name"`
+	// The last name of the invited user.
+	LastName OptNilString `json:"last_name"`
+	// The full name of the invited user.
+	FullName OptString `json:"full_name"`
+	// When the invitation was created.
+	CreatedOn OptDateTime `json:"created_on"`
+	// Whether the invitation email was sent.
+	IsSent OptBool `json:"is_sent"`
+	// When the invitation was accepted. Always null for a freshly created invitation.
+	AcceptedOn OptNilDateTime `json:"accepted_on"`
+	// The roles assigned to the invitation.
+	Roles []CreateOrganizationInviteResponseInviteRolesItem `json:"roles"`
+	// Whether the invitation has been revoked. Always false for a freshly created invitation.
+	IsRevoked OptBool `json:"is_revoked"`
+	// URL to share with the invitee to accept the invitation.
+	InviteLink OptString `json:"invite_link"`
+}
+
+// GetID returns the value of ID.
+func (s *CreateOrganizationInviteResponseInvite) GetID() OptString {
+	return s.ID
+}
+
+// GetCode returns the value of Code.
+func (s *CreateOrganizationInviteResponseInvite) GetCode() OptString {
+	return s.Code
+}
+
+// GetEmail returns the value of Email.
+func (s *CreateOrganizationInviteResponseInvite) GetEmail() OptString {
+	return s.Email
+}
+
+// GetFirstName returns the value of FirstName.
+func (s *CreateOrganizationInviteResponseInvite) GetFirstName() OptNilString {
+	return s.FirstName
+}
+
+// GetLastName returns the value of LastName.
+func (s *CreateOrganizationInviteResponseInvite) GetLastName() OptNilString {
+	return s.LastName
+}
+
+// GetFullName returns the value of FullName.
+func (s *CreateOrganizationInviteResponseInvite) GetFullName() OptString {
+	return s.FullName
+}
+
+// GetCreatedOn returns the value of CreatedOn.
+func (s *CreateOrganizationInviteResponseInvite) GetCreatedOn() OptDateTime {
+	return s.CreatedOn
+}
+
+// GetIsSent returns the value of IsSent.
+func (s *CreateOrganizationInviteResponseInvite) GetIsSent() OptBool {
+	return s.IsSent
+}
+
+// GetAcceptedOn returns the value of AcceptedOn.
+func (s *CreateOrganizationInviteResponseInvite) GetAcceptedOn() OptNilDateTime {
+	return s.AcceptedOn
+}
+
+// GetRoles returns the value of Roles.
+func (s *CreateOrganizationInviteResponseInvite) GetRoles() []CreateOrganizationInviteResponseInviteRolesItem {
+	return s.Roles
+}
+
+// GetIsRevoked returns the value of IsRevoked.
+func (s *CreateOrganizationInviteResponseInvite) GetIsRevoked() OptBool {
+	return s.IsRevoked
+}
+
+// GetInviteLink returns the value of InviteLink.
+func (s *CreateOrganizationInviteResponseInvite) GetInviteLink() OptString {
+	return s.InviteLink
+}
+
+// SetID sets the value of ID.
+func (s *CreateOrganizationInviteResponseInvite) SetID(val OptString) {
+	s.ID = val
+}
+
+// SetCode sets the value of Code.
+func (s *CreateOrganizationInviteResponseInvite) SetCode(val OptString) {
+	s.Code = val
+}
+
+// SetEmail sets the value of Email.
+func (s *CreateOrganizationInviteResponseInvite) SetEmail(val OptString) {
+	s.Email = val
+}
+
+// SetFirstName sets the value of FirstName.
+func (s *CreateOrganizationInviteResponseInvite) SetFirstName(val OptNilString) {
+	s.FirstName = val
+}
+
+// SetLastName sets the value of LastName.
+func (s *CreateOrganizationInviteResponseInvite) SetLastName(val OptNilString) {
+	s.LastName = val
+}
+
+// SetFullName sets the value of FullName.
+func (s *CreateOrganizationInviteResponseInvite) SetFullName(val OptString) {
+	s.FullName = val
+}
+
+// SetCreatedOn sets the value of CreatedOn.
+func (s *CreateOrganizationInviteResponseInvite) SetCreatedOn(val OptDateTime) {
+	s.CreatedOn = val
+}
+
+// SetIsSent sets the value of IsSent.
+func (s *CreateOrganizationInviteResponseInvite) SetIsSent(val OptBool) {
+	s.IsSent = val
+}
+
+// SetAcceptedOn sets the value of AcceptedOn.
+func (s *CreateOrganizationInviteResponseInvite) SetAcceptedOn(val OptNilDateTime) {
+	s.AcceptedOn = val
+}
+
+// SetRoles sets the value of Roles.
+func (s *CreateOrganizationInviteResponseInvite) SetRoles(val []CreateOrganizationInviteResponseInviteRolesItem) {
+	s.Roles = val
+}
+
+// SetIsRevoked sets the value of IsRevoked.
+func (s *CreateOrganizationInviteResponseInvite) SetIsRevoked(val OptBool) {
+	s.IsRevoked = val
+}
+
+// SetInviteLink sets the value of InviteLink.
+func (s *CreateOrganizationInviteResponseInvite) SetInviteLink(val OptString) {
+	s.InviteLink = val
+}
+
+type CreateOrganizationInviteResponseInviteRolesItem struct {
+	// The role's key.
+	Key OptString `json:"key"`
+	// The role's name.
+	Name OptString `json:"name"`
+}
+
+// GetKey returns the value of Key.
+func (s *CreateOrganizationInviteResponseInviteRolesItem) GetKey() OptString {
+	return s.Key
+}
+
+// GetName returns the value of Name.
+func (s *CreateOrganizationInviteResponseInviteRolesItem) GetName() OptString {
+	return s.Name
+}
+
+// SetKey sets the value of Key.
+func (s *CreateOrganizationInviteResponseInviteRolesItem) SetKey(val OptString) {
+	s.Key = val
+}
+
+// SetName sets the value of Name.
+func (s *CreateOrganizationInviteResponseInviteRolesItem) SetName(val OptString) {
+	s.Name = val
+}
+
+type CreateOrganizationInviteTooManyRequests ErrorResponse
+
+func (*CreateOrganizationInviteTooManyRequests) createOrganizationInviteRes() {}
+
 type CreateOrganizationReq struct {
 	// The organization's name.
 	Name string `json:"name"`
@@ -2695,17 +3725,24 @@ type CreateOrganizationReq struct {
 	ThemeCode OptString `json:"theme_code"`
 	// A unique handle for the organization - can be used for dynamic callback urls.
 	Handle OptString `json:"handle"`
-	// If users become members of this organization when the org code is supplied during authentication.
+	// Deprecated - Use 'is_auto_membership_enabled' instead.
+	//
+	// Deprecated: schema marks this property as deprecated.
 	IsAllowRegistrations OptBool `json:"is_allow_registrations"`
+	// If users become members of this organization when the org code is supplied during authentication.
+	IsAutoMembershipEnabled OptBool `json:"is_auto_membership_enabled"`
 	// The name of the organization that will be used in emails.
 	SenderName OptNilString `json:"sender_name"`
 	// The email address that will be used in emails. Requires custom SMTP to be set up.
 	SenderEmail OptNilString `json:"sender_email"`
-	// If a billing customer is also created for this organization.
+	// If an organization billing customer is also created for this organization.
 	IsCreateBillingCustomer OptBool `json:"is_create_billing_customer"`
-	// The email address used for billing purposes for the organization.
+	// The email address used for billing purposes for the organization. Required when
+	// is_create_billing_customer is true.
 	BillingEmail OptString `json:"billing_email"`
-	// The billing plan to put the customer on. If not specified, the default plan is used.
+	// Code of a published organization billing plan to assign to the new billing customer.
+	// If omitted, the default organization plan is used.
+	// User plans and unpublished plans are rejected.
 	BillingPlanCode OptString `json:"billing_plan_code"`
 }
 
@@ -2777,6 +3814,11 @@ func (s *CreateOrganizationReq) GetHandle() OptString {
 // GetIsAllowRegistrations returns the value of IsAllowRegistrations.
 func (s *CreateOrganizationReq) GetIsAllowRegistrations() OptBool {
 	return s.IsAllowRegistrations
+}
+
+// GetIsAutoMembershipEnabled returns the value of IsAutoMembershipEnabled.
+func (s *CreateOrganizationReq) GetIsAutoMembershipEnabled() OptBool {
+	return s.IsAutoMembershipEnabled
 }
 
 // GetSenderName returns the value of SenderName.
@@ -2872,6 +3914,11 @@ func (s *CreateOrganizationReq) SetHandle(val OptString) {
 // SetIsAllowRegistrations sets the value of IsAllowRegistrations.
 func (s *CreateOrganizationReq) SetIsAllowRegistrations(val OptBool) {
 	s.IsAllowRegistrations = val
+}
+
+// SetIsAutoMembershipEnabled sets the value of IsAutoMembershipEnabled.
+func (s *CreateOrganizationReq) SetIsAutoMembershipEnabled(val OptBool) {
+	s.IsAutoMembershipEnabled = val
 }
 
 // SetSenderName sets the value of SenderName.
@@ -3557,6 +4604,127 @@ type CreateUserBadRequest ErrorResponse
 
 func (*CreateUserBadRequest) createUserRes() {}
 
+type CreateUserBillingCustomerBadRequest ErrorResponse
+
+func (*CreateUserBillingCustomerBadRequest) createUserBillingCustomerRes() {}
+
+type CreateUserBillingCustomerForbidden ErrorResponse
+
+func (*CreateUserBillingCustomerForbidden) createUserBillingCustomerRes() {}
+
+type CreateUserBillingCustomerReq struct {
+	// The organization code the user belongs to. The billing customer is linked to this organization.
+	OrgCode string `json:"org_code"`
+	// The email address used for billing purposes for the user.
+	BillingEmail string `json:"billing_email"`
+	// Code of a published user billing plan to assign to the new billing customer.
+	// If omitted, the default user plan is used.
+	// Organization plans and unpublished plans are rejected.
+	BillingPlanCode OptString `json:"billing_plan_code"`
+}
+
+// GetOrgCode returns the value of OrgCode.
+func (s *CreateUserBillingCustomerReq) GetOrgCode() string {
+	return s.OrgCode
+}
+
+// GetBillingEmail returns the value of BillingEmail.
+func (s *CreateUserBillingCustomerReq) GetBillingEmail() string {
+	return s.BillingEmail
+}
+
+// GetBillingPlanCode returns the value of BillingPlanCode.
+func (s *CreateUserBillingCustomerReq) GetBillingPlanCode() OptString {
+	return s.BillingPlanCode
+}
+
+// SetOrgCode sets the value of OrgCode.
+func (s *CreateUserBillingCustomerReq) SetOrgCode(val string) {
+	s.OrgCode = val
+}
+
+// SetBillingEmail sets the value of BillingEmail.
+func (s *CreateUserBillingCustomerReq) SetBillingEmail(val string) {
+	s.BillingEmail = val
+}
+
+// SetBillingPlanCode sets the value of BillingPlanCode.
+func (s *CreateUserBillingCustomerReq) SetBillingPlanCode(val OptString) {
+	s.BillingPlanCode = val
+}
+
+// Ref: #/components/schemas/create_user_billing_customer_response
+type CreateUserBillingCustomerResponse struct {
+	// Response message.
+	Message OptString `json:"message"`
+	// Response code.
+	Code            OptString                                           `json:"code"`
+	BillingCustomer OptCreateUserBillingCustomerResponseBillingCustomer `json:"billing_customer"`
+}
+
+// GetMessage returns the value of Message.
+func (s *CreateUserBillingCustomerResponse) GetMessage() OptString {
+	return s.Message
+}
+
+// GetCode returns the value of Code.
+func (s *CreateUserBillingCustomerResponse) GetCode() OptString {
+	return s.Code
+}
+
+// GetBillingCustomer returns the value of BillingCustomer.
+func (s *CreateUserBillingCustomerResponse) GetBillingCustomer() OptCreateUserBillingCustomerResponseBillingCustomer {
+	return s.BillingCustomer
+}
+
+// SetMessage sets the value of Message.
+func (s *CreateUserBillingCustomerResponse) SetMessage(val OptString) {
+	s.Message = val
+}
+
+// SetCode sets the value of Code.
+func (s *CreateUserBillingCustomerResponse) SetCode(val OptString) {
+	s.Code = val
+}
+
+// SetBillingCustomer sets the value of BillingCustomer.
+func (s *CreateUserBillingCustomerResponse) SetBillingCustomer(val OptCreateUserBillingCustomerResponseBillingCustomer) {
+	s.BillingCustomer = val
+}
+
+func (*CreateUserBillingCustomerResponse) createUserBillingCustomerRes() {}
+
+type CreateUserBillingCustomerResponseBillingCustomer struct {
+	// The billing customer id.
+	ID OptString `json:"id"`
+	// The billing agreement id created for the assigned plan.
+	AgreementID OptString `json:"agreement_id"`
+}
+
+// GetID returns the value of ID.
+func (s *CreateUserBillingCustomerResponseBillingCustomer) GetID() OptString {
+	return s.ID
+}
+
+// GetAgreementID returns the value of AgreementID.
+func (s *CreateUserBillingCustomerResponseBillingCustomer) GetAgreementID() OptString {
+	return s.AgreementID
+}
+
+// SetID sets the value of ID.
+func (s *CreateUserBillingCustomerResponseBillingCustomer) SetID(val OptString) {
+	s.ID = val
+}
+
+// SetAgreementID sets the value of AgreementID.
+func (s *CreateUserBillingCustomerResponseBillingCustomer) SetAgreementID(val OptString) {
+	s.AgreementID = val
+}
+
+type CreateUserBillingCustomerTooManyRequests ErrorResponse
+
+func (*CreateUserBillingCustomerTooManyRequests) createUserBillingCustomerRes() {}
+
 type CreateUserForbidden ErrorResponse
 
 func (*CreateUserForbidden) createUserRes() {}
@@ -4093,22 +5261,22 @@ func (s *CreateWebhookResponseWebhook) SetEndpoint(val OptString) {
 	s.Endpoint = val
 }
 
-type DeleteAPIAppliationScopeBadRequest ErrorResponse
+type DeleteAPIApplicationScopeBadRequest ErrorResponse
 
-func (*DeleteAPIAppliationScopeBadRequest) deleteAPIAppliationScopeRes() {}
+func (*DeleteAPIApplicationScopeBadRequest) deleteAPIApplicationScopeRes() {}
 
-type DeleteAPIAppliationScopeForbidden ErrorResponse
+type DeleteAPIApplicationScopeForbidden ErrorResponse
 
-func (*DeleteAPIAppliationScopeForbidden) deleteAPIAppliationScopeRes() {}
+func (*DeleteAPIApplicationScopeForbidden) deleteAPIApplicationScopeRes() {}
 
-// DeleteAPIAppliationScopeOK is response for DeleteAPIAppliationScope operation.
-type DeleteAPIAppliationScopeOK struct{}
+// DeleteAPIApplicationScopeOK is response for DeleteAPIApplicationScope operation.
+type DeleteAPIApplicationScopeOK struct{}
 
-func (*DeleteAPIAppliationScopeOK) deleteAPIAppliationScopeRes() {}
+func (*DeleteAPIApplicationScopeOK) deleteAPIApplicationScopeRes() {}
 
-type DeleteAPIAppliationScopeTooManyRequests ErrorResponse
+type DeleteAPIApplicationScopeTooManyRequests ErrorResponse
 
-func (*DeleteAPIAppliationScopeTooManyRequests) deleteAPIAppliationScopeRes() {}
+func (*DeleteAPIApplicationScopeTooManyRequests) deleteAPIApplicationScopeRes() {}
 
 type DeleteAPIBadRequest ErrorResponse
 
@@ -4215,6 +5383,64 @@ func (*DeleteConnectionForbidden) deleteConnectionRes() {}
 type DeleteConnectionTooManyRequests ErrorResponse
 
 func (*DeleteConnectionTooManyRequests) deleteConnectionRes() {}
+
+type DeleteDirectoryBadRequest ErrorResponse
+
+func (*DeleteDirectoryBadRequest) deleteDirectoryRes() {}
+
+type DeleteDirectoryForbidden ErrorResponse
+
+func (*DeleteDirectoryForbidden) deleteDirectoryRes() {}
+
+type DeleteDirectoryNotFound ErrorResponse
+
+func (*DeleteDirectoryNotFound) deleteDirectoryRes() {}
+
+// Ref: #/components/schemas/delete_directory_response
+type DeleteDirectoryResponse struct {
+	// Response code.
+	Code OptString `json:"code"`
+	// Response message.
+	Message OptString `json:"message"`
+	// The ID of the deleted SCIM directory.
+	DirectoryID OptString `json:"directory_id"`
+}
+
+// GetCode returns the value of Code.
+func (s *DeleteDirectoryResponse) GetCode() OptString {
+	return s.Code
+}
+
+// GetMessage returns the value of Message.
+func (s *DeleteDirectoryResponse) GetMessage() OptString {
+	return s.Message
+}
+
+// GetDirectoryID returns the value of DirectoryID.
+func (s *DeleteDirectoryResponse) GetDirectoryID() OptString {
+	return s.DirectoryID
+}
+
+// SetCode sets the value of Code.
+func (s *DeleteDirectoryResponse) SetCode(val OptString) {
+	s.Code = val
+}
+
+// SetMessage sets the value of Message.
+func (s *DeleteDirectoryResponse) SetMessage(val OptString) {
+	s.Message = val
+}
+
+// SetDirectoryID sets the value of DirectoryID.
+func (s *DeleteDirectoryResponse) SetDirectoryID(val OptString) {
+	s.DirectoryID = val
+}
+
+func (*DeleteDirectoryResponse) deleteDirectoryRes() {}
+
+type DeleteDirectoryTooManyRequests ErrorResponse
+
+func (*DeleteDirectoryTooManyRequests) deleteDirectoryRes() {}
 
 // DeleteEnvironementFeatureFlagOverrideForbidden is response for DeleteEnvironementFeatureFlagOverride operation.
 type DeleteEnvironementFeatureFlagOverrideForbidden struct{}
@@ -4409,6 +5635,18 @@ func (*DeleteOrganizationHandleForbidden) deleteOrganizationHandleRes() {}
 type DeleteOrganizationHandleTooManyRequests struct{}
 
 func (*DeleteOrganizationHandleTooManyRequests) deleteOrganizationHandleRes() {}
+
+type DeleteOrganizationInviteBadRequest ErrorResponse
+
+func (*DeleteOrganizationInviteBadRequest) deleteOrganizationInviteRes() {}
+
+type DeleteOrganizationInviteForbidden ErrorResponse
+
+func (*DeleteOrganizationInviteForbidden) deleteOrganizationInviteRes() {}
+
+type DeleteOrganizationInviteTooManyRequests ErrorResponse
+
+func (*DeleteOrganizationInviteTooManyRequests) deleteOrganizationInviteRes() {}
 
 type DeleteOrganizationLogoBadRequest ErrorResponse
 
@@ -4650,6 +5888,217 @@ func (s *DeleteWebhookResponse) SetMessage(val OptString) {
 
 func (*DeleteWebhookResponse) deleteWebHookRes() {}
 
+// Ref: #/components/schemas/directory
+type Directory struct {
+	// The unique ID for the SCIM directory.
+	ID OptString `json:"id"`
+	// The name of the SCIM directory.
+	DirectoryName OptString `json:"directory_name"`
+	// The endpoint ID for the SCIM directory.
+	DirectoryEndpointID OptString `json:"directory_endpoint_id"`
+	// The secret token for SCIM authentication.
+	SecretToken OptString `json:"secret_token"`
+	// The current status of the SCIM directory.
+	Status OptDirectoryStatus `json:"status"`
+	// The organization code this directory belongs to.
+	OrganizationCode OptString `json:"organization_code"`
+	// The enterprise connection ID used for SCIM-provisioned users.
+	EnterpriseConnectionID OptNilString `json:"enterprise_connection_id"`
+	// The display name of the selected enterprise connection.
+	EnterpriseConnectionName OptNilString `json:"enterprise_connection_name"`
+	// When the last sync started.
+	LastSyncStartedAt OptNilDateTime `json:"last_sync_started_at"`
+	// When the last sync completed.
+	LastSyncCompletedAt OptNilDateTime `json:"last_sync_completed_at"`
+	// The last sync error message.
+	LastSyncError OptNilString `json:"last_sync_error"`
+	// When the directory was created.
+	CreatedOn OptDateTime `json:"created_on"`
+}
+
+// GetID returns the value of ID.
+func (s *Directory) GetID() OptString {
+	return s.ID
+}
+
+// GetDirectoryName returns the value of DirectoryName.
+func (s *Directory) GetDirectoryName() OptString {
+	return s.DirectoryName
+}
+
+// GetDirectoryEndpointID returns the value of DirectoryEndpointID.
+func (s *Directory) GetDirectoryEndpointID() OptString {
+	return s.DirectoryEndpointID
+}
+
+// GetSecretToken returns the value of SecretToken.
+func (s *Directory) GetSecretToken() OptString {
+	return s.SecretToken
+}
+
+// GetStatus returns the value of Status.
+func (s *Directory) GetStatus() OptDirectoryStatus {
+	return s.Status
+}
+
+// GetOrganizationCode returns the value of OrganizationCode.
+func (s *Directory) GetOrganizationCode() OptString {
+	return s.OrganizationCode
+}
+
+// GetEnterpriseConnectionID returns the value of EnterpriseConnectionID.
+func (s *Directory) GetEnterpriseConnectionID() OptNilString {
+	return s.EnterpriseConnectionID
+}
+
+// GetEnterpriseConnectionName returns the value of EnterpriseConnectionName.
+func (s *Directory) GetEnterpriseConnectionName() OptNilString {
+	return s.EnterpriseConnectionName
+}
+
+// GetLastSyncStartedAt returns the value of LastSyncStartedAt.
+func (s *Directory) GetLastSyncStartedAt() OptNilDateTime {
+	return s.LastSyncStartedAt
+}
+
+// GetLastSyncCompletedAt returns the value of LastSyncCompletedAt.
+func (s *Directory) GetLastSyncCompletedAt() OptNilDateTime {
+	return s.LastSyncCompletedAt
+}
+
+// GetLastSyncError returns the value of LastSyncError.
+func (s *Directory) GetLastSyncError() OptNilString {
+	return s.LastSyncError
+}
+
+// GetCreatedOn returns the value of CreatedOn.
+func (s *Directory) GetCreatedOn() OptDateTime {
+	return s.CreatedOn
+}
+
+// SetID sets the value of ID.
+func (s *Directory) SetID(val OptString) {
+	s.ID = val
+}
+
+// SetDirectoryName sets the value of DirectoryName.
+func (s *Directory) SetDirectoryName(val OptString) {
+	s.DirectoryName = val
+}
+
+// SetDirectoryEndpointID sets the value of DirectoryEndpointID.
+func (s *Directory) SetDirectoryEndpointID(val OptString) {
+	s.DirectoryEndpointID = val
+}
+
+// SetSecretToken sets the value of SecretToken.
+func (s *Directory) SetSecretToken(val OptString) {
+	s.SecretToken = val
+}
+
+// SetStatus sets the value of Status.
+func (s *Directory) SetStatus(val OptDirectoryStatus) {
+	s.Status = val
+}
+
+// SetOrganizationCode sets the value of OrganizationCode.
+func (s *Directory) SetOrganizationCode(val OptString) {
+	s.OrganizationCode = val
+}
+
+// SetEnterpriseConnectionID sets the value of EnterpriseConnectionID.
+func (s *Directory) SetEnterpriseConnectionID(val OptNilString) {
+	s.EnterpriseConnectionID = val
+}
+
+// SetEnterpriseConnectionName sets the value of EnterpriseConnectionName.
+func (s *Directory) SetEnterpriseConnectionName(val OptNilString) {
+	s.EnterpriseConnectionName = val
+}
+
+// SetLastSyncStartedAt sets the value of LastSyncStartedAt.
+func (s *Directory) SetLastSyncStartedAt(val OptNilDateTime) {
+	s.LastSyncStartedAt = val
+}
+
+// SetLastSyncCompletedAt sets the value of LastSyncCompletedAt.
+func (s *Directory) SetLastSyncCompletedAt(val OptNilDateTime) {
+	s.LastSyncCompletedAt = val
+}
+
+// SetLastSyncError sets the value of LastSyncError.
+func (s *Directory) SetLastSyncError(val OptNilString) {
+	s.LastSyncError = val
+}
+
+// SetCreatedOn sets the value of CreatedOn.
+func (s *Directory) SetCreatedOn(val OptDateTime) {
+	s.CreatedOn = val
+}
+
+// The current status of the SCIM directory.
+type DirectoryStatus string
+
+const (
+	DirectoryStatusPending    DirectoryStatus = "Pending"
+	DirectoryStatusValidating DirectoryStatus = "Validating"
+	DirectoryStatusActive     DirectoryStatus = "Active"
+	DirectoryStatusInactive   DirectoryStatus = "Inactive"
+	DirectoryStatusError      DirectoryStatus = "Error"
+)
+
+// AllValues returns all DirectoryStatus values.
+func (DirectoryStatus) AllValues() []DirectoryStatus {
+	return []DirectoryStatus{
+		DirectoryStatusPending,
+		DirectoryStatusValidating,
+		DirectoryStatusActive,
+		DirectoryStatusInactive,
+		DirectoryStatusError,
+	}
+}
+
+// MarshalText implements encoding.TextMarshaler.
+func (s DirectoryStatus) MarshalText() ([]byte, error) {
+	switch s {
+	case DirectoryStatusPending:
+		return []byte(s), nil
+	case DirectoryStatusValidating:
+		return []byte(s), nil
+	case DirectoryStatusActive:
+		return []byte(s), nil
+	case DirectoryStatusInactive:
+		return []byte(s), nil
+	case DirectoryStatusError:
+		return []byte(s), nil
+	default:
+		return nil, errors.Errorf("invalid value: %q", s)
+	}
+}
+
+// UnmarshalText implements encoding.TextUnmarshaler.
+func (s *DirectoryStatus) UnmarshalText(data []byte) error {
+	switch DirectoryStatus(data) {
+	case DirectoryStatusPending:
+		*s = DirectoryStatusPending
+		return nil
+	case DirectoryStatusValidating:
+		*s = DirectoryStatusValidating
+		return nil
+	case DirectoryStatusActive:
+		*s = DirectoryStatusActive
+		return nil
+	case DirectoryStatusInactive:
+		*s = DirectoryStatusInactive
+		return nil
+	case DirectoryStatusError:
+		*s = DirectoryStatusError
+		return nil
+	default:
+		return errors.Errorf("invalid value: %q", data)
+	}
+}
+
 type EnableConnectionBadRequest ErrorResponse
 
 func (*EnableConnectionBadRequest) enableConnectionRes() {}
@@ -4810,10 +6259,16 @@ func (*ErrorResponse) getCallbackURLsRes()                        {}
 func (*ErrorResponse) getEnvironementFeatureFlagsRes()            {}
 func (*ErrorResponse) getOrganizationFeatureFlagsRes()            {}
 func (*ErrorResponse) getOrganizationPropertyValuesRes()          {}
+func (*ErrorResponse) getOrganizationRoleActiveUsersCountRes()    {}
+func (*ErrorResponse) getOrganizationRoleUsersCountRes()          {}
+func (*ErrorResponse) getOrganizationRoleUsersRes()               {}
 func (*ErrorResponse) getPermissionsRes()                         {}
 func (*ErrorResponse) getRolePermissionsRes()                     {}
 func (*ErrorResponse) getRoleScopesRes()                          {}
+func (*ErrorResponse) getRoleSystemPermissionsRes()               {}
+func (*ErrorResponse) getRoleUsersRes()                           {}
 func (*ErrorResponse) getSubscribersRes()                         {}
+func (*ErrorResponse) getSystemPermissionsRes()                   {}
 func (*ErrorResponse) getUserIdentitiesRes()                      {}
 func (*ErrorResponse) getUserPropertyValuesRes()                  {}
 func (*ErrorResponse) removeOrganizationUserRes()                 {}
@@ -6063,6 +7518,72 @@ func (s *GetApisResponseApisItemScopesItem) SetKey(val OptString) {
 	s.Key = val
 }
 
+type GetApplicationAccessRolesBadRequest ErrorResponse
+
+func (*GetApplicationAccessRolesBadRequest) getApplicationAccessRolesRes() {}
+
+type GetApplicationAccessRolesForbidden ErrorResponse
+
+func (*GetApplicationAccessRolesForbidden) getApplicationAccessRolesRes() {}
+
+// Ref: #/components/schemas/get_application_access_roles_response
+type GetApplicationAccessRolesResponse struct {
+	// Response code.
+	Code OptString `json:"code"`
+	// Response message.
+	Message OptString `json:"message"`
+	// Roles configured as allowed to access the application.
+	Roles []ApplicationAccessRole `json:"roles"`
+	// Whether more records exist.
+	HasMore OptBool `json:"has_more"`
+}
+
+// GetCode returns the value of Code.
+func (s *GetApplicationAccessRolesResponse) GetCode() OptString {
+	return s.Code
+}
+
+// GetMessage returns the value of Message.
+func (s *GetApplicationAccessRolesResponse) GetMessage() OptString {
+	return s.Message
+}
+
+// GetRoles returns the value of Roles.
+func (s *GetApplicationAccessRolesResponse) GetRoles() []ApplicationAccessRole {
+	return s.Roles
+}
+
+// GetHasMore returns the value of HasMore.
+func (s *GetApplicationAccessRolesResponse) GetHasMore() OptBool {
+	return s.HasMore
+}
+
+// SetCode sets the value of Code.
+func (s *GetApplicationAccessRolesResponse) SetCode(val OptString) {
+	s.Code = val
+}
+
+// SetMessage sets the value of Message.
+func (s *GetApplicationAccessRolesResponse) SetMessage(val OptString) {
+	s.Message = val
+}
+
+// SetRoles sets the value of Roles.
+func (s *GetApplicationAccessRolesResponse) SetRoles(val []ApplicationAccessRole) {
+	s.Roles = val
+}
+
+// SetHasMore sets the value of HasMore.
+func (s *GetApplicationAccessRolesResponse) SetHasMore(val OptBool) {
+	s.HasMore = val
+}
+
+func (*GetApplicationAccessRolesResponse) getApplicationAccessRolesRes() {}
+
+type GetApplicationAccessRolesTooManyRequests ErrorResponse
+
+func (*GetApplicationAccessRolesTooManyRequests) getApplicationAccessRolesRes() {}
+
 type GetApplicationBadRequest ErrorResponse
 
 func (*GetApplicationBadRequest) getApplicationRes() {}
@@ -6153,6 +7674,23 @@ type GetApplicationResponseApplication struct {
 	HomepageURI OptString `json:"homepage_uri"`
 	// Whether the application has a cancel button to allow users to exit the auth flow [Beta].
 	HasCancelButton OptBool `json:"has_cancel_button"`
+	// Whether role-based access control is enforced for the application.
+	// Always false for application types that do not support connections.
+	IsAccessControlEnabled OptBool `json:"is_access_control_enabled"`
+	// Bypass Kinde's sign up and sign in screens and use your own design.
+	IsAllowFacelessAuth OptBool `json:"is_allow_faceless_auth"`
+	// Show fields to collect name details from users signing up with email or phone.
+	IsAskForName OptBool `json:"is_ask_for_name"`
+	// Show a marketing consent checkbox on the sign-up page.
+	HasMarketingConsent OptBool `json:"has_marketing_consent"`
+	// Allow users to switch to the login page from the sign-up page.
+	HasSignInLinkOnSignUpPage OptBool `json:"has_sign_in_link_on_sign_up_page"`
+	// Allow users to switch to the register page from the sign-in page.
+	HasRegisterLinkOnSignInPage OptBool `json:"has_register_link_on_sign_in_page"`
+	// When home realm discovery is configured, users see a button to prompt them to use their work email.
+	HasSignInWithSSOButton OptBool `json:"has_sign_in_with_sso_button"`
+	// Use a backup image if a profile picture is not available.
+	UseGravatarFallback OptBool `json:"use_gravatar_fallback"`
 }
 
 // GetID returns the value of ID.
@@ -6195,6 +7733,46 @@ func (s *GetApplicationResponseApplication) GetHasCancelButton() OptBool {
 	return s.HasCancelButton
 }
 
+// GetIsAccessControlEnabled returns the value of IsAccessControlEnabled.
+func (s *GetApplicationResponseApplication) GetIsAccessControlEnabled() OptBool {
+	return s.IsAccessControlEnabled
+}
+
+// GetIsAllowFacelessAuth returns the value of IsAllowFacelessAuth.
+func (s *GetApplicationResponseApplication) GetIsAllowFacelessAuth() OptBool {
+	return s.IsAllowFacelessAuth
+}
+
+// GetIsAskForName returns the value of IsAskForName.
+func (s *GetApplicationResponseApplication) GetIsAskForName() OptBool {
+	return s.IsAskForName
+}
+
+// GetHasMarketingConsent returns the value of HasMarketingConsent.
+func (s *GetApplicationResponseApplication) GetHasMarketingConsent() OptBool {
+	return s.HasMarketingConsent
+}
+
+// GetHasSignInLinkOnSignUpPage returns the value of HasSignInLinkOnSignUpPage.
+func (s *GetApplicationResponseApplication) GetHasSignInLinkOnSignUpPage() OptBool {
+	return s.HasSignInLinkOnSignUpPage
+}
+
+// GetHasRegisterLinkOnSignInPage returns the value of HasRegisterLinkOnSignInPage.
+func (s *GetApplicationResponseApplication) GetHasRegisterLinkOnSignInPage() OptBool {
+	return s.HasRegisterLinkOnSignInPage
+}
+
+// GetHasSignInWithSSOButton returns the value of HasSignInWithSSOButton.
+func (s *GetApplicationResponseApplication) GetHasSignInWithSSOButton() OptBool {
+	return s.HasSignInWithSSOButton
+}
+
+// GetUseGravatarFallback returns the value of UseGravatarFallback.
+func (s *GetApplicationResponseApplication) GetUseGravatarFallback() OptBool {
+	return s.UseGravatarFallback
+}
+
 // SetID sets the value of ID.
 func (s *GetApplicationResponseApplication) SetID(val OptString) {
 	s.ID = val
@@ -6235,13 +7813,54 @@ func (s *GetApplicationResponseApplication) SetHasCancelButton(val OptBool) {
 	s.HasCancelButton = val
 }
 
+// SetIsAccessControlEnabled sets the value of IsAccessControlEnabled.
+func (s *GetApplicationResponseApplication) SetIsAccessControlEnabled(val OptBool) {
+	s.IsAccessControlEnabled = val
+}
+
+// SetIsAllowFacelessAuth sets the value of IsAllowFacelessAuth.
+func (s *GetApplicationResponseApplication) SetIsAllowFacelessAuth(val OptBool) {
+	s.IsAllowFacelessAuth = val
+}
+
+// SetIsAskForName sets the value of IsAskForName.
+func (s *GetApplicationResponseApplication) SetIsAskForName(val OptBool) {
+	s.IsAskForName = val
+}
+
+// SetHasMarketingConsent sets the value of HasMarketingConsent.
+func (s *GetApplicationResponseApplication) SetHasMarketingConsent(val OptBool) {
+	s.HasMarketingConsent = val
+}
+
+// SetHasSignInLinkOnSignUpPage sets the value of HasSignInLinkOnSignUpPage.
+func (s *GetApplicationResponseApplication) SetHasSignInLinkOnSignUpPage(val OptBool) {
+	s.HasSignInLinkOnSignUpPage = val
+}
+
+// SetHasRegisterLinkOnSignInPage sets the value of HasRegisterLinkOnSignInPage.
+func (s *GetApplicationResponseApplication) SetHasRegisterLinkOnSignInPage(val OptBool) {
+	s.HasRegisterLinkOnSignInPage = val
+}
+
+// SetHasSignInWithSSOButton sets the value of HasSignInWithSSOButton.
+func (s *GetApplicationResponseApplication) SetHasSignInWithSSOButton(val OptBool) {
+	s.HasSignInWithSSOButton = val
+}
+
+// SetUseGravatarFallback sets the value of UseGravatarFallback.
+func (s *GetApplicationResponseApplication) SetUseGravatarFallback(val OptBool) {
+	s.UseGravatarFallback = val
+}
+
 // The application's type.
 type GetApplicationResponseApplicationType string
 
 const (
-	GetApplicationResponseApplicationTypeM2m GetApplicationResponseApplicationType = "m2m"
-	GetApplicationResponseApplicationTypeReg GetApplicationResponseApplicationType = "reg"
-	GetApplicationResponseApplicationTypeSpa GetApplicationResponseApplicationType = "spa"
+	GetApplicationResponseApplicationTypeM2m    GetApplicationResponseApplicationType = "m2m"
+	GetApplicationResponseApplicationTypeReg    GetApplicationResponseApplicationType = "reg"
+	GetApplicationResponseApplicationTypeSpa    GetApplicationResponseApplicationType = "spa"
+	GetApplicationResponseApplicationTypeDevice GetApplicationResponseApplicationType = "device"
 )
 
 // AllValues returns all GetApplicationResponseApplicationType values.
@@ -6250,6 +7869,7 @@ func (GetApplicationResponseApplicationType) AllValues() []GetApplicationRespons
 		GetApplicationResponseApplicationTypeM2m,
 		GetApplicationResponseApplicationTypeReg,
 		GetApplicationResponseApplicationTypeSpa,
+		GetApplicationResponseApplicationTypeDevice,
 	}
 }
 
@@ -6261,6 +7881,8 @@ func (s GetApplicationResponseApplicationType) MarshalText() ([]byte, error) {
 	case GetApplicationResponseApplicationTypeReg:
 		return []byte(s), nil
 	case GetApplicationResponseApplicationTypeSpa:
+		return []byte(s), nil
+	case GetApplicationResponseApplicationTypeDevice:
 		return []byte(s), nil
 	default:
 		return nil, errors.Errorf("invalid value: %q", s)
@@ -6278,6 +7900,9 @@ func (s *GetApplicationResponseApplicationType) UnmarshalText(data []byte) error
 		return nil
 	case GetApplicationResponseApplicationTypeSpa:
 		*s = GetApplicationResponseApplicationTypeSpa
+		return nil
+	case GetApplicationResponseApplicationTypeDevice:
+		*s = GetApplicationResponseApplicationTypeDevice
 		return nil
 	default:
 		return errors.Errorf("invalid value: %q", data)
@@ -6462,9 +8087,16 @@ type GetBillingAgreementsResponseAgreementsItem struct {
 	// The plan code the billing customer is subscribed to.
 	PlanCode OptString `json:"plan_code"`
 	// The date the agreement expired (and was no longer active).
-	ExpiresOn OptDateTime `json:"expires_on"`
+	ExpiresOn OptNilDateTime `json:"expires_on"`
 	// The friendly id of the billing group this agreement's plan is part of.
-	BillingGroupID OptString `json:"billing_group_id"`
+	BillingGroupID OptNilString `json:"billing_group_id"`
+	// The start date of the agreement's current billing period. Null when the agreement has no current
+	// billing cycle.
+	CurrentPeriodStart OptNilDateTime `json:"current_period_start"`
+	// The end date of the agreement's current billing period (typically the next billing date). Null
+	// when the agreement has no current billing cycle; may be in the past if cycle roll or provider sync
+	// has lagged.
+	CurrentPeriodEnd OptNilDateTime `json:"current_period_end"`
 	// A list of billing entitlements that is part of this agreement.
 	Entitlements []GetBillingAgreementsResponseAgreementsItemEntitlementsItem `json:"entitlements"`
 }
@@ -6480,13 +8112,23 @@ func (s *GetBillingAgreementsResponseAgreementsItem) GetPlanCode() OptString {
 }
 
 // GetExpiresOn returns the value of ExpiresOn.
-func (s *GetBillingAgreementsResponseAgreementsItem) GetExpiresOn() OptDateTime {
+func (s *GetBillingAgreementsResponseAgreementsItem) GetExpiresOn() OptNilDateTime {
 	return s.ExpiresOn
 }
 
 // GetBillingGroupID returns the value of BillingGroupID.
-func (s *GetBillingAgreementsResponseAgreementsItem) GetBillingGroupID() OptString {
+func (s *GetBillingAgreementsResponseAgreementsItem) GetBillingGroupID() OptNilString {
 	return s.BillingGroupID
+}
+
+// GetCurrentPeriodStart returns the value of CurrentPeriodStart.
+func (s *GetBillingAgreementsResponseAgreementsItem) GetCurrentPeriodStart() OptNilDateTime {
+	return s.CurrentPeriodStart
+}
+
+// GetCurrentPeriodEnd returns the value of CurrentPeriodEnd.
+func (s *GetBillingAgreementsResponseAgreementsItem) GetCurrentPeriodEnd() OptNilDateTime {
+	return s.CurrentPeriodEnd
 }
 
 // GetEntitlements returns the value of Entitlements.
@@ -6505,13 +8147,23 @@ func (s *GetBillingAgreementsResponseAgreementsItem) SetPlanCode(val OptString) 
 }
 
 // SetExpiresOn sets the value of ExpiresOn.
-func (s *GetBillingAgreementsResponseAgreementsItem) SetExpiresOn(val OptDateTime) {
+func (s *GetBillingAgreementsResponseAgreementsItem) SetExpiresOn(val OptNilDateTime) {
 	s.ExpiresOn = val
 }
 
 // SetBillingGroupID sets the value of BillingGroupID.
-func (s *GetBillingAgreementsResponseAgreementsItem) SetBillingGroupID(val OptString) {
+func (s *GetBillingAgreementsResponseAgreementsItem) SetBillingGroupID(val OptNilString) {
 	s.BillingGroupID = val
+}
+
+// SetCurrentPeriodStart sets the value of CurrentPeriodStart.
+func (s *GetBillingAgreementsResponseAgreementsItem) SetCurrentPeriodStart(val OptNilDateTime) {
+	s.CurrentPeriodStart = val
+}
+
+// SetCurrentPeriodEnd sets the value of CurrentPeriodEnd.
+func (s *GetBillingAgreementsResponseAgreementsItem) SetCurrentPeriodEnd(val OptNilDateTime) {
+	s.CurrentPeriodEnd = val
 }
 
 // SetEntitlements sets the value of Entitlements.
@@ -7205,6 +8857,128 @@ type GetConnectionsTooManyRequests struct{}
 
 func (*GetConnectionsTooManyRequests) getConnectionsRes() {}
 
+type GetDirectoriesBadRequest ErrorResponse
+
+func (*GetDirectoriesBadRequest) getDirectoriesRes() {}
+
+type GetDirectoriesForbidden ErrorResponse
+
+func (*GetDirectoriesForbidden) getDirectoriesRes() {}
+
+// Ref: #/components/schemas/get_directories_response
+type GetDirectoriesResponse struct {
+	// Response code.
+	Code OptString `json:"code"`
+	// Response message.
+	Message OptString `json:"message"`
+	// Whether more records exist.
+	HasMore     OptBool     `json:"has_more"`
+	Directories []Directory `json:"directories"`
+}
+
+// GetCode returns the value of Code.
+func (s *GetDirectoriesResponse) GetCode() OptString {
+	return s.Code
+}
+
+// GetMessage returns the value of Message.
+func (s *GetDirectoriesResponse) GetMessage() OptString {
+	return s.Message
+}
+
+// GetHasMore returns the value of HasMore.
+func (s *GetDirectoriesResponse) GetHasMore() OptBool {
+	return s.HasMore
+}
+
+// GetDirectories returns the value of Directories.
+func (s *GetDirectoriesResponse) GetDirectories() []Directory {
+	return s.Directories
+}
+
+// SetCode sets the value of Code.
+func (s *GetDirectoriesResponse) SetCode(val OptString) {
+	s.Code = val
+}
+
+// SetMessage sets the value of Message.
+func (s *GetDirectoriesResponse) SetMessage(val OptString) {
+	s.Message = val
+}
+
+// SetHasMore sets the value of HasMore.
+func (s *GetDirectoriesResponse) SetHasMore(val OptBool) {
+	s.HasMore = val
+}
+
+// SetDirectories sets the value of Directories.
+func (s *GetDirectoriesResponse) SetDirectories(val []Directory) {
+	s.Directories = val
+}
+
+func (*GetDirectoriesResponse) getDirectoriesRes() {}
+
+type GetDirectoriesTooManyRequests ErrorResponse
+
+func (*GetDirectoriesTooManyRequests) getDirectoriesRes() {}
+
+type GetDirectoryBadRequest ErrorResponse
+
+func (*GetDirectoryBadRequest) getDirectoryRes() {}
+
+type GetDirectoryForbidden ErrorResponse
+
+func (*GetDirectoryForbidden) getDirectoryRes() {}
+
+type GetDirectoryNotFound ErrorResponse
+
+func (*GetDirectoryNotFound) getDirectoryRes() {}
+
+// Ref: #/components/schemas/get_directory_response
+type GetDirectoryResponse struct {
+	// Response code.
+	Code OptString `json:"code"`
+	// Response message.
+	Message   OptString    `json:"message"`
+	Directory OptDirectory `json:"directory"`
+}
+
+// GetCode returns the value of Code.
+func (s *GetDirectoryResponse) GetCode() OptString {
+	return s.Code
+}
+
+// GetMessage returns the value of Message.
+func (s *GetDirectoryResponse) GetMessage() OptString {
+	return s.Message
+}
+
+// GetDirectory returns the value of Directory.
+func (s *GetDirectoryResponse) GetDirectory() OptDirectory {
+	return s.Directory
+}
+
+// SetCode sets the value of Code.
+func (s *GetDirectoryResponse) SetCode(val OptString) {
+	s.Code = val
+}
+
+// SetMessage sets the value of Message.
+func (s *GetDirectoryResponse) SetMessage(val OptString) {
+	s.Message = val
+}
+
+// SetDirectory sets the value of Directory.
+func (s *GetDirectoryResponse) SetDirectory(val OptDirectory) {
+	s.Directory = val
+}
+
+func (*GetDirectoryResponse) getDirectoryRes() {}
+
+type GetDirectoryTooManyRequests ErrorResponse
+
+func (*GetDirectoryTooManyRequests) getDirectoryRes() {}
+
 // GetEnvironementFeatureFlagsForbidden is response for GetEnvironementFeatureFlags operation.
 type GetEnvironementFeatureFlagsForbidden struct{}
 
@@ -7412,6 +9186,8 @@ type GetEnvironmentResponseEnvironment struct {
 	HotjarSiteID OptNilString `json:"hotjar_site_id"`
 	// Your Google Analytics tag.
 	GoogleAnalyticsTag OptNilString `json:"google_analytics_tag"`
+	// Your Contentsquare Tag ID.
+	ContentsquareTagID OptNilString `json:"contentsquare_tag_id"`
 	// Whether the environment is the default. Typically this is your production environment.
 	IsDefault OptBool `json:"is_default"`
 	// Whether the environment is live.
@@ -7468,6 +9244,11 @@ func (s *GetEnvironmentResponseEnvironment) GetHotjarSiteID() OptNilString {
 // GetGoogleAnalyticsTag returns the value of GoogleAnalyticsTag.
 func (s *GetEnvironmentResponseEnvironment) GetGoogleAnalyticsTag() OptNilString {
 	return s.GoogleAnalyticsTag
+}
+
+// GetContentsquareTagID returns the value of ContentsquareTagID.
+func (s *GetEnvironmentResponseEnvironment) GetContentsquareTagID() OptNilString {
+	return s.ContentsquareTagID
 }
 
 // GetIsDefault returns the value of IsDefault.
@@ -7598,6 +9379,11 @@ func (s *GetEnvironmentResponseEnvironment) SetHotjarSiteID(val OptNilString) {
 // SetGoogleAnalyticsTag sets the value of GoogleAnalyticsTag.
 func (s *GetEnvironmentResponseEnvironment) SetGoogleAnalyticsTag(val OptNilString) {
 	s.GoogleAnalyticsTag = val
+}
+
+// SetContentsquareTagID sets the value of ContentsquareTagID.
+func (s *GetEnvironmentResponseEnvironment) SetContentsquareTagID(val OptNilString) {
+	s.ContentsquareTagID = val
 }
 
 // SetIsDefault sets the value of IsDefault.
@@ -8716,6 +10502,527 @@ type GetOrganizationForbidden ErrorResponse
 
 func (*GetOrganizationForbidden) getOrganizationRes() {}
 
+type GetOrganizationInviteBadRequest ErrorResponse
+
+func (*GetOrganizationInviteBadRequest) getOrganizationInviteRes() {}
+
+type GetOrganizationInviteForbidden ErrorResponse
+
+func (*GetOrganizationInviteForbidden) getOrganizationInviteRes() {}
+
+// Ref: #/components/schemas/get_organization_invite_response
+type GetOrganizationInviteResponse struct {
+	// Response message.
+	Message OptString `json:"message"`
+	// The invitation's unique identifier.
+	ID OptString `json:"id"`
+	// The invitation's code.
+	Code OptString `json:"code"`
+	// The email address of the invited user.
+	Email OptString `json:"email"`
+	// The first name of the invited user.
+	FirstName OptNilString `json:"first_name"`
+	// The last name of the invited user.
+	LastName OptNilString `json:"last_name"`
+	// The full name of the invited user.
+	FullName OptString `json:"full_name"`
+	// When the invitation was created.
+	CreatedOn OptDateTime `json:"created_on"`
+	// Whether the invitation email was sent.
+	IsSent OptBool `json:"is_sent"`
+	// When the invitation was accepted.
+	AcceptedOn OptNilDateTime `json:"accepted_on"`
+	// The roles assigned to the invitation.
+	Roles []GetOrganizationInviteResponseRolesItem `json:"roles"`
+	// Whether the invitation has been revoked.
+	IsRevoked OptBool `json:"is_revoked"`
+	// URL to share with the invitee to accept the invitation.
+	InviteLink OptString `json:"invite_link"`
+}
+
+// GetMessage returns the value of Message.
+func (s *GetOrganizationInviteResponse) GetMessage() OptString {
+	return s.Message
+}
+
+// GetID returns the value of ID.
+func (s *GetOrganizationInviteResponse) GetID() OptString {
+	return s.ID
+}
+
+// GetCode returns the value of Code.
+func (s *GetOrganizationInviteResponse) GetCode() OptString {
+	return s.Code
+}
+
+// GetEmail returns the value of Email.
+func (s *GetOrganizationInviteResponse) GetEmail() OptString {
+	return s.Email
+}
+
+// GetFirstName returns the value of FirstName.
+func (s *GetOrganizationInviteResponse) GetFirstName() OptNilString {
+	return s.FirstName
+}
+
+// GetLastName returns the value of LastName.
+func (s *GetOrganizationInviteResponse) GetLastName() OptNilString {
+	return s.LastName
+}
+
+// GetFullName returns the value of FullName.
+func (s *GetOrganizationInviteResponse) GetFullName() OptString {
+	return s.FullName
+}
+
+// GetCreatedOn returns the value of CreatedOn.
+func (s *GetOrganizationInviteResponse) GetCreatedOn() OptDateTime {
+	return s.CreatedOn
+}
+
+// GetIsSent returns the value of IsSent.
+func (s *GetOrganizationInviteResponse) GetIsSent() OptBool {
+	return s.IsSent
+}
+
+// GetAcceptedOn returns the value of AcceptedOn.
+func (s *GetOrganizationInviteResponse) GetAcceptedOn() OptNilDateTime {
+	return s.AcceptedOn
+}
+
+// GetRoles returns the value of Roles.
+func (s *GetOrganizationInviteResponse) GetRoles() []GetOrganizationInviteResponseRolesItem {
+	return s.Roles
+}
+
+// GetIsRevoked returns the value of IsRevoked.
+func (s *GetOrganizationInviteResponse) GetIsRevoked() OptBool {
+	return s.IsRevoked
+}
+
+// GetInviteLink returns the value of InviteLink.
+func (s *GetOrganizationInviteResponse) GetInviteLink() OptString {
+	return s.InviteLink
+}
+
+// SetMessage sets the value of Message.
+func (s *GetOrganizationInviteResponse) SetMessage(val OptString) {
+	s.Message = val
+}
+
+// SetID sets the value of ID.
+func (s *GetOrganizationInviteResponse) SetID(val OptString) {
+	s.ID = val
+}
+
+// SetCode sets the value of Code.
+func (s *GetOrganizationInviteResponse) SetCode(val OptString) {
+	s.Code = val
+}
+
+// SetEmail sets the value of Email.
+func (s *GetOrganizationInviteResponse) SetEmail(val OptString) {
+	s.Email = val
+}
+
+// SetFirstName sets the value of FirstName.
+func (s *GetOrganizationInviteResponse) SetFirstName(val OptNilString) {
+	s.FirstName = val
+}
+
+// SetLastName sets the value of LastName.
+func (s *GetOrganizationInviteResponse) SetLastName(val OptNilString) {
+	s.LastName = val
+}
+
+// SetFullName sets the value of FullName.
+func (s *GetOrganizationInviteResponse) SetFullName(val OptString) {
+	s.FullName = val
+}
+
+// SetCreatedOn sets the value of CreatedOn.
+func (s *GetOrganizationInviteResponse) SetCreatedOn(val OptDateTime) {
+	s.CreatedOn = val
+}
+
+// SetIsSent sets the value of IsSent.
+func (s *GetOrganizationInviteResponse) SetIsSent(val OptBool) {
+	s.IsSent = val
+}
+
+// SetAcceptedOn sets the value of AcceptedOn.
+func (s *GetOrganizationInviteResponse) SetAcceptedOn(val OptNilDateTime) {
+	s.AcceptedOn = val
+}
+
+// SetRoles sets the value of Roles.
+func (s *GetOrganizationInviteResponse) SetRoles(val []GetOrganizationInviteResponseRolesItem) {
+	s.Roles = val
+}
+
+// SetIsRevoked sets the value of IsRevoked.
+func (s *GetOrganizationInviteResponse) SetIsRevoked(val OptBool) {
+	s.IsRevoked = val
+}
+
+// SetInviteLink sets the value of InviteLink.
+func (s *GetOrganizationInviteResponse) SetInviteLink(val OptString) {
+	s.InviteLink = val
+}
+
+func (*GetOrganizationInviteResponse) getOrganizationInviteRes() {}
+
+type GetOrganizationInviteResponseRolesItem struct {
+	// The role's key.
+	Key OptString `json:"key"`
+	// The role's name.
+	Name OptString `json:"name"`
+}
+
+// GetKey returns the value of Key.
+func (s *GetOrganizationInviteResponseRolesItem) GetKey() OptString {
+	return s.Key
+}
+
+// GetName returns the value of Name.
+func (s *GetOrganizationInviteResponseRolesItem) GetName() OptString {
+	return s.Name
+}
+
+// SetKey sets the value of Key.
+func (s *GetOrganizationInviteResponseRolesItem) SetKey(val OptString) {
+	s.Key = val
+}
+
+// SetName sets the value of Name.
+func (s *GetOrganizationInviteResponseRolesItem) SetName(val OptString) {
+	s.Name = val
+}
+
+type GetOrganizationInviteTooManyRequests ErrorResponse
+
+func (*GetOrganizationInviteTooManyRequests) getOrganizationInviteRes() {}
+
+type GetOrganizationInvitesBadRequest ErrorResponse
+
+func (*GetOrganizationInvitesBadRequest) getOrganizationInvitesRes() {}
+
+type GetOrganizationInvitesForbidden ErrorResponse
+
+func (*GetOrganizationInvitesForbidden) getOrganizationInvitesRes() {}
+
+// Ref: #/components/schemas/get_organization_invites_response
+type GetOrganizationInvitesResponse struct {
+	// Response code.
+	Code OptString `json:"code"`
+	// Response message.
+	Message OptString            `json:"message"`
+	Invites []OrganizationInvite `json:"invites"`
+	// Pagination token.
+	NextToken OptNilString `json:"next_token"`
+}
+
+// GetCode returns the value of Code.
+func (s *GetOrganizationInvitesResponse) GetCode() OptString {
+	return s.Code
+}
+
+// GetMessage returns the value of Message.
+func (s *GetOrganizationInvitesResponse) GetMessage() OptString {
+	return s.Message
+}
+
+// GetInvites returns the value of Invites.
+func (s *GetOrganizationInvitesResponse) GetInvites() []OrganizationInvite {
+	return s.Invites
+}
+
+// GetNextToken returns the value of NextToken.
+func (s *GetOrganizationInvitesResponse) GetNextToken() OptNilString {
+	return s.NextToken
+}
+
+// SetCode sets the value of Code.
+func (s *GetOrganizationInvitesResponse) SetCode(val OptString) {
+	s.Code = val
+}
+
+// SetMessage sets the value of Message.
+func (s *GetOrganizationInvitesResponse) SetMessage(val OptString) {
+	s.Message = val
+}
+
+// SetInvites sets the value of Invites.
+func (s *GetOrganizationInvitesResponse) SetInvites(val []OrganizationInvite) {
+	s.Invites = val
+}
+
+// SetNextToken sets the value of NextToken.
+func (s *GetOrganizationInvitesResponse) SetNextToken(val OptNilString) {
+	s.NextToken = val
+}
+
+func (*GetOrganizationInvitesResponse) getOrganizationInvitesRes() {}
+
+type GetOrganizationInvitesSort string
+
+const (
+	GetOrganizationInvitesSortCreatedOnAsc  GetOrganizationInvitesSort = "created_on_asc"
+	GetOrganizationInvitesSortCreatedOnDesc GetOrganizationInvitesSort = "created_on_desc"
+	GetOrganizationInvitesSortEmailAsc      GetOrganizationInvitesSort = "email_asc"
+	GetOrganizationInvitesSortEmailDesc     GetOrganizationInvitesSort = "email_desc"
+	GetOrganizationInvitesSortNameAsc       GetOrganizationInvitesSort = "name_asc"
+	GetOrganizationInvitesSortNameDesc      GetOrganizationInvitesSort = "name_desc"
+)
+
+// AllValues returns all GetOrganizationInvitesSort values.
+func (GetOrganizationInvitesSort) AllValues() []GetOrganizationInvitesSort {
+	return []GetOrganizationInvitesSort{
+		GetOrganizationInvitesSortCreatedOnAsc,
+		GetOrganizationInvitesSortCreatedOnDesc,
+		GetOrganizationInvitesSortEmailAsc,
+		GetOrganizationInvitesSortEmailDesc,
+		GetOrganizationInvitesSortNameAsc,
+		GetOrganizationInvitesSortNameDesc,
+	}
+}
+
+// MarshalText implements encoding.TextMarshaler.
+func (s GetOrganizationInvitesSort) MarshalText() ([]byte, error) {
+	switch s {
+	case GetOrganizationInvitesSortCreatedOnAsc:
+		return []byte(s), nil
+	case GetOrganizationInvitesSortCreatedOnDesc:
+		return []byte(s), nil
+	case GetOrganizationInvitesSortEmailAsc:
+		return []byte(s), nil
+	case GetOrganizationInvitesSortEmailDesc:
+		return []byte(s), nil
+	case GetOrganizationInvitesSortNameAsc:
+		return []byte(s), nil
+	case GetOrganizationInvitesSortNameDesc:
+		return []byte(s), nil
+	default:
+		return nil, errors.Errorf("invalid value: %q", s)
+	}
+}
+
+// UnmarshalText implements encoding.TextUnmarshaler.
+func (s *GetOrganizationInvitesSort) UnmarshalText(data []byte) error {
+	switch GetOrganizationInvitesSort(data) {
+	case GetOrganizationInvitesSortCreatedOnAsc:
+		*s = GetOrganizationInvitesSortCreatedOnAsc
+		return nil
+	case GetOrganizationInvitesSortCreatedOnDesc:
+		*s = GetOrganizationInvitesSortCreatedOnDesc
+		return nil
+	case GetOrganizationInvitesSortEmailAsc:
+		*s = GetOrganizationInvitesSortEmailAsc
+		return nil
+	case GetOrganizationInvitesSortEmailDesc:
+		*s = GetOrganizationInvitesSortEmailDesc
+		return nil
+	case GetOrganizationInvitesSortNameAsc:
+		*s = GetOrganizationInvitesSortNameAsc
+		return nil
+	case GetOrganizationInvitesSortNameDesc:
+		*s = GetOrganizationInvitesSortNameDesc
+		return nil
+	default:
+		return errors.Errorf("invalid value: %q", data)
+	}
+}
+
+type GetOrganizationInvitesTooManyRequests ErrorResponse
+
+func (*GetOrganizationInvitesTooManyRequests) getOrganizationInvitesRes() {}
+
+type GetOrganizationPasskeyBadRequest ErrorResponse
+
+func (*GetOrganizationPasskeyBadRequest) getOrganizationPasskeyRes() {}
+
+type GetOrganizationPasskeyForbidden ErrorResponse
+
+func (*GetOrganizationPasskeyForbidden) getOrganizationPasskeyRes() {}
+
+// Merged schema.
+type GetOrganizationPasskeyOK struct {
+	Message OptString `json:"message"`
+	Code    OptString `json:"code"`
+	// Whether passkeys are enabled for this organization.
+	Enabled OptBool `json:"enabled"`
+	// The effective passkey policy for this organization.
+	Policy OptGetOrganizationPasskeyOKPolicy `json:"policy"`
+	// Whether this organization uses a custom passkey policy instead of the environment default.
+	IsOverrideEnvironmentPasskeySettings OptBool `json:"is_override_environment_passkey_settings"`
+	// The environment-level passkey policy.
+	EnvironmentPolicy OptGetOrganizationPasskeyOKEnvironmentPolicy `json:"environment_policy"`
+}
+
+// GetMessage returns the value of Message.
+func (s *GetOrganizationPasskeyOK) GetMessage() OptString {
+	return s.Message
+}
+
+// GetCode returns the value of Code.
+func (s *GetOrganizationPasskeyOK) GetCode() OptString {
+	return s.Code
+}
+
+// GetEnabled returns the value of Enabled.
+func (s *GetOrganizationPasskeyOK) GetEnabled() OptBool {
+	return s.Enabled
+}
+
+// GetPolicy returns the value of Policy.
+func (s *GetOrganizationPasskeyOK) GetPolicy() OptGetOrganizationPasskeyOKPolicy {
+	return s.Policy
+}
+
+// GetIsOverrideEnvironmentPasskeySettings returns the value of IsOverrideEnvironmentPasskeySettings.
+func (s *GetOrganizationPasskeyOK) GetIsOverrideEnvironmentPasskeySettings() OptBool {
+	return s.IsOverrideEnvironmentPasskeySettings
+}
+
+// GetEnvironmentPolicy returns the value of EnvironmentPolicy.
+func (s *GetOrganizationPasskeyOK) GetEnvironmentPolicy() OptGetOrganizationPasskeyOKEnvironmentPolicy {
+	return s.EnvironmentPolicy
+}
+
+// SetMessage sets the value of Message.
+func (s *GetOrganizationPasskeyOK) SetMessage(val OptString) {
+	s.Message = val
+}
+
+// SetCode sets the value of Code.
+func (s *GetOrganizationPasskeyOK) SetCode(val OptString) {
+	s.Code = val
+}
+
+// SetEnabled sets the value of Enabled.
+func (s *GetOrganizationPasskeyOK) SetEnabled(val OptBool) {
+	s.Enabled = val
+}
+
+// SetPolicy sets the value of Policy.
+func (s *GetOrganizationPasskeyOK) SetPolicy(val OptGetOrganizationPasskeyOKPolicy) {
+	s.Policy = val
+}
+
+// SetIsOverrideEnvironmentPasskeySettings sets the value of IsOverrideEnvironmentPasskeySettings.
+func (s *GetOrganizationPasskeyOK) SetIsOverrideEnvironmentPasskeySettings(val OptBool) {
+	s.IsOverrideEnvironmentPasskeySettings = val
+}
+
+// SetEnvironmentPolicy sets the value of EnvironmentPolicy.
+func (s *GetOrganizationPasskeyOK) SetEnvironmentPolicy(val OptGetOrganizationPasskeyOKEnvironmentPolicy) {
+	s.EnvironmentPolicy = val
+}
+
+func (*GetOrganizationPasskeyOK) getOrganizationPasskeyRes() {}
+
+// The environment-level passkey policy.
+type GetOrganizationPasskeyOKEnvironmentPolicy string
+
+const (
+	GetOrganizationPasskeyOKEnvironmentPolicyOff       GetOrganizationPasskeyOKEnvironmentPolicy = "off"
+	GetOrganizationPasskeyOKEnvironmentPolicyOptional  GetOrganizationPasskeyOKEnvironmentPolicy = "optional"
+	GetOrganizationPasskeyOKEnvironmentPolicyMandatory GetOrganizationPasskeyOKEnvironmentPolicy = "mandatory"
+)
+
+// AllValues returns all GetOrganizationPasskeyOKEnvironmentPolicy values.
+func (GetOrganizationPasskeyOKEnvironmentPolicy) AllValues() []GetOrganizationPasskeyOKEnvironmentPolicy {
+	return []GetOrganizationPasskeyOKEnvironmentPolicy{
+		GetOrganizationPasskeyOKEnvironmentPolicyOff,
+		GetOrganizationPasskeyOKEnvironmentPolicyOptional,
+		GetOrganizationPasskeyOKEnvironmentPolicyMandatory,
+	}
+}
+
+// MarshalText implements encoding.TextMarshaler.
+func (s GetOrganizationPasskeyOKEnvironmentPolicy) MarshalText() ([]byte, error) {
+	switch s {
+	case GetOrganizationPasskeyOKEnvironmentPolicyOff:
+		return []byte(s), nil
+	case GetOrganizationPasskeyOKEnvironmentPolicyOptional:
+		return []byte(s), nil
+	case GetOrganizationPasskeyOKEnvironmentPolicyMandatory:
+		return []byte(s), nil
+	default:
+		return nil, errors.Errorf("invalid value: %q", s)
+	}
+}
+
+// UnmarshalText implements encoding.TextUnmarshaler.
+func (s *GetOrganizationPasskeyOKEnvironmentPolicy) UnmarshalText(data []byte) error {
+	switch GetOrganizationPasskeyOKEnvironmentPolicy(data) {
+	case GetOrganizationPasskeyOKEnvironmentPolicyOff:
+		*s = GetOrganizationPasskeyOKEnvironmentPolicyOff
+		return nil
+	case GetOrganizationPasskeyOKEnvironmentPolicyOptional:
+		*s = GetOrganizationPasskeyOKEnvironmentPolicyOptional
+		return nil
+	case GetOrganizationPasskeyOKEnvironmentPolicyMandatory:
+		*s = GetOrganizationPasskeyOKEnvironmentPolicyMandatory
+		return nil
+	default:
+		return errors.Errorf("invalid value: %q", data)
+	}
+}
+
+// The effective passkey policy for this organization.
+type GetOrganizationPasskeyOKPolicy string
+
+const (
+	GetOrganizationPasskeyOKPolicyOff       GetOrganizationPasskeyOKPolicy = "off"
+	GetOrganizationPasskeyOKPolicyOptional  GetOrganizationPasskeyOKPolicy = "optional"
+	GetOrganizationPasskeyOKPolicyMandatory GetOrganizationPasskeyOKPolicy = "mandatory"
+)
+
+// AllValues returns all GetOrganizationPasskeyOKPolicy values.
+func (GetOrganizationPasskeyOKPolicy) AllValues() []GetOrganizationPasskeyOKPolicy {
+	return []GetOrganizationPasskeyOKPolicy{
+		GetOrganizationPasskeyOKPolicyOff,
+		GetOrganizationPasskeyOKPolicyOptional,
+		GetOrganizationPasskeyOKPolicyMandatory,
+	}
+}
+
+// MarshalText implements encoding.TextMarshaler.
+func (s GetOrganizationPasskeyOKPolicy) MarshalText() ([]byte, error) {
+	switch s {
+	case GetOrganizationPasskeyOKPolicyOff:
+		return []byte(s), nil
+	case GetOrganizationPasskeyOKPolicyOptional:
+		return []byte(s), nil
+	case GetOrganizationPasskeyOKPolicyMandatory:
+		return []byte(s), nil
+	default:
+		return nil, errors.Errorf("invalid value: %q", s)
+	}
+}
+
+// UnmarshalText implements encoding.TextUnmarshaler.
+func (s *GetOrganizationPasskeyOKPolicy) UnmarshalText(data []byte) error {
+	switch GetOrganizationPasskeyOKPolicy(data) {
+	case GetOrganizationPasskeyOKPolicyOff:
+		*s = GetOrganizationPasskeyOKPolicyOff
+		return nil
+	case GetOrganizationPasskeyOKPolicyOptional:
+		*s = GetOrganizationPasskeyOKPolicyOptional
+		return nil
+	case GetOrganizationPasskeyOKPolicyMandatory:
+		*s = GetOrganizationPasskeyOKPolicyMandatory
+		return nil
+	default:
+		return errors.Errorf("invalid value: %q", data)
+	}
+}
+
+type GetOrganizationPasskeyTooManyRequests ErrorResponse
+
+func (*GetOrganizationPasskeyTooManyRequests) getOrganizationPasskeyRes() {}
+
 // GetOrganizationPropertyValuesForbidden is response for GetOrganizationPropertyValues operation.
 type GetOrganizationPropertyValuesForbidden struct{}
 
@@ -8748,7 +11055,9 @@ type GetOrganizationResponse struct {
 	// The organization's SVG favicon URL. Optimal format for most browsers.
 	FaviconSvg OptNilString `json:"favicon_svg"`
 	// The favicon URL to be used as a fallback in browsers that don't support SVG, add a PNG.
-	FaviconFallback     OptNilString                                     `json:"favicon_fallback"`
+	FaviconFallback OptNilString `json:"favicon_fallback"`
+	// Domains allowed for self-sign up to this environment.  Empty array means no restrictions.
+	AllowedDomains      []string                                         `json:"allowed_domains"`
 	LinkColor           OptNilGetOrganizationResponseLinkColor           `json:"link_color"`
 	BackgroundColor     OptNilGetOrganizationResponseBackgroundColor     `json:"background_color"`
 	ButtonColor         OptNilGetOrganizationResponseButtonColor         `json:"button_color"`
@@ -8777,6 +11086,10 @@ type GetOrganizationResponse struct {
 	SenderName OptNilString `json:"sender_name"`
 	// The email address that will be used in emails. Requires custom SMTP to be set up.
 	SenderEmail OptNilString `json:"sender_email"`
+	// Whether the organization is currently suspended or not.
+	IsSuspended OptBool `json:"is_suspended"`
+	// The date the organization was suspended in ISO 8601 format. Null if not suspended.
+	SuspendedOn OptNilString `json:"suspended_on"`
 	// The billing information if the organization is a billing customer.
 	Billing OptGetOrganizationResponseBilling `json:"billing"`
 }
@@ -8829,6 +11142,11 @@ func (s *GetOrganizationResponse) GetFaviconSvg() OptNilString {
 // GetFaviconFallback returns the value of FaviconFallback.
 func (s *GetOrganizationResponse) GetFaviconFallback() OptNilString {
 	return s.FaviconFallback
+}
+
+// GetAllowedDomains returns the value of AllowedDomains.
+func (s *GetOrganizationResponse) GetAllowedDomains() []string {
+	return s.AllowedDomains
 }
 
 // GetLinkColor returns the value of LinkColor.
@@ -8916,6 +11234,16 @@ func (s *GetOrganizationResponse) GetSenderEmail() OptNilString {
 	return s.SenderEmail
 }
 
+// GetIsSuspended returns the value of IsSuspended.
+func (s *GetOrganizationResponse) GetIsSuspended() OptBool {
+	return s.IsSuspended
+}
+
+// GetSuspendedOn returns the value of SuspendedOn.
+func (s *GetOrganizationResponse) GetSuspendedOn() OptNilString {
+	return s.SuspendedOn
+}
+
 // GetBilling returns the value of Billing.
 func (s *GetOrganizationResponse) GetBilling() OptGetOrganizationResponseBilling {
 	return s.Billing
@@ -8969,6 +11297,11 @@ func (s *GetOrganizationResponse) SetFaviconSvg(val OptNilString) {
 // SetFaviconFallback sets the value of FaviconFallback.
 func (s *GetOrganizationResponse) SetFaviconFallback(val OptNilString) {
 	s.FaviconFallback = val
+}
+
+// SetAllowedDomains sets the value of AllowedDomains.
+func (s *GetOrganizationResponse) SetAllowedDomains(val []string) {
+	s.AllowedDomains = val
 }
 
 // SetLinkColor sets the value of LinkColor.
@@ -9054,6 +11387,16 @@ func (s *GetOrganizationResponse) SetSenderName(val OptNilString) {
 // SetSenderEmail sets the value of SenderEmail.
 func (s *GetOrganizationResponse) SetSenderEmail(val OptNilString) {
 	s.SenderEmail = val
+}
+
+// SetIsSuspended sets the value of IsSuspended.
+func (s *GetOrganizationResponse) SetIsSuspended(val OptBool) {
+	s.IsSuspended = val
+}
+
+// SetSuspendedOn sets the value of SuspendedOn.
+func (s *GetOrganizationResponse) SetSuspendedOn(val OptNilString) {
+	s.SuspendedOn = val
 }
 
 // SetBilling sets the value of Billing.
@@ -9503,6 +11846,213 @@ func (s *GetOrganizationResponseThemeCode) UnmarshalText(data []byte) error {
 	}
 }
 
+// GetOrganizationRoleActiveUsersCountForbidden is response for GetOrganizationRoleActiveUsersCount operation.
+type GetOrganizationRoleActiveUsersCountForbidden struct{}
+
+func (*GetOrganizationRoleActiveUsersCountForbidden) getOrganizationRoleActiveUsersCountRes() {}
+
+// Ref: #/components/schemas/get_organization_role_active_users_count_response
+type GetOrganizationRoleActiveUsersCountResponse struct {
+	// Response code.
+	Code OptString `json:"code"`
+	// Response message.
+	Message OptString `json:"message"`
+	// Number of users with the role who received at least one access token during the requested period.
+	ActiveUsersCount OptInt `json:"active_users_count"`
+	// Start of the active period that was used (inclusive), in UTC at second precision after any
+	// rounding.
+	DateTimeFrom OptDateTime `json:"date_time_from"`
+	// End of the active period that was used (inclusive), in UTC at second precision after any rounding.
+	DateTimeTo OptDateTime `json:"date_time_to"`
+}
+
+// GetCode returns the value of Code.
+func (s *GetOrganizationRoleActiveUsersCountResponse) GetCode() OptString {
+	return s.Code
+}
+
+// GetMessage returns the value of Message.
+func (s *GetOrganizationRoleActiveUsersCountResponse) GetMessage() OptString {
+	return s.Message
+}
+
+// GetActiveUsersCount returns the value of ActiveUsersCount.
+func (s *GetOrganizationRoleActiveUsersCountResponse) GetActiveUsersCount() OptInt {
+	return s.ActiveUsersCount
+}
+
+// GetDateTimeFrom returns the value of DateTimeFrom.
+func (s *GetOrganizationRoleActiveUsersCountResponse) GetDateTimeFrom() OptDateTime {
+	return s.DateTimeFrom
+}
+
+// GetDateTimeTo returns the value of DateTimeTo.
+func (s *GetOrganizationRoleActiveUsersCountResponse) GetDateTimeTo() OptDateTime {
+	return s.DateTimeTo
+}
+
+// SetCode sets the value of Code.
+func (s *GetOrganizationRoleActiveUsersCountResponse) SetCode(val OptString) {
+	s.Code = val
+}
+
+// SetMessage sets the value of Message.
+func (s *GetOrganizationRoleActiveUsersCountResponse) SetMessage(val OptString) {
+	s.Message = val
+}
+
+// SetActiveUsersCount sets the value of ActiveUsersCount.
+func (s *GetOrganizationRoleActiveUsersCountResponse) SetActiveUsersCount(val OptInt) {
+	s.ActiveUsersCount = val
+}
+
+// SetDateTimeFrom sets the value of DateTimeFrom.
+func (s *GetOrganizationRoleActiveUsersCountResponse) SetDateTimeFrom(val OptDateTime) {
+	s.DateTimeFrom = val
+}
+
+// SetDateTimeTo sets the value of DateTimeTo.
+func (s *GetOrganizationRoleActiveUsersCountResponse) SetDateTimeTo(val OptDateTime) {
+	s.DateTimeTo = val
+}
+
+func (*GetOrganizationRoleActiveUsersCountResponse) getOrganizationRoleActiveUsersCountRes() {}
+
+// GetOrganizationRoleActiveUsersCountTooManyRequests is response for GetOrganizationRoleActiveUsersCount operation.
+type GetOrganizationRoleActiveUsersCountTooManyRequests struct{}
+
+func (*GetOrganizationRoleActiveUsersCountTooManyRequests) getOrganizationRoleActiveUsersCountRes() {}
+
+// GetOrganizationRoleUsersCountForbidden is response for GetOrganizationRoleUsersCount operation.
+type GetOrganizationRoleUsersCountForbidden struct{}
+
+func (*GetOrganizationRoleUsersCountForbidden) getOrganizationRoleUsersCountRes() {}
+
+// Ref: #/components/schemas/get_organization_role_users_count_response
+type GetOrganizationRoleUsersCountResponse struct {
+	// Response code.
+	Code OptString `json:"code"`
+	// Response message.
+	Message OptString `json:"message"`
+	// The number of users with the specified role in the organization.
+	Count OptInt `json:"count"`
+}
+
+// GetCode returns the value of Code.
+func (s *GetOrganizationRoleUsersCountResponse) GetCode() OptString {
+	return s.Code
+}
+
+// GetMessage returns the value of Message.
+func (s *GetOrganizationRoleUsersCountResponse) GetMessage() OptString {
+	return s.Message
+}
+
+// GetCount returns the value of Count.
+func (s *GetOrganizationRoleUsersCountResponse) GetCount() OptInt {
+	return s.Count
+}
+
+// SetCode sets the value of Code.
+func (s *GetOrganizationRoleUsersCountResponse) SetCode(val OptString) {
+	s.Code = val
+}
+
+// SetMessage sets the value of Message.
+func (s *GetOrganizationRoleUsersCountResponse) SetMessage(val OptString) {
+	s.Message = val
+}
+
+// SetCount sets the value of Count.
+func (s *GetOrganizationRoleUsersCountResponse) SetCount(val OptInt) {
+	s.Count = val
+}
+
+func (*GetOrganizationRoleUsersCountResponse) getOrganizationRoleUsersCountRes() {}
+
+// GetOrganizationRoleUsersCountTooManyRequests is response for GetOrganizationRoleUsersCount operation.
+type GetOrganizationRoleUsersCountTooManyRequests struct{}
+
+func (*GetOrganizationRoleUsersCountTooManyRequests) getOrganizationRoleUsersCountRes() {}
+
+// GetOrganizationRoleUsersForbidden is response for GetOrganizationRoleUsers operation.
+type GetOrganizationRoleUsersForbidden struct{}
+
+func (*GetOrganizationRoleUsersForbidden) getOrganizationRoleUsersRes() {}
+
+// Ref: #/components/schemas/get_organization_role_users_response
+type GetOrganizationRoleUsersResponse struct {
+	// Response code.
+	Code OptString `json:"code"`
+	// Response message.
+	Message OptString                                   `json:"message"`
+	Users   []GetOrganizationRoleUsersResponseUsersItem `json:"users"`
+	// Pagination token.
+	NextToken OptNilString `json:"next_token"`
+}
+
+// GetCode returns the value of Code.
+func (s *GetOrganizationRoleUsersResponse) GetCode() OptString {
+	return s.Code
+}
+
+// GetMessage returns the value of Message.
+func (s *GetOrganizationRoleUsersResponse) GetMessage() OptString {
+	return s.Message
+}
+
+// GetUsers returns the value of Users.
+func (s *GetOrganizationRoleUsersResponse) GetUsers() []GetOrganizationRoleUsersResponseUsersItem {
+	return s.Users
+}
+
+// GetNextToken returns the value of NextToken.
+func (s *GetOrganizationRoleUsersResponse) GetNextToken() OptNilString {
+	return s.NextToken
+}
+
+// SetCode sets the value of Code.
+func (s *GetOrganizationRoleUsersResponse) SetCode(val OptString) {
+	s.Code = val
+}
+
+// SetMessage sets the value of Message.
+func (s *GetOrganizationRoleUsersResponse) SetMessage(val OptString) {
+	s.Message = val
+}
+
+// SetUsers sets the value of Users.
+func (s *GetOrganizationRoleUsersResponse) SetUsers(val []GetOrganizationRoleUsersResponseUsersItem) {
+	s.Users = val
+}
+
+// SetNextToken sets the value of NextToken.
+func (s *GetOrganizationRoleUsersResponse) SetNextToken(val OptNilString) {
+	s.NextToken = val
+}
+
+func (*GetOrganizationRoleUsersResponse) getOrganizationRoleUsersRes() {}
+
+type GetOrganizationRoleUsersResponseUsersItem struct {
+	// The user's ID.
+	ID OptString `json:"id"`
+}
+
+// GetID returns the value of ID.
+func (s *GetOrganizationRoleUsersResponseUsersItem) GetID() OptString {
+	return s.ID
+}
+
+// SetID sets the value of ID.
+func (s *GetOrganizationRoleUsersResponseUsersItem) SetID(val OptString) {
+	s.ID = val
+}
+
+// GetOrganizationRoleUsersTooManyRequests is response for GetOrganizationRoleUsers operation.
+type GetOrganizationRoleUsersTooManyRequests struct{}
+
+func (*GetOrganizationRoleUsersTooManyRequests) getOrganizationRoleUsersRes() {}
+
 type GetOrganizationTooManyRequests ErrorResponse
 
 func (*GetOrganizationTooManyRequests) getOrganizationRes() {}
@@ -9595,8 +12145,6 @@ const (
 	GetOrganizationUsersSortNameDesc  GetOrganizationUsersSort = "name_desc"
 	GetOrganizationUsersSortEmailAsc  GetOrganizationUsersSort = "email_asc"
 	GetOrganizationUsersSortEmailDesc GetOrganizationUsersSort = "email_desc"
-	GetOrganizationUsersSortIDAsc     GetOrganizationUsersSort = "id_asc"
-	GetOrganizationUsersSortIDDesc    GetOrganizationUsersSort = "id_desc"
 )
 
 // AllValues returns all GetOrganizationUsersSort values.
@@ -9606,8 +12154,6 @@ func (GetOrganizationUsersSort) AllValues() []GetOrganizationUsersSort {
 		GetOrganizationUsersSortNameDesc,
 		GetOrganizationUsersSortEmailAsc,
 		GetOrganizationUsersSortEmailDesc,
-		GetOrganizationUsersSortIDAsc,
-		GetOrganizationUsersSortIDDesc,
 	}
 }
 
@@ -9621,10 +12167,6 @@ func (s GetOrganizationUsersSort) MarshalText() ([]byte, error) {
 	case GetOrganizationUsersSortEmailAsc:
 		return []byte(s), nil
 	case GetOrganizationUsersSortEmailDesc:
-		return []byte(s), nil
-	case GetOrganizationUsersSortIDAsc:
-		return []byte(s), nil
-	case GetOrganizationUsersSortIDDesc:
 		return []byte(s), nil
 	default:
 		return nil, errors.Errorf("invalid value: %q", s)
@@ -9645,12 +12187,6 @@ func (s *GetOrganizationUsersSort) UnmarshalText(data []byte) error {
 		return nil
 	case GetOrganizationUsersSortEmailDesc:
 		*s = GetOrganizationUsersSortEmailDesc
-		return nil
-	case GetOrganizationUsersSortIDAsc:
-		*s = GetOrganizationUsersSortIDAsc
-		return nil
-	case GetOrganizationUsersSortIDDesc:
-		*s = GetOrganizationUsersSortIDDesc
 		return nil
 	default:
 		return errors.Errorf("invalid value: %q", data)
@@ -9874,6 +12410,123 @@ func (s *GetOrganizationsUserRolesResponse) SetNextToken(val OptString) {
 }
 
 func (*GetOrganizationsUserRolesResponse) getOrganizationUserRolesRes() {}
+
+type GetPasskeyBadRequest ErrorResponse
+
+func (*GetPasskeyBadRequest) getPasskeyRes() {}
+
+type GetPasskeyForbidden ErrorResponse
+
+func (*GetPasskeyForbidden) getPasskeyRes() {}
+
+// Merged schema.
+type GetPasskeyOK struct {
+	Message OptString `json:"message"`
+	Code    OptString `json:"code"`
+	// Whether passkeys are enabled for this environment (`policy` is not `off`).
+	Enabled OptBool `json:"enabled"`
+	// Environment passkey policy. `off` disables passkeys; `optional` enables passkeys
+	// and allows users to skip passkey setup after password sign-in; `mandatory` requires
+	// passkey setup after first password sign-in.
+	Policy OptGetPasskeyOKPolicy `json:"policy"`
+}
+
+// GetMessage returns the value of Message.
+func (s *GetPasskeyOK) GetMessage() OptString {
+	return s.Message
+}
+
+// GetCode returns the value of Code.
+func (s *GetPasskeyOK) GetCode() OptString {
+	return s.Code
+}
+
+// GetEnabled returns the value of Enabled.
+func (s *GetPasskeyOK) GetEnabled() OptBool {
+	return s.Enabled
+}
+
+// GetPolicy returns the value of Policy.
+func (s *GetPasskeyOK) GetPolicy() OptGetPasskeyOKPolicy {
+	return s.Policy
+}
+
+// SetMessage sets the value of Message.
+func (s *GetPasskeyOK) SetMessage(val OptString) {
+	s.Message = val
+}
+
+// SetCode sets the value of Code.
+func (s *GetPasskeyOK) SetCode(val OptString) {
+	s.Code = val
+}
+
+// SetEnabled sets the value of Enabled.
+func (s *GetPasskeyOK) SetEnabled(val OptBool) {
+	s.Enabled = val
+}
+
+// SetPolicy sets the value of Policy.
+func (s *GetPasskeyOK) SetPolicy(val OptGetPasskeyOKPolicy) {
+	s.Policy = val
+}
+
+func (*GetPasskeyOK) getPasskeyRes() {}
+
+// Environment passkey policy. `off` disables passkeys; `optional` enables passkeys
+// and allows users to skip passkey setup after password sign-in; `mandatory` requires
+// passkey setup after first password sign-in.
+type GetPasskeyOKPolicy string
+
+const (
+	GetPasskeyOKPolicyOff       GetPasskeyOKPolicy = "off"
+	GetPasskeyOKPolicyOptional  GetPasskeyOKPolicy = "optional"
+	GetPasskeyOKPolicyMandatory GetPasskeyOKPolicy = "mandatory"
+)
+
+// AllValues returns all GetPasskeyOKPolicy values.
+func (GetPasskeyOKPolicy) AllValues() []GetPasskeyOKPolicy {
+	return []GetPasskeyOKPolicy{
+		GetPasskeyOKPolicyOff,
+		GetPasskeyOKPolicyOptional,
+		GetPasskeyOKPolicyMandatory,
+	}
+}
+
+// MarshalText implements encoding.TextMarshaler.
+func (s GetPasskeyOKPolicy) MarshalText() ([]byte, error) {
+	switch s {
+	case GetPasskeyOKPolicyOff:
+		return []byte(s), nil
+	case GetPasskeyOKPolicyOptional:
+		return []byte(s), nil
+	case GetPasskeyOKPolicyMandatory:
+		return []byte(s), nil
+	default:
+		return nil, errors.Errorf("invalid value: %q", s)
+	}
+}
+
+// UnmarshalText implements encoding.TextUnmarshaler.
+func (s *GetPasskeyOKPolicy) UnmarshalText(data []byte) error {
+	switch GetPasskeyOKPolicy(data) {
+	case GetPasskeyOKPolicyOff:
+		*s = GetPasskeyOKPolicyOff
+		return nil
+	case GetPasskeyOKPolicyOptional:
+		*s = GetPasskeyOKPolicyOptional
+		return nil
+	case GetPasskeyOKPolicyMandatory:
+		*s = GetPasskeyOKPolicyMandatory
+		return nil
+	default:
+		return errors.Errorf("invalid value: %q", data)
+	}
+}
+
+type GetPasskeyTooManyRequests ErrorResponse
+
+func (*GetPasskeyTooManyRequests) getPasskeyRes() {}
 
 // Ref: #/components/schemas/get_permissions_response
 type GetPermissionsResponse struct {
@@ -10344,9 +12997,164 @@ type GetRoleScopesTooManyRequests struct{}
 
 func (*GetRoleScopesTooManyRequests) getRoleScopesRes() {}
 
+// GetRoleSystemPermissionsForbidden is response for GetRoleSystemPermissions operation.
+type GetRoleSystemPermissionsForbidden struct{}
+
+func (*GetRoleSystemPermissionsForbidden) getRoleSystemPermissionsRes() {}
+
+type GetRoleSystemPermissionsSort string
+
+const (
+	GetRoleSystemPermissionsSortNameAsc  GetRoleSystemPermissionsSort = "name_asc"
+	GetRoleSystemPermissionsSortNameDesc GetRoleSystemPermissionsSort = "name_desc"
+	GetRoleSystemPermissionsSortIDAsc    GetRoleSystemPermissionsSort = "id_asc"
+	GetRoleSystemPermissionsSortIDDesc   GetRoleSystemPermissionsSort = "id_desc"
+)
+
+// AllValues returns all GetRoleSystemPermissionsSort values.
+func (GetRoleSystemPermissionsSort) AllValues() []GetRoleSystemPermissionsSort {
+	return []GetRoleSystemPermissionsSort{
+		GetRoleSystemPermissionsSortNameAsc,
+		GetRoleSystemPermissionsSortNameDesc,
+		GetRoleSystemPermissionsSortIDAsc,
+		GetRoleSystemPermissionsSortIDDesc,
+	}
+}
+
+// MarshalText implements encoding.TextMarshaler.
+func (s GetRoleSystemPermissionsSort) MarshalText() ([]byte, error) {
+	switch s {
+	case GetRoleSystemPermissionsSortNameAsc:
+		return []byte(s), nil
+	case GetRoleSystemPermissionsSortNameDesc:
+		return []byte(s), nil
+	case GetRoleSystemPermissionsSortIDAsc:
+		return []byte(s), nil
+	case GetRoleSystemPermissionsSortIDDesc:
+		return []byte(s), nil
+	default:
+		return nil, errors.Errorf("invalid value: %q", s)
+	}
+}
+
+// UnmarshalText implements encoding.TextUnmarshaler.
+func (s *GetRoleSystemPermissionsSort) UnmarshalText(data []byte) error {
+	switch GetRoleSystemPermissionsSort(data) {
+	case GetRoleSystemPermissionsSortNameAsc:
+		*s = GetRoleSystemPermissionsSortNameAsc
+		return nil
+	case GetRoleSystemPermissionsSortNameDesc:
+		*s = GetRoleSystemPermissionsSortNameDesc
+		return nil
+	case GetRoleSystemPermissionsSortIDAsc:
+		*s = GetRoleSystemPermissionsSortIDAsc
+		return nil
+	case GetRoleSystemPermissionsSortIDDesc:
+		*s = GetRoleSystemPermissionsSortIDDesc
+		return nil
+	default:
+		return errors.Errorf("invalid value: %q", data)
+	}
+}
+
+// GetRoleSystemPermissionsTooManyRequests is response for GetRoleSystemPermissions operation.
+type GetRoleSystemPermissionsTooManyRequests struct{}
+
+func (*GetRoleSystemPermissionsTooManyRequests) getRoleSystemPermissionsRes() {}
+
 type GetRoleTooManyRequests ErrorResponse
 
 func (*GetRoleTooManyRequests) getRoleRes() {}
+
+// GetRoleUsersForbidden is response for GetRoleUsers operation.
+type GetRoleUsersForbidden struct{}
+
+func (*GetRoleUsersForbidden) getRoleUsersRes() {}
+
+// Ref: #/components/schemas/get_role_users_response
+type GetRoleUsersResponse struct {
+	// Response code.
+	Code OptString `json:"code"`
+	// Response message.
+	Message OptString                       `json:"message"`
+	Users   []GetRoleUsersResponseUsersItem `json:"users"`
+	// Pagination token.
+	NextToken OptNilString `json:"next_token"`
+}
+
+// GetCode returns the value of Code.
+func (s *GetRoleUsersResponse) GetCode() OptString {
+	return s.Code
+}
+
+// GetMessage returns the value of Message.
+func (s *GetRoleUsersResponse) GetMessage() OptString {
+	return s.Message
+}
+
+// GetUsers returns the value of Users.
+func (s *GetRoleUsersResponse) GetUsers() []GetRoleUsersResponseUsersItem {
+	return s.Users
+}
+
+// GetNextToken returns the value of NextToken.
+func (s *GetRoleUsersResponse) GetNextToken() OptNilString {
+	return s.NextToken
+}
+
+// SetCode sets the value of Code.
+func (s *GetRoleUsersResponse) SetCode(val OptString) {
+	s.Code = val
+}
+
+// SetMessage sets the value of Message.
+func (s *GetRoleUsersResponse) SetMessage(val OptString) {
+	s.Message = val
+}
+
+// SetUsers sets the value of Users.
+func (s *GetRoleUsersResponse) SetUsers(val []GetRoleUsersResponseUsersItem) {
+	s.Users = val
+}
+
+// SetNextToken sets the value of NextToken.
+func (s *GetRoleUsersResponse) SetNextToken(val OptNilString) {
+	s.NextToken = val
+}
+
+func (*GetRoleUsersResponse) getRoleUsersRes() {}
+
+type GetRoleUsersResponseUsersItem struct {
+	// The user's ID.
+	ID OptString `json:"id"`
+	// The organization codes where the user has this role.
+	OrgCodes []string `json:"org_codes"`
+}
+
+// GetID returns the value of ID.
+func (s *GetRoleUsersResponseUsersItem) GetID() OptString {
+	return s.ID
+}
+
+// GetOrgCodes returns the value of OrgCodes.
+func (s *GetRoleUsersResponseUsersItem) GetOrgCodes() []string {
+	return s.OrgCodes
+}
+
+// SetID sets the value of ID.
+func (s *GetRoleUsersResponseUsersItem) SetID(val OptString) {
+	s.ID = val
+}
+
+// SetOrgCodes sets the value of OrgCodes.
+func (s *GetRoleUsersResponseUsersItem) SetOrgCodes(val []string) {
+	s.OrgCodes = val
+}
+
+// GetRoleUsersTooManyRequests is response for GetRoleUsers operation.
+type GetRoleUsersTooManyRequests struct{}
+
+func (*GetRoleUsersTooManyRequests) getRoleUsersRes() {}
 
 type GetRolesBadRequest ErrorResponse
 
@@ -10414,8 +13222,8 @@ type GetRolesSort string
 const (
 	GetRolesSortNameAsc  GetRolesSort = "name_asc"
 	GetRolesSortNameDesc GetRolesSort = "name_desc"
-	GetRolesSortIDAsc    GetRolesSort = "id_asc"
-	GetRolesSortIDDesc   GetRolesSort = "id_desc"
+	GetRolesSortKeyAsc   GetRolesSort = "key_asc"
+	GetRolesSortKeyDesc  GetRolesSort = "key_desc"
 )
 
 // AllValues returns all GetRolesSort values.
@@ -10423,8 +13231,8 @@ func (GetRolesSort) AllValues() []GetRolesSort {
 	return []GetRolesSort{
 		GetRolesSortNameAsc,
 		GetRolesSortNameDesc,
-		GetRolesSortIDAsc,
-		GetRolesSortIDDesc,
+		GetRolesSortKeyAsc,
+		GetRolesSortKeyDesc,
 	}
 }
 
@@ -10435,9 +13243,9 @@ func (s GetRolesSort) MarshalText() ([]byte, error) {
 		return []byte(s), nil
 	case GetRolesSortNameDesc:
 		return []byte(s), nil
-	case GetRolesSortIDAsc:
+	case GetRolesSortKeyAsc:
 		return []byte(s), nil
-	case GetRolesSortIDDesc:
+	case GetRolesSortKeyDesc:
 		return []byte(s), nil
 	default:
 		return nil, errors.Errorf("invalid value: %q", s)
@@ -10453,11 +13261,11 @@ func (s *GetRolesSort) UnmarshalText(data []byte) error {
 	case GetRolesSortNameDesc:
 		*s = GetRolesSortNameDesc
 		return nil
-	case GetRolesSortIDAsc:
-		*s = GetRolesSortIDAsc
+	case GetRolesSortKeyAsc:
+		*s = GetRolesSortKeyAsc
 		return nil
-	case GetRolesSortIDDesc:
-		*s = GetRolesSortIDDesc
+	case GetRolesSortKeyDesc:
+		*s = GetRolesSortKeyDesc
 		return nil
 	default:
 		return errors.Errorf("invalid value: %q", data)
@@ -10634,6 +13442,119 @@ func (s *GetSubscribersSort) UnmarshalText(data []byte) error {
 type GetSubscribersTooManyRequests struct{}
 
 func (*GetSubscribersTooManyRequests) getSubscribersRes() {}
+
+// Ref: #/components/schemas/get_system_permissions_response
+type GetSystemPermissionsResponse struct {
+	// Response code.
+	Code OptString `json:"code"`
+	// Response message.
+	Message           OptString           `json:"message"`
+	SystemPermissions []SystemPermissions `json:"system_permissions"`
+	// Pagination token.
+	NextToken OptNilString `json:"next_token"`
+}
+
+// GetCode returns the value of Code.
+func (s *GetSystemPermissionsResponse) GetCode() OptString {
+	return s.Code
+}
+
+// GetMessage returns the value of Message.
+func (s *GetSystemPermissionsResponse) GetMessage() OptString {
+	return s.Message
+}
+
+// GetSystemPermissions returns the value of SystemPermissions.
+func (s *GetSystemPermissionsResponse) GetSystemPermissions() []SystemPermissions {
+	return s.SystemPermissions
+}
+
+// GetNextToken returns the value of NextToken.
+func (s *GetSystemPermissionsResponse) GetNextToken() OptNilString {
+	return s.NextToken
+}
+
+// SetCode sets the value of Code.
+func (s *GetSystemPermissionsResponse) SetCode(val OptString) {
+	s.Code = val
+}
+
+// SetMessage sets the value of Message.
+func (s *GetSystemPermissionsResponse) SetMessage(val OptString) {
+	s.Message = val
+}
+
+// SetSystemPermissions sets the value of SystemPermissions.
+func (s *GetSystemPermissionsResponse) SetSystemPermissions(val []SystemPermissions) {
+	s.SystemPermissions = val
+}
+
+// SetNextToken sets the value of NextToken.
+func (s *GetSystemPermissionsResponse) SetNextToken(val OptNilString) {
+	s.NextToken = val
+}
+
+func (*GetSystemPermissionsResponse) getSystemPermissionsRes() {}
+
+type GetSystemPermissionsSort string
+
+const (
+	GetSystemPermissionsSortNameAsc  GetSystemPermissionsSort = "name_asc"
+	GetSystemPermissionsSortNameDesc GetSystemPermissionsSort = "name_desc"
+	GetSystemPermissionsSortIDAsc    GetSystemPermissionsSort = "id_asc"
+	GetSystemPermissionsSortIDDesc   GetSystemPermissionsSort = "id_desc"
+)
+
+// AllValues returns all GetSystemPermissionsSort values.
+func (GetSystemPermissionsSort) AllValues() []GetSystemPermissionsSort {
+	return []GetSystemPermissionsSort{
+		GetSystemPermissionsSortNameAsc,
+		GetSystemPermissionsSortNameDesc,
+		GetSystemPermissionsSortIDAsc,
+		GetSystemPermissionsSortIDDesc,
+	}
+}
+
+// MarshalText implements encoding.TextMarshaler.
+func (s GetSystemPermissionsSort) MarshalText() ([]byte, error) {
+	switch s {
+	case GetSystemPermissionsSortNameAsc:
+		return []byte(s), nil
+	case GetSystemPermissionsSortNameDesc:
+		return []byte(s), nil
+	case GetSystemPermissionsSortIDAsc:
+		return []byte(s), nil
+	case GetSystemPermissionsSortIDDesc:
+		return []byte(s), nil
+	default:
+		return nil, errors.Errorf("invalid value: %q", s)
+	}
+}
+
+// UnmarshalText implements encoding.TextUnmarshaler.
+func (s *GetSystemPermissionsSort) UnmarshalText(data []byte) error {
+	switch GetSystemPermissionsSort(data) {
+	case GetSystemPermissionsSortNameAsc:
+		*s = GetSystemPermissionsSortNameAsc
+		return nil
+	case GetSystemPermissionsSortNameDesc:
+		*s = GetSystemPermissionsSortNameDesc
+		return nil
+	case GetSystemPermissionsSortIDAsc:
+		*s = GetSystemPermissionsSortIDAsc
+		return nil
+	case GetSystemPermissionsSortIDDesc:
+		*s = GetSystemPermissionsSortIDDesc
+		return nil
+	default:
+		return errors.Errorf("invalid value: %q", data)
+	}
+}
+
+// GetSystemPermissionsTooManyRequests is response for GetSystemPermissions operation.
+type GetSystemPermissionsTooManyRequests struct{}
+
+func (*GetSystemPermissionsTooManyRequests) getSystemPermissionsRes() {}
 
 type GetTimezonesBadRequest ErrorResponse
 
@@ -11178,6 +14099,9 @@ type Identity struct {
 	Name OptString `json:"name"`
 	// The associated email of the identity.
 	Email OptString `json:"email"`
+	// The social or enterprise connection ID associated with the identity. Null for email, phone,
+	// username, and passkey identities.
+	ConnectionID OptNilString `json:"connection_id"`
 	// Whether the identity is the primary identity for the user.
 	IsPrimary OptNilBool `json:"is_primary"`
 }
@@ -11220,6 +14144,11 @@ func (s *Identity) GetName() OptString {
 // GetEmail returns the value of Email.
 func (s *Identity) GetEmail() OptString {
 	return s.Email
+}
+
+// GetConnectionID returns the value of ConnectionID.
+func (s *Identity) GetConnectionID() OptNilString {
+	return s.ConnectionID
 }
 
 // GetIsPrimary returns the value of IsPrimary.
@@ -11265,6 +14194,11 @@ func (s *Identity) SetName(val OptString) {
 // SetEmail sets the value of Email.
 func (s *Identity) SetEmail(val OptString) {
 	s.Email = val
+}
+
+// SetConnectionID sets the value of ConnectionID.
+func (s *Identity) SetConnectionID(val OptNilString) {
+	s.ConnectionID = val
 }
 
 // SetIsPrimary sets the value of IsPrimary.
@@ -11401,21 +14335,23 @@ func (s *NotFoundResponse) SetErrors(val OptNotFoundResponseErrors) {
 	s.Errors = val
 }
 
-func (*NotFoundResponse) deleteApiKeyRes()       {}
-func (*NotFoundResponse) deleteConnectionRes()   {}
-func (*NotFoundResponse) deleteOrganizationRes() {}
-func (*NotFoundResponse) deleteUserSessionsRes() {}
-func (*NotFoundResponse) getApiKeyRes()          {}
-func (*NotFoundResponse) getOrgUserMFARes()      {}
-func (*NotFoundResponse) getUserSessionsRes()    {}
-func (*NotFoundResponse) getUsersMFARes()        {}
-func (*NotFoundResponse) replaceConnectionRes()  {}
-func (*NotFoundResponse) resetOrgUserMFAAllRes() {}
-func (*NotFoundResponse) resetOrgUserMFARes()    {}
-func (*NotFoundResponse) resetUsersMFAAllRes()   {}
-func (*NotFoundResponse) resetUsersMFARes()      {}
-func (*NotFoundResponse) rotateApiKeyRes()       {}
-func (*NotFoundResponse) updateConnectionRes()   {}
+func (*NotFoundResponse) deleteApiKeyRes()             {}
+func (*NotFoundResponse) deleteConnectionRes()         {}
+func (*NotFoundResponse) deleteOrganizationInviteRes() {}
+func (*NotFoundResponse) deleteOrganizationRes()       {}
+func (*NotFoundResponse) deleteUserSessionsRes()       {}
+func (*NotFoundResponse) getApiKeyRes()                {}
+func (*NotFoundResponse) getOrgUserMFARes()            {}
+func (*NotFoundResponse) getOrganizationInviteRes()    {}
+func (*NotFoundResponse) getUserSessionsRes()          {}
+func (*NotFoundResponse) getUsersMFARes()              {}
+func (*NotFoundResponse) replaceConnectionRes()        {}
+func (*NotFoundResponse) resetOrgUserMFAAllRes()       {}
+func (*NotFoundResponse) resetOrgUserMFARes()          {}
+func (*NotFoundResponse) resetUsersMFAAllRes()         {}
+func (*NotFoundResponse) resetUsersMFARes()            {}
+func (*NotFoundResponse) rotateApiKeyRes()             {}
+func (*NotFoundResponse) updateConnectionRes()         {}
 
 type NotFoundResponseErrors struct {
 	Code    OptString `json:"code"`
@@ -11856,6 +14792,52 @@ func (o OptCreateConnectionReqOptions) Or(d CreateConnectionReqOptions) CreateCo
 	return d
 }
 
+// NewOptCreateConnectionReqOptions1SSOButtonDisplay returns new OptCreateConnectionReqOptions1SSOButtonDisplay with value set to v.
+func NewOptCreateConnectionReqOptions1SSOButtonDisplay(v CreateConnectionReqOptions1SSOButtonDisplay) OptCreateConnectionReqOptions1SSOButtonDisplay {
+	return OptCreateConnectionReqOptions1SSOButtonDisplay{
+		Value: v,
+		Set:   true,
+	}
+}
+
+// OptCreateConnectionReqOptions1SSOButtonDisplay is optional CreateConnectionReqOptions1SSOButtonDisplay.
+type OptCreateConnectionReqOptions1SSOButtonDisplay struct {
+	Value CreateConnectionReqOptions1SSOButtonDisplay
+	Set   bool
+}
+
+// IsSet returns true if OptCreateConnectionReqOptions1SSOButtonDisplay was set.
+func (o OptCreateConnectionReqOptions1SSOButtonDisplay) IsSet() bool { return o.Set }
+
+// Reset unsets value.
+func (o *OptCreateConnectionReqOptions1SSOButtonDisplay) Reset() {
+	var v CreateConnectionReqOptions1SSOButtonDisplay
+	o.Value = v
+	o.Set = false
+}
+
+// SetTo sets value to v.
+func (o *OptCreateConnectionReqOptions1SSOButtonDisplay) SetTo(v CreateConnectionReqOptions1SSOButtonDisplay) {
+	o.Set = true
+	o.Value = v
+}
+
+// Get returns value and boolean that denotes whether value was set.
+func (o OptCreateConnectionReqOptions1SSOButtonDisplay) Get() (v CreateConnectionReqOptions1SSOButtonDisplay, ok bool) {
+	if !o.Set {
+		return v, false
+	}
+	return o.Value, true
+}
+
+// Or returns value if set, or given parameter if does not.
+func (o OptCreateConnectionReqOptions1SSOButtonDisplay) Or(d CreateConnectionReqOptions1SSOButtonDisplay) CreateConnectionReqOptions1SSOButtonDisplay {
+	if v, ok := o.Get(); ok {
+		return v
+	}
+	return d
+}
+
 // NewOptCreateConnectionReqOptions1UpstreamParams returns new OptCreateConnectionReqOptions1UpstreamParams with value set to v.
 func NewOptCreateConnectionReqOptions1UpstreamParams(v CreateConnectionReqOptions1UpstreamParams) OptCreateConnectionReqOptions1UpstreamParams {
 	return OptCreateConnectionReqOptions1UpstreamParams{
@@ -11896,6 +14878,190 @@ func (o OptCreateConnectionReqOptions1UpstreamParams) Get() (v CreateConnectionR
 
 // Or returns value if set, or given parameter if does not.
 func (o OptCreateConnectionReqOptions1UpstreamParams) Or(d CreateConnectionReqOptions1UpstreamParams) CreateConnectionReqOptions1UpstreamParams {
+	if v, ok := o.Get(); ok {
+		return v
+	}
+	return d
+}
+
+// NewOptCreateConnectionReqOptions2NameIDFormat returns new OptCreateConnectionReqOptions2NameIDFormat with value set to v.
+func NewOptCreateConnectionReqOptions2NameIDFormat(v CreateConnectionReqOptions2NameIDFormat) OptCreateConnectionReqOptions2NameIDFormat {
+	return OptCreateConnectionReqOptions2NameIDFormat{
+		Value: v,
+		Set:   true,
+	}
+}
+
+// OptCreateConnectionReqOptions2NameIDFormat is optional CreateConnectionReqOptions2NameIDFormat.
+type OptCreateConnectionReqOptions2NameIDFormat struct {
+	Value CreateConnectionReqOptions2NameIDFormat
+	Set   bool
+}
+
+// IsSet returns true if OptCreateConnectionReqOptions2NameIDFormat was set.
+func (o OptCreateConnectionReqOptions2NameIDFormat) IsSet() bool { return o.Set }
+
+// Reset unsets value.
+func (o *OptCreateConnectionReqOptions2NameIDFormat) Reset() {
+	var v CreateConnectionReqOptions2NameIDFormat
+	o.Value = v
+	o.Set = false
+}
+
+// SetTo sets value to v.
+func (o *OptCreateConnectionReqOptions2NameIDFormat) SetTo(v CreateConnectionReqOptions2NameIDFormat) {
+	o.Set = true
+	o.Value = v
+}
+
+// Get returns value and boolean that denotes whether value was set.
+func (o OptCreateConnectionReqOptions2NameIDFormat) Get() (v CreateConnectionReqOptions2NameIDFormat, ok bool) {
+	if !o.Set {
+		return v, false
+	}
+	return o.Value, true
+}
+
+// Or returns value if set, or given parameter if does not.
+func (o OptCreateConnectionReqOptions2NameIDFormat) Or(d CreateConnectionReqOptions2NameIDFormat) CreateConnectionReqOptions2NameIDFormat {
+	if v, ok := o.Get(); ok {
+		return v
+	}
+	return d
+}
+
+// NewOptCreateConnectionReqOptions2ProtocolBinding returns new OptCreateConnectionReqOptions2ProtocolBinding with value set to v.
+func NewOptCreateConnectionReqOptions2ProtocolBinding(v CreateConnectionReqOptions2ProtocolBinding) OptCreateConnectionReqOptions2ProtocolBinding {
+	return OptCreateConnectionReqOptions2ProtocolBinding{
+		Value: v,
+		Set:   true,
+	}
+}
+
+// OptCreateConnectionReqOptions2ProtocolBinding is optional CreateConnectionReqOptions2ProtocolBinding.
+type OptCreateConnectionReqOptions2ProtocolBinding struct {
+	Value CreateConnectionReqOptions2ProtocolBinding
+	Set   bool
+}
+
+// IsSet returns true if OptCreateConnectionReqOptions2ProtocolBinding was set.
+func (o OptCreateConnectionReqOptions2ProtocolBinding) IsSet() bool { return o.Set }
+
+// Reset unsets value.
+func (o *OptCreateConnectionReqOptions2ProtocolBinding) Reset() {
+	var v CreateConnectionReqOptions2ProtocolBinding
+	o.Value = v
+	o.Set = false
+}
+
+// SetTo sets value to v.
+func (o *OptCreateConnectionReqOptions2ProtocolBinding) SetTo(v CreateConnectionReqOptions2ProtocolBinding) {
+	o.Set = true
+	o.Value = v
+}
+
+// Get returns value and boolean that denotes whether value was set.
+func (o OptCreateConnectionReqOptions2ProtocolBinding) Get() (v CreateConnectionReqOptions2ProtocolBinding, ok bool) {
+	if !o.Set {
+		return v, false
+	}
+	return o.Value, true
+}
+
+// Or returns value if set, or given parameter if does not.
+func (o OptCreateConnectionReqOptions2ProtocolBinding) Or(d CreateConnectionReqOptions2ProtocolBinding) CreateConnectionReqOptions2ProtocolBinding {
+	if v, ok := o.Get(); ok {
+		return v
+	}
+	return d
+}
+
+// NewOptCreateConnectionReqOptions2SSOButtonDisplay returns new OptCreateConnectionReqOptions2SSOButtonDisplay with value set to v.
+func NewOptCreateConnectionReqOptions2SSOButtonDisplay(v CreateConnectionReqOptions2SSOButtonDisplay) OptCreateConnectionReqOptions2SSOButtonDisplay {
+	return OptCreateConnectionReqOptions2SSOButtonDisplay{
+		Value: v,
+		Set:   true,
+	}
+}
+
+// OptCreateConnectionReqOptions2SSOButtonDisplay is optional CreateConnectionReqOptions2SSOButtonDisplay.
+type OptCreateConnectionReqOptions2SSOButtonDisplay struct {
+	Value CreateConnectionReqOptions2SSOButtonDisplay
+	Set   bool
+}
+
+// IsSet returns true if OptCreateConnectionReqOptions2SSOButtonDisplay was set.
+func (o OptCreateConnectionReqOptions2SSOButtonDisplay) IsSet() bool { return o.Set }
+
+// Reset unsets value.
+func (o *OptCreateConnectionReqOptions2SSOButtonDisplay) Reset() {
+	var v CreateConnectionReqOptions2SSOButtonDisplay
+	o.Value = v
+	o.Set = false
+}
+
+// SetTo sets value to v.
+func (o *OptCreateConnectionReqOptions2SSOButtonDisplay) SetTo(v CreateConnectionReqOptions2SSOButtonDisplay) {
+	o.Set = true
+	o.Value = v
+}
+
+// Get returns value and boolean that denotes whether value was set.
+func (o OptCreateConnectionReqOptions2SSOButtonDisplay) Get() (v CreateConnectionReqOptions2SSOButtonDisplay, ok bool) {
+	if !o.Set {
+		return v, false
+	}
+	return o.Value, true
+}
+
+// Or returns value if set, or given parameter if does not.
+func (o OptCreateConnectionReqOptions2SSOButtonDisplay) Or(d CreateConnectionReqOptions2SSOButtonDisplay) CreateConnectionReqOptions2SSOButtonDisplay {
+	if v, ok := o.Get(); ok {
+		return v
+	}
+	return d
+}
+
+// NewOptCreateConnectionReqOptions2SignRequestAlgorithm returns new OptCreateConnectionReqOptions2SignRequestAlgorithm with value set to v.
+func NewOptCreateConnectionReqOptions2SignRequestAlgorithm(v CreateConnectionReqOptions2SignRequestAlgorithm) OptCreateConnectionReqOptions2SignRequestAlgorithm {
+	return OptCreateConnectionReqOptions2SignRequestAlgorithm{
+		Value: v,
+		Set:   true,
+	}
+}
+
+// OptCreateConnectionReqOptions2SignRequestAlgorithm is optional CreateConnectionReqOptions2SignRequestAlgorithm.
+type OptCreateConnectionReqOptions2SignRequestAlgorithm struct {
+	Value CreateConnectionReqOptions2SignRequestAlgorithm
+	Set   bool
+}
+
+// IsSet returns true if OptCreateConnectionReqOptions2SignRequestAlgorithm was set.
+func (o OptCreateConnectionReqOptions2SignRequestAlgorithm) IsSet() bool { return o.Set }
+
+// Reset unsets value.
+func (o *OptCreateConnectionReqOptions2SignRequestAlgorithm) Reset() {
+	var v CreateConnectionReqOptions2SignRequestAlgorithm
+	o.Value = v
+	o.Set = false
+}
+
+// SetTo sets value to v.
+func (o *OptCreateConnectionReqOptions2SignRequestAlgorithm) SetTo(v CreateConnectionReqOptions2SignRequestAlgorithm) {
+	o.Set = true
+	o.Value = v
+}
+
+// Get returns value and boolean that denotes whether value was set.
+func (o OptCreateConnectionReqOptions2SignRequestAlgorithm) Get() (v CreateConnectionReqOptions2SignRequestAlgorithm, ok bool) {
+	if !o.Set {
+		return v, false
+	}
+	return o.Value, true
+}
+
+// Or returns value if set, or given parameter if does not.
+func (o OptCreateConnectionReqOptions2SignRequestAlgorithm) Or(d CreateConnectionReqOptions2SignRequestAlgorithm) CreateConnectionReqOptions2SignRequestAlgorithm {
 	if v, ok := o.Get(); ok {
 		return v
 	}
@@ -12034,6 +15200,52 @@ func (o OptCreateConnectionResponseConnection) Get() (v CreateConnectionResponse
 
 // Or returns value if set, or given parameter if does not.
 func (o OptCreateConnectionResponseConnection) Or(d CreateConnectionResponseConnection) CreateConnectionResponseConnection {
+	if v, ok := o.Get(); ok {
+		return v
+	}
+	return d
+}
+
+// NewOptCreateDirectoryReqProviderCode returns new OptCreateDirectoryReqProviderCode with value set to v.
+func NewOptCreateDirectoryReqProviderCode(v CreateDirectoryReqProviderCode) OptCreateDirectoryReqProviderCode {
+	return OptCreateDirectoryReqProviderCode{
+		Value: v,
+		Set:   true,
+	}
+}
+
+// OptCreateDirectoryReqProviderCode is optional CreateDirectoryReqProviderCode.
+type OptCreateDirectoryReqProviderCode struct {
+	Value CreateDirectoryReqProviderCode
+	Set   bool
+}
+
+// IsSet returns true if OptCreateDirectoryReqProviderCode was set.
+func (o OptCreateDirectoryReqProviderCode) IsSet() bool { return o.Set }
+
+// Reset unsets value.
+func (o *OptCreateDirectoryReqProviderCode) Reset() {
+	var v CreateDirectoryReqProviderCode
+	o.Value = v
+	o.Set = false
+}
+
+// SetTo sets value to v.
+func (o *OptCreateDirectoryReqProviderCode) SetTo(v CreateDirectoryReqProviderCode) {
+	o.Set = true
+	o.Value = v
+}
+
+// Get returns value and boolean that denotes whether value was set.
+func (o OptCreateDirectoryReqProviderCode) Get() (v CreateDirectoryReqProviderCode, ok bool) {
+	if !o.Set {
+		return v, false
+	}
+	return o.Value, true
+}
+
+// Or returns value if set, or given parameter if does not.
+func (o OptCreateDirectoryReqProviderCode) Or(d CreateDirectoryReqProviderCode) CreateDirectoryReqProviderCode {
 	if v, ok := o.Get(); ok {
 		return v
 	}
@@ -12218,6 +15430,52 @@ func (o OptCreateMeterUsageRecordReqMeterTypeCode) Get() (v CreateMeterUsageReco
 
 // Or returns value if set, or given parameter if does not.
 func (o OptCreateMeterUsageRecordReqMeterTypeCode) Or(d CreateMeterUsageRecordReqMeterTypeCode) CreateMeterUsageRecordReqMeterTypeCode {
+	if v, ok := o.Get(); ok {
+		return v
+	}
+	return d
+}
+
+// NewOptCreateOrganizationInviteResponseInvite returns new OptCreateOrganizationInviteResponseInvite with value set to v.
+func NewOptCreateOrganizationInviteResponseInvite(v CreateOrganizationInviteResponseInvite) OptCreateOrganizationInviteResponseInvite {
+	return OptCreateOrganizationInviteResponseInvite{
+		Value: v,
+		Set:   true,
+	}
+}
+
+// OptCreateOrganizationInviteResponseInvite is optional CreateOrganizationInviteResponseInvite.
+type OptCreateOrganizationInviteResponseInvite struct {
+	Value CreateOrganizationInviteResponseInvite
+	Set   bool
+}
+
+// IsSet returns true if OptCreateOrganizationInviteResponseInvite was set.
+func (o OptCreateOrganizationInviteResponseInvite) IsSet() bool { return o.Set }
+
+// Reset unsets value.
+func (o *OptCreateOrganizationInviteResponseInvite) Reset() {
+	var v CreateOrganizationInviteResponseInvite
+	o.Value = v
+	o.Set = false
+}
+
+// SetTo sets value to v.
+func (o *OptCreateOrganizationInviteResponseInvite) SetTo(v CreateOrganizationInviteResponseInvite) {
+	o.Set = true
+	o.Value = v
+}
+
+// Get returns value and boolean that denotes whether value was set.
+func (o OptCreateOrganizationInviteResponseInvite) Get() (v CreateOrganizationInviteResponseInvite, ok bool) {
+	if !o.Set {
+		return v, false
+	}
+	return o.Value, true
+}
+
+// Or returns value if set, or given parameter if does not.
+func (o OptCreateOrganizationInviteResponseInvite) Or(d CreateOrganizationInviteResponseInvite) CreateOrganizationInviteResponseInvite {
 	if v, ok := o.Get(); ok {
 		return v
 	}
@@ -12540,6 +15798,52 @@ func (o OptCreateSubscriberSuccessResponseSubscriber) Get() (v CreateSubscriberS
 
 // Or returns value if set, or given parameter if does not.
 func (o OptCreateSubscriberSuccessResponseSubscriber) Or(d CreateSubscriberSuccessResponseSubscriber) CreateSubscriberSuccessResponseSubscriber {
+	if v, ok := o.Get(); ok {
+		return v
+	}
+	return d
+}
+
+// NewOptCreateUserBillingCustomerResponseBillingCustomer returns new OptCreateUserBillingCustomerResponseBillingCustomer with value set to v.
+func NewOptCreateUserBillingCustomerResponseBillingCustomer(v CreateUserBillingCustomerResponseBillingCustomer) OptCreateUserBillingCustomerResponseBillingCustomer {
+	return OptCreateUserBillingCustomerResponseBillingCustomer{
+		Value: v,
+		Set:   true,
+	}
+}
+
+// OptCreateUserBillingCustomerResponseBillingCustomer is optional CreateUserBillingCustomerResponseBillingCustomer.
+type OptCreateUserBillingCustomerResponseBillingCustomer struct {
+	Value CreateUserBillingCustomerResponseBillingCustomer
+	Set   bool
+}
+
+// IsSet returns true if OptCreateUserBillingCustomerResponseBillingCustomer was set.
+func (o OptCreateUserBillingCustomerResponseBillingCustomer) IsSet() bool { return o.Set }
+
+// Reset unsets value.
+func (o *OptCreateUserBillingCustomerResponseBillingCustomer) Reset() {
+	var v CreateUserBillingCustomerResponseBillingCustomer
+	o.Value = v
+	o.Set = false
+}
+
+// SetTo sets value to v.
+func (o *OptCreateUserBillingCustomerResponseBillingCustomer) SetTo(v CreateUserBillingCustomerResponseBillingCustomer) {
+	o.Set = true
+	o.Value = v
+}
+
+// Get returns value and boolean that denotes whether value was set.
+func (o OptCreateUserBillingCustomerResponseBillingCustomer) Get() (v CreateUserBillingCustomerResponseBillingCustomer, ok bool) {
+	if !o.Set {
+		return v, false
+	}
+	return o.Value, true
+}
+
+// Or returns value if set, or given parameter if does not.
+func (o OptCreateUserBillingCustomerResponseBillingCustomer) Or(d CreateUserBillingCustomerResponseBillingCustomer) CreateUserBillingCustomerResponseBillingCustomer {
 	if v, ok := o.Get(); ok {
 		return v
 	}
@@ -12908,6 +16212,98 @@ func (o OptDateTime) Get() (v time.Time, ok bool) {
 
 // Or returns value if set, or given parameter if does not.
 func (o OptDateTime) Or(d time.Time) time.Time {
+	if v, ok := o.Get(); ok {
+		return v
+	}
+	return d
+}
+
+// NewOptDirectory returns new OptDirectory with value set to v.
+func NewOptDirectory(v Directory) OptDirectory {
+	return OptDirectory{
+		Value: v,
+		Set:   true,
+	}
+}
+
+// OptDirectory is optional Directory.
+type OptDirectory struct {
+	Value Directory
+	Set   bool
+}
+
+// IsSet returns true if OptDirectory was set.
+func (o OptDirectory) IsSet() bool { return o.Set }
+
+// Reset unsets value.
+func (o *OptDirectory) Reset() {
+	var v Directory
+	o.Value = v
+	o.Set = false
+}
+
+// SetTo sets value to v.
+func (o *OptDirectory) SetTo(v Directory) {
+	o.Set = true
+	o.Value = v
+}
+
+// Get returns value and boolean that denotes whether value was set.
+func (o OptDirectory) Get() (v Directory, ok bool) {
+	if !o.Set {
+		return v, false
+	}
+	return o.Value, true
+}
+
+// Or returns value if set, or given parameter if does not.
+func (o OptDirectory) Or(d Directory) Directory {
+	if v, ok := o.Get(); ok {
+		return v
+	}
+	return d
+}
+
+// NewOptDirectoryStatus returns new OptDirectoryStatus with value set to v.
+func NewOptDirectoryStatus(v DirectoryStatus) OptDirectoryStatus {
+	return OptDirectoryStatus{
+		Value: v,
+		Set:   true,
+	}
+}
+
+// OptDirectoryStatus is optional DirectoryStatus.
+type OptDirectoryStatus struct {
+	Value DirectoryStatus
+	Set   bool
+}
+
+// IsSet returns true if OptDirectoryStatus was set.
+func (o OptDirectoryStatus) IsSet() bool { return o.Set }
+
+// Reset unsets value.
+func (o *OptDirectoryStatus) Reset() {
+	var v DirectoryStatus
+	o.Value = v
+	o.Set = false
+}
+
+// SetTo sets value to v.
+func (o *OptDirectoryStatus) SetTo(v DirectoryStatus) {
+	o.Set = true
+	o.Value = v
+}
+
+// Get returns value and boolean that denotes whether value was set.
+func (o OptDirectoryStatus) Get() (v DirectoryStatus, ok bool) {
+	if !o.Set {
+		return v, false
+	}
+	return o.Value, true
+}
+
+// Or returns value if set, or given parameter if does not.
+func (o OptDirectoryStatus) Or(d DirectoryStatus) DirectoryStatus {
 	if v, ok := o.Get(); ok {
 		return v
 	}
@@ -13650,6 +17046,98 @@ func (o OptGetOrganizationFeatureFlagsResponseFeatureFlagsItemType) Or(d GetOrga
 	return d
 }
 
+// NewOptGetOrganizationPasskeyOKEnvironmentPolicy returns new OptGetOrganizationPasskeyOKEnvironmentPolicy with value set to v.
+func NewOptGetOrganizationPasskeyOKEnvironmentPolicy(v GetOrganizationPasskeyOKEnvironmentPolicy) OptGetOrganizationPasskeyOKEnvironmentPolicy {
+	return OptGetOrganizationPasskeyOKEnvironmentPolicy{
+		Value: v,
+		Set:   true,
+	}
+}
+
+// OptGetOrganizationPasskeyOKEnvironmentPolicy is optional GetOrganizationPasskeyOKEnvironmentPolicy.
+type OptGetOrganizationPasskeyOKEnvironmentPolicy struct {
+	Value GetOrganizationPasskeyOKEnvironmentPolicy
+	Set   bool
+}
+
+// IsSet returns true if OptGetOrganizationPasskeyOKEnvironmentPolicy was set.
+func (o OptGetOrganizationPasskeyOKEnvironmentPolicy) IsSet() bool { return o.Set }
+
+// Reset unsets value.
+func (o *OptGetOrganizationPasskeyOKEnvironmentPolicy) Reset() {
+	var v GetOrganizationPasskeyOKEnvironmentPolicy
+	o.Value = v
+	o.Set = false
+}
+
+// SetTo sets value to v.
+func (o *OptGetOrganizationPasskeyOKEnvironmentPolicy) SetTo(v GetOrganizationPasskeyOKEnvironmentPolicy) {
+	o.Set = true
+	o.Value = v
+}
+
+// Get returns value and boolean that denotes whether value was set.
+func (o OptGetOrganizationPasskeyOKEnvironmentPolicy) Get() (v GetOrganizationPasskeyOKEnvironmentPolicy, ok bool) {
+	if !o.Set {
+		return v, false
+	}
+	return o.Value, true
+}
+
+// Or returns value if set, or given parameter if does not.
+func (o OptGetOrganizationPasskeyOKEnvironmentPolicy) Or(d GetOrganizationPasskeyOKEnvironmentPolicy) GetOrganizationPasskeyOKEnvironmentPolicy {
+	if v, ok := o.Get(); ok {
+		return v
+	}
+	return d
+}
+
+// NewOptGetOrganizationPasskeyOKPolicy returns new OptGetOrganizationPasskeyOKPolicy with value set to v.
+func NewOptGetOrganizationPasskeyOKPolicy(v GetOrganizationPasskeyOKPolicy) OptGetOrganizationPasskeyOKPolicy {
+	return OptGetOrganizationPasskeyOKPolicy{
+		Value: v,
+		Set:   true,
+	}
+}
+
+// OptGetOrganizationPasskeyOKPolicy is optional GetOrganizationPasskeyOKPolicy.
+type OptGetOrganizationPasskeyOKPolicy struct {
+	Value GetOrganizationPasskeyOKPolicy
+	Set   bool
+}
+
+// IsSet returns true if OptGetOrganizationPasskeyOKPolicy was set.
+func (o OptGetOrganizationPasskeyOKPolicy) IsSet() bool { return o.Set }
+
+// Reset unsets value.
+func (o *OptGetOrganizationPasskeyOKPolicy) Reset() {
+	var v GetOrganizationPasskeyOKPolicy
+	o.Value = v
+	o.Set = false
+}
+
+// SetTo sets value to v.
+func (o *OptGetOrganizationPasskeyOKPolicy) SetTo(v GetOrganizationPasskeyOKPolicy) {
+	o.Set = true
+	o.Value = v
+}
+
+// Get returns value and boolean that denotes whether value was set.
+func (o OptGetOrganizationPasskeyOKPolicy) Get() (v GetOrganizationPasskeyOKPolicy, ok bool) {
+	if !o.Set {
+		return v, false
+	}
+	return o.Value, true
+}
+
+// Or returns value if set, or given parameter if does not.
+func (o OptGetOrganizationPasskeyOKPolicy) Or(d GetOrganizationPasskeyOKPolicy) GetOrganizationPasskeyOKPolicy {
+	if v, ok := o.Get(); ok {
+		return v
+	}
+	return d
+}
+
 // NewOptGetOrganizationResponseBilling returns new OptGetOrganizationResponseBilling with value set to v.
 func NewOptGetOrganizationResponseBilling(v GetOrganizationResponseBilling) OptGetOrganizationResponseBilling {
 	return OptGetOrganizationResponseBilling{
@@ -13782,6 +17270,52 @@ func (o OptGetOrganizationResponseThemeCode) Get() (v GetOrganizationResponseThe
 
 // Or returns value if set, or given parameter if does not.
 func (o OptGetOrganizationResponseThemeCode) Or(d GetOrganizationResponseThemeCode) GetOrganizationResponseThemeCode {
+	if v, ok := o.Get(); ok {
+		return v
+	}
+	return d
+}
+
+// NewOptGetPasskeyOKPolicy returns new OptGetPasskeyOKPolicy with value set to v.
+func NewOptGetPasskeyOKPolicy(v GetPasskeyOKPolicy) OptGetPasskeyOKPolicy {
+	return OptGetPasskeyOKPolicy{
+		Value: v,
+		Set:   true,
+	}
+}
+
+// OptGetPasskeyOKPolicy is optional GetPasskeyOKPolicy.
+type OptGetPasskeyOKPolicy struct {
+	Value GetPasskeyOKPolicy
+	Set   bool
+}
+
+// IsSet returns true if OptGetPasskeyOKPolicy was set.
+func (o OptGetPasskeyOKPolicy) IsSet() bool { return o.Set }
+
+// Reset unsets value.
+func (o *OptGetPasskeyOKPolicy) Reset() {
+	var v GetPasskeyOKPolicy
+	o.Value = v
+	o.Set = false
+}
+
+// SetTo sets value to v.
+func (o *OptGetPasskeyOKPolicy) SetTo(v GetPasskeyOKPolicy) {
+	o.Set = true
+	o.Value = v
+}
+
+// Get returns value and boolean that denotes whether value was set.
+func (o OptGetPasskeyOKPolicy) Get() (v GetPasskeyOKPolicy, ok bool) {
+	if !o.Set {
+		return v, false
+	}
+	return o.Value, true
+}
+
+// Or returns value if set, or given parameter if does not.
+func (o OptGetPasskeyOKPolicy) Or(d GetPasskeyOKPolicy) GetPasskeyOKPolicy {
 	if v, ok := o.Get(); ok {
 		return v
 	}
@@ -14934,6 +18468,69 @@ func (o OptNilGetEnvironmentResponseEnvironmentLinkColorDark) Or(d GetEnvironmen
 	return d
 }
 
+// NewOptNilGetOrganizationInvitesSort returns new OptNilGetOrganizationInvitesSort with value set to v.
+func NewOptNilGetOrganizationInvitesSort(v GetOrganizationInvitesSort) OptNilGetOrganizationInvitesSort {
+	return OptNilGetOrganizationInvitesSort{
+		Value: v,
+		Set:   true,
+	}
+}
+
+// OptNilGetOrganizationInvitesSort is optional nullable GetOrganizationInvitesSort.
+type OptNilGetOrganizationInvitesSort struct {
+	Value GetOrganizationInvitesSort
+	Set   bool
+	Null  bool
+}
+
+// IsSet returns true if OptNilGetOrganizationInvitesSort was set.
+func (o OptNilGetOrganizationInvitesSort) IsSet() bool { return o.Set }
+
+// Reset unsets value.
+func (o *OptNilGetOrganizationInvitesSort) Reset() {
+	var v GetOrganizationInvitesSort
+	o.Value = v
+	o.Set = false
+	o.Null = false
+}
+
+// SetTo sets value to v.
+func (o *OptNilGetOrganizationInvitesSort) SetTo(v GetOrganizationInvitesSort) {
+	o.Set = true
+	o.Null = false
+	o.Value = v
+}
+
+// IsNull returns true if value is Null.
+func (o OptNilGetOrganizationInvitesSort) IsNull() bool { return o.Null }
+
+// SetToNull sets value to null.
+func (o *OptNilGetOrganizationInvitesSort) SetToNull() {
+	o.Set = true
+	o.Null = true
+	var v GetOrganizationInvitesSort
+	o.Value = v
+}
+
+// Get returns value and boolean that denotes whether value was set.
+func (o OptNilGetOrganizationInvitesSort) Get() (v GetOrganizationInvitesSort, ok bool) {
+	if o.Null {
+		return v, false
+	}
+	if !o.Set {
+		return v, false
+	}
+	return o.Value, true
+}
+
+// Or returns value if set, or given parameter if does not.
+func (o OptNilGetOrganizationInvitesSort) Or(d GetOrganizationInvitesSort) GetOrganizationInvitesSort {
+	if v, ok := o.Get(); ok {
+		return v
+	}
+	return d
+}
+
 // NewOptNilGetOrganizationResponseBackgroundColor returns new OptNilGetOrganizationResponseBackgroundColor with value set to v.
 func NewOptNilGetOrganizationResponseBackgroundColor(v GetOrganizationResponseBackgroundColor) OptNilGetOrganizationResponseBackgroundColor {
 	return OptNilGetOrganizationResponseBackgroundColor{
@@ -15753,6 +19350,69 @@ func (o OptNilGetRolePermissionsSort) Or(d GetRolePermissionsSort) GetRolePermis
 	return d
 }
 
+// NewOptNilGetRoleSystemPermissionsSort returns new OptNilGetRoleSystemPermissionsSort with value set to v.
+func NewOptNilGetRoleSystemPermissionsSort(v GetRoleSystemPermissionsSort) OptNilGetRoleSystemPermissionsSort {
+	return OptNilGetRoleSystemPermissionsSort{
+		Value: v,
+		Set:   true,
+	}
+}
+
+// OptNilGetRoleSystemPermissionsSort is optional nullable GetRoleSystemPermissionsSort.
+type OptNilGetRoleSystemPermissionsSort struct {
+	Value GetRoleSystemPermissionsSort
+	Set   bool
+	Null  bool
+}
+
+// IsSet returns true if OptNilGetRoleSystemPermissionsSort was set.
+func (o OptNilGetRoleSystemPermissionsSort) IsSet() bool { return o.Set }
+
+// Reset unsets value.
+func (o *OptNilGetRoleSystemPermissionsSort) Reset() {
+	var v GetRoleSystemPermissionsSort
+	o.Value = v
+	o.Set = false
+	o.Null = false
+}
+
+// SetTo sets value to v.
+func (o *OptNilGetRoleSystemPermissionsSort) SetTo(v GetRoleSystemPermissionsSort) {
+	o.Set = true
+	o.Null = false
+	o.Value = v
+}
+
+// IsNull returns true if value is Null.
+func (o OptNilGetRoleSystemPermissionsSort) IsNull() bool { return o.Null }
+
+// SetToNull sets value to null.
+func (o *OptNilGetRoleSystemPermissionsSort) SetToNull() {
+	o.Set = true
+	o.Null = true
+	var v GetRoleSystemPermissionsSort
+	o.Value = v
+}
+
+// Get returns value and boolean that denotes whether value was set.
+func (o OptNilGetRoleSystemPermissionsSort) Get() (v GetRoleSystemPermissionsSort, ok bool) {
+	if o.Null {
+		return v, false
+	}
+	if !o.Set {
+		return v, false
+	}
+	return o.Value, true
+}
+
+// Or returns value if set, or given parameter if does not.
+func (o OptNilGetRoleSystemPermissionsSort) Or(d GetRoleSystemPermissionsSort) GetRoleSystemPermissionsSort {
+	if v, ok := o.Get(); ok {
+		return v
+	}
+	return d
+}
+
 // NewOptNilGetRolesSort returns new OptNilGetRolesSort with value set to v.
 func NewOptNilGetRolesSort(v GetRolesSort) OptNilGetRolesSort {
 	return OptNilGetRolesSort{
@@ -15873,6 +19533,69 @@ func (o OptNilGetSubscribersSort) Get() (v GetSubscribersSort, ok bool) {
 
 // Or returns value if set, or given parameter if does not.
 func (o OptNilGetSubscribersSort) Or(d GetSubscribersSort) GetSubscribersSort {
+	if v, ok := o.Get(); ok {
+		return v
+	}
+	return d
+}
+
+// NewOptNilGetSystemPermissionsSort returns new OptNilGetSystemPermissionsSort with value set to v.
+func NewOptNilGetSystemPermissionsSort(v GetSystemPermissionsSort) OptNilGetSystemPermissionsSort {
+	return OptNilGetSystemPermissionsSort{
+		Value: v,
+		Set:   true,
+	}
+}
+
+// OptNilGetSystemPermissionsSort is optional nullable GetSystemPermissionsSort.
+type OptNilGetSystemPermissionsSort struct {
+	Value GetSystemPermissionsSort
+	Set   bool
+	Null  bool
+}
+
+// IsSet returns true if OptNilGetSystemPermissionsSort was set.
+func (o OptNilGetSystemPermissionsSort) IsSet() bool { return o.Set }
+
+// Reset unsets value.
+func (o *OptNilGetSystemPermissionsSort) Reset() {
+	var v GetSystemPermissionsSort
+	o.Value = v
+	o.Set = false
+	o.Null = false
+}
+
+// SetTo sets value to v.
+func (o *OptNilGetSystemPermissionsSort) SetTo(v GetSystemPermissionsSort) {
+	o.Set = true
+	o.Null = false
+	o.Value = v
+}
+
+// IsNull returns true if value is Null.
+func (o OptNilGetSystemPermissionsSort) IsNull() bool { return o.Null }
+
+// SetToNull sets value to null.
+func (o *OptNilGetSystemPermissionsSort) SetToNull() {
+	o.Set = true
+	o.Null = true
+	var v GetSystemPermissionsSort
+	o.Value = v
+}
+
+// Get returns value and boolean that denotes whether value was set.
+func (o OptNilGetSystemPermissionsSort) Get() (v GetSystemPermissionsSort, ok bool) {
+	if o.Null {
+		return v, false
+	}
+	if !o.Set {
+		return v, false
+	}
+	return o.Value, true
+}
+
+// Or returns value if set, or given parameter if does not.
+func (o OptNilGetSystemPermissionsSort) Or(d GetSystemPermissionsSort) GetSystemPermissionsSort {
 	if v, ok := o.Get(); ok {
 		return v
 	}
@@ -16194,6 +19917,69 @@ func (o OptNilUpdateOrganizationExpand) Or(d UpdateOrganizationExpand) UpdateOrg
 	return d
 }
 
+// NewOptNilUsersResponseUsersItemLastOrganizationSignInsItemArray returns new OptNilUsersResponseUsersItemLastOrganizationSignInsItemArray with value set to v.
+func NewOptNilUsersResponseUsersItemLastOrganizationSignInsItemArray(v []UsersResponseUsersItemLastOrganizationSignInsItem) OptNilUsersResponseUsersItemLastOrganizationSignInsItemArray {
+	return OptNilUsersResponseUsersItemLastOrganizationSignInsItemArray{
+		Value: v,
+		Set:   true,
+	}
+}
+
+// OptNilUsersResponseUsersItemLastOrganizationSignInsItemArray is optional nullable []UsersResponseUsersItemLastOrganizationSignInsItem.
+type OptNilUsersResponseUsersItemLastOrganizationSignInsItemArray struct {
+	Value []UsersResponseUsersItemLastOrganizationSignInsItem
+	Set   bool
+	Null  bool
+}
+
+// IsSet returns true if OptNilUsersResponseUsersItemLastOrganizationSignInsItemArray was set.
+func (o OptNilUsersResponseUsersItemLastOrganizationSignInsItemArray) IsSet() bool { return o.Set }
+
+// Reset unsets value.
+func (o *OptNilUsersResponseUsersItemLastOrganizationSignInsItemArray) Reset() {
+	var v []UsersResponseUsersItemLastOrganizationSignInsItem
+	o.Value = v
+	o.Set = false
+	o.Null = false
+}
+
+// SetTo sets value to v.
+func (o *OptNilUsersResponseUsersItemLastOrganizationSignInsItemArray) SetTo(v []UsersResponseUsersItemLastOrganizationSignInsItem) {
+	o.Set = true
+	o.Null = false
+	o.Value = v
+}
+
+// IsNull returns true if value is Null.
+func (o OptNilUsersResponseUsersItemLastOrganizationSignInsItemArray) IsNull() bool { return o.Null }
+
+// SetToNull sets value to null.
+func (o *OptNilUsersResponseUsersItemLastOrganizationSignInsItemArray) SetToNull() {
+	o.Set = true
+	o.Null = true
+	var v []UsersResponseUsersItemLastOrganizationSignInsItem
+	o.Value = v
+}
+
+// Get returns value and boolean that denotes whether value was set.
+func (o OptNilUsersResponseUsersItemLastOrganizationSignInsItemArray) Get() (v []UsersResponseUsersItemLastOrganizationSignInsItem, ok bool) {
+	if o.Null {
+		return v, false
+	}
+	if !o.Set {
+		return v, false
+	}
+	return o.Value, true
+}
+
+// Or returns value if set, or given parameter if does not.
+func (o OptNilUsersResponseUsersItemLastOrganizationSignInsItemArray) Or(d []UsersResponseUsersItemLastOrganizationSignInsItem) []UsersResponseUsersItemLastOrganizationSignInsItem {
+	if v, ok := o.Get(); ok {
+		return v
+	}
+	return d
+}
+
 // NewOptNotFoundResponseErrors returns new OptNotFoundResponseErrors with value set to v.
 func NewOptNotFoundResponseErrors(v NotFoundResponseErrors) OptNotFoundResponseErrors {
 	return OptNotFoundResponseErrors{
@@ -16286,6 +20072,52 @@ func (o OptReplaceConnectionReqOptions) Or(d ReplaceConnectionReqOptions) Replac
 	return d
 }
 
+// NewOptReplaceConnectionReqOptions1SSOButtonDisplay returns new OptReplaceConnectionReqOptions1SSOButtonDisplay with value set to v.
+func NewOptReplaceConnectionReqOptions1SSOButtonDisplay(v ReplaceConnectionReqOptions1SSOButtonDisplay) OptReplaceConnectionReqOptions1SSOButtonDisplay {
+	return OptReplaceConnectionReqOptions1SSOButtonDisplay{
+		Value: v,
+		Set:   true,
+	}
+}
+
+// OptReplaceConnectionReqOptions1SSOButtonDisplay is optional ReplaceConnectionReqOptions1SSOButtonDisplay.
+type OptReplaceConnectionReqOptions1SSOButtonDisplay struct {
+	Value ReplaceConnectionReqOptions1SSOButtonDisplay
+	Set   bool
+}
+
+// IsSet returns true if OptReplaceConnectionReqOptions1SSOButtonDisplay was set.
+func (o OptReplaceConnectionReqOptions1SSOButtonDisplay) IsSet() bool { return o.Set }
+
+// Reset unsets value.
+func (o *OptReplaceConnectionReqOptions1SSOButtonDisplay) Reset() {
+	var v ReplaceConnectionReqOptions1SSOButtonDisplay
+	o.Value = v
+	o.Set = false
+}
+
+// SetTo sets value to v.
+func (o *OptReplaceConnectionReqOptions1SSOButtonDisplay) SetTo(v ReplaceConnectionReqOptions1SSOButtonDisplay) {
+	o.Set = true
+	o.Value = v
+}
+
+// Get returns value and boolean that denotes whether value was set.
+func (o OptReplaceConnectionReqOptions1SSOButtonDisplay) Get() (v ReplaceConnectionReqOptions1SSOButtonDisplay, ok bool) {
+	if !o.Set {
+		return v, false
+	}
+	return o.Value, true
+}
+
+// Or returns value if set, or given parameter if does not.
+func (o OptReplaceConnectionReqOptions1SSOButtonDisplay) Or(d ReplaceConnectionReqOptions1SSOButtonDisplay) ReplaceConnectionReqOptions1SSOButtonDisplay {
+	if v, ok := o.Get(); ok {
+		return v
+	}
+	return d
+}
+
 // NewOptReplaceConnectionReqOptions1UpstreamParams returns new OptReplaceConnectionReqOptions1UpstreamParams with value set to v.
 func NewOptReplaceConnectionReqOptions1UpstreamParams(v ReplaceConnectionReqOptions1UpstreamParams) OptReplaceConnectionReqOptions1UpstreamParams {
 	return OptReplaceConnectionReqOptions1UpstreamParams{
@@ -16326,6 +20158,190 @@ func (o OptReplaceConnectionReqOptions1UpstreamParams) Get() (v ReplaceConnectio
 
 // Or returns value if set, or given parameter if does not.
 func (o OptReplaceConnectionReqOptions1UpstreamParams) Or(d ReplaceConnectionReqOptions1UpstreamParams) ReplaceConnectionReqOptions1UpstreamParams {
+	if v, ok := o.Get(); ok {
+		return v
+	}
+	return d
+}
+
+// NewOptReplaceConnectionReqOptions2NameIDFormat returns new OptReplaceConnectionReqOptions2NameIDFormat with value set to v.
+func NewOptReplaceConnectionReqOptions2NameIDFormat(v ReplaceConnectionReqOptions2NameIDFormat) OptReplaceConnectionReqOptions2NameIDFormat {
+	return OptReplaceConnectionReqOptions2NameIDFormat{
+		Value: v,
+		Set:   true,
+	}
+}
+
+// OptReplaceConnectionReqOptions2NameIDFormat is optional ReplaceConnectionReqOptions2NameIDFormat.
+type OptReplaceConnectionReqOptions2NameIDFormat struct {
+	Value ReplaceConnectionReqOptions2NameIDFormat
+	Set   bool
+}
+
+// IsSet returns true if OptReplaceConnectionReqOptions2NameIDFormat was set.
+func (o OptReplaceConnectionReqOptions2NameIDFormat) IsSet() bool { return o.Set }
+
+// Reset unsets value.
+func (o *OptReplaceConnectionReqOptions2NameIDFormat) Reset() {
+	var v ReplaceConnectionReqOptions2NameIDFormat
+	o.Value = v
+	o.Set = false
+}
+
+// SetTo sets value to v.
+func (o *OptReplaceConnectionReqOptions2NameIDFormat) SetTo(v ReplaceConnectionReqOptions2NameIDFormat) {
+	o.Set = true
+	o.Value = v
+}
+
+// Get returns value and boolean that denotes whether value was set.
+func (o OptReplaceConnectionReqOptions2NameIDFormat) Get() (v ReplaceConnectionReqOptions2NameIDFormat, ok bool) {
+	if !o.Set {
+		return v, false
+	}
+	return o.Value, true
+}
+
+// Or returns value if set, or given parameter if does not.
+func (o OptReplaceConnectionReqOptions2NameIDFormat) Or(d ReplaceConnectionReqOptions2NameIDFormat) ReplaceConnectionReqOptions2NameIDFormat {
+	if v, ok := o.Get(); ok {
+		return v
+	}
+	return d
+}
+
+// NewOptReplaceConnectionReqOptions2ProtocolBinding returns new OptReplaceConnectionReqOptions2ProtocolBinding with value set to v.
+func NewOptReplaceConnectionReqOptions2ProtocolBinding(v ReplaceConnectionReqOptions2ProtocolBinding) OptReplaceConnectionReqOptions2ProtocolBinding {
+	return OptReplaceConnectionReqOptions2ProtocolBinding{
+		Value: v,
+		Set:   true,
+	}
+}
+
+// OptReplaceConnectionReqOptions2ProtocolBinding is optional ReplaceConnectionReqOptions2ProtocolBinding.
+type OptReplaceConnectionReqOptions2ProtocolBinding struct {
+	Value ReplaceConnectionReqOptions2ProtocolBinding
+	Set   bool
+}
+
+// IsSet returns true if OptReplaceConnectionReqOptions2ProtocolBinding was set.
+func (o OptReplaceConnectionReqOptions2ProtocolBinding) IsSet() bool { return o.Set }
+
+// Reset unsets value.
+func (o *OptReplaceConnectionReqOptions2ProtocolBinding) Reset() {
+	var v ReplaceConnectionReqOptions2ProtocolBinding
+	o.Value = v
+	o.Set = false
+}
+
+// SetTo sets value to v.
+func (o *OptReplaceConnectionReqOptions2ProtocolBinding) SetTo(v ReplaceConnectionReqOptions2ProtocolBinding) {
+	o.Set = true
+	o.Value = v
+}
+
+// Get returns value and boolean that denotes whether value was set.
+func (o OptReplaceConnectionReqOptions2ProtocolBinding) Get() (v ReplaceConnectionReqOptions2ProtocolBinding, ok bool) {
+	if !o.Set {
+		return v, false
+	}
+	return o.Value, true
+}
+
+// Or returns value if set, or given parameter if does not.
+func (o OptReplaceConnectionReqOptions2ProtocolBinding) Or(d ReplaceConnectionReqOptions2ProtocolBinding) ReplaceConnectionReqOptions2ProtocolBinding {
+	if v, ok := o.Get(); ok {
+		return v
+	}
+	return d
+}
+
+// NewOptReplaceConnectionReqOptions2SSOButtonDisplay returns new OptReplaceConnectionReqOptions2SSOButtonDisplay with value set to v.
+func NewOptReplaceConnectionReqOptions2SSOButtonDisplay(v ReplaceConnectionReqOptions2SSOButtonDisplay) OptReplaceConnectionReqOptions2SSOButtonDisplay {
+	return OptReplaceConnectionReqOptions2SSOButtonDisplay{
+		Value: v,
+		Set:   true,
+	}
+}
+
+// OptReplaceConnectionReqOptions2SSOButtonDisplay is optional ReplaceConnectionReqOptions2SSOButtonDisplay.
+type OptReplaceConnectionReqOptions2SSOButtonDisplay struct {
+	Value ReplaceConnectionReqOptions2SSOButtonDisplay
+	Set   bool
+}
+
+// IsSet returns true if OptReplaceConnectionReqOptions2SSOButtonDisplay was set.
+func (o OptReplaceConnectionReqOptions2SSOButtonDisplay) IsSet() bool { return o.Set }
+
+// Reset unsets value.
+func (o *OptReplaceConnectionReqOptions2SSOButtonDisplay) Reset() {
+	var v ReplaceConnectionReqOptions2SSOButtonDisplay
+	o.Value = v
+	o.Set = false
+}
+
+// SetTo sets value to v.
+func (o *OptReplaceConnectionReqOptions2SSOButtonDisplay) SetTo(v ReplaceConnectionReqOptions2SSOButtonDisplay) {
+	o.Set = true
+	o.Value = v
+}
+
+// Get returns value and boolean that denotes whether value was set.
+func (o OptReplaceConnectionReqOptions2SSOButtonDisplay) Get() (v ReplaceConnectionReqOptions2SSOButtonDisplay, ok bool) {
+	if !o.Set {
+		return v, false
+	}
+	return o.Value, true
+}
+
+// Or returns value if set, or given parameter if does not.
+func (o OptReplaceConnectionReqOptions2SSOButtonDisplay) Or(d ReplaceConnectionReqOptions2SSOButtonDisplay) ReplaceConnectionReqOptions2SSOButtonDisplay {
+	if v, ok := o.Get(); ok {
+		return v
+	}
+	return d
+}
+
+// NewOptReplaceConnectionReqOptions2SignRequestAlgorithm returns new OptReplaceConnectionReqOptions2SignRequestAlgorithm with value set to v.
+func NewOptReplaceConnectionReqOptions2SignRequestAlgorithm(v ReplaceConnectionReqOptions2SignRequestAlgorithm) OptReplaceConnectionReqOptions2SignRequestAlgorithm {
+	return OptReplaceConnectionReqOptions2SignRequestAlgorithm{
+		Value: v,
+		Set:   true,
+	}
+}
+
+// OptReplaceConnectionReqOptions2SignRequestAlgorithm is optional ReplaceConnectionReqOptions2SignRequestAlgorithm.
+type OptReplaceConnectionReqOptions2SignRequestAlgorithm struct {
+	Value ReplaceConnectionReqOptions2SignRequestAlgorithm
+	Set   bool
+}
+
+// IsSet returns true if OptReplaceConnectionReqOptions2SignRequestAlgorithm was set.
+func (o OptReplaceConnectionReqOptions2SignRequestAlgorithm) IsSet() bool { return o.Set }
+
+// Reset unsets value.
+func (o *OptReplaceConnectionReqOptions2SignRequestAlgorithm) Reset() {
+	var v ReplaceConnectionReqOptions2SignRequestAlgorithm
+	o.Value = v
+	o.Set = false
+}
+
+// SetTo sets value to v.
+func (o *OptReplaceConnectionReqOptions2SignRequestAlgorithm) SetTo(v ReplaceConnectionReqOptions2SignRequestAlgorithm) {
+	o.Set = true
+	o.Value = v
+}
+
+// Get returns value and boolean that denotes whether value was set.
+func (o OptReplaceConnectionReqOptions2SignRequestAlgorithm) Get() (v ReplaceConnectionReqOptions2SignRequestAlgorithm, ok bool) {
+	if !o.Set {
+		return v, false
+	}
+	return o.Value, true
+}
+
+// Or returns value if set, or given parameter if does not.
+func (o OptReplaceConnectionReqOptions2SignRequestAlgorithm) Or(d ReplaceConnectionReqOptions2SignRequestAlgorithm) ReplaceConnectionReqOptions2SignRequestAlgorithm {
 	if v, ok := o.Get(); ok {
 		return v
 	}
@@ -16746,6 +20762,52 @@ func (o OptUpdateConnectionReqOptions) Or(d UpdateConnectionReqOptions) UpdateCo
 	return d
 }
 
+// NewOptUpdateConnectionReqOptions1SSOButtonDisplay returns new OptUpdateConnectionReqOptions1SSOButtonDisplay with value set to v.
+func NewOptUpdateConnectionReqOptions1SSOButtonDisplay(v UpdateConnectionReqOptions1SSOButtonDisplay) OptUpdateConnectionReqOptions1SSOButtonDisplay {
+	return OptUpdateConnectionReqOptions1SSOButtonDisplay{
+		Value: v,
+		Set:   true,
+	}
+}
+
+// OptUpdateConnectionReqOptions1SSOButtonDisplay is optional UpdateConnectionReqOptions1SSOButtonDisplay.
+type OptUpdateConnectionReqOptions1SSOButtonDisplay struct {
+	Value UpdateConnectionReqOptions1SSOButtonDisplay
+	Set   bool
+}
+
+// IsSet returns true if OptUpdateConnectionReqOptions1SSOButtonDisplay was set.
+func (o OptUpdateConnectionReqOptions1SSOButtonDisplay) IsSet() bool { return o.Set }
+
+// Reset unsets value.
+func (o *OptUpdateConnectionReqOptions1SSOButtonDisplay) Reset() {
+	var v UpdateConnectionReqOptions1SSOButtonDisplay
+	o.Value = v
+	o.Set = false
+}
+
+// SetTo sets value to v.
+func (o *OptUpdateConnectionReqOptions1SSOButtonDisplay) SetTo(v UpdateConnectionReqOptions1SSOButtonDisplay) {
+	o.Set = true
+	o.Value = v
+}
+
+// Get returns value and boolean that denotes whether value was set.
+func (o OptUpdateConnectionReqOptions1SSOButtonDisplay) Get() (v UpdateConnectionReqOptions1SSOButtonDisplay, ok bool) {
+	if !o.Set {
+		return v, false
+	}
+	return o.Value, true
+}
+
+// Or returns value if set, or given parameter if does not.
+func (o OptUpdateConnectionReqOptions1SSOButtonDisplay) Or(d UpdateConnectionReqOptions1SSOButtonDisplay) UpdateConnectionReqOptions1SSOButtonDisplay {
+	if v, ok := o.Get(); ok {
+		return v
+	}
+	return d
+}
+
 // NewOptUpdateConnectionReqOptions1UpstreamParams returns new OptUpdateConnectionReqOptions1UpstreamParams with value set to v.
 func NewOptUpdateConnectionReqOptions1UpstreamParams(v UpdateConnectionReqOptions1UpstreamParams) OptUpdateConnectionReqOptions1UpstreamParams {
 	return OptUpdateConnectionReqOptions1UpstreamParams{
@@ -16792,6 +20854,190 @@ func (o OptUpdateConnectionReqOptions1UpstreamParams) Or(d UpdateConnectionReqOp
 	return d
 }
 
+// NewOptUpdateConnectionReqOptions2NameIDFormat returns new OptUpdateConnectionReqOptions2NameIDFormat with value set to v.
+func NewOptUpdateConnectionReqOptions2NameIDFormat(v UpdateConnectionReqOptions2NameIDFormat) OptUpdateConnectionReqOptions2NameIDFormat {
+	return OptUpdateConnectionReqOptions2NameIDFormat{
+		Value: v,
+		Set:   true,
+	}
+}
+
+// OptUpdateConnectionReqOptions2NameIDFormat is optional UpdateConnectionReqOptions2NameIDFormat.
+type OptUpdateConnectionReqOptions2NameIDFormat struct {
+	Value UpdateConnectionReqOptions2NameIDFormat
+	Set   bool
+}
+
+// IsSet returns true if OptUpdateConnectionReqOptions2NameIDFormat was set.
+func (o OptUpdateConnectionReqOptions2NameIDFormat) IsSet() bool { return o.Set }
+
+// Reset unsets value.
+func (o *OptUpdateConnectionReqOptions2NameIDFormat) Reset() {
+	var v UpdateConnectionReqOptions2NameIDFormat
+	o.Value = v
+	o.Set = false
+}
+
+// SetTo sets value to v.
+func (o *OptUpdateConnectionReqOptions2NameIDFormat) SetTo(v UpdateConnectionReqOptions2NameIDFormat) {
+	o.Set = true
+	o.Value = v
+}
+
+// Get returns value and boolean that denotes whether value was set.
+func (o OptUpdateConnectionReqOptions2NameIDFormat) Get() (v UpdateConnectionReqOptions2NameIDFormat, ok bool) {
+	if !o.Set {
+		return v, false
+	}
+	return o.Value, true
+}
+
+// Or returns value if set, or given parameter if does not.
+func (o OptUpdateConnectionReqOptions2NameIDFormat) Or(d UpdateConnectionReqOptions2NameIDFormat) UpdateConnectionReqOptions2NameIDFormat {
+	if v, ok := o.Get(); ok {
+		return v
+	}
+	return d
+}
+
+// NewOptUpdateConnectionReqOptions2ProtocolBinding returns new OptUpdateConnectionReqOptions2ProtocolBinding with value set to v.
+func NewOptUpdateConnectionReqOptions2ProtocolBinding(v UpdateConnectionReqOptions2ProtocolBinding) OptUpdateConnectionReqOptions2ProtocolBinding {
+	return OptUpdateConnectionReqOptions2ProtocolBinding{
+		Value: v,
+		Set:   true,
+	}
+}
+
+// OptUpdateConnectionReqOptions2ProtocolBinding is optional UpdateConnectionReqOptions2ProtocolBinding.
+type OptUpdateConnectionReqOptions2ProtocolBinding struct {
+	Value UpdateConnectionReqOptions2ProtocolBinding
+	Set   bool
+}
+
+// IsSet returns true if OptUpdateConnectionReqOptions2ProtocolBinding was set.
+func (o OptUpdateConnectionReqOptions2ProtocolBinding) IsSet() bool { return o.Set }
+
+// Reset unsets value.
+func (o *OptUpdateConnectionReqOptions2ProtocolBinding) Reset() {
+	var v UpdateConnectionReqOptions2ProtocolBinding
+	o.Value = v
+	o.Set = false
+}
+
+// SetTo sets value to v.
+func (o *OptUpdateConnectionReqOptions2ProtocolBinding) SetTo(v UpdateConnectionReqOptions2ProtocolBinding) {
+	o.Set = true
+	o.Value = v
+}
+
+// Get returns value and boolean that denotes whether value was set.
+func (o OptUpdateConnectionReqOptions2ProtocolBinding) Get() (v UpdateConnectionReqOptions2ProtocolBinding, ok bool) {
+	if !o.Set {
+		return v, false
+	}
+	return o.Value, true
+}
+
+// Or returns value if set, or given parameter if does not.
+func (o OptUpdateConnectionReqOptions2ProtocolBinding) Or(d UpdateConnectionReqOptions2ProtocolBinding) UpdateConnectionReqOptions2ProtocolBinding {
+	if v, ok := o.Get(); ok {
+		return v
+	}
+	return d
+}
+
+// NewOptUpdateConnectionReqOptions2SSOButtonDisplay returns new OptUpdateConnectionReqOptions2SSOButtonDisplay with value set to v.
+func NewOptUpdateConnectionReqOptions2SSOButtonDisplay(v UpdateConnectionReqOptions2SSOButtonDisplay) OptUpdateConnectionReqOptions2SSOButtonDisplay {
+	return OptUpdateConnectionReqOptions2SSOButtonDisplay{
+		Value: v,
+		Set:   true,
+	}
+}
+
+// OptUpdateConnectionReqOptions2SSOButtonDisplay is optional UpdateConnectionReqOptions2SSOButtonDisplay.
+type OptUpdateConnectionReqOptions2SSOButtonDisplay struct {
+	Value UpdateConnectionReqOptions2SSOButtonDisplay
+	Set   bool
+}
+
+// IsSet returns true if OptUpdateConnectionReqOptions2SSOButtonDisplay was set.
+func (o OptUpdateConnectionReqOptions2SSOButtonDisplay) IsSet() bool { return o.Set }
+
+// Reset unsets value.
+func (o *OptUpdateConnectionReqOptions2SSOButtonDisplay) Reset() {
+	var v UpdateConnectionReqOptions2SSOButtonDisplay
+	o.Value = v
+	o.Set = false
+}
+
+// SetTo sets value to v.
+func (o *OptUpdateConnectionReqOptions2SSOButtonDisplay) SetTo(v UpdateConnectionReqOptions2SSOButtonDisplay) {
+	o.Set = true
+	o.Value = v
+}
+
+// Get returns value and boolean that denotes whether value was set.
+func (o OptUpdateConnectionReqOptions2SSOButtonDisplay) Get() (v UpdateConnectionReqOptions2SSOButtonDisplay, ok bool) {
+	if !o.Set {
+		return v, false
+	}
+	return o.Value, true
+}
+
+// Or returns value if set, or given parameter if does not.
+func (o OptUpdateConnectionReqOptions2SSOButtonDisplay) Or(d UpdateConnectionReqOptions2SSOButtonDisplay) UpdateConnectionReqOptions2SSOButtonDisplay {
+	if v, ok := o.Get(); ok {
+		return v
+	}
+	return d
+}
+
+// NewOptUpdateConnectionReqOptions2SignRequestAlgorithm returns new OptUpdateConnectionReqOptions2SignRequestAlgorithm with value set to v.
+func NewOptUpdateConnectionReqOptions2SignRequestAlgorithm(v UpdateConnectionReqOptions2SignRequestAlgorithm) OptUpdateConnectionReqOptions2SignRequestAlgorithm {
+	return OptUpdateConnectionReqOptions2SignRequestAlgorithm{
+		Value: v,
+		Set:   true,
+	}
+}
+
+// OptUpdateConnectionReqOptions2SignRequestAlgorithm is optional UpdateConnectionReqOptions2SignRequestAlgorithm.
+type OptUpdateConnectionReqOptions2SignRequestAlgorithm struct {
+	Value UpdateConnectionReqOptions2SignRequestAlgorithm
+	Set   bool
+}
+
+// IsSet returns true if OptUpdateConnectionReqOptions2SignRequestAlgorithm was set.
+func (o OptUpdateConnectionReqOptions2SignRequestAlgorithm) IsSet() bool { return o.Set }
+
+// Reset unsets value.
+func (o *OptUpdateConnectionReqOptions2SignRequestAlgorithm) Reset() {
+	var v UpdateConnectionReqOptions2SignRequestAlgorithm
+	o.Value = v
+	o.Set = false
+}
+
+// SetTo sets value to v.
+func (o *OptUpdateConnectionReqOptions2SignRequestAlgorithm) SetTo(v UpdateConnectionReqOptions2SignRequestAlgorithm) {
+	o.Set = true
+	o.Value = v
+}
+
+// Get returns value and boolean that denotes whether value was set.
+func (o OptUpdateConnectionReqOptions2SignRequestAlgorithm) Get() (v UpdateConnectionReqOptions2SignRequestAlgorithm, ok bool) {
+	if !o.Set {
+		return v, false
+	}
+	return o.Value, true
+}
+
+// Or returns value if set, or given parameter if does not.
+func (o OptUpdateConnectionReqOptions2SignRequestAlgorithm) Or(d UpdateConnectionReqOptions2SignRequestAlgorithm) UpdateConnectionReqOptions2SignRequestAlgorithm {
+	if v, ok := o.Get(); ok {
+		return v
+	}
+	return d
+}
+
 // NewOptUpdateConnectionReqOptions2UpstreamParams returns new OptUpdateConnectionReqOptions2UpstreamParams with value set to v.
 func NewOptUpdateConnectionReqOptions2UpstreamParams(v UpdateConnectionReqOptions2UpstreamParams) OptUpdateConnectionReqOptions2UpstreamParams {
 	return OptUpdateConnectionReqOptions2UpstreamParams{
@@ -16832,6 +21078,98 @@ func (o OptUpdateConnectionReqOptions2UpstreamParams) Get() (v UpdateConnectionR
 
 // Or returns value if set, or given parameter if does not.
 func (o OptUpdateConnectionReqOptions2UpstreamParams) Or(d UpdateConnectionReqOptions2UpstreamParams) UpdateConnectionReqOptions2UpstreamParams {
+	if v, ok := o.Get(); ok {
+		return v
+	}
+	return d
+}
+
+// NewOptUpdateOrganizationPasskeyOKPolicy returns new OptUpdateOrganizationPasskeyOKPolicy with value set to v.
+func NewOptUpdateOrganizationPasskeyOKPolicy(v UpdateOrganizationPasskeyOKPolicy) OptUpdateOrganizationPasskeyOKPolicy {
+	return OptUpdateOrganizationPasskeyOKPolicy{
+		Value: v,
+		Set:   true,
+	}
+}
+
+// OptUpdateOrganizationPasskeyOKPolicy is optional UpdateOrganizationPasskeyOKPolicy.
+type OptUpdateOrganizationPasskeyOKPolicy struct {
+	Value UpdateOrganizationPasskeyOKPolicy
+	Set   bool
+}
+
+// IsSet returns true if OptUpdateOrganizationPasskeyOKPolicy was set.
+func (o OptUpdateOrganizationPasskeyOKPolicy) IsSet() bool { return o.Set }
+
+// Reset unsets value.
+func (o *OptUpdateOrganizationPasskeyOKPolicy) Reset() {
+	var v UpdateOrganizationPasskeyOKPolicy
+	o.Value = v
+	o.Set = false
+}
+
+// SetTo sets value to v.
+func (o *OptUpdateOrganizationPasskeyOKPolicy) SetTo(v UpdateOrganizationPasskeyOKPolicy) {
+	o.Set = true
+	o.Value = v
+}
+
+// Get returns value and boolean that denotes whether value was set.
+func (o OptUpdateOrganizationPasskeyOKPolicy) Get() (v UpdateOrganizationPasskeyOKPolicy, ok bool) {
+	if !o.Set {
+		return v, false
+	}
+	return o.Value, true
+}
+
+// Or returns value if set, or given parameter if does not.
+func (o OptUpdateOrganizationPasskeyOKPolicy) Or(d UpdateOrganizationPasskeyOKPolicy) UpdateOrganizationPasskeyOKPolicy {
+	if v, ok := o.Get(); ok {
+		return v
+	}
+	return d
+}
+
+// NewOptUpdateOrganizationPasskeyReqPolicy returns new OptUpdateOrganizationPasskeyReqPolicy with value set to v.
+func NewOptUpdateOrganizationPasskeyReqPolicy(v UpdateOrganizationPasskeyReqPolicy) OptUpdateOrganizationPasskeyReqPolicy {
+	return OptUpdateOrganizationPasskeyReqPolicy{
+		Value: v,
+		Set:   true,
+	}
+}
+
+// OptUpdateOrganizationPasskeyReqPolicy is optional UpdateOrganizationPasskeyReqPolicy.
+type OptUpdateOrganizationPasskeyReqPolicy struct {
+	Value UpdateOrganizationPasskeyReqPolicy
+	Set   bool
+}
+
+// IsSet returns true if OptUpdateOrganizationPasskeyReqPolicy was set.
+func (o OptUpdateOrganizationPasskeyReqPolicy) IsSet() bool { return o.Set }
+
+// Reset unsets value.
+func (o *OptUpdateOrganizationPasskeyReqPolicy) Reset() {
+	var v UpdateOrganizationPasskeyReqPolicy
+	o.Value = v
+	o.Set = false
+}
+
+// SetTo sets value to v.
+func (o *OptUpdateOrganizationPasskeyReqPolicy) SetTo(v UpdateOrganizationPasskeyReqPolicy) {
+	o.Set = true
+	o.Value = v
+}
+
+// Get returns value and boolean that denotes whether value was set.
+func (o OptUpdateOrganizationPasskeyReqPolicy) Get() (v UpdateOrganizationPasskeyReqPolicy, ok bool) {
+	if !o.Set {
+		return v, false
+	}
+	return o.Value, true
+}
+
+// Or returns value if set, or given parameter if does not.
+func (o OptUpdateOrganizationPasskeyReqPolicy) Or(d UpdateOrganizationPasskeyReqPolicy) UpdateOrganizationPasskeyReqPolicy {
 	if v, ok := o.Get(); ok {
 		return v
 	}
@@ -17022,6 +21360,52 @@ func (o OptUpdateOrganizationUsersReq) Or(d UpdateOrganizationUsersReq) UpdateOr
 	return d
 }
 
+// NewOptUpdatePasskeyOKPolicy returns new OptUpdatePasskeyOKPolicy with value set to v.
+func NewOptUpdatePasskeyOKPolicy(v UpdatePasskeyOKPolicy) OptUpdatePasskeyOKPolicy {
+	return OptUpdatePasskeyOKPolicy{
+		Value: v,
+		Set:   true,
+	}
+}
+
+// OptUpdatePasskeyOKPolicy is optional UpdatePasskeyOKPolicy.
+type OptUpdatePasskeyOKPolicy struct {
+	Value UpdatePasskeyOKPolicy
+	Set   bool
+}
+
+// IsSet returns true if OptUpdatePasskeyOKPolicy was set.
+func (o OptUpdatePasskeyOKPolicy) IsSet() bool { return o.Set }
+
+// Reset unsets value.
+func (o *OptUpdatePasskeyOKPolicy) Reset() {
+	var v UpdatePasskeyOKPolicy
+	o.Value = v
+	o.Set = false
+}
+
+// SetTo sets value to v.
+func (o *OptUpdatePasskeyOKPolicy) SetTo(v UpdatePasskeyOKPolicy) {
+	o.Set = true
+	o.Value = v
+}
+
+// Get returns value and boolean that denotes whether value was set.
+func (o OptUpdatePasskeyOKPolicy) Get() (v UpdatePasskeyOKPolicy, ok bool) {
+	if !o.Set {
+		return v, false
+	}
+	return o.Value, true
+}
+
+// Or returns value if set, or given parameter if does not.
+func (o OptUpdatePasskeyOKPolicy) Or(d UpdatePasskeyOKPolicy) UpdatePasskeyOKPolicy {
+	if v, ok := o.Get(); ok {
+		return v
+	}
+	return d
+}
+
 // NewOptUpdatePermissionsReq returns new OptUpdatePermissionsReq with value set to v.
 func NewOptUpdatePermissionsReq(v UpdatePermissionsReq) OptUpdatePermissionsReq {
 	return OptUpdatePermissionsReq{
@@ -17160,6 +21544,52 @@ func (o OptUpdateWebhookResponseWebhook) Or(d UpdateWebhookResponseWebhook) Upda
 	return d
 }
 
+// NewOptUserBilling returns new OptUserBilling with value set to v.
+func NewOptUserBilling(v UserBilling) OptUserBilling {
+	return OptUserBilling{
+		Value: v,
+		Set:   true,
+	}
+}
+
+// OptUserBilling is optional UserBilling.
+type OptUserBilling struct {
+	Value UserBilling
+	Set   bool
+}
+
+// IsSet returns true if OptUserBilling was set.
+func (o OptUserBilling) IsSet() bool { return o.Set }
+
+// Reset unsets value.
+func (o *OptUserBilling) Reset() {
+	var v UserBilling
+	o.Value = v
+	o.Set = false
+}
+
+// SetTo sets value to v.
+func (o *OptUserBilling) SetTo(v UserBilling) {
+	o.Set = true
+	o.Value = v
+}
+
+// Get returns value and boolean that denotes whether value was set.
+func (o OptUserBilling) Get() (v UserBilling, ok bool) {
+	if !o.Set {
+		return v, false
+	}
+	return o.Value, true
+}
+
+// Or returns value if set, or given parameter if does not.
+func (o OptUserBilling) Or(d UserBilling) UserBilling {
+	if v, ok := o.Get(); ok {
+		return v
+	}
+	return d
+}
+
 // NewOptUserIdentityResult returns new OptUserIdentityResult with value set to v.
 func NewOptUserIdentityResult(v UserIdentityResult) OptUserIdentityResult {
 	return OptUserIdentityResult{
@@ -17250,6 +21680,181 @@ func (o OptUsersResponseUsersItemBilling) Or(d UsersResponseUsersItemBilling) Us
 		return v
 	}
 	return d
+}
+
+// Ref: #/components/schemas/organization_invite
+type OrganizationInvite struct {
+	// The invitation's unique identifier.
+	ID OptString `json:"id"`
+	// The invitation's code.
+	Code OptString `json:"code"`
+	// The email address of the invited user.
+	Email OptString `json:"email"`
+	// The first name of the invited user.
+	FirstName OptNilString `json:"first_name"`
+	// The last name of the invited user.
+	LastName OptNilString `json:"last_name"`
+	// The full name of the invited user.
+	FullName OptString `json:"full_name"`
+	// When the invitation was created.
+	CreatedOn OptDateTime `json:"created_on"`
+	// Whether the invitation email was sent.
+	IsSent OptBool `json:"is_sent"`
+	// When the invitation was accepted.
+	AcceptedOn OptNilDateTime `json:"accepted_on"`
+	// The roles assigned to the invitation.
+	Roles []OrganizationInviteRolesItem `json:"roles"`
+	// Whether the invitation has been revoked.
+	IsRevoked OptBool `json:"is_revoked"`
+	// URL to share with the invitee to accept the invitation.
+	InviteLink OptString `json:"invite_link"`
+}
+
+// GetID returns the value of ID.
+func (s *OrganizationInvite) GetID() OptString {
+	return s.ID
+}
+
+// GetCode returns the value of Code.
+func (s *OrganizationInvite) GetCode() OptString {
+	return s.Code
+}
+
+// GetEmail returns the value of Email.
+func (s *OrganizationInvite) GetEmail() OptString {
+	return s.Email
+}
+
+// GetFirstName returns the value of FirstName.
+func (s *OrganizationInvite) GetFirstName() OptNilString {
+	return s.FirstName
+}
+
+// GetLastName returns the value of LastName.
+func (s *OrganizationInvite) GetLastName() OptNilString {
+	return s.LastName
+}
+
+// GetFullName returns the value of FullName.
+func (s *OrganizationInvite) GetFullName() OptString {
+	return s.FullName
+}
+
+// GetCreatedOn returns the value of CreatedOn.
+func (s *OrganizationInvite) GetCreatedOn() OptDateTime {
+	return s.CreatedOn
+}
+
+// GetIsSent returns the value of IsSent.
+func (s *OrganizationInvite) GetIsSent() OptBool {
+	return s.IsSent
+}
+
+// GetAcceptedOn returns the value of AcceptedOn.
+func (s *OrganizationInvite) GetAcceptedOn() OptNilDateTime {
+	return s.AcceptedOn
+}
+
+// GetRoles returns the value of Roles.
+func (s *OrganizationInvite) GetRoles() []OrganizationInviteRolesItem {
+	return s.Roles
+}
+
+// GetIsRevoked returns the value of IsRevoked.
+func (s *OrganizationInvite) GetIsRevoked() OptBool {
+	return s.IsRevoked
+}
+
+// GetInviteLink returns the value of InviteLink.
+func (s *OrganizationInvite) GetInviteLink() OptString {
+	return s.InviteLink
+}
+
+// SetID sets the value of ID.
+func (s *OrganizationInvite) SetID(val OptString) {
+	s.ID = val
+}
+
+// SetCode sets the value of Code.
+func (s *OrganizationInvite) SetCode(val OptString) {
+	s.Code = val
+}
+
+// SetEmail sets the value of Email.
+func (s *OrganizationInvite) SetEmail(val OptString) {
+	s.Email = val
+}
+
+// SetFirstName sets the value of FirstName.
+func (s *OrganizationInvite) SetFirstName(val OptNilString) {
+	s.FirstName = val
+}
+
+// SetLastName sets the value of LastName.
+func (s *OrganizationInvite) SetLastName(val OptNilString) {
+	s.LastName = val
+}
+
+// SetFullName sets the value of FullName.
+func (s *OrganizationInvite) SetFullName(val OptString) {
+	s.FullName = val
+}
+
+// SetCreatedOn sets the value of CreatedOn.
+func (s *OrganizationInvite) SetCreatedOn(val OptDateTime) {
+	s.CreatedOn = val
+}
+
+// SetIsSent sets the value of IsSent.
+func (s *OrganizationInvite) SetIsSent(val OptBool) {
+	s.IsSent = val
+}
+
+// SetAcceptedOn sets the value of AcceptedOn.
+func (s *OrganizationInvite) SetAcceptedOn(val OptNilDateTime) {
+	s.AcceptedOn = val
+}
+
+// SetRoles sets the value of Roles.
+func (s *OrganizationInvite) SetRoles(val []OrganizationInviteRolesItem) {
+	s.Roles = val
+}
+
+// SetIsRevoked sets the value of IsRevoked.
+func (s *OrganizationInvite) SetIsRevoked(val OptBool) {
+	s.IsRevoked = val
+}
+
+// SetInviteLink sets the value of InviteLink.
+func (s *OrganizationInvite) SetInviteLink(val OptString) {
+	s.InviteLink = val
+}
+
+type OrganizationInviteRolesItem struct {
+	// The role's key.
+	Key OptString `json:"key"`
+	// The role's name.
+	Name OptString `json:"name"`
+}
+
+// GetKey returns the value of Key.
+func (s *OrganizationInviteRolesItem) GetKey() OptString {
+	return s.Key
+}
+
+// GetName returns the value of Name.
+func (s *OrganizationInviteRolesItem) GetName() OptString {
+	return s.Name
+}
+
+// SetKey sets the value of Key.
+func (s *OrganizationInviteRolesItem) SetKey(val OptString) {
+	s.Key = val
+}
+
+// SetName sets the value of Name.
+func (s *OrganizationInviteRolesItem) SetName(val OptString) {
+	s.Name = val
 }
 
 // Ref: #/components/schemas/organization_item_schema
@@ -17347,6 +21952,8 @@ type OrganizationUser struct {
 	JoinedOn OptString `json:"joined_on"`
 	// The date the user last accessed the organization.
 	LastAccessedOn OptNilString `json:"last_accessed_on"`
+	// Whether the user is currently suspended or not.
+	IsSuspended OptBool `json:"is_suspended"`
 	// The roles the user has in the organization.
 	Roles []string `json:"roles"`
 }
@@ -17389,6 +21996,11 @@ func (s *OrganizationUser) GetJoinedOn() OptString {
 // GetLastAccessedOn returns the value of LastAccessedOn.
 func (s *OrganizationUser) GetLastAccessedOn() OptNilString {
 	return s.LastAccessedOn
+}
+
+// GetIsSuspended returns the value of IsSuspended.
+func (s *OrganizationUser) GetIsSuspended() OptBool {
+	return s.IsSuspended
 }
 
 // GetRoles returns the value of Roles.
@@ -17434,6 +22046,11 @@ func (s *OrganizationUser) SetJoinedOn(val OptString) {
 // SetLastAccessedOn sets the value of LastAccessedOn.
 func (s *OrganizationUser) SetLastAccessedOn(val OptNilString) {
 	s.LastAccessedOn = val
+}
+
+// SetIsSuspended sets the value of IsSuspended.
+func (s *OrganizationUser) SetIsSuspended(val OptBool) {
+	s.IsSuspended = val
 }
 
 // SetRoles sets the value of Roles.
@@ -17948,6 +22565,18 @@ type RefreshUserClaimsTooManyRequests struct{}
 
 func (*RefreshUserClaimsTooManyRequests) refreshUserClaimsRes() {}
 
+type RemoveApplicationAccessRoleBadRequest ErrorResponse
+
+func (*RemoveApplicationAccessRoleBadRequest) removeApplicationAccessRoleRes() {}
+
+type RemoveApplicationAccessRoleForbidden ErrorResponse
+
+func (*RemoveApplicationAccessRoleForbidden) removeApplicationAccessRoleRes() {}
+
+type RemoveApplicationAccessRoleTooManyRequests ErrorResponse
+
+func (*RemoveApplicationAccessRoleTooManyRequests) removeApplicationAccessRoleRes() {}
+
 type RemoveConnectionBadRequest ErrorResponse
 
 func (*RemoveConnectionBadRequest) removeConnectionRes() {}
@@ -18154,6 +22783,8 @@ type ReplaceConnectionReqOptions0 struct {
 	ClientSecret OptString `json:"client_secret"`
 	// Use custom domain callback URL.
 	IsUseCustomDomain OptBool `json:"is_use_custom_domain"`
+	// Trust this connection for account merging.
+	IsTrusted OptBool `json:"is_trusted"`
 }
 
 // GetClientID returns the value of ClientID.
@@ -18171,6 +22802,11 @@ func (s *ReplaceConnectionReqOptions0) GetIsUseCustomDomain() OptBool {
 	return s.IsUseCustomDomain
 }
 
+// GetIsTrusted returns the value of IsTrusted.
+func (s *ReplaceConnectionReqOptions0) GetIsTrusted() OptBool {
+	return s.IsTrusted
+}
+
 // SetClientID sets the value of ClientID.
 func (s *ReplaceConnectionReqOptions0) SetClientID(val OptString) {
 	s.ClientID = val
@@ -18184,6 +22820,11 @@ func (s *ReplaceConnectionReqOptions0) SetClientSecret(val OptString) {
 // SetIsUseCustomDomain sets the value of IsUseCustomDomain.
 func (s *ReplaceConnectionReqOptions0) SetIsUseCustomDomain(val OptBool) {
 	s.IsUseCustomDomain = val
+}
+
+// SetIsTrusted sets the value of IsTrusted.
+func (s *ReplaceConnectionReqOptions0) SetIsTrusted(val OptBool) {
+	s.IsTrusted = val
 }
 
 // Azure AD connection options.
@@ -18206,10 +22847,21 @@ type ReplaceConnectionReqOptions1 struct {
 	IsExtendedAttributesRequired OptBool `json:"is_extended_attributes_required"`
 	// Create a user record in Kinde if the user signing in does not exist.
 	IsCreateMissingUser OptBool `json:"is_create_missing_user"`
-	// Force showing the SSO button for this connection.
+	// Deprecated - Use 'sso_button_display' instead. True maps to "show", false maps to "auto". Ignored
+	// when sso_button_display is also sent.
+	//
+	// Deprecated: schema marks this property as deprecated.
 	IsForceShowSSOButton OptBool `json:"is_force_show_sso_button"`
+	// Controls when the SSO sign-in button is shown for this connection. Replaces
+	// is_force_show_sso_button. "auto" shows the button unless a home realm domain is set, "show" always
+	// shows it, "hide" never shows it. Takes precedence over is_force_show_sso_button when both are sent.
+	SSOButtonDisplay OptReplaceConnectionReqOptions1SSOButtonDisplay `json:"sso_button_display"`
 	// Additional upstream parameters to pass to the identity provider.
 	UpstreamParams OptReplaceConnectionReqOptions1UpstreamParams `json:"upstream_params"`
+	// Use custom domain callback URL.
+	IsUseCustomDomain OptBool `json:"is_use_custom_domain"`
+	// Trust this connection for account merging.
+	IsTrusted OptBool `json:"is_trusted"`
 }
 
 // GetClientID returns the value of ClientID.
@@ -18262,9 +22914,24 @@ func (s *ReplaceConnectionReqOptions1) GetIsForceShowSSOButton() OptBool {
 	return s.IsForceShowSSOButton
 }
 
+// GetSSOButtonDisplay returns the value of SSOButtonDisplay.
+func (s *ReplaceConnectionReqOptions1) GetSSOButtonDisplay() OptReplaceConnectionReqOptions1SSOButtonDisplay {
+	return s.SSOButtonDisplay
+}
+
 // GetUpstreamParams returns the value of UpstreamParams.
 func (s *ReplaceConnectionReqOptions1) GetUpstreamParams() OptReplaceConnectionReqOptions1UpstreamParams {
 	return s.UpstreamParams
+}
+
+// GetIsUseCustomDomain returns the value of IsUseCustomDomain.
+func (s *ReplaceConnectionReqOptions1) GetIsUseCustomDomain() OptBool {
+	return s.IsUseCustomDomain
+}
+
+// GetIsTrusted returns the value of IsTrusted.
+func (s *ReplaceConnectionReqOptions1) GetIsTrusted() OptBool {
+	return s.IsTrusted
 }
 
 // SetClientID sets the value of ClientID.
@@ -18317,9 +22984,75 @@ func (s *ReplaceConnectionReqOptions1) SetIsForceShowSSOButton(val OptBool) {
 	s.IsForceShowSSOButton = val
 }
 
+// SetSSOButtonDisplay sets the value of SSOButtonDisplay.
+func (s *ReplaceConnectionReqOptions1) SetSSOButtonDisplay(val OptReplaceConnectionReqOptions1SSOButtonDisplay) {
+	s.SSOButtonDisplay = val
+}
+
 // SetUpstreamParams sets the value of UpstreamParams.
 func (s *ReplaceConnectionReqOptions1) SetUpstreamParams(val OptReplaceConnectionReqOptions1UpstreamParams) {
 	s.UpstreamParams = val
+}
+
+// SetIsUseCustomDomain sets the value of IsUseCustomDomain.
+func (s *ReplaceConnectionReqOptions1) SetIsUseCustomDomain(val OptBool) {
+	s.IsUseCustomDomain = val
+}
+
+// SetIsTrusted sets the value of IsTrusted.
+func (s *ReplaceConnectionReqOptions1) SetIsTrusted(val OptBool) {
+	s.IsTrusted = val
+}
+
+// Controls when the SSO sign-in button is shown for this connection. Replaces
+// is_force_show_sso_button. "auto" shows the button unless a home realm domain is set, "show" always
+// shows it, "hide" never shows it. Takes precedence over is_force_show_sso_button when both are sent.
+type ReplaceConnectionReqOptions1SSOButtonDisplay string
+
+const (
+	ReplaceConnectionReqOptions1SSOButtonDisplayAuto ReplaceConnectionReqOptions1SSOButtonDisplay = "auto"
+	ReplaceConnectionReqOptions1SSOButtonDisplayShow ReplaceConnectionReqOptions1SSOButtonDisplay = "show"
+	ReplaceConnectionReqOptions1SSOButtonDisplayHide ReplaceConnectionReqOptions1SSOButtonDisplay = "hide"
+)
+
+// AllValues returns all ReplaceConnectionReqOptions1SSOButtonDisplay values.
+func (ReplaceConnectionReqOptions1SSOButtonDisplay) AllValues() []ReplaceConnectionReqOptions1SSOButtonDisplay {
+	return []ReplaceConnectionReqOptions1SSOButtonDisplay{
+		ReplaceConnectionReqOptions1SSOButtonDisplayAuto,
+		ReplaceConnectionReqOptions1SSOButtonDisplayShow,
+		ReplaceConnectionReqOptions1SSOButtonDisplayHide,
+	}
+}
+
+// MarshalText implements encoding.TextMarshaler.
+func (s ReplaceConnectionReqOptions1SSOButtonDisplay) MarshalText() ([]byte, error) {
+	switch s {
+	case ReplaceConnectionReqOptions1SSOButtonDisplayAuto:
+		return []byte(s), nil
+	case ReplaceConnectionReqOptions1SSOButtonDisplayShow:
+		return []byte(s), nil
+	case ReplaceConnectionReqOptions1SSOButtonDisplayHide:
+		return []byte(s), nil
+	default:
+		return nil, errors.Errorf("invalid value: %q", s)
+	}
+}
+
+// UnmarshalText implements encoding.TextUnmarshaler.
+func (s *ReplaceConnectionReqOptions1SSOButtonDisplay) UnmarshalText(data []byte) error {
+	switch ReplaceConnectionReqOptions1SSOButtonDisplay(data) {
+	case ReplaceConnectionReqOptions1SSOButtonDisplayAuto:
+		*s = ReplaceConnectionReqOptions1SSOButtonDisplayAuto
+		return nil
+	case ReplaceConnectionReqOptions1SSOButtonDisplayShow:
+		*s = ReplaceConnectionReqOptions1SSOButtonDisplayShow
+		return nil
+	case ReplaceConnectionReqOptions1SSOButtonDisplayHide:
+		*s = ReplaceConnectionReqOptions1SSOButtonDisplayHide
+		return nil
+	default:
+		return errors.Errorf("invalid value: %q", data)
+	}
 }
 
 // Additional upstream parameters to pass to the identity provider.
@@ -18340,26 +23073,46 @@ type ReplaceConnectionReqOptions2 struct {
 	HomeRealmDomains []string `json:"home_realm_domains"`
 	// SAML Entity ID.
 	SamlEntityID OptString `json:"saml_entity_id"`
-	// Assertion Consumer Service URL.
-	SamlAcsURL OptString `json:"saml_acs_url"`
-	// URL for the IdP metadata.
+	// URL for the IdP metadata. Optional if saml_idp_metadata_xml is provided.
 	SamlIdpMetadataURL OptString `json:"saml_idp_metadata_url"`
-	// Attribute key for the user’s email.
+	// Raw IdP metadata XML. Use when the IdP does not host a metadata URL (e.g. Google Workspace). Takes
+	// precedence over saml_idp_metadata_url when both are set.
+	SamlIdpMetadataXML OptString `json:"saml_idp_metadata_xml"`
+	// Algorithm used to sign SAML requests.
+	SignRequestAlgorithm OptReplaceConnectionReqOptions2SignRequestAlgorithm `json:"sign_request_algorithm"`
+	// Protocol binding used to send SAML requests.
+	ProtocolBinding OptReplaceConnectionReqOptions2ProtocolBinding `json:"protocol_binding"`
+	// Format for the Name ID used to identify users in SAML responses.
+	NameIDFormat OptReplaceConnectionReqOptions2NameIDFormat `json:"name_id_format"`
+	// Attribute key for the user's email.
 	SamlEmailKeyAttr OptString `json:"saml_email_key_attr"`
-	// Attribute key for the user’s first name.
+	// Attribute key for the user's ID.
+	SamlUserIDKeyAttr OptString `json:"saml_user_id_key_attr"`
+	// Attribute key for the user's first name.
 	SamlFirstNameKeyAttr OptString `json:"saml_first_name_key_attr"`
-	// Attribute key for the user’s last name.
+	// Attribute key for the user's last name.
 	SamlLastNameKeyAttr OptString `json:"saml_last_name_key_attr"`
-	// Create user if they don’t exist.
+	// Create user if they don't exist.
 	IsCreateMissingUser OptBool `json:"is_create_missing_user"`
-	// Force showing the SSO button for this connection.
+	// Deprecated - Use 'sso_button_display' instead. True maps to "show", false maps to "auto". Ignored
+	// when sso_button_display is also sent.
+	//
+	// Deprecated: schema marks this property as deprecated.
 	IsForceShowSSOButton OptBool `json:"is_force_show_sso_button"`
+	// Controls when the SSO sign-in button is shown for this connection. Replaces
+	// is_force_show_sso_button. "auto" shows the button unless a home realm domain is set, "show" always
+	// shows it, "hide" never shows it. Takes precedence over is_force_show_sso_button when both are sent.
+	SSOButtonDisplay OptReplaceConnectionReqOptions2SSOButtonDisplay `json:"sso_button_display"`
 	// Additional upstream parameters to pass to the identity provider.
 	UpstreamParams OptReplaceConnectionReqOptions2UpstreamParams `json:"upstream_params"`
 	// Certificate for signing SAML requests.
 	SamlSigningCertificate OptString `json:"saml_signing_certificate"`
 	// Private key associated with the signing certificate.
 	SamlSigningPrivateKey OptString `json:"saml_signing_private_key"`
+	// Use custom domain callback URL.
+	IsUseCustomDomain OptBool `json:"is_use_custom_domain"`
+	// Trust this connection for account merging.
+	IsTrusted OptBool `json:"is_trusted"`
 }
 
 // GetHomeRealmDomains returns the value of HomeRealmDomains.
@@ -18372,19 +23125,39 @@ func (s *ReplaceConnectionReqOptions2) GetSamlEntityID() OptString {
 	return s.SamlEntityID
 }
 
-// GetSamlAcsURL returns the value of SamlAcsURL.
-func (s *ReplaceConnectionReqOptions2) GetSamlAcsURL() OptString {
-	return s.SamlAcsURL
-}
-
 // GetSamlIdpMetadataURL returns the value of SamlIdpMetadataURL.
 func (s *ReplaceConnectionReqOptions2) GetSamlIdpMetadataURL() OptString {
 	return s.SamlIdpMetadataURL
 }
 
+// GetSamlIdpMetadataXML returns the value of SamlIdpMetadataXML.
+func (s *ReplaceConnectionReqOptions2) GetSamlIdpMetadataXML() OptString {
+	return s.SamlIdpMetadataXML
+}
+
+// GetSignRequestAlgorithm returns the value of SignRequestAlgorithm.
+func (s *ReplaceConnectionReqOptions2) GetSignRequestAlgorithm() OptReplaceConnectionReqOptions2SignRequestAlgorithm {
+	return s.SignRequestAlgorithm
+}
+
+// GetProtocolBinding returns the value of ProtocolBinding.
+func (s *ReplaceConnectionReqOptions2) GetProtocolBinding() OptReplaceConnectionReqOptions2ProtocolBinding {
+	return s.ProtocolBinding
+}
+
+// GetNameIDFormat returns the value of NameIDFormat.
+func (s *ReplaceConnectionReqOptions2) GetNameIDFormat() OptReplaceConnectionReqOptions2NameIDFormat {
+	return s.NameIDFormat
+}
+
 // GetSamlEmailKeyAttr returns the value of SamlEmailKeyAttr.
 func (s *ReplaceConnectionReqOptions2) GetSamlEmailKeyAttr() OptString {
 	return s.SamlEmailKeyAttr
+}
+
+// GetSamlUserIDKeyAttr returns the value of SamlUserIDKeyAttr.
+func (s *ReplaceConnectionReqOptions2) GetSamlUserIDKeyAttr() OptString {
+	return s.SamlUserIDKeyAttr
 }
 
 // GetSamlFirstNameKeyAttr returns the value of SamlFirstNameKeyAttr.
@@ -18407,6 +23180,11 @@ func (s *ReplaceConnectionReqOptions2) GetIsForceShowSSOButton() OptBool {
 	return s.IsForceShowSSOButton
 }
 
+// GetSSOButtonDisplay returns the value of SSOButtonDisplay.
+func (s *ReplaceConnectionReqOptions2) GetSSOButtonDisplay() OptReplaceConnectionReqOptions2SSOButtonDisplay {
+	return s.SSOButtonDisplay
+}
+
 // GetUpstreamParams returns the value of UpstreamParams.
 func (s *ReplaceConnectionReqOptions2) GetUpstreamParams() OptReplaceConnectionReqOptions2UpstreamParams {
 	return s.UpstreamParams
@@ -18422,6 +23200,16 @@ func (s *ReplaceConnectionReqOptions2) GetSamlSigningPrivateKey() OptString {
 	return s.SamlSigningPrivateKey
 }
 
+// GetIsUseCustomDomain returns the value of IsUseCustomDomain.
+func (s *ReplaceConnectionReqOptions2) GetIsUseCustomDomain() OptBool {
+	return s.IsUseCustomDomain
+}
+
+// GetIsTrusted returns the value of IsTrusted.
+func (s *ReplaceConnectionReqOptions2) GetIsTrusted() OptBool {
+	return s.IsTrusted
+}
+
 // SetHomeRealmDomains sets the value of HomeRealmDomains.
 func (s *ReplaceConnectionReqOptions2) SetHomeRealmDomains(val []string) {
 	s.HomeRealmDomains = val
@@ -18432,19 +23220,39 @@ func (s *ReplaceConnectionReqOptions2) SetSamlEntityID(val OptString) {
 	s.SamlEntityID = val
 }
 
-// SetSamlAcsURL sets the value of SamlAcsURL.
-func (s *ReplaceConnectionReqOptions2) SetSamlAcsURL(val OptString) {
-	s.SamlAcsURL = val
-}
-
 // SetSamlIdpMetadataURL sets the value of SamlIdpMetadataURL.
 func (s *ReplaceConnectionReqOptions2) SetSamlIdpMetadataURL(val OptString) {
 	s.SamlIdpMetadataURL = val
 }
 
+// SetSamlIdpMetadataXML sets the value of SamlIdpMetadataXML.
+func (s *ReplaceConnectionReqOptions2) SetSamlIdpMetadataXML(val OptString) {
+	s.SamlIdpMetadataXML = val
+}
+
+// SetSignRequestAlgorithm sets the value of SignRequestAlgorithm.
+func (s *ReplaceConnectionReqOptions2) SetSignRequestAlgorithm(val OptReplaceConnectionReqOptions2SignRequestAlgorithm) {
+	s.SignRequestAlgorithm = val
+}
+
+// SetProtocolBinding sets the value of ProtocolBinding.
+func (s *ReplaceConnectionReqOptions2) SetProtocolBinding(val OptReplaceConnectionReqOptions2ProtocolBinding) {
+	s.ProtocolBinding = val
+}
+
+// SetNameIDFormat sets the value of NameIDFormat.
+func (s *ReplaceConnectionReqOptions2) SetNameIDFormat(val OptReplaceConnectionReqOptions2NameIDFormat) {
+	s.NameIDFormat = val
+}
+
 // SetSamlEmailKeyAttr sets the value of SamlEmailKeyAttr.
 func (s *ReplaceConnectionReqOptions2) SetSamlEmailKeyAttr(val OptString) {
 	s.SamlEmailKeyAttr = val
+}
+
+// SetSamlUserIDKeyAttr sets the value of SamlUserIDKeyAttr.
+func (s *ReplaceConnectionReqOptions2) SetSamlUserIDKeyAttr(val OptString) {
+	s.SamlUserIDKeyAttr = val
 }
 
 // SetSamlFirstNameKeyAttr sets the value of SamlFirstNameKeyAttr.
@@ -18467,6 +23275,11 @@ func (s *ReplaceConnectionReqOptions2) SetIsForceShowSSOButton(val OptBool) {
 	s.IsForceShowSSOButton = val
 }
 
+// SetSSOButtonDisplay sets the value of SSOButtonDisplay.
+func (s *ReplaceConnectionReqOptions2) SetSSOButtonDisplay(val OptReplaceConnectionReqOptions2SSOButtonDisplay) {
+	s.SSOButtonDisplay = val
+}
+
 // SetUpstreamParams sets the value of UpstreamParams.
 func (s *ReplaceConnectionReqOptions2) SetUpstreamParams(val OptReplaceConnectionReqOptions2UpstreamParams) {
 	s.UpstreamParams = val
@@ -18480,6 +23293,207 @@ func (s *ReplaceConnectionReqOptions2) SetSamlSigningCertificate(val OptString) 
 // SetSamlSigningPrivateKey sets the value of SamlSigningPrivateKey.
 func (s *ReplaceConnectionReqOptions2) SetSamlSigningPrivateKey(val OptString) {
 	s.SamlSigningPrivateKey = val
+}
+
+// SetIsUseCustomDomain sets the value of IsUseCustomDomain.
+func (s *ReplaceConnectionReqOptions2) SetIsUseCustomDomain(val OptBool) {
+	s.IsUseCustomDomain = val
+}
+
+// SetIsTrusted sets the value of IsTrusted.
+func (s *ReplaceConnectionReqOptions2) SetIsTrusted(val OptBool) {
+	s.IsTrusted = val
+}
+
+// Format for the Name ID used to identify users in SAML responses.
+type ReplaceConnectionReqOptions2NameIDFormat string
+
+const (
+	ReplaceConnectionReqOptions2NameIDFormatPersistent   ReplaceConnectionReqOptions2NameIDFormat = "Persistent"
+	ReplaceConnectionReqOptions2NameIDFormatTransient    ReplaceConnectionReqOptions2NameIDFormat = "Transient"
+	ReplaceConnectionReqOptions2NameIDFormatEmailAddress ReplaceConnectionReqOptions2NameIDFormat = "Email address"
+	ReplaceConnectionReqOptions2NameIDFormatUnspecified  ReplaceConnectionReqOptions2NameIDFormat = "Unspecified"
+)
+
+// AllValues returns all ReplaceConnectionReqOptions2NameIDFormat values.
+func (ReplaceConnectionReqOptions2NameIDFormat) AllValues() []ReplaceConnectionReqOptions2NameIDFormat {
+	return []ReplaceConnectionReqOptions2NameIDFormat{
+		ReplaceConnectionReqOptions2NameIDFormatPersistent,
+		ReplaceConnectionReqOptions2NameIDFormatTransient,
+		ReplaceConnectionReqOptions2NameIDFormatEmailAddress,
+		ReplaceConnectionReqOptions2NameIDFormatUnspecified,
+	}
+}
+
+// MarshalText implements encoding.TextMarshaler.
+func (s ReplaceConnectionReqOptions2NameIDFormat) MarshalText() ([]byte, error) {
+	switch s {
+	case ReplaceConnectionReqOptions2NameIDFormatPersistent:
+		return []byte(s), nil
+	case ReplaceConnectionReqOptions2NameIDFormatTransient:
+		return []byte(s), nil
+	case ReplaceConnectionReqOptions2NameIDFormatEmailAddress:
+		return []byte(s), nil
+	case ReplaceConnectionReqOptions2NameIDFormatUnspecified:
+		return []byte(s), nil
+	default:
+		return nil, errors.Errorf("invalid value: %q", s)
+	}
+}
+
+// UnmarshalText implements encoding.TextUnmarshaler.
+func (s *ReplaceConnectionReqOptions2NameIDFormat) UnmarshalText(data []byte) error {
+	switch ReplaceConnectionReqOptions2NameIDFormat(data) {
+	case ReplaceConnectionReqOptions2NameIDFormatPersistent:
+		*s = ReplaceConnectionReqOptions2NameIDFormatPersistent
+		return nil
+	case ReplaceConnectionReqOptions2NameIDFormatTransient:
+		*s = ReplaceConnectionReqOptions2NameIDFormatTransient
+		return nil
+	case ReplaceConnectionReqOptions2NameIDFormatEmailAddress:
+		*s = ReplaceConnectionReqOptions2NameIDFormatEmailAddress
+		return nil
+	case ReplaceConnectionReqOptions2NameIDFormatUnspecified:
+		*s = ReplaceConnectionReqOptions2NameIDFormatUnspecified
+		return nil
+	default:
+		return errors.Errorf("invalid value: %q", data)
+	}
+}
+
+// Protocol binding used to send SAML requests.
+type ReplaceConnectionReqOptions2ProtocolBinding string
+
+const (
+	ReplaceConnectionReqOptions2ProtocolBindingHTTPREDIRECT ReplaceConnectionReqOptions2ProtocolBinding = "HTTP-REDIRECT"
+	ReplaceConnectionReqOptions2ProtocolBindingHTTPPOST     ReplaceConnectionReqOptions2ProtocolBinding = "HTTP-POST"
+)
+
+// AllValues returns all ReplaceConnectionReqOptions2ProtocolBinding values.
+func (ReplaceConnectionReqOptions2ProtocolBinding) AllValues() []ReplaceConnectionReqOptions2ProtocolBinding {
+	return []ReplaceConnectionReqOptions2ProtocolBinding{
+		ReplaceConnectionReqOptions2ProtocolBindingHTTPREDIRECT,
+		ReplaceConnectionReqOptions2ProtocolBindingHTTPPOST,
+	}
+}
+
+// MarshalText implements encoding.TextMarshaler.
+func (s ReplaceConnectionReqOptions2ProtocolBinding) MarshalText() ([]byte, error) {
+	switch s {
+	case ReplaceConnectionReqOptions2ProtocolBindingHTTPREDIRECT:
+		return []byte(s), nil
+	case ReplaceConnectionReqOptions2ProtocolBindingHTTPPOST:
+		return []byte(s), nil
+	default:
+		return nil, errors.Errorf("invalid value: %q", s)
+	}
+}
+
+// UnmarshalText implements encoding.TextUnmarshaler.
+func (s *ReplaceConnectionReqOptions2ProtocolBinding) UnmarshalText(data []byte) error {
+	switch ReplaceConnectionReqOptions2ProtocolBinding(data) {
+	case ReplaceConnectionReqOptions2ProtocolBindingHTTPREDIRECT:
+		*s = ReplaceConnectionReqOptions2ProtocolBindingHTTPREDIRECT
+		return nil
+	case ReplaceConnectionReqOptions2ProtocolBindingHTTPPOST:
+		*s = ReplaceConnectionReqOptions2ProtocolBindingHTTPPOST
+		return nil
+	default:
+		return errors.Errorf("invalid value: %q", data)
+	}
+}
+
+// Controls when the SSO sign-in button is shown for this connection. Replaces
+// is_force_show_sso_button. "auto" shows the button unless a home realm domain is set, "show" always
+// shows it, "hide" never shows it. Takes precedence over is_force_show_sso_button when both are sent.
+type ReplaceConnectionReqOptions2SSOButtonDisplay string
+
+const (
+	ReplaceConnectionReqOptions2SSOButtonDisplayAuto ReplaceConnectionReqOptions2SSOButtonDisplay = "auto"
+	ReplaceConnectionReqOptions2SSOButtonDisplayShow ReplaceConnectionReqOptions2SSOButtonDisplay = "show"
+	ReplaceConnectionReqOptions2SSOButtonDisplayHide ReplaceConnectionReqOptions2SSOButtonDisplay = "hide"
+)
+
+// AllValues returns all ReplaceConnectionReqOptions2SSOButtonDisplay values.
+func (ReplaceConnectionReqOptions2SSOButtonDisplay) AllValues() []ReplaceConnectionReqOptions2SSOButtonDisplay {
+	return []ReplaceConnectionReqOptions2SSOButtonDisplay{
+		ReplaceConnectionReqOptions2SSOButtonDisplayAuto,
+		ReplaceConnectionReqOptions2SSOButtonDisplayShow,
+		ReplaceConnectionReqOptions2SSOButtonDisplayHide,
+	}
+}
+
+// MarshalText implements encoding.TextMarshaler.
+func (s ReplaceConnectionReqOptions2SSOButtonDisplay) MarshalText() ([]byte, error) {
+	switch s {
+	case ReplaceConnectionReqOptions2SSOButtonDisplayAuto:
+		return []byte(s), nil
+	case ReplaceConnectionReqOptions2SSOButtonDisplayShow:
+		return []byte(s), nil
+	case ReplaceConnectionReqOptions2SSOButtonDisplayHide:
+		return []byte(s), nil
+	default:
+		return nil, errors.Errorf("invalid value: %q", s)
+	}
+}
+
+// UnmarshalText implements encoding.TextUnmarshaler.
+func (s *ReplaceConnectionReqOptions2SSOButtonDisplay) UnmarshalText(data []byte) error {
+	switch ReplaceConnectionReqOptions2SSOButtonDisplay(data) {
+	case ReplaceConnectionReqOptions2SSOButtonDisplayAuto:
+		*s = ReplaceConnectionReqOptions2SSOButtonDisplayAuto
+		return nil
+	case ReplaceConnectionReqOptions2SSOButtonDisplayShow:
+		*s = ReplaceConnectionReqOptions2SSOButtonDisplayShow
+		return nil
+	case ReplaceConnectionReqOptions2SSOButtonDisplayHide:
+		*s = ReplaceConnectionReqOptions2SSOButtonDisplayHide
+		return nil
+	default:
+		return errors.Errorf("invalid value: %q", data)
+	}
+}
+
+// Algorithm used to sign SAML requests.
+type ReplaceConnectionReqOptions2SignRequestAlgorithm string
+
+const (
+	ReplaceConnectionReqOptions2SignRequestAlgorithmRSASHA256 ReplaceConnectionReqOptions2SignRequestAlgorithm = "RSA-SHA256"
+	ReplaceConnectionReqOptions2SignRequestAlgorithmRSASHA1   ReplaceConnectionReqOptions2SignRequestAlgorithm = "RSA-SHA1"
+)
+
+// AllValues returns all ReplaceConnectionReqOptions2SignRequestAlgorithm values.
+func (ReplaceConnectionReqOptions2SignRequestAlgorithm) AllValues() []ReplaceConnectionReqOptions2SignRequestAlgorithm {
+	return []ReplaceConnectionReqOptions2SignRequestAlgorithm{
+		ReplaceConnectionReqOptions2SignRequestAlgorithmRSASHA256,
+		ReplaceConnectionReqOptions2SignRequestAlgorithmRSASHA1,
+	}
+}
+
+// MarshalText implements encoding.TextMarshaler.
+func (s ReplaceConnectionReqOptions2SignRequestAlgorithm) MarshalText() ([]byte, error) {
+	switch s {
+	case ReplaceConnectionReqOptions2SignRequestAlgorithmRSASHA256:
+		return []byte(s), nil
+	case ReplaceConnectionReqOptions2SignRequestAlgorithmRSASHA1:
+		return []byte(s), nil
+	default:
+		return nil, errors.Errorf("invalid value: %q", s)
+	}
+}
+
+// UnmarshalText implements encoding.TextUnmarshaler.
+func (s *ReplaceConnectionReqOptions2SignRequestAlgorithm) UnmarshalText(data []byte) error {
+	switch ReplaceConnectionReqOptions2SignRequestAlgorithm(data) {
+	case ReplaceConnectionReqOptions2SignRequestAlgorithmRSASHA256:
+		*s = ReplaceConnectionReqOptions2SignRequestAlgorithmRSASHA256
+		return nil
+	case ReplaceConnectionReqOptions2SignRequestAlgorithmRSASHA1:
+		*s = ReplaceConnectionReqOptions2SignRequestAlgorithmRSASHA1
+		return nil
+	default:
+		return errors.Errorf("invalid value: %q", data)
+	}
 }
 
 // Additional upstream parameters to pass to the identity provider.
@@ -18538,6 +23552,8 @@ type ReplaceMFAReq struct {
 	Policy ReplaceMFAReqPolicy `json:"policy"`
 	// The MFA methods to enable.
 	EnabledFactors []ReplaceMFAReqEnabledFactorsItem `json:"enabled_factors"`
+	// Determines whether recovery codes are shown to users during MFA setup for the environment.
+	IsRecoveryCodesEnabled OptBool `json:"is_recovery_codes_enabled"`
 }
 
 // GetPolicy returns the value of Policy.
@@ -18550,6 +23566,11 @@ func (s *ReplaceMFAReq) GetEnabledFactors() []ReplaceMFAReqEnabledFactorsItem {
 	return s.EnabledFactors
 }
 
+// GetIsRecoveryCodesEnabled returns the value of IsRecoveryCodesEnabled.
+func (s *ReplaceMFAReq) GetIsRecoveryCodesEnabled() OptBool {
+	return s.IsRecoveryCodesEnabled
+}
+
 // SetPolicy sets the value of Policy.
 func (s *ReplaceMFAReq) SetPolicy(val ReplaceMFAReqPolicy) {
 	s.Policy = val
@@ -18558,6 +23579,11 @@ func (s *ReplaceMFAReq) SetPolicy(val ReplaceMFAReqPolicy) {
 // SetEnabledFactors sets the value of EnabledFactors.
 func (s *ReplaceMFAReq) SetEnabledFactors(val []ReplaceMFAReqEnabledFactorsItem) {
 	s.EnabledFactors = val
+}
+
+// SetIsRecoveryCodesEnabled sets the value of IsRecoveryCodesEnabled.
+func (s *ReplaceMFAReq) SetIsRecoveryCodesEnabled(val OptBool) {
+	s.IsRecoveryCodesEnabled = val
 }
 
 type ReplaceMFAReqEnabledFactorsItem string
@@ -18672,6 +23698,9 @@ func (*ReplaceOrganizationMFAForbidden) replaceOrganizationMFARes() {}
 type ReplaceOrganizationMFAReq struct {
 	// The MFA methods to enable.
 	EnabledFactors []ReplaceOrganizationMFAReqEnabledFactorsItem `json:"enabled_factors"`
+	// Determines whether recovery codes are shown to users during MFA setup for this specific
+	// organization. This overrides the environment-level setting.
+	IsRecoveryCodesEnabled OptBool `json:"is_recovery_codes_enabled"`
 }
 
 // GetEnabledFactors returns the value of EnabledFactors.
@@ -18679,9 +23708,19 @@ func (s *ReplaceOrganizationMFAReq) GetEnabledFactors() []ReplaceOrganizationMFA
 	return s.EnabledFactors
 }
 
+// GetIsRecoveryCodesEnabled returns the value of IsRecoveryCodesEnabled.
+func (s *ReplaceOrganizationMFAReq) GetIsRecoveryCodesEnabled() OptBool {
+	return s.IsRecoveryCodesEnabled
+}
+
 // SetEnabledFactors sets the value of EnabledFactors.
 func (s *ReplaceOrganizationMFAReq) SetEnabledFactors(val []ReplaceOrganizationMFAReqEnabledFactorsItem) {
 	s.EnabledFactors = val
+}
+
+// SetIsRecoveryCodesEnabled sets the value of IsRecoveryCodesEnabled.
+func (s *ReplaceOrganizationMFAReq) SetIsRecoveryCodesEnabled(val OptBool) {
+	s.IsRecoveryCodesEnabled = val
 }
 
 type ReplaceOrganizationMFAReqEnabledFactorsItem string
@@ -18920,6 +23959,59 @@ func (s *RoleScopesResponse) SetScopes(val []Scopes) {
 }
 
 func (*RoleScopesResponse) getRoleScopesRes() {}
+
+// Ref: #/components/schemas/role_system_permissions_response
+type RoleSystemPermissionsResponse struct {
+	// Response code.
+	Code OptString `json:"code"`
+	// Response message.
+	Message           OptString           `json:"message"`
+	SystemPermissions []SystemPermissions `json:"system_permissions"`
+	// Pagination token.
+	NextToken OptNilString `json:"next_token"`
+}
+
+// GetCode returns the value of Code.
+func (s *RoleSystemPermissionsResponse) GetCode() OptString {
+	return s.Code
+}
+
+// GetMessage returns the value of Message.
+func (s *RoleSystemPermissionsResponse) GetMessage() OptString {
+	return s.Message
+}
+
+// GetSystemPermissions returns the value of SystemPermissions.
+func (s *RoleSystemPermissionsResponse) GetSystemPermissions() []SystemPermissions {
+	return s.SystemPermissions
+}
+
+// GetNextToken returns the value of NextToken.
+func (s *RoleSystemPermissionsResponse) GetNextToken() OptNilString {
+	return s.NextToken
+}
+
+// SetCode sets the value of Code.
+func (s *RoleSystemPermissionsResponse) SetCode(val OptString) {
+	s.Code = val
+}
+
+// SetMessage sets the value of Message.
+func (s *RoleSystemPermissionsResponse) SetMessage(val OptString) {
+	s.Message = val
+}
+
+// SetSystemPermissions sets the value of SystemPermissions.
+func (s *RoleSystemPermissionsResponse) SetSystemPermissions(val []SystemPermissions) {
+	s.SystemPermissions = val
+}
+
+// SetNextToken sets the value of NextToken.
+func (s *RoleSystemPermissionsResponse) SetNextToken(val OptNilString) {
+	s.NextToken = val
+}
+
+func (*RoleSystemPermissionsResponse) getRoleSystemPermissionsRes() {}
 
 // Ref: #/components/schemas/roles
 type Roles struct {
@@ -19208,6 +24300,8 @@ type SearchUsersResponseResultsItem struct {
 	Identities []SearchUsersResponseResultsItemIdentitiesItem `json:"identities"`
 	// The user properties.
 	Properties OptSearchUsersResponseResultsItemProperties `json:"properties"`
+	// Array of api scopes belonging to the user.
+	APIScopes []SearchUsersResponseResultsItemAPIScopesItem `json:"api_scopes"`
 }
 
 // GetID returns the value of ID.
@@ -19285,6 +24379,11 @@ func (s *SearchUsersResponseResultsItem) GetProperties() OptSearchUsersResponseR
 	return s.Properties
 }
 
+// GetAPIScopes returns the value of APIScopes.
+func (s *SearchUsersResponseResultsItem) GetAPIScopes() []SearchUsersResponseResultsItemAPIScopesItem {
+	return s.APIScopes
+}
+
 // SetID sets the value of ID.
 func (s *SearchUsersResponseResultsItem) SetID(val OptString) {
 	s.ID = val
@@ -19360,6 +24459,47 @@ func (s *SearchUsersResponseResultsItem) SetProperties(val OptSearchUsersRespons
 	s.Properties = val
 }
 
+// SetAPIScopes sets the value of APIScopes.
+func (s *SearchUsersResponseResultsItem) SetAPIScopes(val []SearchUsersResponseResultsItemAPIScopesItem) {
+	s.APIScopes = val
+}
+
+type SearchUsersResponseResultsItemAPIScopesItem struct {
+	OrgCode OptString `json:"org_code"`
+	Scope   OptString `json:"scope"`
+	APIID   OptString `json:"api_id"`
+}
+
+// GetOrgCode returns the value of OrgCode.
+func (s *SearchUsersResponseResultsItemAPIScopesItem) GetOrgCode() OptString {
+	return s.OrgCode
+}
+
+// GetScope returns the value of Scope.
+func (s *SearchUsersResponseResultsItemAPIScopesItem) GetScope() OptString {
+	return s.Scope
+}
+
+// GetAPIID returns the value of APIID.
+func (s *SearchUsersResponseResultsItemAPIScopesItem) GetAPIID() OptString {
+	return s.APIID
+}
+
+// SetOrgCode sets the value of OrgCode.
+func (s *SearchUsersResponseResultsItemAPIScopesItem) SetOrgCode(val OptString) {
+	s.OrgCode = val
+}
+
+// SetScope sets the value of Scope.
+func (s *SearchUsersResponseResultsItemAPIScopesItem) SetScope(val OptString) {
+	s.Scope = val
+}
+
+// SetAPIID sets the value of APIID.
+func (s *SearchUsersResponseResultsItemAPIScopesItem) SetAPIID(val OptString) {
+	s.APIID = val
+}
+
 type SearchUsersResponseResultsItemIdentitiesItem struct {
 	Type     OptString `json:"type"`
 	Identity OptString `json:"identity"`
@@ -19407,14 +24547,36 @@ type SetUserPasswordForbidden struct{}
 func (*SetUserPasswordForbidden) setUserPasswordRes() {}
 
 type SetUserPasswordReq struct {
-	// The hashed password.
+	// The hashed password. For aspnet-identity-v2, provide the base64-encoded AspNetUsers.PasswordHash
+	// value as-is.
 	HashedPassword string `json:"hashed_password"`
 	// The hashing method or algorithm used to encrypt the user’s password. Default is bcrypt.
 	HashingMethod OptSetUserPasswordReqHashingMethod `json:"hashing_method"`
-	// Extra characters added to passwords to make them stronger. Not required for bcrypt.
+	// Extra characters added to passwords to make them stronger. Not required for bcrypt. Required for
+	// pbkdf2; provide the base64-encoded salt. Required for firebase-scrypt; provide the base64-encoded
+	// per-user salt. Not used for aspnet-identity-v2 (the salt is embedded in the hash); do not provide
+	// salt, salt_position, iterations, or variant with aspnet-identity-v2.
 	Salt OptString `json:"salt"`
 	// Position of salt in password string. Not required for bcrypt.
 	SaltPosition OptSetUserPasswordReqSaltPosition `json:"salt_position"`
+	// The iteration count (factor) used to derive the hash. Optional for pbkdf2; when omitted,
+	// verification defaults to 24000 (the FusionAuth default factor). Rejected for firebase-scrypt.
+	Iterations OptInt `json:"iterations"`
+	// The hashing variant. Required for pbkdf2 (e.g. salted-pbkdf2-hmac-sha256,
+	// salted-pbkdf2-hmac-sha256-512, salted-pbkdf2-hmac-sha512-512). Rejected for firebase-scrypt.
+	Variant OptString `json:"variant"`
+	// The base64-encoded signer key from the Firebase project's password hash parameters. Required for
+	// firebase-scrypt; rejected for other hashing methods.
+	SignerKey OptString `json:"signer_key"`
+	// The base64-encoded salt separator from the Firebase project's password hash parameters. Required
+	// for firebase-scrypt; rejected for other hashing methods.
+	SaltSeparator OptString `json:"salt_separator"`
+	// The scrypt rounds from the Firebase project's password hash parameters (1-16). Required for
+	// firebase-scrypt; rejected for other hashing methods.
+	Rounds OptInt `json:"rounds"`
+	// The scrypt memory cost from the Firebase project's password hash parameters (1-20). Required for
+	// firebase-scrypt; rejected for other hashing methods.
+	MemCost OptInt `json:"mem_cost"`
 	// The user will be prompted to set a new password after entering this one.
 	IsTemporaryPassword OptBool `json:"is_temporary_password"`
 }
@@ -19437,6 +24599,36 @@ func (s *SetUserPasswordReq) GetSalt() OptString {
 // GetSaltPosition returns the value of SaltPosition.
 func (s *SetUserPasswordReq) GetSaltPosition() OptSetUserPasswordReqSaltPosition {
 	return s.SaltPosition
+}
+
+// GetIterations returns the value of Iterations.
+func (s *SetUserPasswordReq) GetIterations() OptInt {
+	return s.Iterations
+}
+
+// GetVariant returns the value of Variant.
+func (s *SetUserPasswordReq) GetVariant() OptString {
+	return s.Variant
+}
+
+// GetSignerKey returns the value of SignerKey.
+func (s *SetUserPasswordReq) GetSignerKey() OptString {
+	return s.SignerKey
+}
+
+// GetSaltSeparator returns the value of SaltSeparator.
+func (s *SetUserPasswordReq) GetSaltSeparator() OptString {
+	return s.SaltSeparator
+}
+
+// GetRounds returns the value of Rounds.
+func (s *SetUserPasswordReq) GetRounds() OptInt {
+	return s.Rounds
+}
+
+// GetMemCost returns the value of MemCost.
+func (s *SetUserPasswordReq) GetMemCost() OptInt {
+	return s.MemCost
 }
 
 // GetIsTemporaryPassword returns the value of IsTemporaryPassword.
@@ -19464,6 +24656,36 @@ func (s *SetUserPasswordReq) SetSaltPosition(val OptSetUserPasswordReqSaltPositi
 	s.SaltPosition = val
 }
 
+// SetIterations sets the value of Iterations.
+func (s *SetUserPasswordReq) SetIterations(val OptInt) {
+	s.Iterations = val
+}
+
+// SetVariant sets the value of Variant.
+func (s *SetUserPasswordReq) SetVariant(val OptString) {
+	s.Variant = val
+}
+
+// SetSignerKey sets the value of SignerKey.
+func (s *SetUserPasswordReq) SetSignerKey(val OptString) {
+	s.SignerKey = val
+}
+
+// SetSaltSeparator sets the value of SaltSeparator.
+func (s *SetUserPasswordReq) SetSaltSeparator(val OptString) {
+	s.SaltSeparator = val
+}
+
+// SetRounds sets the value of Rounds.
+func (s *SetUserPasswordReq) SetRounds(val OptInt) {
+	s.Rounds = val
+}
+
+// SetMemCost sets the value of MemCost.
+func (s *SetUserPasswordReq) SetMemCost(val OptInt) {
+	s.MemCost = val
+}
+
 // SetIsTemporaryPassword sets the value of IsTemporaryPassword.
 func (s *SetUserPasswordReq) SetIsTemporaryPassword(val OptBool) {
 	s.IsTemporaryPassword = val
@@ -19473,10 +24695,14 @@ func (s *SetUserPasswordReq) SetIsTemporaryPassword(val OptBool) {
 type SetUserPasswordReqHashingMethod string
 
 const (
-	SetUserPasswordReqHashingMethodBcrypt    SetUserPasswordReqHashingMethod = "bcrypt"
-	SetUserPasswordReqHashingMethodCrypt     SetUserPasswordReqHashingMethod = "crypt"
-	SetUserPasswordReqHashingMethodMD5       SetUserPasswordReqHashingMethod = "md5"
-	SetUserPasswordReqHashingMethodWordpress SetUserPasswordReqHashingMethod = "wordpress"
+	SetUserPasswordReqHashingMethodBcrypt           SetUserPasswordReqHashingMethod = "bcrypt"
+	SetUserPasswordReqHashingMethodCrypt            SetUserPasswordReqHashingMethod = "crypt"
+	SetUserPasswordReqHashingMethodMD5              SetUserPasswordReqHashingMethod = "md5"
+	SetUserPasswordReqHashingMethodSHA256           SetUserPasswordReqHashingMethod = "sha256"
+	SetUserPasswordReqHashingMethodWordpress        SetUserPasswordReqHashingMethod = "wordpress"
+	SetUserPasswordReqHashingMethodPbkdf2           SetUserPasswordReqHashingMethod = "pbkdf2"
+	SetUserPasswordReqHashingMethodFirebaseScrypt   SetUserPasswordReqHashingMethod = "firebase-scrypt"
+	SetUserPasswordReqHashingMethodAspnetIdentityV2 SetUserPasswordReqHashingMethod = "aspnet-identity-v2"
 )
 
 // AllValues returns all SetUserPasswordReqHashingMethod values.
@@ -19485,7 +24711,11 @@ func (SetUserPasswordReqHashingMethod) AllValues() []SetUserPasswordReqHashingMe
 		SetUserPasswordReqHashingMethodBcrypt,
 		SetUserPasswordReqHashingMethodCrypt,
 		SetUserPasswordReqHashingMethodMD5,
+		SetUserPasswordReqHashingMethodSHA256,
 		SetUserPasswordReqHashingMethodWordpress,
+		SetUserPasswordReqHashingMethodPbkdf2,
+		SetUserPasswordReqHashingMethodFirebaseScrypt,
+		SetUserPasswordReqHashingMethodAspnetIdentityV2,
 	}
 }
 
@@ -19498,7 +24728,15 @@ func (s SetUserPasswordReqHashingMethod) MarshalText() ([]byte, error) {
 		return []byte(s), nil
 	case SetUserPasswordReqHashingMethodMD5:
 		return []byte(s), nil
+	case SetUserPasswordReqHashingMethodSHA256:
+		return []byte(s), nil
 	case SetUserPasswordReqHashingMethodWordpress:
+		return []byte(s), nil
+	case SetUserPasswordReqHashingMethodPbkdf2:
+		return []byte(s), nil
+	case SetUserPasswordReqHashingMethodFirebaseScrypt:
+		return []byte(s), nil
+	case SetUserPasswordReqHashingMethodAspnetIdentityV2:
 		return []byte(s), nil
 	default:
 		return nil, errors.Errorf("invalid value: %q", s)
@@ -19517,8 +24755,20 @@ func (s *SetUserPasswordReqHashingMethod) UnmarshalText(data []byte) error {
 	case SetUserPasswordReqHashingMethodMD5:
 		*s = SetUserPasswordReqHashingMethodMD5
 		return nil
+	case SetUserPasswordReqHashingMethodSHA256:
+		*s = SetUserPasswordReqHashingMethodSHA256
+		return nil
 	case SetUserPasswordReqHashingMethodWordpress:
 		*s = SetUserPasswordReqHashingMethodWordpress
+		return nil
+	case SetUserPasswordReqHashingMethodPbkdf2:
+		*s = SetUserPasswordReqHashingMethodPbkdf2
+		return nil
+	case SetUserPasswordReqHashingMethodFirebaseScrypt:
+		*s = SetUserPasswordReqHashingMethodFirebaseScrypt
+		return nil
+	case SetUserPasswordReqHashingMethodAspnetIdentityV2:
+		*s = SetUserPasswordReqHashingMethodAspnetIdentityV2
 		return nil
 	default:
 		return errors.Errorf("invalid value: %q", data)
@@ -19705,6 +24955,7 @@ func (s *SuccessResponse) SetCode(val OptString) {
 	s.Code = val
 }
 
+func (*SuccessResponse) addApplicationAccessRoleRes()               {}
 func (*SuccessResponse) addLogoRes()                                {}
 func (*SuccessResponse) addLogoutRedirectURLsRes()                  {}
 func (*SuccessResponse) addOrganizationLogoRes()                    {}
@@ -19727,6 +24978,7 @@ func (*SuccessResponse) deleteLogoutURLsRes()                       {}
 func (*SuccessResponse) deleteOrganizationFeatureFlagOverrideRes()  {}
 func (*SuccessResponse) deleteOrganizationFeatureFlagOverridesRes() {}
 func (*SuccessResponse) deleteOrganizationHandleRes()               {}
+func (*SuccessResponse) deleteOrganizationInviteRes()               {}
 func (*SuccessResponse) deleteOrganizationLogoRes()                 {}
 func (*SuccessResponse) deleteOrganizationRes()                     {}
 func (*SuccessResponse) deleteOrganizationUserPermissionRes()       {}
@@ -19737,6 +24989,7 @@ func (*SuccessResponse) deleteRoleRes()                             {}
 func (*SuccessResponse) deleteUserRes()                             {}
 func (*SuccessResponse) deleteUserSessionsRes()                     {}
 func (*SuccessResponse) refreshUserClaimsRes()                      {}
+func (*SuccessResponse) removeApplicationAccessRoleRes()            {}
 func (*SuccessResponse) removeConnectionRes()                       {}
 func (*SuccessResponse) removeOrgConnectionRes()                    {}
 func (*SuccessResponse) removeOrganizationUserRes()                 {}
@@ -19771,6 +25024,58 @@ func (*SuccessResponse) updateRolesRes()                            {}
 func (*SuccessResponse) updateUserFeatureFlagOverrideRes()          {}
 func (*SuccessResponse) updateUserPropertiesRes()                   {}
 func (*SuccessResponse) updateUserPropertyRes()                     {}
+
+// Ref: #/components/schemas/system_permissions
+type SystemPermissions struct {
+	// The system permission's ID.
+	ID OptString `json:"id"`
+	// The system permission identifier to use in code.
+	Key OptString `json:"key"`
+	// The system permission's name.
+	Name OptString `json:"name"`
+	// The system permission's description.
+	Description OptString `json:"description"`
+}
+
+// GetID returns the value of ID.
+func (s *SystemPermissions) GetID() OptString {
+	return s.ID
+}
+
+// GetKey returns the value of Key.
+func (s *SystemPermissions) GetKey() OptString {
+	return s.Key
+}
+
+// GetName returns the value of Name.
+func (s *SystemPermissions) GetName() OptString {
+	return s.Name
+}
+
+// GetDescription returns the value of Description.
+func (s *SystemPermissions) GetDescription() OptString {
+	return s.Description
+}
+
+// SetID sets the value of ID.
+func (s *SystemPermissions) SetID(val OptString) {
+	s.ID = val
+}
+
+// SetKey sets the value of Key.
+func (s *SystemPermissions) SetKey(val OptString) {
+	s.Key = val
+}
+
+// SetName sets the value of Name.
+func (s *SystemPermissions) SetName(val OptString) {
+	s.Name = val
+}
+
+// SetDescription sets the value of Description.
+func (s *SystemPermissions) SetDescription(val OptString) {
+	s.Description = val
+}
 
 type UpdateAPIApplicationsBadRequest ErrorResponse
 
@@ -19884,6 +25189,23 @@ type UpdateApplicationReq struct {
 	LoginURI OptString `json:"login_uri"`
 	// The homepage link to your application.
 	HomepageURI OptString `json:"homepage_uri"`
+	// Bypass Kinde's sign up and sign in screens and use your own design.
+	IsAllowFacelessAuth OptBool `json:"is_allow_faceless_auth"`
+	// Show fields to collect name details from users signing up with email or phone.
+	IsAskForName OptBool `json:"is_ask_for_name"`
+	// Show a marketing consent checkbox on the sign-up page.
+	HasMarketingConsent OptBool `json:"has_marketing_consent"`
+	// Allow users to switch to the login page from the sign-up page.
+	HasSignInLinkOnSignUpPage OptBool `json:"has_sign_in_link_on_sign_up_page"`
+	// Allow users to switch to the register page from the sign-in page.
+	HasRegisterLinkOnSignInPage OptBool `json:"has_register_link_on_sign_in_page"`
+	// When home realm discovery is configured, users see a button to prompt them to use their work email.
+	HasSignInWithSSOButton OptBool `json:"has_sign_in_with_sso_button"`
+	// Use a backup image if a profile picture is not available.
+	UseGravatarFallback OptBool `json:"use_gravatar_fallback"`
+	// Whether role-based access control is enforced for the application. At least one allowed role must
+	// be configured before enabling.
+	IsAccessControlEnabled OptBool `json:"is_access_control_enabled"`
 }
 
 // GetName returns the value of Name.
@@ -19916,6 +25238,46 @@ func (s *UpdateApplicationReq) GetHomepageURI() OptString {
 	return s.HomepageURI
 }
 
+// GetIsAllowFacelessAuth returns the value of IsAllowFacelessAuth.
+func (s *UpdateApplicationReq) GetIsAllowFacelessAuth() OptBool {
+	return s.IsAllowFacelessAuth
+}
+
+// GetIsAskForName returns the value of IsAskForName.
+func (s *UpdateApplicationReq) GetIsAskForName() OptBool {
+	return s.IsAskForName
+}
+
+// GetHasMarketingConsent returns the value of HasMarketingConsent.
+func (s *UpdateApplicationReq) GetHasMarketingConsent() OptBool {
+	return s.HasMarketingConsent
+}
+
+// GetHasSignInLinkOnSignUpPage returns the value of HasSignInLinkOnSignUpPage.
+func (s *UpdateApplicationReq) GetHasSignInLinkOnSignUpPage() OptBool {
+	return s.HasSignInLinkOnSignUpPage
+}
+
+// GetHasRegisterLinkOnSignInPage returns the value of HasRegisterLinkOnSignInPage.
+func (s *UpdateApplicationReq) GetHasRegisterLinkOnSignInPage() OptBool {
+	return s.HasRegisterLinkOnSignInPage
+}
+
+// GetHasSignInWithSSOButton returns the value of HasSignInWithSSOButton.
+func (s *UpdateApplicationReq) GetHasSignInWithSSOButton() OptBool {
+	return s.HasSignInWithSSOButton
+}
+
+// GetUseGravatarFallback returns the value of UseGravatarFallback.
+func (s *UpdateApplicationReq) GetUseGravatarFallback() OptBool {
+	return s.UseGravatarFallback
+}
+
+// GetIsAccessControlEnabled returns the value of IsAccessControlEnabled.
+func (s *UpdateApplicationReq) GetIsAccessControlEnabled() OptBool {
+	return s.IsAccessControlEnabled
+}
+
 // SetName sets the value of Name.
 func (s *UpdateApplicationReq) SetName(val OptString) {
 	s.Name = val
@@ -19944,6 +25306,46 @@ func (s *UpdateApplicationReq) SetLoginURI(val OptString) {
 // SetHomepageURI sets the value of HomepageURI.
 func (s *UpdateApplicationReq) SetHomepageURI(val OptString) {
 	s.HomepageURI = val
+}
+
+// SetIsAllowFacelessAuth sets the value of IsAllowFacelessAuth.
+func (s *UpdateApplicationReq) SetIsAllowFacelessAuth(val OptBool) {
+	s.IsAllowFacelessAuth = val
+}
+
+// SetIsAskForName sets the value of IsAskForName.
+func (s *UpdateApplicationReq) SetIsAskForName(val OptBool) {
+	s.IsAskForName = val
+}
+
+// SetHasMarketingConsent sets the value of HasMarketingConsent.
+func (s *UpdateApplicationReq) SetHasMarketingConsent(val OptBool) {
+	s.HasMarketingConsent = val
+}
+
+// SetHasSignInLinkOnSignUpPage sets the value of HasSignInLinkOnSignUpPage.
+func (s *UpdateApplicationReq) SetHasSignInLinkOnSignUpPage(val OptBool) {
+	s.HasSignInLinkOnSignUpPage = val
+}
+
+// SetHasRegisterLinkOnSignInPage sets the value of HasRegisterLinkOnSignInPage.
+func (s *UpdateApplicationReq) SetHasRegisterLinkOnSignInPage(val OptBool) {
+	s.HasRegisterLinkOnSignInPage = val
+}
+
+// SetHasSignInWithSSOButton sets the value of HasSignInWithSSOButton.
+func (s *UpdateApplicationReq) SetHasSignInWithSSOButton(val OptBool) {
+	s.HasSignInWithSSOButton = val
+}
+
+// SetUseGravatarFallback sets the value of UseGravatarFallback.
+func (s *UpdateApplicationReq) SetUseGravatarFallback(val OptBool) {
+	s.UseGravatarFallback = val
+}
+
+// SetIsAccessControlEnabled sets the value of IsAccessControlEnabled.
+func (s *UpdateApplicationReq) SetIsAccessControlEnabled(val OptBool) {
+	s.IsAccessControlEnabled = val
 }
 
 type UpdateApplicationTokensBadRequest ErrorResponse
@@ -20443,6 +25845,8 @@ type UpdateConnectionReqOptions0 struct {
 	ClientSecret OptString `json:"client_secret"`
 	// Use custom domain callback URL.
 	IsUseCustomDomain OptBool `json:"is_use_custom_domain"`
+	// Trust this connection for account merging.
+	IsTrusted OptBool `json:"is_trusted"`
 }
 
 // GetClientID returns the value of ClientID.
@@ -20460,6 +25864,11 @@ func (s *UpdateConnectionReqOptions0) GetIsUseCustomDomain() OptBool {
 	return s.IsUseCustomDomain
 }
 
+// GetIsTrusted returns the value of IsTrusted.
+func (s *UpdateConnectionReqOptions0) GetIsTrusted() OptBool {
+	return s.IsTrusted
+}
+
 // SetClientID sets the value of ClientID.
 func (s *UpdateConnectionReqOptions0) SetClientID(val OptString) {
 	s.ClientID = val
@@ -20473,6 +25882,11 @@ func (s *UpdateConnectionReqOptions0) SetClientSecret(val OptString) {
 // SetIsUseCustomDomain sets the value of IsUseCustomDomain.
 func (s *UpdateConnectionReqOptions0) SetIsUseCustomDomain(val OptBool) {
 	s.IsUseCustomDomain = val
+}
+
+// SetIsTrusted sets the value of IsTrusted.
+func (s *UpdateConnectionReqOptions0) SetIsTrusted(val OptBool) {
+	s.IsTrusted = val
 }
 
 // Azure AD connection options.
@@ -20495,10 +25909,21 @@ type UpdateConnectionReqOptions1 struct {
 	IsExtendedAttributesRequired OptBool `json:"is_extended_attributes_required"`
 	// Create users if they don't exist in the system.
 	IsCreateMissingUser OptBool `json:"is_create_missing_user"`
-	// Force showing the SSO button for this connection.
+	// Deprecated - Use 'sso_button_display' instead. True maps to "show", false maps to "auto". Ignored
+	// when sso_button_display is also sent.
+	//
+	// Deprecated: schema marks this property as deprecated.
 	IsForceShowSSOButton OptBool `json:"is_force_show_sso_button"`
+	// Controls when the SSO sign-in button is shown for this connection. Replaces
+	// is_force_show_sso_button. "auto" shows the button unless a home realm domain is set, "show" always
+	// shows it, "hide" never shows it. Takes precedence over is_force_show_sso_button when both are sent.
+	SSOButtonDisplay OptUpdateConnectionReqOptions1SSOButtonDisplay `json:"sso_button_display"`
 	// Additional upstream parameters to pass to the identity provider.
 	UpstreamParams OptUpdateConnectionReqOptions1UpstreamParams `json:"upstream_params"`
+	// Use custom domain callback URL.
+	IsUseCustomDomain OptBool `json:"is_use_custom_domain"`
+	// Trust this connection for account merging.
+	IsTrusted OptBool `json:"is_trusted"`
 }
 
 // GetClientID returns the value of ClientID.
@@ -20551,9 +25976,24 @@ func (s *UpdateConnectionReqOptions1) GetIsForceShowSSOButton() OptBool {
 	return s.IsForceShowSSOButton
 }
 
+// GetSSOButtonDisplay returns the value of SSOButtonDisplay.
+func (s *UpdateConnectionReqOptions1) GetSSOButtonDisplay() OptUpdateConnectionReqOptions1SSOButtonDisplay {
+	return s.SSOButtonDisplay
+}
+
 // GetUpstreamParams returns the value of UpstreamParams.
 func (s *UpdateConnectionReqOptions1) GetUpstreamParams() OptUpdateConnectionReqOptions1UpstreamParams {
 	return s.UpstreamParams
+}
+
+// GetIsUseCustomDomain returns the value of IsUseCustomDomain.
+func (s *UpdateConnectionReqOptions1) GetIsUseCustomDomain() OptBool {
+	return s.IsUseCustomDomain
+}
+
+// GetIsTrusted returns the value of IsTrusted.
+func (s *UpdateConnectionReqOptions1) GetIsTrusted() OptBool {
+	return s.IsTrusted
 }
 
 // SetClientID sets the value of ClientID.
@@ -20606,9 +26046,75 @@ func (s *UpdateConnectionReqOptions1) SetIsForceShowSSOButton(val OptBool) {
 	s.IsForceShowSSOButton = val
 }
 
+// SetSSOButtonDisplay sets the value of SSOButtonDisplay.
+func (s *UpdateConnectionReqOptions1) SetSSOButtonDisplay(val OptUpdateConnectionReqOptions1SSOButtonDisplay) {
+	s.SSOButtonDisplay = val
+}
+
 // SetUpstreamParams sets the value of UpstreamParams.
 func (s *UpdateConnectionReqOptions1) SetUpstreamParams(val OptUpdateConnectionReqOptions1UpstreamParams) {
 	s.UpstreamParams = val
+}
+
+// SetIsUseCustomDomain sets the value of IsUseCustomDomain.
+func (s *UpdateConnectionReqOptions1) SetIsUseCustomDomain(val OptBool) {
+	s.IsUseCustomDomain = val
+}
+
+// SetIsTrusted sets the value of IsTrusted.
+func (s *UpdateConnectionReqOptions1) SetIsTrusted(val OptBool) {
+	s.IsTrusted = val
+}
+
+// Controls when the SSO sign-in button is shown for this connection. Replaces
+// is_force_show_sso_button. "auto" shows the button unless a home realm domain is set, "show" always
+// shows it, "hide" never shows it. Takes precedence over is_force_show_sso_button when both are sent.
+type UpdateConnectionReqOptions1SSOButtonDisplay string
+
+const (
+	UpdateConnectionReqOptions1SSOButtonDisplayAuto UpdateConnectionReqOptions1SSOButtonDisplay = "auto"
+	UpdateConnectionReqOptions1SSOButtonDisplayShow UpdateConnectionReqOptions1SSOButtonDisplay = "show"
+	UpdateConnectionReqOptions1SSOButtonDisplayHide UpdateConnectionReqOptions1SSOButtonDisplay = "hide"
+)
+
+// AllValues returns all UpdateConnectionReqOptions1SSOButtonDisplay values.
+func (UpdateConnectionReqOptions1SSOButtonDisplay) AllValues() []UpdateConnectionReqOptions1SSOButtonDisplay {
+	return []UpdateConnectionReqOptions1SSOButtonDisplay{
+		UpdateConnectionReqOptions1SSOButtonDisplayAuto,
+		UpdateConnectionReqOptions1SSOButtonDisplayShow,
+		UpdateConnectionReqOptions1SSOButtonDisplayHide,
+	}
+}
+
+// MarshalText implements encoding.TextMarshaler.
+func (s UpdateConnectionReqOptions1SSOButtonDisplay) MarshalText() ([]byte, error) {
+	switch s {
+	case UpdateConnectionReqOptions1SSOButtonDisplayAuto:
+		return []byte(s), nil
+	case UpdateConnectionReqOptions1SSOButtonDisplayShow:
+		return []byte(s), nil
+	case UpdateConnectionReqOptions1SSOButtonDisplayHide:
+		return []byte(s), nil
+	default:
+		return nil, errors.Errorf("invalid value: %q", s)
+	}
+}
+
+// UnmarshalText implements encoding.TextUnmarshaler.
+func (s *UpdateConnectionReqOptions1SSOButtonDisplay) UnmarshalText(data []byte) error {
+	switch UpdateConnectionReqOptions1SSOButtonDisplay(data) {
+	case UpdateConnectionReqOptions1SSOButtonDisplayAuto:
+		*s = UpdateConnectionReqOptions1SSOButtonDisplayAuto
+		return nil
+	case UpdateConnectionReqOptions1SSOButtonDisplayShow:
+		*s = UpdateConnectionReqOptions1SSOButtonDisplayShow
+		return nil
+	case UpdateConnectionReqOptions1SSOButtonDisplayHide:
+		*s = UpdateConnectionReqOptions1SSOButtonDisplayHide
+		return nil
+	default:
+		return errors.Errorf("invalid value: %q", data)
+	}
 }
 
 // Additional upstream parameters to pass to the identity provider.
@@ -20629,26 +26135,48 @@ type UpdateConnectionReqOptions2 struct {
 	HomeRealmDomains []string `json:"home_realm_domains"`
 	// SAML Entity ID.
 	SamlEntityID OptString `json:"saml_entity_id"`
-	// Assertion Consumer Service URL.
-	SamlAcsURL OptString `json:"saml_acs_url"`
-	// URL for the IdP metadata.
+	// URL for the IdP metadata. Optional if saml_idp_metadata_xml is provided.
 	SamlIdpMetadataURL OptString `json:"saml_idp_metadata_url"`
-	// Attribute key for the user’s email.
+	// Raw IdP metadata XML. Use when the IdP does not host a metadata URL (e.g. Google Workspace). Takes
+	// precedence over saml_idp_metadata_url when both are set.
+	SamlIdpMetadataXML OptString `json:"saml_idp_metadata_xml"`
+	// Override the default SSO endpoint with a URL your IdP recognizes.
+	SamlSignInURL OptString `json:"saml_sign_in_url"`
+	// Algorithm used to sign SAML requests.
+	SignRequestAlgorithm OptUpdateConnectionReqOptions2SignRequestAlgorithm `json:"sign_request_algorithm"`
+	// Protocol binding used to send SAML requests.
+	ProtocolBinding OptUpdateConnectionReqOptions2ProtocolBinding `json:"protocol_binding"`
+	// Format for the Name ID used to identify users in SAML responses.
+	NameIDFormat OptUpdateConnectionReqOptions2NameIDFormat `json:"name_id_format"`
+	// Attribute key for the user's email.
 	SamlEmailKeyAttr OptString `json:"saml_email_key_attr"`
-	// Attribute key for the user’s first name.
+	// Attribute key for the user's ID.
+	SamlUserIDKeyAttr OptString `json:"saml_user_id_key_attr"`
+	// Attribute key for the user's first name.
 	SamlFirstNameKeyAttr OptString `json:"saml_first_name_key_attr"`
-	// Attribute key for the user’s last name.
+	// Attribute key for the user's last name.
 	SamlLastNameKeyAttr OptString `json:"saml_last_name_key_attr"`
-	// Create user if they don’t exist.
+	// Create user if they don't exist.
 	IsCreateMissingUser OptBool `json:"is_create_missing_user"`
-	// Force showing the SSO button for this connection.
+	// Deprecated - Use 'sso_button_display' instead. True maps to "show", false maps to "auto". Ignored
+	// when sso_button_display is also sent.
+	//
+	// Deprecated: schema marks this property as deprecated.
 	IsForceShowSSOButton OptBool `json:"is_force_show_sso_button"`
+	// Controls when the SSO sign-in button is shown for this connection. Replaces
+	// is_force_show_sso_button. "auto" shows the button unless a home realm domain is set, "show" always
+	// shows it, "hide" never shows it. Takes precedence over is_force_show_sso_button when both are sent.
+	SSOButtonDisplay OptUpdateConnectionReqOptions2SSOButtonDisplay `json:"sso_button_display"`
 	// Additional upstream parameters to pass to the identity provider.
 	UpstreamParams OptUpdateConnectionReqOptions2UpstreamParams `json:"upstream_params"`
 	// Certificate for signing SAML requests.
 	SamlSigningCertificate OptString `json:"saml_signing_certificate"`
 	// Private key associated with the signing certificate.
 	SamlSigningPrivateKey OptString `json:"saml_signing_private_key"`
+	// Use custom domain callback URL.
+	IsUseCustomDomain OptBool `json:"is_use_custom_domain"`
+	// Trust this connection for account merging.
+	IsTrusted OptBool `json:"is_trusted"`
 }
 
 // GetHomeRealmDomains returns the value of HomeRealmDomains.
@@ -20661,19 +26189,44 @@ func (s *UpdateConnectionReqOptions2) GetSamlEntityID() OptString {
 	return s.SamlEntityID
 }
 
-// GetSamlAcsURL returns the value of SamlAcsURL.
-func (s *UpdateConnectionReqOptions2) GetSamlAcsURL() OptString {
-	return s.SamlAcsURL
-}
-
 // GetSamlIdpMetadataURL returns the value of SamlIdpMetadataURL.
 func (s *UpdateConnectionReqOptions2) GetSamlIdpMetadataURL() OptString {
 	return s.SamlIdpMetadataURL
 }
 
+// GetSamlIdpMetadataXML returns the value of SamlIdpMetadataXML.
+func (s *UpdateConnectionReqOptions2) GetSamlIdpMetadataXML() OptString {
+	return s.SamlIdpMetadataXML
+}
+
+// GetSamlSignInURL returns the value of SamlSignInURL.
+func (s *UpdateConnectionReqOptions2) GetSamlSignInURL() OptString {
+	return s.SamlSignInURL
+}
+
+// GetSignRequestAlgorithm returns the value of SignRequestAlgorithm.
+func (s *UpdateConnectionReqOptions2) GetSignRequestAlgorithm() OptUpdateConnectionReqOptions2SignRequestAlgorithm {
+	return s.SignRequestAlgorithm
+}
+
+// GetProtocolBinding returns the value of ProtocolBinding.
+func (s *UpdateConnectionReqOptions2) GetProtocolBinding() OptUpdateConnectionReqOptions2ProtocolBinding {
+	return s.ProtocolBinding
+}
+
+// GetNameIDFormat returns the value of NameIDFormat.
+func (s *UpdateConnectionReqOptions2) GetNameIDFormat() OptUpdateConnectionReqOptions2NameIDFormat {
+	return s.NameIDFormat
+}
+
 // GetSamlEmailKeyAttr returns the value of SamlEmailKeyAttr.
 func (s *UpdateConnectionReqOptions2) GetSamlEmailKeyAttr() OptString {
 	return s.SamlEmailKeyAttr
+}
+
+// GetSamlUserIDKeyAttr returns the value of SamlUserIDKeyAttr.
+func (s *UpdateConnectionReqOptions2) GetSamlUserIDKeyAttr() OptString {
+	return s.SamlUserIDKeyAttr
 }
 
 // GetSamlFirstNameKeyAttr returns the value of SamlFirstNameKeyAttr.
@@ -20696,6 +26249,11 @@ func (s *UpdateConnectionReqOptions2) GetIsForceShowSSOButton() OptBool {
 	return s.IsForceShowSSOButton
 }
 
+// GetSSOButtonDisplay returns the value of SSOButtonDisplay.
+func (s *UpdateConnectionReqOptions2) GetSSOButtonDisplay() OptUpdateConnectionReqOptions2SSOButtonDisplay {
+	return s.SSOButtonDisplay
+}
+
 // GetUpstreamParams returns the value of UpstreamParams.
 func (s *UpdateConnectionReqOptions2) GetUpstreamParams() OptUpdateConnectionReqOptions2UpstreamParams {
 	return s.UpstreamParams
@@ -20711,6 +26269,16 @@ func (s *UpdateConnectionReqOptions2) GetSamlSigningPrivateKey() OptString {
 	return s.SamlSigningPrivateKey
 }
 
+// GetIsUseCustomDomain returns the value of IsUseCustomDomain.
+func (s *UpdateConnectionReqOptions2) GetIsUseCustomDomain() OptBool {
+	return s.IsUseCustomDomain
+}
+
+// GetIsTrusted returns the value of IsTrusted.
+func (s *UpdateConnectionReqOptions2) GetIsTrusted() OptBool {
+	return s.IsTrusted
+}
+
 // SetHomeRealmDomains sets the value of HomeRealmDomains.
 func (s *UpdateConnectionReqOptions2) SetHomeRealmDomains(val []string) {
 	s.HomeRealmDomains = val
@@ -20721,19 +26289,44 @@ func (s *UpdateConnectionReqOptions2) SetSamlEntityID(val OptString) {
 	s.SamlEntityID = val
 }
 
-// SetSamlAcsURL sets the value of SamlAcsURL.
-func (s *UpdateConnectionReqOptions2) SetSamlAcsURL(val OptString) {
-	s.SamlAcsURL = val
-}
-
 // SetSamlIdpMetadataURL sets the value of SamlIdpMetadataURL.
 func (s *UpdateConnectionReqOptions2) SetSamlIdpMetadataURL(val OptString) {
 	s.SamlIdpMetadataURL = val
 }
 
+// SetSamlIdpMetadataXML sets the value of SamlIdpMetadataXML.
+func (s *UpdateConnectionReqOptions2) SetSamlIdpMetadataXML(val OptString) {
+	s.SamlIdpMetadataXML = val
+}
+
+// SetSamlSignInURL sets the value of SamlSignInURL.
+func (s *UpdateConnectionReqOptions2) SetSamlSignInURL(val OptString) {
+	s.SamlSignInURL = val
+}
+
+// SetSignRequestAlgorithm sets the value of SignRequestAlgorithm.
+func (s *UpdateConnectionReqOptions2) SetSignRequestAlgorithm(val OptUpdateConnectionReqOptions2SignRequestAlgorithm) {
+	s.SignRequestAlgorithm = val
+}
+
+// SetProtocolBinding sets the value of ProtocolBinding.
+func (s *UpdateConnectionReqOptions2) SetProtocolBinding(val OptUpdateConnectionReqOptions2ProtocolBinding) {
+	s.ProtocolBinding = val
+}
+
+// SetNameIDFormat sets the value of NameIDFormat.
+func (s *UpdateConnectionReqOptions2) SetNameIDFormat(val OptUpdateConnectionReqOptions2NameIDFormat) {
+	s.NameIDFormat = val
+}
+
 // SetSamlEmailKeyAttr sets the value of SamlEmailKeyAttr.
 func (s *UpdateConnectionReqOptions2) SetSamlEmailKeyAttr(val OptString) {
 	s.SamlEmailKeyAttr = val
+}
+
+// SetSamlUserIDKeyAttr sets the value of SamlUserIDKeyAttr.
+func (s *UpdateConnectionReqOptions2) SetSamlUserIDKeyAttr(val OptString) {
+	s.SamlUserIDKeyAttr = val
 }
 
 // SetSamlFirstNameKeyAttr sets the value of SamlFirstNameKeyAttr.
@@ -20756,6 +26349,11 @@ func (s *UpdateConnectionReqOptions2) SetIsForceShowSSOButton(val OptBool) {
 	s.IsForceShowSSOButton = val
 }
 
+// SetSSOButtonDisplay sets the value of SSOButtonDisplay.
+func (s *UpdateConnectionReqOptions2) SetSSOButtonDisplay(val OptUpdateConnectionReqOptions2SSOButtonDisplay) {
+	s.SSOButtonDisplay = val
+}
+
 // SetUpstreamParams sets the value of UpstreamParams.
 func (s *UpdateConnectionReqOptions2) SetUpstreamParams(val OptUpdateConnectionReqOptions2UpstreamParams) {
 	s.UpstreamParams = val
@@ -20769,6 +26367,207 @@ func (s *UpdateConnectionReqOptions2) SetSamlSigningCertificate(val OptString) {
 // SetSamlSigningPrivateKey sets the value of SamlSigningPrivateKey.
 func (s *UpdateConnectionReqOptions2) SetSamlSigningPrivateKey(val OptString) {
 	s.SamlSigningPrivateKey = val
+}
+
+// SetIsUseCustomDomain sets the value of IsUseCustomDomain.
+func (s *UpdateConnectionReqOptions2) SetIsUseCustomDomain(val OptBool) {
+	s.IsUseCustomDomain = val
+}
+
+// SetIsTrusted sets the value of IsTrusted.
+func (s *UpdateConnectionReqOptions2) SetIsTrusted(val OptBool) {
+	s.IsTrusted = val
+}
+
+// Format for the Name ID used to identify users in SAML responses.
+type UpdateConnectionReqOptions2NameIDFormat string
+
+const (
+	UpdateConnectionReqOptions2NameIDFormatPersistent   UpdateConnectionReqOptions2NameIDFormat = "Persistent"
+	UpdateConnectionReqOptions2NameIDFormatTransient    UpdateConnectionReqOptions2NameIDFormat = "Transient"
+	UpdateConnectionReqOptions2NameIDFormatEmailAddress UpdateConnectionReqOptions2NameIDFormat = "Email address"
+	UpdateConnectionReqOptions2NameIDFormatUnspecified  UpdateConnectionReqOptions2NameIDFormat = "Unspecified"
+)
+
+// AllValues returns all UpdateConnectionReqOptions2NameIDFormat values.
+func (UpdateConnectionReqOptions2NameIDFormat) AllValues() []UpdateConnectionReqOptions2NameIDFormat {
+	return []UpdateConnectionReqOptions2NameIDFormat{
+		UpdateConnectionReqOptions2NameIDFormatPersistent,
+		UpdateConnectionReqOptions2NameIDFormatTransient,
+		UpdateConnectionReqOptions2NameIDFormatEmailAddress,
+		UpdateConnectionReqOptions2NameIDFormatUnspecified,
+	}
+}
+
+// MarshalText implements encoding.TextMarshaler.
+func (s UpdateConnectionReqOptions2NameIDFormat) MarshalText() ([]byte, error) {
+	switch s {
+	case UpdateConnectionReqOptions2NameIDFormatPersistent:
+		return []byte(s), nil
+	case UpdateConnectionReqOptions2NameIDFormatTransient:
+		return []byte(s), nil
+	case UpdateConnectionReqOptions2NameIDFormatEmailAddress:
+		return []byte(s), nil
+	case UpdateConnectionReqOptions2NameIDFormatUnspecified:
+		return []byte(s), nil
+	default:
+		return nil, errors.Errorf("invalid value: %q", s)
+	}
+}
+
+// UnmarshalText implements encoding.TextUnmarshaler.
+func (s *UpdateConnectionReqOptions2NameIDFormat) UnmarshalText(data []byte) error {
+	switch UpdateConnectionReqOptions2NameIDFormat(data) {
+	case UpdateConnectionReqOptions2NameIDFormatPersistent:
+		*s = UpdateConnectionReqOptions2NameIDFormatPersistent
+		return nil
+	case UpdateConnectionReqOptions2NameIDFormatTransient:
+		*s = UpdateConnectionReqOptions2NameIDFormatTransient
+		return nil
+	case UpdateConnectionReqOptions2NameIDFormatEmailAddress:
+		*s = UpdateConnectionReqOptions2NameIDFormatEmailAddress
+		return nil
+	case UpdateConnectionReqOptions2NameIDFormatUnspecified:
+		*s = UpdateConnectionReqOptions2NameIDFormatUnspecified
+		return nil
+	default:
+		return errors.Errorf("invalid value: %q", data)
+	}
+}
+
+// Protocol binding used to send SAML requests.
+type UpdateConnectionReqOptions2ProtocolBinding string
+
+const (
+	UpdateConnectionReqOptions2ProtocolBindingHTTPREDIRECT UpdateConnectionReqOptions2ProtocolBinding = "HTTP-REDIRECT"
+	UpdateConnectionReqOptions2ProtocolBindingHTTPPOST     UpdateConnectionReqOptions2ProtocolBinding = "HTTP-POST"
+)
+
+// AllValues returns all UpdateConnectionReqOptions2ProtocolBinding values.
+func (UpdateConnectionReqOptions2ProtocolBinding) AllValues() []UpdateConnectionReqOptions2ProtocolBinding {
+	return []UpdateConnectionReqOptions2ProtocolBinding{
+		UpdateConnectionReqOptions2ProtocolBindingHTTPREDIRECT,
+		UpdateConnectionReqOptions2ProtocolBindingHTTPPOST,
+	}
+}
+
+// MarshalText implements encoding.TextMarshaler.
+func (s UpdateConnectionReqOptions2ProtocolBinding) MarshalText() ([]byte, error) {
+	switch s {
+	case UpdateConnectionReqOptions2ProtocolBindingHTTPREDIRECT:
+		return []byte(s), nil
+	case UpdateConnectionReqOptions2ProtocolBindingHTTPPOST:
+		return []byte(s), nil
+	default:
+		return nil, errors.Errorf("invalid value: %q", s)
+	}
+}
+
+// UnmarshalText implements encoding.TextUnmarshaler.
+func (s *UpdateConnectionReqOptions2ProtocolBinding) UnmarshalText(data []byte) error {
+	switch UpdateConnectionReqOptions2ProtocolBinding(data) {
+	case UpdateConnectionReqOptions2ProtocolBindingHTTPREDIRECT:
+		*s = UpdateConnectionReqOptions2ProtocolBindingHTTPREDIRECT
+		return nil
+	case UpdateConnectionReqOptions2ProtocolBindingHTTPPOST:
+		*s = UpdateConnectionReqOptions2ProtocolBindingHTTPPOST
+		return nil
+	default:
+		return errors.Errorf("invalid value: %q", data)
+	}
+}
+
+// Controls when the SSO sign-in button is shown for this connection. Replaces
+// is_force_show_sso_button. "auto" shows the button unless a home realm domain is set, "show" always
+// shows it, "hide" never shows it. Takes precedence over is_force_show_sso_button when both are sent.
+type UpdateConnectionReqOptions2SSOButtonDisplay string
+
+const (
+	UpdateConnectionReqOptions2SSOButtonDisplayAuto UpdateConnectionReqOptions2SSOButtonDisplay = "auto"
+	UpdateConnectionReqOptions2SSOButtonDisplayShow UpdateConnectionReqOptions2SSOButtonDisplay = "show"
+	UpdateConnectionReqOptions2SSOButtonDisplayHide UpdateConnectionReqOptions2SSOButtonDisplay = "hide"
+)
+
+// AllValues returns all UpdateConnectionReqOptions2SSOButtonDisplay values.
+func (UpdateConnectionReqOptions2SSOButtonDisplay) AllValues() []UpdateConnectionReqOptions2SSOButtonDisplay {
+	return []UpdateConnectionReqOptions2SSOButtonDisplay{
+		UpdateConnectionReqOptions2SSOButtonDisplayAuto,
+		UpdateConnectionReqOptions2SSOButtonDisplayShow,
+		UpdateConnectionReqOptions2SSOButtonDisplayHide,
+	}
+}
+
+// MarshalText implements encoding.TextMarshaler.
+func (s UpdateConnectionReqOptions2SSOButtonDisplay) MarshalText() ([]byte, error) {
+	switch s {
+	case UpdateConnectionReqOptions2SSOButtonDisplayAuto:
+		return []byte(s), nil
+	case UpdateConnectionReqOptions2SSOButtonDisplayShow:
+		return []byte(s), nil
+	case UpdateConnectionReqOptions2SSOButtonDisplayHide:
+		return []byte(s), nil
+	default:
+		return nil, errors.Errorf("invalid value: %q", s)
+	}
+}
+
+// UnmarshalText implements encoding.TextUnmarshaler.
+func (s *UpdateConnectionReqOptions2SSOButtonDisplay) UnmarshalText(data []byte) error {
+	switch UpdateConnectionReqOptions2SSOButtonDisplay(data) {
+	case UpdateConnectionReqOptions2SSOButtonDisplayAuto:
+		*s = UpdateConnectionReqOptions2SSOButtonDisplayAuto
+		return nil
+	case UpdateConnectionReqOptions2SSOButtonDisplayShow:
+		*s = UpdateConnectionReqOptions2SSOButtonDisplayShow
+		return nil
+	case UpdateConnectionReqOptions2SSOButtonDisplayHide:
+		*s = UpdateConnectionReqOptions2SSOButtonDisplayHide
+		return nil
+	default:
+		return errors.Errorf("invalid value: %q", data)
+	}
+}
+
+// Algorithm used to sign SAML requests.
+type UpdateConnectionReqOptions2SignRequestAlgorithm string
+
+const (
+	UpdateConnectionReqOptions2SignRequestAlgorithmRSASHA256 UpdateConnectionReqOptions2SignRequestAlgorithm = "RSA-SHA256"
+	UpdateConnectionReqOptions2SignRequestAlgorithmRSASHA1   UpdateConnectionReqOptions2SignRequestAlgorithm = "RSA-SHA1"
+)
+
+// AllValues returns all UpdateConnectionReqOptions2SignRequestAlgorithm values.
+func (UpdateConnectionReqOptions2SignRequestAlgorithm) AllValues() []UpdateConnectionReqOptions2SignRequestAlgorithm {
+	return []UpdateConnectionReqOptions2SignRequestAlgorithm{
+		UpdateConnectionReqOptions2SignRequestAlgorithmRSASHA256,
+		UpdateConnectionReqOptions2SignRequestAlgorithmRSASHA1,
+	}
+}
+
+// MarshalText implements encoding.TextMarshaler.
+func (s UpdateConnectionReqOptions2SignRequestAlgorithm) MarshalText() ([]byte, error) {
+	switch s {
+	case UpdateConnectionReqOptions2SignRequestAlgorithmRSASHA256:
+		return []byte(s), nil
+	case UpdateConnectionReqOptions2SignRequestAlgorithmRSASHA1:
+		return []byte(s), nil
+	default:
+		return nil, errors.Errorf("invalid value: %q", s)
+	}
+}
+
+// UnmarshalText implements encoding.TextUnmarshaler.
+func (s *UpdateConnectionReqOptions2SignRequestAlgorithm) UnmarshalText(data []byte) error {
+	switch UpdateConnectionReqOptions2SignRequestAlgorithm(data) {
+	case UpdateConnectionReqOptions2SignRequestAlgorithmRSASHA256:
+		*s = UpdateConnectionReqOptions2SignRequestAlgorithmRSASHA256
+		return nil
+	case UpdateConnectionReqOptions2SignRequestAlgorithmRSASHA1:
+		*s = UpdateConnectionReqOptions2SignRequestAlgorithmRSASHA1
+		return nil
+	default:
+		return errors.Errorf("invalid value: %q", data)
+	}
 }
 
 // Additional upstream parameters to pass to the identity provider.
@@ -20786,6 +26585,78 @@ func (s *UpdateConnectionReqOptions2UpstreamParams) init() UpdateConnectionReqOp
 type UpdateConnectionTooManyRequests ErrorResponse
 
 func (*UpdateConnectionTooManyRequests) updateConnectionRes() {}
+
+type UpdateDirectoryBadRequest ErrorResponse
+
+func (*UpdateDirectoryBadRequest) updateDirectoryRes() {}
+
+type UpdateDirectoryForbidden ErrorResponse
+
+func (*UpdateDirectoryForbidden) updateDirectoryRes() {}
+
+type UpdateDirectoryNotFound ErrorResponse
+
+func (*UpdateDirectoryNotFound) updateDirectoryRes() {}
+
+type UpdateDirectoryReq struct {
+	// A descriptive name for the SCIM directory.
+	DirectoryName OptString `json:"directory_name"`
+}
+
+// GetDirectoryName returns the value of DirectoryName.
+func (s *UpdateDirectoryReq) GetDirectoryName() OptString {
+	return s.DirectoryName
+}
+
+// SetDirectoryName sets the value of DirectoryName.
+func (s *UpdateDirectoryReq) SetDirectoryName(val OptString) {
+	s.DirectoryName = val
+}
+
+// Ref: #/components/schemas/update_directory_response
+type UpdateDirectoryResponse struct {
+	// Response code.
+	Code OptString `json:"code"`
+	// Response message.
+	Message   OptString    `json:"message"`
+	Directory OptDirectory `json:"directory"`
+}
+
+// GetCode returns the value of Code.
+func (s *UpdateDirectoryResponse) GetCode() OptString {
+	return s.Code
+}
+
+// GetMessage returns the value of Message.
+func (s *UpdateDirectoryResponse) GetMessage() OptString {
+	return s.Message
+}
+
+// GetDirectory returns the value of Directory.
+func (s *UpdateDirectoryResponse) GetDirectory() OptDirectory {
+	return s.Directory
+}
+
+// SetCode sets the value of Code.
+func (s *UpdateDirectoryResponse) SetCode(val OptString) {
+	s.Code = val
+}
+
+// SetMessage sets the value of Message.
+func (s *UpdateDirectoryResponse) SetMessage(val OptString) {
+	s.Message = val
+}
+
+// SetDirectory sets the value of Directory.
+func (s *UpdateDirectoryResponse) SetDirectory(val OptDirectory) {
+	s.Directory = val
+}
+
+func (*UpdateDirectoryResponse) updateDirectoryRes() {}
+
+type UpdateDirectoryTooManyRequests ErrorResponse
+
+func (*UpdateDirectoryTooManyRequests) updateDirectoryRes() {}
 
 // UpdateEnvironementFeatureFlagOverrideForbidden is response for UpdateEnvironementFeatureFlagOverride operation.
 type UpdateEnvironementFeatureFlagOverrideForbidden struct{}
@@ -21072,6 +26943,204 @@ type UpdateOrganizationForbidden ErrorResponse
 
 func (*UpdateOrganizationForbidden) updateOrganizationRes() {}
 
+type UpdateOrganizationPasskeyBadRequest ErrorResponse
+
+func (*UpdateOrganizationPasskeyBadRequest) updateOrganizationPasskeyRes() {}
+
+type UpdateOrganizationPasskeyForbidden ErrorResponse
+
+func (*UpdateOrganizationPasskeyForbidden) updateOrganizationPasskeyRes() {}
+
+// Merged schema.
+type UpdateOrganizationPasskeyOK struct {
+	Message                              OptString                            `json:"message"`
+	Code                                 OptString                            `json:"code"`
+	Enabled                              OptBool                              `json:"enabled"`
+	Policy                               OptUpdateOrganizationPasskeyOKPolicy `json:"policy"`
+	IsOverrideEnvironmentPasskeySettings OptBool                              `json:"is_override_environment_passkey_settings"`
+}
+
+// GetMessage returns the value of Message.
+func (s *UpdateOrganizationPasskeyOK) GetMessage() OptString {
+	return s.Message
+}
+
+// GetCode returns the value of Code.
+func (s *UpdateOrganizationPasskeyOK) GetCode() OptString {
+	return s.Code
+}
+
+// GetEnabled returns the value of Enabled.
+func (s *UpdateOrganizationPasskeyOK) GetEnabled() OptBool {
+	return s.Enabled
+}
+
+// GetPolicy returns the value of Policy.
+func (s *UpdateOrganizationPasskeyOK) GetPolicy() OptUpdateOrganizationPasskeyOKPolicy {
+	return s.Policy
+}
+
+// GetIsOverrideEnvironmentPasskeySettings returns the value of IsOverrideEnvironmentPasskeySettings.
+func (s *UpdateOrganizationPasskeyOK) GetIsOverrideEnvironmentPasskeySettings() OptBool {
+	return s.IsOverrideEnvironmentPasskeySettings
+}
+
+// SetMessage sets the value of Message.
+func (s *UpdateOrganizationPasskeyOK) SetMessage(val OptString) {
+	s.Message = val
+}
+
+// SetCode sets the value of Code.
+func (s *UpdateOrganizationPasskeyOK) SetCode(val OptString) {
+	s.Code = val
+}
+
+// SetEnabled sets the value of Enabled.
+func (s *UpdateOrganizationPasskeyOK) SetEnabled(val OptBool) {
+	s.Enabled = val
+}
+
+// SetPolicy sets the value of Policy.
+func (s *UpdateOrganizationPasskeyOK) SetPolicy(val OptUpdateOrganizationPasskeyOKPolicy) {
+	s.Policy = val
+}
+
+// SetIsOverrideEnvironmentPasskeySettings sets the value of IsOverrideEnvironmentPasskeySettings.
+func (s *UpdateOrganizationPasskeyOK) SetIsOverrideEnvironmentPasskeySettings(val OptBool) {
+	s.IsOverrideEnvironmentPasskeySettings = val
+}
+
+func (*UpdateOrganizationPasskeyOK) updateOrganizationPasskeyRes() {}
+
+type UpdateOrganizationPasskeyOKPolicy string
+
+const (
+	UpdateOrganizationPasskeyOKPolicyOff       UpdateOrganizationPasskeyOKPolicy = "off"
+	UpdateOrganizationPasskeyOKPolicyOptional  UpdateOrganizationPasskeyOKPolicy = "optional"
+	UpdateOrganizationPasskeyOKPolicyMandatory UpdateOrganizationPasskeyOKPolicy = "mandatory"
+)
+
+// AllValues returns all UpdateOrganizationPasskeyOKPolicy values.
+func (UpdateOrganizationPasskeyOKPolicy) AllValues() []UpdateOrganizationPasskeyOKPolicy {
+	return []UpdateOrganizationPasskeyOKPolicy{
+		UpdateOrganizationPasskeyOKPolicyOff,
+		UpdateOrganizationPasskeyOKPolicyOptional,
+		UpdateOrganizationPasskeyOKPolicyMandatory,
+	}
+}
+
+// MarshalText implements encoding.TextMarshaler.
+func (s UpdateOrganizationPasskeyOKPolicy) MarshalText() ([]byte, error) {
+	switch s {
+	case UpdateOrganizationPasskeyOKPolicyOff:
+		return []byte(s), nil
+	case UpdateOrganizationPasskeyOKPolicyOptional:
+		return []byte(s), nil
+	case UpdateOrganizationPasskeyOKPolicyMandatory:
+		return []byte(s), nil
+	default:
+		return nil, errors.Errorf("invalid value: %q", s)
+	}
+}
+
+// UnmarshalText implements encoding.TextUnmarshaler.
+func (s *UpdateOrganizationPasskeyOKPolicy) UnmarshalText(data []byte) error {
+	switch UpdateOrganizationPasskeyOKPolicy(data) {
+	case UpdateOrganizationPasskeyOKPolicyOff:
+		*s = UpdateOrganizationPasskeyOKPolicyOff
+		return nil
+	case UpdateOrganizationPasskeyOKPolicyOptional:
+		*s = UpdateOrganizationPasskeyOKPolicyOptional
+		return nil
+	case UpdateOrganizationPasskeyOKPolicyMandatory:
+		*s = UpdateOrganizationPasskeyOKPolicyMandatory
+		return nil
+	default:
+		return errors.Errorf("invalid value: %q", data)
+	}
+}
+
+type UpdateOrganizationPasskeyReq struct {
+	// Passkey policy when overriding the environment default.
+	Policy OptUpdateOrganizationPasskeyReqPolicy `json:"policy"`
+	// Whether to use a custom passkey policy for this organization. Set to false to revert to the
+	// environment default.
+	IsOverrideEnvironmentPasskeySettings OptBool `json:"is_override_environment_passkey_settings"`
+}
+
+// GetPolicy returns the value of Policy.
+func (s *UpdateOrganizationPasskeyReq) GetPolicy() OptUpdateOrganizationPasskeyReqPolicy {
+	return s.Policy
+}
+
+// GetIsOverrideEnvironmentPasskeySettings returns the value of IsOverrideEnvironmentPasskeySettings.
+func (s *UpdateOrganizationPasskeyReq) GetIsOverrideEnvironmentPasskeySettings() OptBool {
+	return s.IsOverrideEnvironmentPasskeySettings
+}
+
+// SetPolicy sets the value of Policy.
+func (s *UpdateOrganizationPasskeyReq) SetPolicy(val OptUpdateOrganizationPasskeyReqPolicy) {
+	s.Policy = val
+}
+
+// SetIsOverrideEnvironmentPasskeySettings sets the value of IsOverrideEnvironmentPasskeySettings.
+func (s *UpdateOrganizationPasskeyReq) SetIsOverrideEnvironmentPasskeySettings(val OptBool) {
+	s.IsOverrideEnvironmentPasskeySettings = val
+}
+
+// Passkey policy when overriding the environment default.
+type UpdateOrganizationPasskeyReqPolicy string
+
+const (
+	UpdateOrganizationPasskeyReqPolicyOff       UpdateOrganizationPasskeyReqPolicy = "off"
+	UpdateOrganizationPasskeyReqPolicyOptional  UpdateOrganizationPasskeyReqPolicy = "optional"
+	UpdateOrganizationPasskeyReqPolicyMandatory UpdateOrganizationPasskeyReqPolicy = "mandatory"
+)
+
+// AllValues returns all UpdateOrganizationPasskeyReqPolicy values.
+func (UpdateOrganizationPasskeyReqPolicy) AllValues() []UpdateOrganizationPasskeyReqPolicy {
+	return []UpdateOrganizationPasskeyReqPolicy{
+		UpdateOrganizationPasskeyReqPolicyOff,
+		UpdateOrganizationPasskeyReqPolicyOptional,
+		UpdateOrganizationPasskeyReqPolicyMandatory,
+	}
+}
+
+// MarshalText implements encoding.TextMarshaler.
+func (s UpdateOrganizationPasskeyReqPolicy) MarshalText() ([]byte, error) {
+	switch s {
+	case UpdateOrganizationPasskeyReqPolicyOff:
+		return []byte(s), nil
+	case UpdateOrganizationPasskeyReqPolicyOptional:
+		return []byte(s), nil
+	case UpdateOrganizationPasskeyReqPolicyMandatory:
+		return []byte(s), nil
+	default:
+		return nil, errors.Errorf("invalid value: %q", s)
+	}
+}
+
+// UnmarshalText implements encoding.TextUnmarshaler.
+func (s *UpdateOrganizationPasskeyReqPolicy) UnmarshalText(data []byte) error {
+	switch UpdateOrganizationPasskeyReqPolicy(data) {
+	case UpdateOrganizationPasskeyReqPolicyOff:
+		*s = UpdateOrganizationPasskeyReqPolicyOff
+		return nil
+	case UpdateOrganizationPasskeyReqPolicyOptional:
+		*s = UpdateOrganizationPasskeyReqPolicyOptional
+		return nil
+	case UpdateOrganizationPasskeyReqPolicyMandatory:
+		*s = UpdateOrganizationPasskeyReqPolicyMandatory
+		return nil
+	default:
+		return errors.Errorf("invalid value: %q", data)
+	}
+}
+
+type UpdateOrganizationPasskeyTooManyRequests ErrorResponse
+
+func (*UpdateOrganizationPasskeyTooManyRequests) updateOrganizationPasskeyRes() {}
+
 // UpdateOrganizationPropertiesForbidden is response for UpdateOrganizationProperties operation.
 type UpdateOrganizationPropertiesForbidden struct{}
 
@@ -21111,7 +27180,9 @@ type UpdateOrganizationPropertyTooManyRequests struct{}
 func (*UpdateOrganizationPropertyTooManyRequests) updateOrganizationPropertyRes() {}
 
 type UpdateOrganizationReq struct {
-	// The organization's name.
+	// The organization's name. If the organization is a billing
+	// customer, this update is also propagated to the corresponding
+	// billing customer details.
 	Name OptString `json:"name"`
 	// The organization's ID.
 	ExternalID OptString `json:"external_id"`
@@ -21139,6 +27210,8 @@ type UpdateOrganizationReq struct {
 	//
 	// Deprecated: schema marks this property as deprecated.
 	IsAllowRegistrations OptBool `json:"is_allow_registrations"`
+	// If users become members of this organization when the org code is supplied during authentication.
+	IsAutoMembershipEnabled OptBool `json:"is_auto_membership_enabled"`
 	// Users can sign up to this organization.
 	IsAutoJoinDomainList OptBool `json:"is_auto_join_domain_list"`
 	// Domains allowed for self-sign up to this environment.
@@ -21151,6 +27224,9 @@ type UpdateOrganizationReq struct {
 	SenderName OptNilString `json:"sender_name"`
 	// The email address that will be used in emails. Requires custom SMTP to be set up.
 	SenderEmail OptNilString `json:"sender_email"`
+	// Whether to suspend or unsuspend the organization. Setting to true suspends the organization;
+	// setting to false unsuspends it. The default organization cannot be suspended.
+	IsSuspended OptBool `json:"is_suspended"`
 }
 
 // GetName returns the value of Name.
@@ -21218,6 +27294,11 @@ func (s *UpdateOrganizationReq) GetIsAllowRegistrations() OptBool {
 	return s.IsAllowRegistrations
 }
 
+// GetIsAutoMembershipEnabled returns the value of IsAutoMembershipEnabled.
+func (s *UpdateOrganizationReq) GetIsAutoMembershipEnabled() OptBool {
+	return s.IsAutoMembershipEnabled
+}
+
 // GetIsAutoJoinDomainList returns the value of IsAutoJoinDomainList.
 func (s *UpdateOrganizationReq) GetIsAutoJoinDomainList() OptBool {
 	return s.IsAutoJoinDomainList
@@ -21246,6 +27327,11 @@ func (s *UpdateOrganizationReq) GetSenderName() OptNilString {
 // GetSenderEmail returns the value of SenderEmail.
 func (s *UpdateOrganizationReq) GetSenderEmail() OptNilString {
 	return s.SenderEmail
+}
+
+// GetIsSuspended returns the value of IsSuspended.
+func (s *UpdateOrganizationReq) GetIsSuspended() OptBool {
+	return s.IsSuspended
 }
 
 // SetName sets the value of Name.
@@ -21313,6 +27399,11 @@ func (s *UpdateOrganizationReq) SetIsAllowRegistrations(val OptBool) {
 	s.IsAllowRegistrations = val
 }
 
+// SetIsAutoMembershipEnabled sets the value of IsAutoMembershipEnabled.
+func (s *UpdateOrganizationReq) SetIsAutoMembershipEnabled(val OptBool) {
+	s.IsAutoMembershipEnabled = val
+}
+
 // SetIsAutoJoinDomainList sets the value of IsAutoJoinDomainList.
 func (s *UpdateOrganizationReq) SetIsAutoJoinDomainList(val OptBool) {
 	s.IsAutoJoinDomainList = val
@@ -21341,6 +27432,11 @@ func (s *UpdateOrganizationReq) SetSenderName(val OptNilString) {
 // SetSenderEmail sets the value of SenderEmail.
 func (s *UpdateOrganizationReq) SetSenderEmail(val OptNilString) {
 	s.SenderEmail = val
+}
+
+// SetIsSuspended sets the value of IsSuspended.
+func (s *UpdateOrganizationReq) SetIsSuspended(val OptBool) {
+	s.IsSuspended = val
 }
 
 // The organization's brand settings - theme/mode.
@@ -21456,7 +27552,7 @@ type UpdateOrganizationSessionsReqSSOSessionPersistenceMode string
 
 const (
 	UpdateOrganizationSessionsReqSSOSessionPersistenceModePersistent    UpdateOrganizationSessionsReqSSOSessionPersistenceMode = "persistent"
-	UpdateOrganizationSessionsReqSSOSessionPersistenceModeNonPersistent UpdateOrganizationSessionsReqSSOSessionPersistenceMode = "non-persistent"
+	UpdateOrganizationSessionsReqSSOSessionPersistenceModeNonPersistent UpdateOrganizationSessionsReqSSOSessionPersistenceMode = "non_persistent"
 )
 
 // AllValues returns all UpdateOrganizationSessionsReqSSOSessionPersistenceMode values.
@@ -21639,6 +27735,180 @@ func (*UpdateOrganizationUsersResponse) updateOrganizationUsersRes() {}
 type UpdateOrganizationUsersTooManyRequests ErrorResponse
 
 func (*UpdateOrganizationUsersTooManyRequests) updateOrganizationUsersRes() {}
+
+type UpdatePasskeyBadRequest ErrorResponse
+
+func (*UpdatePasskeyBadRequest) updatePasskeyRes() {}
+
+type UpdatePasskeyForbidden ErrorResponse
+
+func (*UpdatePasskeyForbidden) updatePasskeyRes() {}
+
+// Merged schema.
+type UpdatePasskeyOK struct {
+	Message OptString                `json:"message"`
+	Code    OptString                `json:"code"`
+	Enabled OptBool                  `json:"enabled"`
+	Policy  OptUpdatePasskeyOKPolicy `json:"policy"`
+}
+
+// GetMessage returns the value of Message.
+func (s *UpdatePasskeyOK) GetMessage() OptString {
+	return s.Message
+}
+
+// GetCode returns the value of Code.
+func (s *UpdatePasskeyOK) GetCode() OptString {
+	return s.Code
+}
+
+// GetEnabled returns the value of Enabled.
+func (s *UpdatePasskeyOK) GetEnabled() OptBool {
+	return s.Enabled
+}
+
+// GetPolicy returns the value of Policy.
+func (s *UpdatePasskeyOK) GetPolicy() OptUpdatePasskeyOKPolicy {
+	return s.Policy
+}
+
+// SetMessage sets the value of Message.
+func (s *UpdatePasskeyOK) SetMessage(val OptString) {
+	s.Message = val
+}
+
+// SetCode sets the value of Code.
+func (s *UpdatePasskeyOK) SetCode(val OptString) {
+	s.Code = val
+}
+
+// SetEnabled sets the value of Enabled.
+func (s *UpdatePasskeyOK) SetEnabled(val OptBool) {
+	s.Enabled = val
+}
+
+// SetPolicy sets the value of Policy.
+func (s *UpdatePasskeyOK) SetPolicy(val OptUpdatePasskeyOKPolicy) {
+	s.Policy = val
+}
+
+func (*UpdatePasskeyOK) updatePasskeyRes() {}
+
+type UpdatePasskeyOKPolicy string
+
+const (
+	UpdatePasskeyOKPolicyOff       UpdatePasskeyOKPolicy = "off"
+	UpdatePasskeyOKPolicyOptional  UpdatePasskeyOKPolicy = "optional"
+	UpdatePasskeyOKPolicyMandatory UpdatePasskeyOKPolicy = "mandatory"
+)
+
+// AllValues returns all UpdatePasskeyOKPolicy values.
+func (UpdatePasskeyOKPolicy) AllValues() []UpdatePasskeyOKPolicy {
+	return []UpdatePasskeyOKPolicy{
+		UpdatePasskeyOKPolicyOff,
+		UpdatePasskeyOKPolicyOptional,
+		UpdatePasskeyOKPolicyMandatory,
+	}
+}
+
+// MarshalText implements encoding.TextMarshaler.
+func (s UpdatePasskeyOKPolicy) MarshalText() ([]byte, error) {
+	switch s {
+	case UpdatePasskeyOKPolicyOff:
+		return []byte(s), nil
+	case UpdatePasskeyOKPolicyOptional:
+		return []byte(s), nil
+	case UpdatePasskeyOKPolicyMandatory:
+		return []byte(s), nil
+	default:
+		return nil, errors.Errorf("invalid value: %q", s)
+	}
+}
+
+// UnmarshalText implements encoding.TextUnmarshaler.
+func (s *UpdatePasskeyOKPolicy) UnmarshalText(data []byte) error {
+	switch UpdatePasskeyOKPolicy(data) {
+	case UpdatePasskeyOKPolicyOff:
+		*s = UpdatePasskeyOKPolicyOff
+		return nil
+	case UpdatePasskeyOKPolicyOptional:
+		*s = UpdatePasskeyOKPolicyOptional
+		return nil
+	case UpdatePasskeyOKPolicyMandatory:
+		*s = UpdatePasskeyOKPolicyMandatory
+		return nil
+	default:
+		return errors.Errorf("invalid value: %q", data)
+	}
+}
+
+type UpdatePasskeyReq struct {
+	// Environment passkey policy.
+	Policy UpdatePasskeyReqPolicy `json:"policy"`
+}
+
+// GetPolicy returns the value of Policy.
+func (s *UpdatePasskeyReq) GetPolicy() UpdatePasskeyReqPolicy {
+	return s.Policy
+}
+
+// SetPolicy sets the value of Policy.
+func (s *UpdatePasskeyReq) SetPolicy(val UpdatePasskeyReqPolicy) {
+	s.Policy = val
+}
+
+// Environment passkey policy.
+type UpdatePasskeyReqPolicy string
+
+const (
+	UpdatePasskeyReqPolicyOff       UpdatePasskeyReqPolicy = "off"
+	UpdatePasskeyReqPolicyOptional  UpdatePasskeyReqPolicy = "optional"
+	UpdatePasskeyReqPolicyMandatory UpdatePasskeyReqPolicy = "mandatory"
+)
+
+// AllValues returns all UpdatePasskeyReqPolicy values.
+func (UpdatePasskeyReqPolicy) AllValues() []UpdatePasskeyReqPolicy {
+	return []UpdatePasskeyReqPolicy{
+		UpdatePasskeyReqPolicyOff,
+		UpdatePasskeyReqPolicyOptional,
+		UpdatePasskeyReqPolicyMandatory,
+	}
+}
+
+// MarshalText implements encoding.TextMarshaler.
+func (s UpdatePasskeyReqPolicy) MarshalText() ([]byte, error) {
+	switch s {
+	case UpdatePasskeyReqPolicyOff:
+		return []byte(s), nil
+	case UpdatePasskeyReqPolicyOptional:
+		return []byte(s), nil
+	case UpdatePasskeyReqPolicyMandatory:
+		return []byte(s), nil
+	default:
+		return nil, errors.Errorf("invalid value: %q", s)
+	}
+}
+
+// UnmarshalText implements encoding.TextUnmarshaler.
+func (s *UpdatePasskeyReqPolicy) UnmarshalText(data []byte) error {
+	switch UpdatePasskeyReqPolicy(data) {
+	case UpdatePasskeyReqPolicyOff:
+		*s = UpdatePasskeyReqPolicyOff
+		return nil
+	case UpdatePasskeyReqPolicyOptional:
+		*s = UpdatePasskeyReqPolicyOptional
+		return nil
+	case UpdatePasskeyReqPolicyMandatory:
+		*s = UpdatePasskeyReqPolicyMandatory
+		return nil
+	default:
+		return errors.Errorf("invalid value: %q", data)
+	}
+}
+
+type UpdatePasskeyTooManyRequests ErrorResponse
+
+func (*UpdatePasskeyTooManyRequests) updatePasskeyRes() {}
 
 type UpdatePermissionsBadRequest ErrorResponse
 
@@ -21850,6 +28120,111 @@ type UpdateRolePermissionsTooManyRequests struct{}
 
 func (*UpdateRolePermissionsTooManyRequests) updateRolePermissionsRes() {}
 
+type UpdateRoleSystemPermissionsBadRequest ErrorResponse
+
+func (*UpdateRoleSystemPermissionsBadRequest) updateRoleSystemPermissionsRes() {}
+
+type UpdateRoleSystemPermissionsForbidden ErrorResponse
+
+func (*UpdateRoleSystemPermissionsForbidden) updateRoleSystemPermissionsRes() {}
+
+type UpdateRoleSystemPermissionsReq struct {
+	// System permissions to add or remove from the role.
+	SystemPermissions []UpdateRoleSystemPermissionsReqSystemPermissionsItem `json:"system_permissions"`
+}
+
+// GetSystemPermissions returns the value of SystemPermissions.
+func (s *UpdateRoleSystemPermissionsReq) GetSystemPermissions() []UpdateRoleSystemPermissionsReqSystemPermissionsItem {
+	return s.SystemPermissions
+}
+
+// SetSystemPermissions sets the value of SystemPermissions.
+func (s *UpdateRoleSystemPermissionsReq) SetSystemPermissions(val []UpdateRoleSystemPermissionsReqSystemPermissionsItem) {
+	s.SystemPermissions = val
+}
+
+type UpdateRoleSystemPermissionsReqSystemPermissionsItem struct {
+	// The system permission id.
+	ID OptString `json:"id"`
+	// Optional operation, set to 'delete' to remove the system permission from the role.
+	Operation OptString `json:"operation"`
+}
+
+// GetID returns the value of ID.
+func (s *UpdateRoleSystemPermissionsReqSystemPermissionsItem) GetID() OptString {
+	return s.ID
+}
+
+// GetOperation returns the value of Operation.
+func (s *UpdateRoleSystemPermissionsReqSystemPermissionsItem) GetOperation() OptString {
+	return s.Operation
+}
+
+// SetID sets the value of ID.
+func (s *UpdateRoleSystemPermissionsReqSystemPermissionsItem) SetID(val OptString) {
+	s.ID = val
+}
+
+// SetOperation sets the value of Operation.
+func (s *UpdateRoleSystemPermissionsReqSystemPermissionsItem) SetOperation(val OptString) {
+	s.Operation = val
+}
+
+// Ref: #/components/schemas/update_role_system_permissions_response
+type UpdateRoleSystemPermissionsResponse struct {
+	Code                     OptString `json:"code"`
+	Message                  OptString `json:"message"`
+	SystemPermissionsAdded   []string  `json:"system_permissions_added"`
+	SystemPermissionsRemoved []string  `json:"system_permissions_removed"`
+}
+
+// GetCode returns the value of Code.
+func (s *UpdateRoleSystemPermissionsResponse) GetCode() OptString {
+	return s.Code
+}
+
+// GetMessage returns the value of Message.
+func (s *UpdateRoleSystemPermissionsResponse) GetMessage() OptString {
+	return s.Message
+}
+
+// GetSystemPermissionsAdded returns the value of SystemPermissionsAdded.
+func (s *UpdateRoleSystemPermissionsResponse) GetSystemPermissionsAdded() []string {
+	return s.SystemPermissionsAdded
+}
+
+// GetSystemPermissionsRemoved returns the value of SystemPermissionsRemoved.
+func (s *UpdateRoleSystemPermissionsResponse) GetSystemPermissionsRemoved() []string {
+	return s.SystemPermissionsRemoved
+}
+
+// SetCode sets the value of Code.
+func (s *UpdateRoleSystemPermissionsResponse) SetCode(val OptString) {
+	s.Code = val
+}
+
+// SetMessage sets the value of Message.
+func (s *UpdateRoleSystemPermissionsResponse) SetMessage(val OptString) {
+	s.Message = val
+}
+
+// SetSystemPermissionsAdded sets the value of SystemPermissionsAdded.
+func (s *UpdateRoleSystemPermissionsResponse) SetSystemPermissionsAdded(val []string) {
+	s.SystemPermissionsAdded = val
+}
+
+// SetSystemPermissionsRemoved sets the value of SystemPermissionsRemoved.
+func (s *UpdateRoleSystemPermissionsResponse) SetSystemPermissionsRemoved(val []string) {
+	s.SystemPermissionsRemoved = val
+}
+
+func (*UpdateRoleSystemPermissionsResponse) updateRoleSystemPermissionsRes() {}
+
+// UpdateRoleSystemPermissionsTooManyRequests is response for UpdateRoleSystemPermissions operation.
+type UpdateRoleSystemPermissionsTooManyRequests struct{}
+
+func (*UpdateRoleSystemPermissionsTooManyRequests) updateRoleSystemPermissionsRes() {}
+
 type UpdateRolesBadRequest ErrorResponse
 
 func (*UpdateRolesBadRequest) updateRolesRes() {}
@@ -21867,8 +28242,8 @@ type UpdateRolesReq struct {
 	Key string `json:"key"`
 	// Set role as default for new users.
 	IsDefaultRole OptBool `json:"is_default_role"`
-	// The public ID of the permission required to assign this role to users. If null, no permission is
-	// required.
+	// The public ID of the permission required to assign this role to users. If null, no change to the
+	// assignment permission is made. If set to 'NO_PERMISSION_REQUIRED', no permission is required.
 	AssignmentPermissionID OptNilUUID `json:"assignment_permission_id"`
 }
 
@@ -21983,9 +28358,13 @@ type UpdateUserPropertyTooManyRequests struct{}
 func (*UpdateUserPropertyTooManyRequests) updateUserPropertyRes() {}
 
 type UpdateUserReq struct {
-	// User's first name.
+	// User's first name. If the user is the owner of a family
+	// billing customer, this update is also propagated to the
+	// corresponding billing customer details.
 	GivenName OptString `json:"given_name"`
-	// User's last name.
+	// User's last name. If the user is the owner of a family
+	// billing customer, this update is also propagated to the
+	// corresponding billing customer details.
 	FamilyName OptString `json:"family_name"`
 	// The user's profile picture.
 	Picture OptString `json:"picture"`
@@ -22288,6 +28667,7 @@ type User struct {
 	Organizations []string `json:"organizations"`
 	// Array of identities belonging to the user.
 	Identities []UserIdentitiesItem `json:"identities"`
+	Billing    OptUserBilling       `json:"billing"`
 }
 
 // GetID returns the value of ID.
@@ -22365,6 +28745,11 @@ func (s *User) GetIdentities() []UserIdentitiesItem {
 	return s.Identities
 }
 
+// GetBilling returns the value of Billing.
+func (s *User) GetBilling() OptUserBilling {
+	return s.Billing
+}
+
 // SetID sets the value of ID.
 func (s *User) SetID(val OptString) {
 	s.ID = val
@@ -22440,7 +28825,26 @@ func (s *User) SetIdentities(val []UserIdentitiesItem) {
 	s.Identities = val
 }
 
+// SetBilling sets the value of Billing.
+func (s *User) SetBilling(val OptUserBilling) {
+	s.Billing = val
+}
+
 func (*User) getUserDataRes() {}
+
+type UserBilling struct {
+	CustomerID OptString `json:"customer_id"`
+}
+
+// GetCustomerID returns the value of CustomerID.
+func (s *UserBilling) GetCustomerID() OptString {
+	return s.CustomerID
+}
+
+// SetCustomerID sets the value of CustomerID.
+func (s *UserBilling) SetCustomerID(val OptString) {
+	s.CustomerID = val
+}
 
 type UserIdentitiesItem struct {
 	Type     OptString `json:"type"`
@@ -22591,6 +28995,8 @@ type UsersResponseUsersItem struct {
 	LastSignedIn OptNilString `json:"last_signed_in"`
 	// Date of user creation in ISO 8601 format.
 	CreatedOn OptNilString `json:"created_on"`
+	// Array of organization sign-in information for the user.
+	LastOrganizationSignIns OptNilUsersResponseUsersItemLastOrganizationSignInsItemArray `json:"last_organization_sign_ins"`
 	// Array of organizations a user belongs to.
 	Organizations []string `json:"organizations"`
 	// Array of identities belonging to the user.
@@ -22661,6 +29067,11 @@ func (s *UsersResponseUsersItem) GetLastSignedIn() OptNilString {
 // GetCreatedOn returns the value of CreatedOn.
 func (s *UsersResponseUsersItem) GetCreatedOn() OptNilString {
 	return s.CreatedOn
+}
+
+// GetLastOrganizationSignIns returns the value of LastOrganizationSignIns.
+func (s *UsersResponseUsersItem) GetLastOrganizationSignIns() OptNilUsersResponseUsersItemLastOrganizationSignInsItemArray {
+	return s.LastOrganizationSignIns
 }
 
 // GetOrganizations returns the value of Organizations.
@@ -22743,6 +29154,11 @@ func (s *UsersResponseUsersItem) SetCreatedOn(val OptNilString) {
 	s.CreatedOn = val
 }
 
+// SetLastOrganizationSignIns sets the value of LastOrganizationSignIns.
+func (s *UsersResponseUsersItem) SetLastOrganizationSignIns(val OptNilUsersResponseUsersItemLastOrganizationSignInsItemArray) {
+	s.LastOrganizationSignIns = val
+}
+
 // SetOrganizations sets the value of Organizations.
 func (s *UsersResponseUsersItem) SetOrganizations(val []string) {
 	s.Organizations = val
@@ -22776,6 +29192,9 @@ func (s *UsersResponseUsersItemBilling) SetCustomerID(val OptString) {
 type UsersResponseUsersItemIdentitiesItem struct {
 	Type     OptString `json:"type"`
 	Identity OptString `json:"identity"`
+	// The social or enterprise connection ID associated with the identity. Null for email, phone,
+	// username, and passkey identities.
+	ConnectionID OptNilString `json:"connection_id"`
 }
 
 // GetType returns the value of Type.
@@ -22788,6 +29207,11 @@ func (s *UsersResponseUsersItemIdentitiesItem) GetIdentity() OptString {
 	return s.Identity
 }
 
+// GetConnectionID returns the value of ConnectionID.
+func (s *UsersResponseUsersItemIdentitiesItem) GetConnectionID() OptNilString {
+	return s.ConnectionID
+}
+
 // SetType sets the value of Type.
 func (s *UsersResponseUsersItemIdentitiesItem) SetType(val OptString) {
 	s.Type = val
@@ -22796,6 +29220,38 @@ func (s *UsersResponseUsersItemIdentitiesItem) SetType(val OptString) {
 // SetIdentity sets the value of Identity.
 func (s *UsersResponseUsersItemIdentitiesItem) SetIdentity(val OptString) {
 	s.Identity = val
+}
+
+// SetConnectionID sets the value of ConnectionID.
+func (s *UsersResponseUsersItemIdentitiesItem) SetConnectionID(val OptNilString) {
+	s.ConnectionID = val
+}
+
+type UsersResponseUsersItemLastOrganizationSignInsItem struct {
+	// The organization code.
+	OrgCode OptString `json:"org_code"`
+	// The date and time the user last signed in to this organization in ISO 8601 format.
+	LastSignedIn OptDateTime `json:"last_signed_in"`
+}
+
+// GetOrgCode returns the value of OrgCode.
+func (s *UsersResponseUsersItemLastOrganizationSignInsItem) GetOrgCode() OptString {
+	return s.OrgCode
+}
+
+// GetLastSignedIn returns the value of LastSignedIn.
+func (s *UsersResponseUsersItemLastOrganizationSignInsItem) GetLastSignedIn() OptDateTime {
+	return s.LastSignedIn
+}
+
+// SetOrgCode sets the value of OrgCode.
+func (s *UsersResponseUsersItemLastOrganizationSignInsItem) SetOrgCode(val OptString) {
+	s.OrgCode = val
+}
+
+// SetLastSignedIn sets the value of LastSignedIn.
+func (s *UsersResponseUsersItemLastOrganizationSignInsItem) SetLastSignedIn(val OptDateTime) {
+	s.LastSignedIn = val
 }
 
 // Ref: #/components/schemas/verify_api_key_response
