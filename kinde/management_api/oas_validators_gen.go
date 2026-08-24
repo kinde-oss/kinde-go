@@ -39,6 +39,17 @@ func (s *CreateApiKeyReq) Validate() error {
 
 	var failures []validate.FieldError
 	if err := func() error {
+		if err := s.Type.Validate(); err != nil {
+			return err
+		}
+		return nil
+	}(); err != nil {
+		failures = append(failures, validate.FieldError{
+			Name:  "type",
+			Error: err,
+		})
+	}
+	if err := func() error {
 		if value, ok := s.ScopeIds.Get(); ok {
 			if err := func() error {
 				if value == nil {
@@ -60,6 +71,19 @@ func (s *CreateApiKeyReq) Validate() error {
 		return &validate.Error{Fields: failures}
 	}
 	return nil
+}
+
+func (s CreateApiKeyReqType) Validate() error {
+	switch s {
+	case "user":
+		return nil
+	case "organization":
+		return nil
+	case "environment":
+		return nil
+	default:
+		return errors.Errorf("invalid value: %v", s)
+	}
 }
 
 func (s *CreateApplicationReq) Validate() error {
@@ -160,10 +184,224 @@ func (s *CreateConnectionReq) Validate() error {
 			Error: err,
 		})
 	}
+	if err := func() error {
+		if value, ok := s.Options.Get(); ok {
+			if err := func() error {
+				if err := value.Validate(); err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return err
+			}
+		}
+		return nil
+	}(); err != nil {
+		failures = append(failures, validate.FieldError{
+			Name:  "options",
+			Error: err,
+		})
+	}
 	if len(failures) > 0 {
 		return &validate.Error{Fields: failures}
 	}
 	return nil
+}
+
+func (s CreateConnectionReqOptions) Validate() error {
+	switch s.Type {
+	case CreateConnectionReqOptions0CreateConnectionReqOptions:
+		return nil // no validation needed
+	case CreateConnectionReqOptions1CreateConnectionReqOptions:
+		if err := s.CreateConnectionReqOptions1.Validate(); err != nil {
+			return err
+		}
+		return nil
+	case CreateConnectionReqOptions2CreateConnectionReqOptions:
+		if err := s.CreateConnectionReqOptions2.Validate(); err != nil {
+			return err
+		}
+		return nil
+	default:
+		return errors.Errorf("invalid type %q", s.Type)
+	}
+}
+
+func (s *CreateConnectionReqOptions1) Validate() error {
+	if s == nil {
+		return validate.ErrNilPointer
+	}
+
+	var failures []validate.FieldError
+	if err := func() error {
+		if value, ok := s.SSOButtonDisplay.Get(); ok {
+			if err := func() error {
+				if err := value.Validate(); err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return err
+			}
+		}
+		return nil
+	}(); err != nil {
+		failures = append(failures, validate.FieldError{
+			Name:  "sso_button_display",
+			Error: err,
+		})
+	}
+	if len(failures) > 0 {
+		return &validate.Error{Fields: failures}
+	}
+	return nil
+}
+
+func (s CreateConnectionReqOptions1SSOButtonDisplay) Validate() error {
+	switch s {
+	case "auto":
+		return nil
+	case "show":
+		return nil
+	case "hide":
+		return nil
+	default:
+		return errors.Errorf("invalid value: %v", s)
+	}
+}
+
+func (s *CreateConnectionReqOptions2) Validate() error {
+	if s == nil {
+		return validate.ErrNilPointer
+	}
+
+	var failures []validate.FieldError
+	if err := func() error {
+		if value, ok := s.SignRequestAlgorithm.Get(); ok {
+			if err := func() error {
+				if err := value.Validate(); err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return err
+			}
+		}
+		return nil
+	}(); err != nil {
+		failures = append(failures, validate.FieldError{
+			Name:  "sign_request_algorithm",
+			Error: err,
+		})
+	}
+	if err := func() error {
+		if value, ok := s.ProtocolBinding.Get(); ok {
+			if err := func() error {
+				if err := value.Validate(); err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return err
+			}
+		}
+		return nil
+	}(); err != nil {
+		failures = append(failures, validate.FieldError{
+			Name:  "protocol_binding",
+			Error: err,
+		})
+	}
+	if err := func() error {
+		if value, ok := s.NameIDFormat.Get(); ok {
+			if err := func() error {
+				if err := value.Validate(); err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return err
+			}
+		}
+		return nil
+	}(); err != nil {
+		failures = append(failures, validate.FieldError{
+			Name:  "name_id_format",
+			Error: err,
+		})
+	}
+	if err := func() error {
+		if value, ok := s.SSOButtonDisplay.Get(); ok {
+			if err := func() error {
+				if err := value.Validate(); err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return err
+			}
+		}
+		return nil
+	}(); err != nil {
+		failures = append(failures, validate.FieldError{
+			Name:  "sso_button_display",
+			Error: err,
+		})
+	}
+	if len(failures) > 0 {
+		return &validate.Error{Fields: failures}
+	}
+	return nil
+}
+
+func (s CreateConnectionReqOptions2NameIDFormat) Validate() error {
+	switch s {
+	case "Persistent":
+		return nil
+	case "Transient":
+		return nil
+	case "Email address":
+		return nil
+	case "Unspecified":
+		return nil
+	default:
+		return errors.Errorf("invalid value: %v", s)
+	}
+}
+
+func (s CreateConnectionReqOptions2ProtocolBinding) Validate() error {
+	switch s {
+	case "HTTP-REDIRECT":
+		return nil
+	case "HTTP-POST":
+		return nil
+	default:
+		return errors.Errorf("invalid value: %v", s)
+	}
+}
+
+func (s CreateConnectionReqOptions2SSOButtonDisplay) Validate() error {
+	switch s {
+	case "auto":
+		return nil
+	case "show":
+		return nil
+	case "hide":
+		return nil
+	default:
+		return errors.Errorf("invalid value: %v", s)
+	}
+}
+
+func (s CreateConnectionReqOptions2SignRequestAlgorithm) Validate() error {
+	switch s {
+	case "RSA-SHA256":
+		return nil
+	case "RSA-SHA1":
+		return nil
+	default:
+		return errors.Errorf("invalid value: %v", s)
+	}
 }
 
 func (s CreateConnectionReqStrategy) Validate() error {
@@ -202,11 +440,104 @@ func (s CreateConnectionReqStrategy) Validate() error {
 		return nil
 	case "saml:custom":
 		return nil
+	case "saml:cloudflare":
+		return nil
+	case "saml:okta":
+		return nil
+	case "saml:microsoft":
+		return nil
+	case "saml:google":
+		return nil
 	case "wsfed:azure_ad":
 		return nil
 	default:
 		return errors.Errorf("invalid value: %v", s)
 	}
+}
+
+func (s *CreateDirectoryReq) Validate() error {
+	if s == nil {
+		return validate.ErrNilPointer
+	}
+
+	var failures []validate.FieldError
+	if err := func() error {
+		if value, ok := s.ProviderCode.Get(); ok {
+			if err := func() error {
+				if err := value.Validate(); err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return err
+			}
+		}
+		return nil
+	}(); err != nil {
+		failures = append(failures, validate.FieldError{
+			Name:  "provider_code",
+			Error: err,
+		})
+	}
+	if len(failures) > 0 {
+		return &validate.Error{Fields: failures}
+	}
+	return nil
+}
+
+func (s CreateDirectoryReqProviderCode) Validate() error {
+	switch s {
+	case "entra_id_azure_ad":
+		return nil
+	case "okta":
+		return nil
+	case "google_workspace":
+		return nil
+	case "custom_scim_v2":
+		return nil
+	case "cyberark":
+		return nil
+	case "jumpcloud":
+		return nil
+	case "onelogin":
+		return nil
+	case "pingfederate":
+		return nil
+	case "rippling":
+		return nil
+	default:
+		return errors.Errorf("invalid value: %v", s)
+	}
+}
+
+func (s *CreateDirectoryResponse) Validate() error {
+	if s == nil {
+		return validate.ErrNilPointer
+	}
+
+	var failures []validate.FieldError
+	if err := func() error {
+		if value, ok := s.Directory.Get(); ok {
+			if err := func() error {
+				if err := value.Validate(); err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return err
+			}
+		}
+		return nil
+	}(); err != nil {
+		failures = append(failures, validate.FieldError{
+			Name:  "directory",
+			Error: err,
+		})
+	}
+	if len(failures) > 0 {
+		return &validate.Error{Fields: failures}
+	}
+	return nil
 }
 
 func (s *CreateFeatureFlagReq) Validate() error {
@@ -315,6 +646,100 @@ func (s CreateMeterUsageRecordReqMeterTypeCode) Validate() error {
 	default:
 		return errors.Errorf("invalid value: %v", s)
 	}
+}
+
+func (s *CreateOrganizationInviteReq) Validate() error {
+	if s == nil {
+		return validate.ErrNilPointer
+	}
+
+	var failures []validate.FieldError
+	if err := func() error {
+		if err := (validate.String{
+			MinLength:    0,
+			MinLengthSet: false,
+			MaxLength:    254,
+			MaxLengthSet: true,
+			Email:        false,
+			Hostname:     false,
+			Regex:        nil,
+		}).Validate(string(s.Email)); err != nil {
+			return errors.Wrap(err, "string")
+		}
+		return nil
+	}(); err != nil {
+		failures = append(failures, validate.FieldError{
+			Name:  "email",
+			Error: err,
+		})
+	}
+	if err := func() error {
+		if value, ok := s.FirstName.Get(); ok {
+			if err := func() error {
+				if err := (validate.String{
+					MinLength:    0,
+					MinLengthSet: false,
+					MaxLength:    64,
+					MaxLengthSet: true,
+					Email:        false,
+					Hostname:     false,
+					Regex:        nil,
+				}).Validate(string(value)); err != nil {
+					return errors.Wrap(err, "string")
+				}
+				return nil
+			}(); err != nil {
+				return err
+			}
+		}
+		return nil
+	}(); err != nil {
+		failures = append(failures, validate.FieldError{
+			Name:  "first_name",
+			Error: err,
+		})
+	}
+	if err := func() error {
+		if value, ok := s.LastName.Get(); ok {
+			if err := func() error {
+				if err := (validate.String{
+					MinLength:    0,
+					MinLengthSet: false,
+					MaxLength:    64,
+					MaxLengthSet: true,
+					Email:        false,
+					Hostname:     false,
+					Regex:        nil,
+				}).Validate(string(value)); err != nil {
+					return errors.Wrap(err, "string")
+				}
+				return nil
+			}(); err != nil {
+				return err
+			}
+		}
+		return nil
+	}(); err != nil {
+		failures = append(failures, validate.FieldError{
+			Name:  "last_name",
+			Error: err,
+		})
+	}
+	if err := func() error {
+		if s.Roles == nil {
+			return errors.New("nil is invalid value")
+		}
+		return nil
+	}(); err != nil {
+		failures = append(failures, validate.FieldError{
+			Name:  "roles",
+			Error: err,
+		})
+	}
+	if len(failures) > 0 {
+		return &validate.Error{Fields: failures}
+	}
+	return nil
 }
 
 func (s *CreateOrganizationReq) Validate() error {
@@ -612,6 +1037,53 @@ func (s DeleteOrganizationLogoType) Validate() error {
 	}
 }
 
+func (s *Directory) Validate() error {
+	if s == nil {
+		return validate.ErrNilPointer
+	}
+
+	var failures []validate.FieldError
+	if err := func() error {
+		if value, ok := s.Status.Get(); ok {
+			if err := func() error {
+				if err := value.Validate(); err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return err
+			}
+		}
+		return nil
+	}(); err != nil {
+		failures = append(failures, validate.FieldError{
+			Name:  "status",
+			Error: err,
+		})
+	}
+	if len(failures) > 0 {
+		return &validate.Error{Fields: failures}
+	}
+	return nil
+}
+
+func (s DirectoryStatus) Validate() error {
+	switch s {
+	case "Pending":
+		return nil
+	case "Validating":
+		return nil
+	case "Active":
+		return nil
+	case "Inactive":
+		return nil
+	case "Error":
+		return nil
+	default:
+		return errors.Errorf("invalid value: %v", s)
+	}
+}
+
 func (s *GetAPIResponse) Validate() error {
 	if s == nil {
 		return validate.ErrNilPointer
@@ -825,6 +1297,8 @@ func (s GetApplicationResponseApplicationType) Validate() error {
 		return nil
 	case "spa":
 		return nil
+	case "device":
+		return nil
 	default:
 		return errors.Errorf("invalid value: %v", s)
 	}
@@ -859,6 +1333,73 @@ func (s GetCategoriesContext) Validate() error {
 	default:
 		return errors.Errorf("invalid value: %v", s)
 	}
+}
+
+func (s *GetDirectoriesResponse) Validate() error {
+	if s == nil {
+		return validate.ErrNilPointer
+	}
+
+	var failures []validate.FieldError
+	if err := func() error {
+		var failures []validate.FieldError
+		for i, elem := range s.Directories {
+			if err := func() error {
+				if err := elem.Validate(); err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				failures = append(failures, validate.FieldError{
+					Name:  fmt.Sprintf("[%d]", i),
+					Error: err,
+				})
+			}
+		}
+		if len(failures) > 0 {
+			return &validate.Error{Fields: failures}
+		}
+		return nil
+	}(); err != nil {
+		failures = append(failures, validate.FieldError{
+			Name:  "directories",
+			Error: err,
+		})
+	}
+	if len(failures) > 0 {
+		return &validate.Error{Fields: failures}
+	}
+	return nil
+}
+
+func (s *GetDirectoryResponse) Validate() error {
+	if s == nil {
+		return validate.ErrNilPointer
+	}
+
+	var failures []validate.FieldError
+	if err := func() error {
+		if value, ok := s.Directory.Get(); ok {
+			if err := func() error {
+				if err := value.Validate(); err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return err
+			}
+		}
+		return nil
+	}(); err != nil {
+		failures = append(failures, validate.FieldError{
+			Name:  "directory",
+			Error: err,
+		})
+	}
+	if len(failures) > 0 {
+		return &validate.Error{Fields: failures}
+	}
+	return nil
 }
 
 func (s *GetEnvironmentFeatureFlagsResponse) Validate() error {
@@ -1155,6 +1696,99 @@ func (s GetOrganizationFeatureFlagsResponseFeatureFlagsItemType) Validate() erro
 	}
 }
 
+func (s GetOrganizationInvitesSort) Validate() error {
+	switch s {
+	case "created_on_asc":
+		return nil
+	case "created_on_desc":
+		return nil
+	case "email_asc":
+		return nil
+	case "email_desc":
+		return nil
+	case "name_asc":
+		return nil
+	case "name_desc":
+		return nil
+	default:
+		return errors.Errorf("invalid value: %v", s)
+	}
+}
+
+func (s *GetOrganizationPasskeyOK) Validate() error {
+	if s == nil {
+		return validate.ErrNilPointer
+	}
+
+	var failures []validate.FieldError
+	if err := func() error {
+		if value, ok := s.Policy.Get(); ok {
+			if err := func() error {
+				if err := value.Validate(); err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return err
+			}
+		}
+		return nil
+	}(); err != nil {
+		failures = append(failures, validate.FieldError{
+			Name:  "policy",
+			Error: err,
+		})
+	}
+	if err := func() error {
+		if value, ok := s.EnvironmentPolicy.Get(); ok {
+			if err := func() error {
+				if err := value.Validate(); err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return err
+			}
+		}
+		return nil
+	}(); err != nil {
+		failures = append(failures, validate.FieldError{
+			Name:  "environment_policy",
+			Error: err,
+		})
+	}
+	if len(failures) > 0 {
+		return &validate.Error{Fields: failures}
+	}
+	return nil
+}
+
+func (s GetOrganizationPasskeyOKEnvironmentPolicy) Validate() error {
+	switch s {
+	case "off":
+		return nil
+	case "optional":
+		return nil
+	case "mandatory":
+		return nil
+	default:
+		return errors.Errorf("invalid value: %v", s)
+	}
+}
+
+func (s GetOrganizationPasskeyOKPolicy) Validate() error {
+	switch s {
+	case "off":
+		return nil
+	case "optional":
+		return nil
+	case "mandatory":
+		return nil
+	default:
+		return errors.Errorf("invalid value: %v", s)
+	}
+}
+
 func (s *GetOrganizationResponse) Validate() error {
 	if s == nil {
 		return validate.ErrNilPointer
@@ -1239,10 +1873,6 @@ func (s GetOrganizationUsersSort) Validate() error {
 		return nil
 	case "email_desc":
 		return nil
-	case "id_asc":
-		return nil
-	case "id_desc":
-		return nil
 	default:
 		return errors.Errorf("invalid value: %v", s)
 	}
@@ -1257,6 +1887,49 @@ func (s GetOrganizationsSort) Validate() error {
 	case "email_asc":
 		return nil
 	case "email_desc":
+		return nil
+	default:
+		return errors.Errorf("invalid value: %v", s)
+	}
+}
+
+func (s *GetPasskeyOK) Validate() error {
+	if s == nil {
+		return validate.ErrNilPointer
+	}
+
+	var failures []validate.FieldError
+	if err := func() error {
+		if value, ok := s.Policy.Get(); ok {
+			if err := func() error {
+				if err := value.Validate(); err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return err
+			}
+		}
+		return nil
+	}(); err != nil {
+		failures = append(failures, validate.FieldError{
+			Name:  "policy",
+			Error: err,
+		})
+	}
+	if len(failures) > 0 {
+		return &validate.Error{Fields: failures}
+	}
+	return nil
+}
+
+func (s GetPasskeyOKPolicy) Validate() error {
+	switch s {
+	case "off":
+		return nil
+	case "optional":
+		return nil
+	case "mandatory":
 		return nil
 	default:
 		return errors.Errorf("invalid value: %v", s)
@@ -1306,7 +1979,7 @@ func (s GetRolePermissionsSort) Validate() error {
 	}
 }
 
-func (s GetRolesSort) Validate() error {
+func (s GetRoleSystemPermissionsSort) Validate() error {
 	switch s {
 	case "name_asc":
 		return nil
@@ -1315,6 +1988,21 @@ func (s GetRolesSort) Validate() error {
 	case "id_asc":
 		return nil
 	case "id_desc":
+		return nil
+	default:
+		return errors.Errorf("invalid value: %v", s)
+	}
+}
+
+func (s GetRolesSort) Validate() error {
+	switch s {
+	case "name_asc":
+		return nil
+	case "name_desc":
+		return nil
+	case "key_asc":
+		return nil
+	case "key_desc":
 		return nil
 	default:
 		return errors.Errorf("invalid value: %v", s)
@@ -1330,6 +2018,247 @@ func (s GetSubscribersSort) Validate() error {
 	case "email_asc":
 		return nil
 	case "email_desc":
+		return nil
+	default:
+		return errors.Errorf("invalid value: %v", s)
+	}
+}
+
+func (s GetSystemPermissionsSort) Validate() error {
+	switch s {
+	case "name_asc":
+		return nil
+	case "name_desc":
+		return nil
+	case "id_asc":
+		return nil
+	case "id_desc":
+		return nil
+	default:
+		return errors.Errorf("invalid value: %v", s)
+	}
+}
+
+func (s *ReplaceConnectionReq) Validate() error {
+	if s == nil {
+		return validate.ErrNilPointer
+	}
+
+	var failures []validate.FieldError
+	if err := func() error {
+		if value, ok := s.Options.Get(); ok {
+			if err := func() error {
+				if err := value.Validate(); err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return err
+			}
+		}
+		return nil
+	}(); err != nil {
+		failures = append(failures, validate.FieldError{
+			Name:  "options",
+			Error: err,
+		})
+	}
+	if len(failures) > 0 {
+		return &validate.Error{Fields: failures}
+	}
+	return nil
+}
+
+func (s ReplaceConnectionReqOptions) Validate() error {
+	switch s.Type {
+	case ReplaceConnectionReqOptions0ReplaceConnectionReqOptions:
+		return nil // no validation needed
+	case ReplaceConnectionReqOptions1ReplaceConnectionReqOptions:
+		if err := s.ReplaceConnectionReqOptions1.Validate(); err != nil {
+			return err
+		}
+		return nil
+	case ReplaceConnectionReqOptions2ReplaceConnectionReqOptions:
+		if err := s.ReplaceConnectionReqOptions2.Validate(); err != nil {
+			return err
+		}
+		return nil
+	default:
+		return errors.Errorf("invalid type %q", s.Type)
+	}
+}
+
+func (s *ReplaceConnectionReqOptions1) Validate() error {
+	if s == nil {
+		return validate.ErrNilPointer
+	}
+
+	var failures []validate.FieldError
+	if err := func() error {
+		if value, ok := s.SSOButtonDisplay.Get(); ok {
+			if err := func() error {
+				if err := value.Validate(); err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return err
+			}
+		}
+		return nil
+	}(); err != nil {
+		failures = append(failures, validate.FieldError{
+			Name:  "sso_button_display",
+			Error: err,
+		})
+	}
+	if len(failures) > 0 {
+		return &validate.Error{Fields: failures}
+	}
+	return nil
+}
+
+func (s ReplaceConnectionReqOptions1SSOButtonDisplay) Validate() error {
+	switch s {
+	case "auto":
+		return nil
+	case "show":
+		return nil
+	case "hide":
+		return nil
+	default:
+		return errors.Errorf("invalid value: %v", s)
+	}
+}
+
+func (s *ReplaceConnectionReqOptions2) Validate() error {
+	if s == nil {
+		return validate.ErrNilPointer
+	}
+
+	var failures []validate.FieldError
+	if err := func() error {
+		if value, ok := s.SignRequestAlgorithm.Get(); ok {
+			if err := func() error {
+				if err := value.Validate(); err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return err
+			}
+		}
+		return nil
+	}(); err != nil {
+		failures = append(failures, validate.FieldError{
+			Name:  "sign_request_algorithm",
+			Error: err,
+		})
+	}
+	if err := func() error {
+		if value, ok := s.ProtocolBinding.Get(); ok {
+			if err := func() error {
+				if err := value.Validate(); err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return err
+			}
+		}
+		return nil
+	}(); err != nil {
+		failures = append(failures, validate.FieldError{
+			Name:  "protocol_binding",
+			Error: err,
+		})
+	}
+	if err := func() error {
+		if value, ok := s.NameIDFormat.Get(); ok {
+			if err := func() error {
+				if err := value.Validate(); err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return err
+			}
+		}
+		return nil
+	}(); err != nil {
+		failures = append(failures, validate.FieldError{
+			Name:  "name_id_format",
+			Error: err,
+		})
+	}
+	if err := func() error {
+		if value, ok := s.SSOButtonDisplay.Get(); ok {
+			if err := func() error {
+				if err := value.Validate(); err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return err
+			}
+		}
+		return nil
+	}(); err != nil {
+		failures = append(failures, validate.FieldError{
+			Name:  "sso_button_display",
+			Error: err,
+		})
+	}
+	if len(failures) > 0 {
+		return &validate.Error{Fields: failures}
+	}
+	return nil
+}
+
+func (s ReplaceConnectionReqOptions2NameIDFormat) Validate() error {
+	switch s {
+	case "Persistent":
+		return nil
+	case "Transient":
+		return nil
+	case "Email address":
+		return nil
+	case "Unspecified":
+		return nil
+	default:
+		return errors.Errorf("invalid value: %v", s)
+	}
+}
+
+func (s ReplaceConnectionReqOptions2ProtocolBinding) Validate() error {
+	switch s {
+	case "HTTP-REDIRECT":
+		return nil
+	case "HTTP-POST":
+		return nil
+	default:
+		return errors.Errorf("invalid value: %v", s)
+	}
+}
+
+func (s ReplaceConnectionReqOptions2SSOButtonDisplay) Validate() error {
+	switch s {
+	case "auto":
+		return nil
+	case "show":
+		return nil
+	case "hide":
+		return nil
+	default:
+		return errors.Errorf("invalid value: %v", s)
+	}
+}
+
+func (s ReplaceConnectionReqOptions2SignRequestAlgorithm) Validate() error {
+	switch s {
+	case "RSA-SHA256":
+		return nil
+	case "RSA-SHA1":
 		return nil
 	default:
 		return errors.Errorf("invalid value: %v", s)
@@ -1544,7 +2473,15 @@ func (s SetUserPasswordReqHashingMethod) Validate() error {
 		return nil
 	case "md5":
 		return nil
+	case "sha256":
+		return nil
 	case "wordpress":
+		return nil
+	case "pbkdf2":
+		return nil
+	case "firebase-scrypt":
+		return nil
+	case "aspnet-identity-v2":
 		return nil
 	default:
 		return errors.Errorf("invalid value: %v", s)
@@ -1585,6 +2522,262 @@ func (s *UpdateAPIApplicationsReq) Validate() error {
 	return nil
 }
 
+func (s *UpdateConnectionReq) Validate() error {
+	if s == nil {
+		return validate.ErrNilPointer
+	}
+
+	var failures []validate.FieldError
+	if err := func() error {
+		if value, ok := s.Options.Get(); ok {
+			if err := func() error {
+				if err := value.Validate(); err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return err
+			}
+		}
+		return nil
+	}(); err != nil {
+		failures = append(failures, validate.FieldError{
+			Name:  "options",
+			Error: err,
+		})
+	}
+	if len(failures) > 0 {
+		return &validate.Error{Fields: failures}
+	}
+	return nil
+}
+
+func (s UpdateConnectionReqOptions) Validate() error {
+	switch s.Type {
+	case UpdateConnectionReqOptions0UpdateConnectionReqOptions:
+		return nil // no validation needed
+	case UpdateConnectionReqOptions1UpdateConnectionReqOptions:
+		if err := s.UpdateConnectionReqOptions1.Validate(); err != nil {
+			return err
+		}
+		return nil
+	case UpdateConnectionReqOptions2UpdateConnectionReqOptions:
+		if err := s.UpdateConnectionReqOptions2.Validate(); err != nil {
+			return err
+		}
+		return nil
+	default:
+		return errors.Errorf("invalid type %q", s.Type)
+	}
+}
+
+func (s *UpdateConnectionReqOptions1) Validate() error {
+	if s == nil {
+		return validate.ErrNilPointer
+	}
+
+	var failures []validate.FieldError
+	if err := func() error {
+		if value, ok := s.SSOButtonDisplay.Get(); ok {
+			if err := func() error {
+				if err := value.Validate(); err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return err
+			}
+		}
+		return nil
+	}(); err != nil {
+		failures = append(failures, validate.FieldError{
+			Name:  "sso_button_display",
+			Error: err,
+		})
+	}
+	if len(failures) > 0 {
+		return &validate.Error{Fields: failures}
+	}
+	return nil
+}
+
+func (s UpdateConnectionReqOptions1SSOButtonDisplay) Validate() error {
+	switch s {
+	case "auto":
+		return nil
+	case "show":
+		return nil
+	case "hide":
+		return nil
+	default:
+		return errors.Errorf("invalid value: %v", s)
+	}
+}
+
+func (s *UpdateConnectionReqOptions2) Validate() error {
+	if s == nil {
+		return validate.ErrNilPointer
+	}
+
+	var failures []validate.FieldError
+	if err := func() error {
+		if value, ok := s.SignRequestAlgorithm.Get(); ok {
+			if err := func() error {
+				if err := value.Validate(); err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return err
+			}
+		}
+		return nil
+	}(); err != nil {
+		failures = append(failures, validate.FieldError{
+			Name:  "sign_request_algorithm",
+			Error: err,
+		})
+	}
+	if err := func() error {
+		if value, ok := s.ProtocolBinding.Get(); ok {
+			if err := func() error {
+				if err := value.Validate(); err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return err
+			}
+		}
+		return nil
+	}(); err != nil {
+		failures = append(failures, validate.FieldError{
+			Name:  "protocol_binding",
+			Error: err,
+		})
+	}
+	if err := func() error {
+		if value, ok := s.NameIDFormat.Get(); ok {
+			if err := func() error {
+				if err := value.Validate(); err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return err
+			}
+		}
+		return nil
+	}(); err != nil {
+		failures = append(failures, validate.FieldError{
+			Name:  "name_id_format",
+			Error: err,
+		})
+	}
+	if err := func() error {
+		if value, ok := s.SSOButtonDisplay.Get(); ok {
+			if err := func() error {
+				if err := value.Validate(); err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return err
+			}
+		}
+		return nil
+	}(); err != nil {
+		failures = append(failures, validate.FieldError{
+			Name:  "sso_button_display",
+			Error: err,
+		})
+	}
+	if len(failures) > 0 {
+		return &validate.Error{Fields: failures}
+	}
+	return nil
+}
+
+func (s UpdateConnectionReqOptions2NameIDFormat) Validate() error {
+	switch s {
+	case "Persistent":
+		return nil
+	case "Transient":
+		return nil
+	case "Email address":
+		return nil
+	case "Unspecified":
+		return nil
+	default:
+		return errors.Errorf("invalid value: %v", s)
+	}
+}
+
+func (s UpdateConnectionReqOptions2ProtocolBinding) Validate() error {
+	switch s {
+	case "HTTP-REDIRECT":
+		return nil
+	case "HTTP-POST":
+		return nil
+	default:
+		return errors.Errorf("invalid value: %v", s)
+	}
+}
+
+func (s UpdateConnectionReqOptions2SSOButtonDisplay) Validate() error {
+	switch s {
+	case "auto":
+		return nil
+	case "show":
+		return nil
+	case "hide":
+		return nil
+	default:
+		return errors.Errorf("invalid value: %v", s)
+	}
+}
+
+func (s UpdateConnectionReqOptions2SignRequestAlgorithm) Validate() error {
+	switch s {
+	case "RSA-SHA256":
+		return nil
+	case "RSA-SHA1":
+		return nil
+	default:
+		return errors.Errorf("invalid value: %v", s)
+	}
+}
+
+func (s *UpdateDirectoryResponse) Validate() error {
+	if s == nil {
+		return validate.ErrNilPointer
+	}
+
+	var failures []validate.FieldError
+	if err := func() error {
+		if value, ok := s.Directory.Get(); ok {
+			if err := func() error {
+				if err := value.Validate(); err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return err
+			}
+		}
+		return nil
+	}(); err != nil {
+		failures = append(failures, validate.FieldError{
+			Name:  "directory",
+			Error: err,
+		})
+	}
+	if len(failures) > 0 {
+		return &validate.Error{Fields: failures}
+	}
+	return nil
+}
+
 func (s UpdateFeatureFlagAllowOverrideLevel) Validate() error {
 	switch s {
 	case "env":
@@ -1612,6 +2805,92 @@ func (s UpdateFeatureFlagType) Validate() error {
 func (s UpdateOrganizationExpand) Validate() error {
 	switch s {
 	case "billing":
+		return nil
+	default:
+		return errors.Errorf("invalid value: %v", s)
+	}
+}
+
+func (s *UpdateOrganizationPasskeyOK) Validate() error {
+	if s == nil {
+		return validate.ErrNilPointer
+	}
+
+	var failures []validate.FieldError
+	if err := func() error {
+		if value, ok := s.Policy.Get(); ok {
+			if err := func() error {
+				if err := value.Validate(); err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return err
+			}
+		}
+		return nil
+	}(); err != nil {
+		failures = append(failures, validate.FieldError{
+			Name:  "policy",
+			Error: err,
+		})
+	}
+	if len(failures) > 0 {
+		return &validate.Error{Fields: failures}
+	}
+	return nil
+}
+
+func (s UpdateOrganizationPasskeyOKPolicy) Validate() error {
+	switch s {
+	case "off":
+		return nil
+	case "optional":
+		return nil
+	case "mandatory":
+		return nil
+	default:
+		return errors.Errorf("invalid value: %v", s)
+	}
+}
+
+func (s *UpdateOrganizationPasskeyReq) Validate() error {
+	if s == nil {
+		return validate.ErrNilPointer
+	}
+
+	var failures []validate.FieldError
+	if err := func() error {
+		if value, ok := s.Policy.Get(); ok {
+			if err := func() error {
+				if err := value.Validate(); err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return err
+			}
+		}
+		return nil
+	}(); err != nil {
+		failures = append(failures, validate.FieldError{
+			Name:  "policy",
+			Error: err,
+		})
+	}
+	if len(failures) > 0 {
+		return &validate.Error{Fields: failures}
+	}
+	return nil
+}
+
+func (s UpdateOrganizationPasskeyReqPolicy) Validate() error {
+	switch s {
+	case "off":
+		return nil
+	case "optional":
+		return nil
+	case "mandatory":
 		return nil
 	default:
 		return errors.Errorf("invalid value: %v", s)
@@ -1695,9 +2974,155 @@ func (s UpdateOrganizationSessionsReqSSOSessionPersistenceMode) Validate() error
 	switch s {
 	case "persistent":
 		return nil
-	case "non-persistent":
+	case "non_persistent":
 		return nil
 	default:
 		return errors.Errorf("invalid value: %v", s)
 	}
+}
+
+func (s *UpdatePasskeyOK) Validate() error {
+	if s == nil {
+		return validate.ErrNilPointer
+	}
+
+	var failures []validate.FieldError
+	if err := func() error {
+		if value, ok := s.Policy.Get(); ok {
+			if err := func() error {
+				if err := value.Validate(); err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return err
+			}
+		}
+		return nil
+	}(); err != nil {
+		failures = append(failures, validate.FieldError{
+			Name:  "policy",
+			Error: err,
+		})
+	}
+	if len(failures) > 0 {
+		return &validate.Error{Fields: failures}
+	}
+	return nil
+}
+
+func (s UpdatePasskeyOKPolicy) Validate() error {
+	switch s {
+	case "off":
+		return nil
+	case "optional":
+		return nil
+	case "mandatory":
+		return nil
+	default:
+		return errors.Errorf("invalid value: %v", s)
+	}
+}
+
+func (s *UpdatePasskeyReq) Validate() error {
+	if s == nil {
+		return validate.ErrNilPointer
+	}
+
+	var failures []validate.FieldError
+	if err := func() error {
+		if err := s.Policy.Validate(); err != nil {
+			return err
+		}
+		return nil
+	}(); err != nil {
+		failures = append(failures, validate.FieldError{
+			Name:  "policy",
+			Error: err,
+		})
+	}
+	if len(failures) > 0 {
+		return &validate.Error{Fields: failures}
+	}
+	return nil
+}
+
+func (s UpdatePasskeyReqPolicy) Validate() error {
+	switch s {
+	case "off":
+		return nil
+	case "optional":
+		return nil
+	case "mandatory":
+		return nil
+	default:
+		return errors.Errorf("invalid value: %v", s)
+	}
+}
+
+func (s *UsersResponse) Validate() error {
+	if s == nil {
+		return validate.ErrNilPointer
+	}
+
+	var failures []validate.FieldError
+	if err := func() error {
+		var failures []validate.FieldError
+		for i, elem := range s.Users {
+			if err := func() error {
+				if err := elem.Validate(); err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				failures = append(failures, validate.FieldError{
+					Name:  fmt.Sprintf("[%d]", i),
+					Error: err,
+				})
+			}
+		}
+		if len(failures) > 0 {
+			return &validate.Error{Fields: failures}
+		}
+		return nil
+	}(); err != nil {
+		failures = append(failures, validate.FieldError{
+			Name:  "users",
+			Error: err,
+		})
+	}
+	if len(failures) > 0 {
+		return &validate.Error{Fields: failures}
+	}
+	return nil
+}
+
+func (s *UsersResponseUsersItem) Validate() error {
+	if s == nil {
+		return validate.ErrNilPointer
+	}
+
+	var failures []validate.FieldError
+	if err := func() error {
+		if value, ok := s.LastOrganizationSignIns.Get(); ok {
+			if err := func() error {
+				if value == nil {
+					return errors.New("nil is invalid value")
+				}
+				return nil
+			}(); err != nil {
+				return err
+			}
+		}
+		return nil
+	}(); err != nil {
+		failures = append(failures, validate.FieldError{
+			Name:  "last_organization_sign_ins",
+			Error: err,
+		})
+	}
+	if len(failures) > 0 {
+		return &validate.Error{Fields: failures}
+	}
+	return nil
 }

@@ -50,6 +50,20 @@ func (UnimplementedHandler) AddAPIs(ctx context.Context, req *AddAPIsReq) (r Add
 	return r, ht.ErrNotImplemented
 }
 
+// AddApplicationAccessRole implements AddApplicationAccessRole operation.
+//
+// Add a role to the set configured as allowed to access an application.
+// Adding a role does not enable role-based access control for the
+// application.
+// <div>
+// <code>update:applications</code>
+// </div>.
+//
+// POST /api/v1/applications/{application_id}/access_roles/{role_id}
+func (UnimplementedHandler) AddApplicationAccessRole(ctx context.Context, params AddApplicationAccessRoleParams) (r AddApplicationAccessRoleRes, _ error) {
+	return r, ht.ErrNotImplemented
+}
+
 // AddLogo implements AddLogo operation.
 //
 // Add environment logo
@@ -195,6 +209,18 @@ func (UnimplementedHandler) CreateConnection(ctx context.Context, req *CreateCon
 	return r, ht.ErrNotImplemented
 }
 
+// CreateDirectory implements createDirectory operation.
+//
+// Create a new SCIM directory for user and group synchronization.
+// <div>
+// <code>create:scim_directories</code>
+// </div>.
+//
+// POST /api/v1/directories
+func (UnimplementedHandler) CreateDirectory(ctx context.Context, req *CreateDirectoryReq) (r CreateDirectoryRes, _ error) {
+	return r, ht.ErrNotImplemented
+}
+
 // CreateEnvironmentVariable implements createEnvironmentVariable operation.
 //
 // Create a new environment variable. This feature is in beta and admin UI is not yet available.
@@ -241,6 +267,27 @@ func (UnimplementedHandler) CreateMeterUsageRecord(ctx context.Context, req *Cre
 //
 // POST /api/v1/organization
 func (UnimplementedHandler) CreateOrganization(ctx context.Context, req *CreateOrganizationReq) (r CreateOrganizationRes, _ error) {
+	return r, ht.ErrNotImplemented
+}
+
+// CreateOrganizationInvite implements createOrganizationInvite operation.
+//
+// Create a new invitation for an organization. An invitation email will be sent to the provided
+// email address if `send_email` is set to `true`.
+// Invitations cannot be created for organizations that are managed by directory sync; user and role
+// changes for those organizations must be made in the upstream identity provider.
+// Roles that require an explicit assignment permission cannot be granted to an invitee unless the
+// caller (or the user the token represents) holds that permission. On Kinde-hosted plans, roles
+// outside `owner`/`admin` additionally require the `extended_roles` entitlement.
+// Per-organization rate limits apply: a maximum number of invitations may be created per rolling 24
+// hour window, and a maximum number of active (non-accepted, non-revoked) invitations may exist at
+// any time. Requests that exceed either limit are rejected.
+// <div>
+// <code>create:organization_invites</code>
+// </div>.
+//
+// POST /api/v1/organization/{org_code}/invites
+func (UnimplementedHandler) CreateOrganizationInvite(ctx context.Context, req *CreateOrganizationInviteReq, params CreateOrganizationInviteParams) (r CreateOrganizationInviteRes, _ error) {
 	return r, ht.ErrNotImplemented
 }
 
@@ -330,6 +377,25 @@ func (UnimplementedHandler) CreateUser(ctx context.Context, req OptCreateUserReq
 	return r, ht.ErrNotImplemented
 }
 
+// CreateUserBillingCustomer implements createUserBillingCustomer operation.
+//
+// Creates a billing customer for a user in an organization, and assigns a published user billing
+// plan.
+// This mirrors the admin "Start billing customer" action on the user billing page.
+// At most one billing customer is created per user in an organization. If one
+// already exists, the request fails with `BILLING_CUSTOMER_EXISTS`. Concurrent
+// creates that both pass the existence check before either finishes may both
+// return success with the same customer and agreement ids (onboarding reuses
+// the row created under the advisory lock).
+// <div>
+// <code>create:user_billing_customers</code>
+// </div>.
+//
+// POST /api/v1/users/{user_id}/billing_customer
+func (UnimplementedHandler) CreateUserBillingCustomer(ctx context.Context, req *CreateUserBillingCustomerReq, params CreateUserBillingCustomerParams) (r CreateUserBillingCustomerRes, _ error) {
+	return r, ht.ErrNotImplemented
+}
+
 // CreateUserIdentity implements CreateUserIdentity operation.
 //
 // Creates an identity for a user.
@@ -366,7 +432,7 @@ func (UnimplementedHandler) DeleteAPI(ctx context.Context, params DeleteAPIParam
 	return r, ht.ErrNotImplemented
 }
 
-// DeleteAPIAppliationScope implements deleteAPIAppliationScope operation.
+// DeleteAPIApplicationScope implements deleteAPIApplicationScope operation.
 //
 // Delete an API application scope you previously created.
 // <div>
@@ -374,7 +440,7 @@ func (UnimplementedHandler) DeleteAPI(ctx context.Context, params DeleteAPIParam
 // </div>.
 //
 // DELETE /api/v1/apis/{api_id}/applications/{application_id}/scopes/{scope_id}
-func (UnimplementedHandler) DeleteAPIAppliationScope(ctx context.Context, params DeleteAPIAppliationScopeParams) (r DeleteAPIAppliationScopeRes, _ error) {
+func (UnimplementedHandler) DeleteAPIApplicationScope(ctx context.Context, params DeleteAPIApplicationScopeParams) (r DeleteAPIApplicationScopeRes, _ error) {
 	return r, ht.ErrNotImplemented
 }
 
@@ -435,6 +501,18 @@ func (UnimplementedHandler) DeleteCallbackURLs(ctx context.Context, params Delet
 //
 // DELETE /api/v1/connections/{connection_id}
 func (UnimplementedHandler) DeleteConnection(ctx context.Context, params DeleteConnectionParams) (r DeleteConnectionRes, _ error) {
+	return r, ht.ErrNotImplemented
+}
+
+// DeleteDirectory implements deleteDirectory operation.
+//
+// Delete a SCIM directory and all associated data.
+// <div>
+// <code>delete:scim_directories</code>
+// </div>.
+//
+// DELETE /api/v1/directories/{directory_id}
+func (UnimplementedHandler) DeleteDirectory(ctx context.Context, params DeleteDirectoryParams) (r DeleteDirectoryRes, _ error) {
 	return r, ht.ErrNotImplemented
 }
 
@@ -568,6 +646,19 @@ func (UnimplementedHandler) DeleteOrganizationFeatureFlagOverrides(ctx context.C
 //
 // DELETE /api/v1/organization/{org_code}/handle
 func (UnimplementedHandler) DeleteOrganizationHandle(ctx context.Context, params DeleteOrganizationHandleParams) (r DeleteOrganizationHandleRes, _ error) {
+	return r, ht.ErrNotImplemented
+}
+
+// DeleteOrganizationInvite implements deleteOrganizationInvite operation.
+//
+// Revoke (delete) an invitation. This will mark the invitation as revoked and prevent it from being
+// accepted.
+// <div>
+// <code>delete:organization_invites</code>
+// </div>.
+//
+// DELETE /api/v1/organization/{org_code}/invites/{invite_code}
+func (UnimplementedHandler) DeleteOrganizationInvite(ctx context.Context, params DeleteOrganizationInviteParams) (r DeleteOrganizationInviteRes, _ error) {
 	return r, ht.ErrNotImplemented
 }
 
@@ -811,6 +902,20 @@ func (UnimplementedHandler) GetApplication(ctx context.Context, params GetApplic
 	return r, ht.ErrNotImplemented
 }
 
+// GetApplicationAccessRoles implements GetApplicationAccessRoles operation.
+//
+// Gets the roles configured as allowed to access an application. These
+// roles are enforced only when role-based access control is enabled for
+// the application.
+// <div>
+// <code>read:applications</code>
+// </div>.
+//
+// GET /api/v1/applications/{application_id}/access_roles
+func (UnimplementedHandler) GetApplicationAccessRoles(ctx context.Context, params GetApplicationAccessRolesParams) (r GetApplicationAccessRolesRes, _ error) {
+	return r, ht.ErrNotImplemented
+}
+
 // GetApplicationConnections implements GetApplicationConnections operation.
 //
 // Gets all connections for an application.
@@ -953,6 +1058,30 @@ func (UnimplementedHandler) GetConnection(ctx context.Context, params GetConnect
 //
 // GET /api/v1/connections
 func (UnimplementedHandler) GetConnections(ctx context.Context, params GetConnectionsParams) (r GetConnectionsRes, _ error) {
+	return r, ht.ErrNotImplemented
+}
+
+// GetDirectories implements getDirectories operation.
+//
+// Returns a list of SCIM directories for your organization.
+// <div>
+// <code>read:scim_directories</code>
+// </div>.
+//
+// GET /api/v1/directories
+func (UnimplementedHandler) GetDirectories(ctx context.Context, params GetDirectoriesParams) (r GetDirectoriesRes, _ error) {
+	return r, ht.ErrNotImplemented
+}
+
+// GetDirectory implements getDirectory operation.
+//
+// Retrieve SCIM directory details by ID.
+// <div>
+// <code>read:scim_directories</code>
+// </div>.
+//
+// GET /api/v1/directories/{directory_id}
+func (UnimplementedHandler) GetDirectory(ctx context.Context, params GetDirectoryParams) (r GetDirectoryRes, _ error) {
 	return r, ht.ErrNotImplemented
 }
 
@@ -1113,6 +1242,44 @@ func (UnimplementedHandler) GetOrganizationFeatureFlags(ctx context.Context, par
 	return r, ht.ErrNotImplemented
 }
 
+// GetOrganizationInvite implements getOrganizationInvite operation.
+//
+// Get details of a specific invitation by its code.
+// <div>
+// <code>read:organization_invites</code>
+// </div>.
+//
+// GET /api/v1/organization/{org_code}/invites/{invite_code}
+func (UnimplementedHandler) GetOrganizationInvite(ctx context.Context, params GetOrganizationInviteParams) (r GetOrganizationInviteRes, _ error) {
+	return r, ht.ErrNotImplemented
+}
+
+// GetOrganizationInvites implements getOrganizationInvites operation.
+//
+// Get a list of invitations for an organization. By default, only pending (non-revoked,
+// non-accepted) invitations are returned.
+// <div>
+// <code>read:organization_invites</code>
+// </div>.
+//
+// GET /api/v1/organization/{org_code}/invites
+func (UnimplementedHandler) GetOrganizationInvites(ctx context.Context, params GetOrganizationInvitesParams) (r GetOrganizationInvitesRes, _ error) {
+	return r, ht.ErrNotImplemented
+}
+
+// GetOrganizationPasskey implements GetOrganizationPasskey operation.
+//
+// Retrieve passkey settings for an organization, including whether the organization overrides the
+// environment default.
+// <div>
+// <code>read:organization_passkey</code>
+// </div>.
+//
+// GET /api/v1/organizations/{org_code}/passkey
+func (UnimplementedHandler) GetOrganizationPasskey(ctx context.Context, params GetOrganizationPasskeyParams) (r GetOrganizationPasskeyRes, _ error) {
+	return r, ht.ErrNotImplemented
+}
+
 // GetOrganizationPropertyValues implements GetOrganizationPropertyValues operation.
 //
 // Gets properties for an organization by org code.
@@ -1122,6 +1289,61 @@ func (UnimplementedHandler) GetOrganizationFeatureFlags(ctx context.Context, par
 //
 // GET /api/v1/organizations/{org_code}/properties
 func (UnimplementedHandler) GetOrganizationPropertyValues(ctx context.Context, params GetOrganizationPropertyValuesParams) (r GetOrganizationPropertyValuesRes, _ error) {
+	return r, ht.ErrNotImplemented
+}
+
+// GetOrganizationRoleActiveUsersCount implements GetOrganizationRoleActiveUsersCount operation.
+//
+// Get the number of active users that hold a given role within a specific organization.
+// A user is counted as active if they were issued at least one access token during the requested
+// period,
+// regardless of organization context on the token. Only users who currently hold the role in the
+// organization are included. The count is scoped to the current environment.
+// Both `date_time_from` and `date_time_to` are required, inclusive, and must be ISO 8601 datetimes
+// in UTC.
+// Provide them at second precision (no fractional seconds). If a value includes fractional seconds,
+// it is
+// normalized before any other processing: `date_time_from` is rounded down and `date_time_to` is
+// rounded up
+// to the nearest second. Window validation, the active-user query, and the echoed response bounds
+// all use
+// those normalized values.
+// The requested window must not exceed 3 days. Because both bounds are inclusive, this means
+// `date_time_to`
+// must be earlier than `date_time_from` plus 3 days. For example, `2026-07-01T00:00:00Z` to
+// `2026-07-03T23:59:59Z` is a full 3 day window covering the whole of 1, 2 and 3 July. A longer
+// window is
+// rejected with `DATE_TIME_RANGE_TOO_LARGE`.
+// <div>
+// <code>read:organization_user_roles</code>
+// </div>.
+//
+// GET /api/v1/organizations/{org_code}/roles/{role_id}/active_users/count
+func (UnimplementedHandler) GetOrganizationRoleActiveUsersCount(ctx context.Context, params GetOrganizationRoleActiveUsersCountParams) (r GetOrganizationRoleActiveUsersCountRes, _ error) {
+	return r, ht.ErrNotImplemented
+}
+
+// GetOrganizationRoleUsers implements GetOrganizationRoleUsers operation.
+//
+// Get users that have a given role within a specific organization.
+// <div>
+// <code>read:organization_user_roles</code>
+// </div>.
+//
+// GET /api/v1/organizations/{org_code}/roles/{role_id}/users
+func (UnimplementedHandler) GetOrganizationRoleUsers(ctx context.Context, params GetOrganizationRoleUsersParams) (r GetOrganizationRoleUsersRes, _ error) {
+	return r, ht.ErrNotImplemented
+}
+
+// GetOrganizationRoleUsersCount implements GetOrganizationRoleUsersCount operation.
+//
+// Get the number of users that have a given role within a specific organization.
+// <div>
+// <code>read:organization_user_roles</code>
+// </div>.
+//
+// GET /api/v1/organizations/{org_code}/roles/{role_id}/users/count
+func (UnimplementedHandler) GetOrganizationRoleUsersCount(ctx context.Context, params GetOrganizationRoleUsersCountParams) (r GetOrganizationRoleUsersCountRes, _ error) {
 	return r, ht.ErrNotImplemented
 }
 
@@ -1170,6 +1392,18 @@ func (UnimplementedHandler) GetOrganizationUsers(ctx context.Context, params Get
 //
 // GET /api/v1/organizations
 func (UnimplementedHandler) GetOrganizations(ctx context.Context, params GetOrganizationsParams) (r GetOrganizationsRes, _ error) {
+	return r, ht.ErrNotImplemented
+}
+
+// GetPasskey implements GetPasskey operation.
+//
+// Retrieve passkey policy for the current environment.
+// <div>
+// <code>read:passkey</code>
+// </div>.
+//
+// GET /api/v1/passkey
+func (UnimplementedHandler) GetPasskey(ctx context.Context) (r GetPasskeyRes, _ error) {
 	return r, ht.ErrNotImplemented
 }
 
@@ -1235,9 +1469,35 @@ func (UnimplementedHandler) GetRoleScopes(ctx context.Context, params GetRoleSco
 	return r, ht.ErrNotImplemented
 }
 
+// GetRoleSystemPermissions implements GetRoleSystemPermissions operation.
+//
+// Get system permissions for a role.
+// System permissions control what organization users can do in the self-serve portal.
+// <div>
+// <code>read:role_system_permissions</code>
+// </div>.
+//
+// GET /api/v1/roles/{role_id}/system_permissions
+func (UnimplementedHandler) GetRoleSystemPermissions(ctx context.Context, params GetRoleSystemPermissionsParams) (r GetRoleSystemPermissionsRes, _ error) {
+	return r, ht.ErrNotImplemented
+}
+
+// GetRoleUsers implements GetRoleUsers operation.
+//
+// Get users that have a given role, across all organizations. Each user entry
+// includes the organization codes where they hold that role.
+// <div>
+// <code>read:organization_user_roles</code>
+// </div>.
+//
+// GET /api/v1/roles/{role_id}/users
+func (UnimplementedHandler) GetRoleUsers(ctx context.Context, params GetRoleUsersParams) (r GetRoleUsersRes, _ error) {
+	return r, ht.ErrNotImplemented
+}
+
 // GetRoles implements GetRoles operation.
 //
-// The returned list can be sorted by role name or role ID in ascending or descending order. The
+// The returned list can be sorted by role name or role key in ascending or descending order. The
 // number of records to return at a time can also be controlled using the `page_size` query string
 // parameter.
 // <div>
@@ -1273,6 +1533,21 @@ func (UnimplementedHandler) GetSubscriber(ctx context.Context, params GetSubscri
 //
 // GET /api/v1/subscribers
 func (UnimplementedHandler) GetSubscribers(ctx context.Context, params GetSubscribersParams) (r GetSubscribersRes, _ error) {
+	return r, ht.ErrNotImplemented
+}
+
+// GetSystemPermissions implements GetSystemPermissions operation.
+//
+// The returned list can be sorted by system permission name or ID in ascending or descending order.
+// The number of records to return at a time can also be controlled using the `page_size` query
+// string parameter.
+// System permissions control what organization users can do in the self-serve portal.
+// <div>
+// <code>read:system_permissions</code>
+// </div>.
+//
+// GET /api/v1/system_permissions
+func (UnimplementedHandler) GetSystemPermissions(ctx context.Context, params GetSystemPermissionsParams) (r GetSystemPermissionsRes, _ error) {
 	return r, ht.ErrNotImplemented
 }
 
@@ -1407,6 +1682,20 @@ func (UnimplementedHandler) ReadOrganizationLogo(ctx context.Context, params Rea
 //
 // POST /api/v1/users/{user_id}/refresh_claims
 func (UnimplementedHandler) RefreshUserClaims(ctx context.Context, params RefreshUserClaimsParams) (r RefreshUserClaimsRes, _ error) {
+	return r, ht.ErrNotImplemented
+}
+
+// RemoveApplicationAccessRole implements RemoveApplicationAccessRole operation.
+//
+// Remove a role from the set that is allowed to access an application.
+// Removing a role does not change whether role-based access control is
+// enabled for the application.
+// <div>
+// <code>update:applications</code>
+// </div>.
+//
+// DELETE /api/v1/applications/{application_id}/access_roles/{role_id}
+func (UnimplementedHandler) RemoveApplicationAccessRole(ctx context.Context, params RemoveApplicationAccessRoleParams) (r RemoveApplicationAccessRoleRes, _ error) {
 	return r, ht.ErrNotImplemented
 }
 
@@ -1714,6 +2003,18 @@ func (UnimplementedHandler) UpdateConnection(ctx context.Context, req *UpdateCon
 	return r, ht.ErrNotImplemented
 }
 
+// UpdateDirectory implements updateDirectory operation.
+//
+// Update SCIM directory configuration.
+// <div>
+// <code>update:scim_directories</code>
+// </div>.
+//
+// PATCH /api/v1/directories/{directory_id}
+func (UnimplementedHandler) UpdateDirectory(ctx context.Context, req *UpdateDirectoryReq, params UpdateDirectoryParams) (r UpdateDirectoryRes, _ error) {
+	return r, ht.ErrNotImplemented
+}
+
 // UpdateEnvironementFeatureFlagOverride implements UpdateEnvironementFeatureFlagOverride operation.
 //
 // Update environment feature flag override.
@@ -1766,6 +2067,9 @@ func (UnimplementedHandler) UpdateIdentity(ctx context.Context, req *UpdateIdent
 // UpdateOrganization implements updateOrganization operation.
 //
 // Update an organization.
+// When the organization name is updated and the organization is a billing
+// customer, the change is also propagated to the corresponding billing
+// customer details.
 // <div>
 // <code>update:organizations</code>
 // </div>.
@@ -1784,6 +2088,19 @@ func (UnimplementedHandler) UpdateOrganization(ctx context.Context, req OptUpdat
 //
 // PATCH /api/v1/organizations/{org_code}/feature_flags/{feature_flag_key}
 func (UnimplementedHandler) UpdateOrganizationFeatureFlagOverride(ctx context.Context, params UpdateOrganizationFeatureFlagOverrideParams) (r UpdateOrganizationFeatureFlagOverrideRes, _ error) {
+	return r, ht.ErrNotImplemented
+}
+
+// UpdateOrganizationPasskey implements UpdateOrganizationPasskey operation.
+//
+// Update passkey settings for an organization. Set `is_override_environment_passkey_settings` to
+// `false` to revert to the environment default without providing a policy.
+// <div>
+// <code>update:organization_passkey</code>
+// </div>.
+//
+// PUT /api/v1/organizations/{org_code}/passkey
+func (UnimplementedHandler) UpdateOrganizationPasskey(ctx context.Context, req *UpdateOrganizationPasskeyReq, params UpdateOrganizationPasskeyParams) (r UpdateOrganizationPasskeyRes, _ error) {
 	return r, ht.ErrNotImplemented
 }
 
@@ -1835,6 +2152,19 @@ func (UnimplementedHandler) UpdateOrganizationUsers(ctx context.Context, req Opt
 	return r, ht.ErrNotImplemented
 }
 
+// UpdatePasskey implements UpdatePasskey operation.
+//
+// Set the passkey policy for the current environment. Policies other than `off` require the
+// `passkeys` entitlement.
+// <div>
+// <code>update:passkey</code>
+// </div>.
+//
+// PUT /api/v1/passkey
+func (UnimplementedHandler) UpdatePasskey(ctx context.Context, req *UpdatePasskeyReq) (r UpdatePasskeyRes, _ error) {
+	return r, ht.ErrNotImplemented
+}
+
 // UpdatePermissions implements UpdatePermissions operation.
 //
 // Update permission
@@ -1871,6 +2201,19 @@ func (UnimplementedHandler) UpdateRolePermissions(ctx context.Context, req *Upda
 	return r, ht.ErrNotImplemented
 }
 
+// UpdateRoleSystemPermissions implements UpdateRoleSystemPermissions operation.
+//
+// Update role system permissions.
+// System permissions control what organization users can do in the self-serve portal.
+// <div>
+// <code>update:role_system_permissions</code>
+// </div>.
+//
+// PATCH /api/v1/roles/{role_id}/system_permissions
+func (UnimplementedHandler) UpdateRoleSystemPermissions(ctx context.Context, req *UpdateRoleSystemPermissionsReq, params UpdateRoleSystemPermissionsParams) (r UpdateRoleSystemPermissionsRes, _ error) {
+	return r, ht.ErrNotImplemented
+}
+
 // UpdateRoles implements UpdateRoles operation.
 //
 // Update a role
@@ -1886,6 +2229,9 @@ func (UnimplementedHandler) UpdateRoles(ctx context.Context, req OptUpdateRolesR
 // UpdateUser implements updateUser operation.
 //
 // Update a user record.
+// When `given_name` or `family_name` is updated and the user is the
+// owner of a family billing customer, the change is also propagated to
+// the corresponding billing customer details.
 // <div>
 // <code>update:users</code>
 // </div>.
