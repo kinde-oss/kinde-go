@@ -22624,9 +22624,9 @@ func (s *GetConnectionsResponse) Decode(d *jx.Decoder) error {
 			}
 		case "connections":
 			if err := func() error {
-				s.Connections = make([]Connection, 0)
+				s.Connections = make([]ConnectionConnection, 0)
 				if err := d.Arr(func(d *jx.Decoder) error {
-					var elem Connection
+					var elem ConnectionConnection
 					if err := elem.Decode(d); err != nil {
 						return err
 					}
