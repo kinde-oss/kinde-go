@@ -7914,10 +7914,17 @@ func (s *CreateIdentityResponseIdentity) encodeFields(e *jx.Encoder) {
 			s.ID.Encode(e)
 		}
 	}
+	{
+		if s.IdentityID.Set {
+			e.FieldStart("identity_id")
+			s.IdentityID.Encode(e)
+		}
+	}
 }
 
-var jsonFieldsNameOfCreateIdentityResponseIdentity = [1]string{
+var jsonFieldsNameOfCreateIdentityResponseIdentity = [2]string{
 	0: "id",
+	1: "identity_id",
 }
 
 // Decode decodes CreateIdentityResponseIdentity from json.
@@ -7937,6 +7944,16 @@ func (s *CreateIdentityResponseIdentity) Decode(d *jx.Decoder) error {
 				return nil
 			}(); err != nil {
 				return errors.Wrap(err, "decode field \"id\"")
+			}
+		case "identity_id":
+			if err := func() error {
+				s.IdentityID.Reset()
+				if err := s.IdentityID.Decode(d); err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return errors.Wrap(err, "decode field \"identity_id\"")
 			}
 		default:
 			return d.Skip()

@@ -3240,6 +3240,9 @@ func (*CreateIdentityResponse) createUserIdentityRes() {}
 type CreateIdentityResponseIdentity struct {
 	// The identity's ID.
 	ID OptString `json:"id"`
+	// The identity's ID, returned instead of "id" when the identity already
+	// exists on an enterprise connection.
+	IdentityID OptString `json:"identity_id"`
 }
 
 // GetID returns the value of ID.
@@ -3247,9 +3250,19 @@ func (s *CreateIdentityResponseIdentity) GetID() OptString {
 	return s.ID
 }
 
+// GetIdentityID returns the value of IdentityID.
+func (s *CreateIdentityResponseIdentity) GetIdentityID() OptString {
+	return s.IdentityID
+}
+
 // SetID sets the value of ID.
 func (s *CreateIdentityResponseIdentity) SetID(val OptString) {
 	s.ID = val
+}
+
+// SetIdentityID sets the value of IdentityID.
+func (s *CreateIdentityResponseIdentity) SetIdentityID(val OptString) {
+	s.IdentityID = val
 }
 
 type CreateMeterUsageRecordBadRequest ErrorResponse
