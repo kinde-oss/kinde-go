@@ -115,6 +115,47 @@ func TestGetAuthURLWithInvitation(t *testing.T) {
 	assert.NotContains(authURLNoInvitation, "is_invitation", "AuthURL should not contain is_invitation when empty")
 }
 
+func TestSwitchOrg(t *testing.T) {
+	assert := assert.New(t)
+
+	testBackendServerURL := "https://api.com"
+	testKindeServerURL := "https://mytest.kinde.com"
+
+	callbackURL := fmt.Sprintf("%v/callback", testBackendServerURL)
+	kindeAuthFlow, _ := NewAuthorizationCodeFlow(
+		testKindeServerURL, "b9da18c441b44d81bab3e8232de2e18d", "client_secret", callbackURL,
+		WithSessionHooks(newTestSessionHooks()),
+		WithCustomStateGenerator(func(*AuthorizationCodeFlow) string { return "test_state" }),
+		WithAudience("http://my.api.com/api"),
+	)
+
+	authURL := kindeAuthFlow.SwitchOrg("org_123456789")
+	assert.NotEmpty(authURL, "AuthURL cannot be empty")
+	assert.Contains(authURL, "org_code=org_123456789", "AuthURL should contain org_code parameter")
+	assert.Contains(authURL, "prompt=login", "AuthURL should force re-authentication via prompt=login")
+	assert.Contains(authURL, "audience=", "AuthURL should keep other configured options")
+}
+
+func TestSwitchOrgOverridesExistingPrompt(t *testing.T) {
+	assert := assert.New(t)
+
+	testBackendServerURL := "https://api.com"
+	testKindeServerURL := "https://mytest.kinde.com"
+
+	callbackURL := fmt.Sprintf("%v/callback", testBackendServerURL)
+	kindeAuthFlow, _ := NewAuthorizationCodeFlow(
+		testKindeServerURL, "b9da18c441b44d81bab3e8232de2e18d", "client_secret", callbackURL,
+		WithSessionHooks(newTestSessionHooks()),
+		WithCustomStateGenerator(func(*AuthorizationCodeFlow) string { return "test_state" }),
+		WithPrompt("none"),
+	)
+
+	authURL := kindeAuthFlow.SwitchOrg("org_987654321")
+	assert.Contains(authURL, "org_code=org_987654321", "AuthURL should contain org_code parameter")
+	assert.Contains(authURL, "prompt=login", "AuthURL should force prompt=login even if another prompt was configured")
+	assert.NotContains(authURL, "prompt=none", "AuthURL should not keep the previously configured prompt")
+}
+
 func TestWithInvitationCodeOption(t *testing.T) {
 	assert := assert.New(t)
 

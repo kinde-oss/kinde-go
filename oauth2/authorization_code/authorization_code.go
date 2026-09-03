@@ -46,6 +46,9 @@ type (
 		// with invitation code support. If invitationCode is provided, it will include both
 		// invitation_code and is_invitation parameters in the auth URL.
 		GetAuthURLWithInvitation(invitationCode string) string
+		// SwitchOrg returns the URL to redirect the user to in order to re-authenticate
+		// into the organization identified by orgCode.
+		SwitchOrg(orgCode string) string
 		// Exchanges the authorization code for a token and establishes KindeContext.
 		ExchangeCode(ctx context.Context, authorizationCode string, receivedState string) error
 		// Returns http client to call external services, will refresh token behind the scenes if offline is requested.
@@ -231,6 +234,18 @@ func (flow *AuthorizationCodeFlow) GetAuthURLWithInvitation(invitationCode strin
 
 	url.RawQuery = query.Encode()
 	return url.String()
+}
+
+// SwitchOrg returns the URL to redirect the user to in order to re-authenticate
+// into the organization identified by orgCode. It forces re-authentication
+// (prompt=login) so the new organization's context is applied.
+func (flow *AuthorizationCodeFlow) SwitchOrg(orgCode string) string {
+	authURL, _ := url.Parse(flow.GetAuthURL())
+	query := authURL.Query()
+	query.Set("org_code", orgCode)
+	query.Set("prompt", "login")
+	authURL.RawQuery = query.Encode()
+	return authURL.String()
 }
 
 // AuthorizationCodeReceivedHandler handles the OAuth2 callback from the authorization server.
