@@ -48,7 +48,7 @@ type (
 		GetAuthURLWithInvitation(invitationCode string) string
 		// SwitchOrg returns the URL to redirect the user to in order to re-authenticate
 		// into the organization identified by orgCode.
-		SwitchOrg(orgCode string) string
+		SwitchOrg(orgCode string) (string, error)
 		// Exchanges the authorization code for a token and establishes KindeContext.
 		ExchangeCode(ctx context.Context, authorizationCode string, receivedState string) error
 		// Returns http client to call external services, will refresh token behind the scenes if offline is requested.
@@ -63,8 +63,6 @@ type (
 		InjectTokenMiddleware(next http.Handler) http.Handler
 		// GetToken returns the validated JWT token.
 		GetToken(context.Context) (*jwt.Token, error)
-		// SwitchOrg returns the URL to re-authenticate the user into a different organization.
-		SwitchOrg(orgCode string) (string, error)
 	}
 
 	// IDeviceAuthorizationFlow represents the interface for the device authorization flow.

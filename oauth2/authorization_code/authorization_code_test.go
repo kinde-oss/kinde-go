@@ -115,7 +115,7 @@ func TestGetAuthURLWithInvitation(t *testing.T) {
 	assert.NotContains(authURLNoInvitation, "is_invitation", "AuthURL should not contain is_invitation when empty")
 }
 
-func TestSwitchOrg(t *testing.T) {
+func TestSwitchOrgPreservesConfiguredOptions(t *testing.T) {
 	assert := assert.New(t)
 
 	testBackendServerURL := "https://api.com"
@@ -129,7 +129,8 @@ func TestSwitchOrg(t *testing.T) {
 		WithAudience("http://my.api.com/api"),
 	)
 
-	authURL := kindeAuthFlow.SwitchOrg("org_123456789")
+	authURL, err := kindeAuthFlow.SwitchOrg("org_123456789")
+	assert.Nil(err, "SwitchOrg should not fail for a valid org code")
 	assert.NotEmpty(authURL, "AuthURL cannot be empty")
 	assert.Contains(authURL, "org_code=org_123456789", "AuthURL should contain org_code parameter")
 	assert.Contains(authURL, "prompt=login", "AuthURL should force re-authentication via prompt=login")
@@ -150,7 +151,8 @@ func TestSwitchOrgOverridesExistingPrompt(t *testing.T) {
 		WithPrompt("none"),
 	)
 
-	authURL := kindeAuthFlow.SwitchOrg("org_987654321")
+	authURL, err := kindeAuthFlow.SwitchOrg("org_987654321")
+	assert.Nil(err, "SwitchOrg should not fail for a valid org code")
 	assert.Contains(authURL, "org_code=org_987654321", "AuthURL should contain org_code parameter")
 	assert.Contains(authURL, "prompt=login", "AuthURL should force prompt=login even if another prompt was configured")
 	assert.NotContains(authURL, "prompt=none", "AuthURL should not keep the previously configured prompt")
