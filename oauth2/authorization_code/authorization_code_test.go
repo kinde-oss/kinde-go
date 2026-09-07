@@ -608,3 +608,68 @@ func (t *testSessionHooks) SetState(state string) error {
 	t.sessionState["state"] = state
 	return nil
 }
+
+func TestSwitchOrg(t *testing.T) {
+	assert := assert.New(t)
+
+	callbackURL := "https://api.com/callback"
+	kindeAuthFlow, _ := NewAuthorizationCodeFlow(
+		"https://mytest.kinde.com", "b9da18c441b44d81bab3e8232de2e18d", "client_secret", callbackURL,
+		WithSessionHooks(newTestSessionHooks()),
+		WithCustomStateGenerator(func(*AuthorizationCodeFlow) string { return "test_state" }),
+	)
+
+	switchURL, err := kindeAuthFlow.SwitchOrg("  org_1234  ")
+	assert.Nil(err, "SwitchOrg should not fail for a valid org code")
+	assert.Contains(switchURL, "org_code=org_1234", "URL should contain the trimmed org_code")
+	assert.Contains(switchURL, "prompt=login", "URL should force re-authentication")
+	assert.Contains(switchURL, "state=test_state", "URL should contain the state parameter")
+	assert.Contains(switchURL, "https://mytest.kinde.com/oauth2/auth?", "URL should point at the auth endpoint")
+}
+
+func TestSwitchOrgEmptyOrgCode(t *testing.T) {
+	assert := assert.New(t)
+
+	kindeAuthFlow, _ := NewAuthorizationCodeFlow(
+		"https://mytest.kinde.com", "b9da18c441b44d81bab3e8232de2e18d", "client_secret", "https://api.com/callback",
+		WithSessionHooks(newTestSessionHooks()),
+	)
+
+	switchURL, err := kindeAuthFlow.SwitchOrg("   ")
+	assert.NotNil(err, "SwitchOrg should fail for an empty org code")
+	assert.Empty(switchURL, "URL should be empty when org code is invalid")
+}
+
+func TestSwitchOrgOverridesConfiguredOrgCode(t *testing.T) {
+	assert := assert.New(t)
+
+	kindeAuthFlow, _ := NewAuthorizationCodeFlow(
+		"https://mytest.kinde.com", "b9da18c441b44d81bab3e8232de2e18d", "client_secret", "https://api.com/callback",
+		WithSessionHooks(newTestSessionHooks()),
+		WithCustomStateGenerator(func(*AuthorizationCodeFlow) string { return "test_state" }),
+		WithAuthParameter("org_code", "org_original"),
+	)
+
+	switchURL, err := kindeAuthFlow.SwitchOrg("org_new")
+	assert.Nil(err, "SwitchOrg should not fail for a valid org code")
+	assert.Contains(switchURL, "org_code=org_new", "URL should contain the requested org_code")
+	assert.NotContains(switchURL, "org_original", "URL should not contain the previously configured org_code")
+}
+
+func TestSwitchOrgStoresFreshState(t *testing.T) {
+	assert := assert.New(t)
+
+	sessionHooks := newTestSessionHooks()
+	kindeAuthFlow, _ := NewAuthorizationCodeFlow(
+		"https://mytest.kinde.com", "b9da18c441b44d81bab3e8232de2e18d", "client_secret", "https://api.com/callback",
+		WithSessionHooks(sessionHooks),
+	)
+
+	switchURL, err := kindeAuthFlow.SwitchOrg("org_1234")
+	assert.Nil(err, "SwitchOrg should not fail for a valid org code")
+
+	state, err := sessionHooks.GetState()
+	assert.Nil(err, "state should be readable from the session")
+	assert.NotEmpty(state, "state should be stored in the session")
+	assert.Contains(switchURL, fmt.Sprintf("state=%v", state), "URL state should match the stored state")
+}

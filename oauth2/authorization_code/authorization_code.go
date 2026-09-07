@@ -63,6 +63,8 @@ type (
 		InjectTokenMiddleware(next http.Handler) http.Handler
 		// GetToken returns the validated JWT token.
 		GetToken(context.Context) (*jwt.Token, error)
+		// SwitchOrg returns the URL to re-authenticate the user into a different organization.
+		SwitchOrg(orgCode string) (string, error)
 	}
 
 	// IDeviceAuthorizationFlow represents the interface for the device authorization flow.
@@ -236,16 +238,25 @@ func (flow *AuthorizationCodeFlow) GetAuthURLWithInvitation(invitationCode strin
 	return url.String()
 }
 
-// SwitchOrg returns the URL to redirect the user to in order to re-authenticate
-// into the organization identified by orgCode. It forces re-authentication
-// (prompt=login) so the new organization's context is applied.
-func (flow *AuthorizationCodeFlow) SwitchOrg(orgCode string) string {
-	authURL, _ := url.Parse(flow.GetAuthURL())
+// SwitchOrg returns the authorization URL that re-authenticates the user into the
+// organization identified by orgCode, using org_code and prompt=login.
+func (flow *AuthorizationCodeFlow) SwitchOrg(orgCode string) (string, error) {
+	orgCode = strings.TrimSpace(orgCode)
+	if orgCode == "" {
+		return "", fmt.Errorf("org code cannot be empty")
+	}
+
+	authURL, err := url.Parse(flow.GetAuthURL())
+	if err != nil {
+		return "", fmt.Errorf("failed to parse auth URL: %w", err)
+	}
+
 	query := authURL.Query()
 	query.Set("org_code", orgCode)
 	query.Set("prompt", "login")
 	authURL.RawQuery = query.Encode()
-	return authURL.String()
+
+	return authURL.String(), nil
 }
 
 // AuthorizationCodeReceivedHandler handles the OAuth2 callback from the authorization server.
