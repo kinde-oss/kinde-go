@@ -1,62 +1,50 @@
 {
-  // Use IntelliSense to learn about possible attributes.
-  // Hover to view descriptions of existing attributes.
-  // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
   "version": "0.2.0",
-  "inputs": [
-    {
-      "id": "commandline",
-      "type": "promptString",
-      "description": "Enter the Kinde domain (e.g., hello.kinde.com)",
-      "default": "app.kinde.com"
-    }
-  ],
   "configurations": [
     {
-      "name": "Launch gin chat example",
-      "type": "go",
+      "name": "Debug SST",
+      "type": "node",
       "request": "launch",
-      "mode": "auto",
-      "program": "${workspaceFolder}/examples/gin-chat",
-      "envFile": "${workspaceFolder}/examples/gin-chat/.env"
-    },
-    {
-      "name": "Launch example CLI - login",
-      "type": "go",
-      "request": "launch",
-      "mode": "auto",
-      "program": "${workspaceFolder}/examples/cli/cmd/example-cli",
-      "args": ["login", "--kinde-domain", "https://${input:commandline}"],
+      "runtimeExecutable": "${workspaceRoot}/node_modules/.bin/sst",
+      "runtimeArgs": ["dev", "--increase-timeout"],
+      "console": "integratedTerminal",
+      "skipFiles": ["<node_internals>/**"],
+      // sourceMapRenames helps with the loading spinner when debugging and viewing local variables
+      "sourceMapRenames": false,
       "env": {
-        "KINDE_KEYCHAIN_PASS": "some_super_secret"
+        "AWS_PROFILE": "flo-ct-flo360"
       }
     },
     {
-      "name": "Launch example CLI - whoami",
-      "type": "go",
+      "name": "Debug Tests - Unit",
+      "type": "node",
       "request": "launch",
-      "mode": "auto",
-      "program": "${workspaceFolder}/examples/cli/cmd/example-cli",
-      "args": ["whoami", "--kinde-domain", "https://${input:commandline}"],
+      "runtimeExecutable": "${workspaceRoot}/node_modules/.bin/sst",
+      "runtimeArgs": ["bind", "yarn", "\"jest\"", "\"--watch\"", "\"--config\"", "\"./jest.unit.config.cjs\"", "\"${input:scopeTestsFileName}\""],
+      "console": "integratedTerminal",
+      "skipFiles": ["<node_internals>/**"],
       "env": {
-        "KINDE_KEYCHAIN_PASS": "some_super_secret"
-      }
+        "AWS_PROFILE": "flo-ct-flo360"
+      },
     },
     {
-      "name": "Launch example CLI - version",
-      "type": "go",
+      "name": "Debug Tests - E2E",
+      "type": "node",
       "request": "launch",
-      "mode": "auto",
-      "program": "${workspaceFolder}/examples/cli/cmd/example-cli",
-      "args": ["version"]
+      "runtimeExecutable": "${workspaceRoot}/node_modules/.bin/sst",
+      "runtimeArgs": ["bind", "yarn", "\"vitest\"", "\"--config\"", "\"./vitest.e2e.config.ts\"", "\"${input:scopeTestsFileName}\""],
+      "console": "integratedTerminal",
+      "skipFiles": ["<node_internals>/**"],
+      "env": {
+        "AWS_PROFILE": "flo-ct-flo360"
+      },
     },
+  ],
+  "inputs": [
     {
-      "name": "Launch example CLI - logout",
-      "type": "go",
-      "request": "launch",
-      "mode": "auto",
-      "program": "${workspaceFolder}/examples/cli/cmd/example-cli",
-      "args": ["logout"]
+      "id": "scopeTestsFileName",
+      "type": "promptString",
+      "description": "Partial file name to scope test debugging to. ex. arena. Leave blank to run all tests.",
     }
   ]
 }
