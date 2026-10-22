@@ -56,12 +56,17 @@ The `jwt` package provides comprehensive JWT parsing, validation, and management
 - Comprehensive token information access
 - Seamless integration with OAuth2 flows
 
+### AI Agents and MCP
+
+The `agents` package protects an MCP server or API with a Kinde **AI agents and MCP** application, and lets a Go agent sign users in to one using a client ID metadata document (CIMD) or dynamic client registration (DCR). See the [Agents README](agents/README.md).
+
 ## Examples
 
 This repository includes several examples demonstrating different authentication flows:
 
 - **CLI Example** (`examples/cli`): Demonstrates device authorization flow and secure token storage
 - **Gin Chat Example** (`examples/gin-chat`): Shows how to integrate Kinde authentication with a Gin web application
+- **Agent CLI Example** (`examples/agent-cli`): Signs in to a Kinde-protected MCP server through a loopback redirect
 
 For detailed documentation on each flow:
 
