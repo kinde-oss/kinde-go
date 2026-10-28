@@ -1,6 +1,6 @@
 module github.com/kinde-oss/kinde-go/example-agent-cli
 
-go 1.24.4
+go 1.26.0
 
 replace github.com/kinde-oss/kinde-go => ../../.
 
@@ -19,7 +19,7 @@ require (
 	github.com/gsterjov/go-libsecret v0.0.0-20161001094733-a6f4afe4910c // indirect
 	github.com/mtibben/percent v0.2.1 // indirect
 	golang.org/x/oauth2 v0.34.0 // indirect
-	golang.org/x/sys v0.39.0 // indirect
-	golang.org/x/term v0.38.0 // indirect
+	golang.org/x/sys v0.48.0 // indirect
+	golang.org/x/term v0.46.0 // indirect
 	golang.org/x/time v0.14.0 // indirect
 )
