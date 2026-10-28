@@ -91,7 +91,12 @@ func main() {
 		log.Fatalf("%s: %v", resp.Status, err)
 	}
 	fmt.Printf("%s\n%s\n", resp.Status, body)
-	if resp.StatusCode < 200 || resp.StatusCode > 299 {
+	// A failed initialize can still come back as 200 with a JSON-RPC error.
+	var result struct {
+		Error json.RawMessage `json:"error"`
+	}
+	rpcFailed := json.Unmarshal(body, &result) == nil && len(result.Error) > 0 && string(result.Error) != "null"
+	if resp.StatusCode < 200 || resp.StatusCode > 299 || rpcFailed {
 		os.Exit(1)
 	}
 }
