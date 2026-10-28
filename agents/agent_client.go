@@ -103,8 +103,12 @@ type KindeAgentClient struct {
 	cfg        AgentClientConfig
 	resource   *url.URL
 	httpClient *http.Client
-	storage    Storage
-	now        func() time.Time
+	// noRedirectClient sends requests that carry the access token or client credentials. A
+	// redirect would forward them (the token even to plain http on the same host), so the 3xx
+	// is returned to the caller instead.
+	noRedirectClient *http.Client
+	storage          Storage
+	now              func() time.Time
 
 	mu         sync.Mutex
 	metadata   *AuthorizationServerMetadata
@@ -144,16 +148,19 @@ func NewKindeAgentClient(cfg AgentClientConfig) (*KindeAgentClient, error) {
 	if httpClient == nil {
 		httpClient = &http.Client{Timeout: defaultClientTimeout}
 	}
+	noRedirectClient := *httpClient
+	noRedirectClient.CheckRedirect = func(*http.Request, []*http.Request) error { return http.ErrUseLastResponse }
 	storage := cfg.Storage
 	if storage == nil {
 		storage = NewMemoryStorage()
 	}
 	return &KindeAgentClient{
-		cfg:        cfg,
-		resource:   resource,
-		httpClient: httpClient,
-		storage:    storage,
-		now:        time.Now,
+		cfg:              cfg,
+		resource:         resource,
+		httpClient:       httpClient,
+		noRedirectClient: &noRedirectClient,
+		storage:          storage,
+		now:              time.Now,
 	}, nil
 }
 
@@ -219,7 +226,7 @@ func (c *KindeAgentClient) send(req *http.Request, body io.ReadCloser, token str
 	out := req.Clone(req.Context())
 	out.Body = body
 	out.Header.Set("Authorization", "Bearer "+token)
-	return c.httpClient.Do(out)
+	return c.noRedirectClient.Do(out)
 }
 
 // Disconnect revokes the tokens at the authorization server and clears them from storage.
@@ -230,8 +237,14 @@ func (c *KindeAgentClient) Disconnect(ctx context.Context, forget bool) error {
 	if err := c.ensureMetadataLocked(ctx); err != nil {
 		return err
 	}
+	if !c.loadTokensLocked() {
+		if stored := c.readTokens(); stored != nil {
+			// Clearing them would leave them valid at the authorization server.
+			return fmt.Errorf("stored tokens were issued to client %q, not the configured one; disconnect with the configuration used to sign in", stored.ClientID)
+		}
+	}
 	var revokeErr error
-	if c.loadTokensLocked() && c.metadata.RevocationEndpoint != "" {
+	if c.tokens != nil && c.metadata.RevocationEndpoint != "" {
 		if identity, ok := c.existingIdentityLocked(); ok {
 			form := url.Values{"token": {c.tokens.AccessToken}, "token_type_hint": {"access_token"}}
 			if c.tokens.RefreshToken != "" {
@@ -589,7 +602,7 @@ func (c *KindeAgentClient) postForm(ctx context.Context, endpoint string, identi
 	}
 	req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
 	req.Header.Set("Accept", "application/json")
-	return c.httpClient.Do(req)
+	return c.noRedirectClient.Do(req)
 }
 
 func (c *KindeAgentClient) tokenRequestLocked(ctx context.Context, identity clientIdentity, form url.Values) (*tokenResponse, error) {
@@ -643,20 +656,29 @@ func (c *KindeAgentClient) loadTokensLocked() bool {
 	if c.tokens != nil {
 		return true
 	}
-	data, err := c.storage.GetKey(c.tokenKey())
-	if err != nil {
-		return false
-	}
-	var tokens storedTokens
-	if json.Unmarshal(data, &tokens) != nil || tokens.AccessToken == "" {
+	tokens := c.readTokens()
+	if tokens == nil {
 		return false
 	}
 	if identity, ok := c.existingIdentityLocked(); !ok || identity.id != tokens.ClientID {
 		return false
 	}
-	c.tokens = &tokens
+	c.tokens = tokens
 	c.generation++
 	return true
+}
+
+// readTokens returns the stored tokens for this issuer and resource, whichever client they were issued to.
+func (c *KindeAgentClient) readTokens() *storedTokens {
+	data, err := c.storage.GetKey(c.tokenKey())
+	if err != nil {
+		return nil
+	}
+	var tokens storedTokens
+	if json.Unmarshal(data, &tokens) != nil || tokens.AccessToken == "" {
+		return nil
+	}
+	return &tokens
 }
 
 func (c *KindeAgentClient) clearTokensLocked() {

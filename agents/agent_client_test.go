@@ -44,6 +44,7 @@ type fakeServer struct {
 	issued             int
 	validTokens        map[string]bool
 	revocations        []url.Values
+	redirectTo         string // where /redirect sends a 307
 }
 
 func newFakeServer(t *testing.T) *fakeServer {
@@ -108,6 +109,8 @@ func (f *fakeServer) serve(w http.ResponseWriter, r *http.Request) {
 		})
 	case "/oauth2/agents/" + testAppID + "/token":
 		f.token(w, r)
+	case "/redirect":
+		http.Redirect(w, r, f.redirectTo, http.StatusTemporaryRedirect)
 	case "/oauth2/agents/" + testAppID + "/revoke":
 		_ = r.ParseForm()
 		f.revocations = append(f.revocations, r.PostForm)
@@ -582,5 +585,62 @@ func TestAgentClientTokens(t *testing.T) {
 		require.NoError(t, client.Disconnect(t.Context(), true))
 		_, err = storage.GetKey("kinde_agent_registration_" + storageHash(f.issuer))
 		assert.Error(t, err, "registration cleared with forget")
+	})
+
+	t.Run("Disconnect refuses tokens issued to another client and keeps them", func(t *testing.T) {
+		f := newFakeServer(t)
+		storage := NewMemoryStorage()
+		require.NoError(t, f.newClient(t, AgentClientConfig{ClientMetadataURL: testCIMDURL, Storage: storage}).Connect(t.Context()))
+		other := f.newClient(t, AgentClientConfig{Storage: storage})
+		assert.ErrorContains(t, other.Disconnect(t.Context(), false), testCIMDURL)
+		f.locked(func() { assert.Empty(t, f.revocations) })
+		_, err := storage.GetKey("kinde_agent_tokens_" + storageHash(f.issuer, f.resourceURL()))
+		assert.NoError(t, err, "tokens kept")
+	})
+}
+
+func TestAgentClientRedirects(t *testing.T) {
+	t.Parallel()
+
+	newTarget := func(t *testing.T) (*httptest.Server, *[]*http.Request, *sync.Mutex) {
+		var mu sync.Mutex
+		var got []*http.Request
+		target := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			mu.Lock()
+			defer mu.Unlock()
+			got = append(got, r)
+		}))
+		t.Cleanup(target.Close)
+		return target, &got, &mu
+	}
+
+	t.Run("Do returns the redirect instead of forwarding the token", func(t *testing.T) {
+		f := newFakeServer(t)
+		target, got, mu := newTarget(t)
+		f.locked(func() { f.redirectTo = target.URL })
+		client := f.newClient(t, AgentClientConfig{ClientMetadataURL: testCIMDURL})
+		require.NoError(t, client.Connect(t.Context()))
+		resp, err := client.Do(httptestRequest(t, f.server.URL+"/redirect"))
+		require.NoError(t, err)
+		resp.Body.Close()
+		assert.Equal(t, http.StatusTemporaryRedirect, resp.StatusCode)
+		mu.Lock()
+		defer mu.Unlock()
+		assert.Empty(t, *got)
+	})
+
+	t.Run("revocation does not resend the client secret to a redirect", func(t *testing.T) {
+		f := newFakeServer(t)
+		target, got, mu := newTarget(t)
+		f.locked(func() {
+			f.redirectTo = target.URL
+			f.metadata["revocation_endpoint"] = f.server.URL + "/redirect"
+		})
+		client := f.newClient(t, AgentClientConfig{})
+		require.NoError(t, client.Connect(t.Context()))
+		require.NoError(t, client.Disconnect(t.Context(), false))
+		mu.Lock()
+		defer mu.Unlock()
+		assert.Empty(t, *got)
 	})
 }

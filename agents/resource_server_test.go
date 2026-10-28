@@ -30,6 +30,7 @@ type fakeKinde struct {
 	server     *httptest.Server
 	key        *rsa.PrivateKey
 	jwksHits   atomic.Int32
+	jwksDown   atomic.Bool
 	mu         sync.Mutex
 	introspect func(w http.ResponseWriter, r *http.Request)
 }
@@ -42,6 +43,10 @@ func newFakeKinde(t *testing.T) *fakeKinde {
 	mux := http.NewServeMux()
 	mux.HandleFunc("/.well-known/jwks", func(w http.ResponseWriter, r *http.Request) {
 		f.jwksHits.Add(1)
+		if f.jwksDown.Load() {
+			w.WriteHeader(http.StatusServiceUnavailable)
+			return
+		}
 		writeJSON(w, http.StatusOK, map[string]any{"keys": []map[string]string{{
 			"kty": "RSA", "kid": "kid-1", "use": "sig", "alg": "RS256",
 			"n": base64.RawURLEncoding.EncodeToString(key.N.Bytes()),
@@ -391,6 +396,14 @@ func TestMiddlewareJWT(t *testing.T) {
 			assert.Equal(t, http.StatusUnauthorized, rec.Code)
 		}
 		assert.LessOrEqual(t, f.jwksHits.Load()-initial, int32(1))
+	})
+
+	t.Run("JWKS unreachable gives 503, not 401", func(t *testing.T) {
+		f := newFakeKinde(t)
+		f.jwksDown.Store(true)
+		rec, _ := serve(jwtAuth(t, f), "Bearer "+f.sign(t, f.claims(), "kid-1"))
+		assert.Equal(t, http.StatusServiceUnavailable, rec.Code)
+		assert.Empty(t, rec.Header().Get("WWW-Authenticate"))
 	})
 
 	t.Run("jwt plus introspection requires both", func(t *testing.T) {

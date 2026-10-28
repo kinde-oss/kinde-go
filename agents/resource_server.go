@@ -11,8 +11,10 @@ import (
 	"net/url"
 	"slices"
 	"strings"
+	"sync/atomic"
 	"time"
 
+	"github.com/MicahParks/jwkset"
 	"github.com/MicahParks/keyfunc/v3"
 	golangjwt "github.com/golang-jwt/jwt/v5"
 	"github.com/kinde-oss/kinde-go/jwt"
@@ -114,7 +116,20 @@ type KindeAgentAuth struct {
 	clockTolerance time.Duration
 	httpClient     *http.Client
 	jwtOptions     []func(*jwt.Token)
+	jwksFailing    atomic.Bool // the last JWKS fetch failed
 	now            func() time.Time
+}
+
+// jwksTransport records whether the last JWKS fetch failed, which keyfunc only logs.
+type jwksTransport struct {
+	next    http.RoundTripper
+	failing *atomic.Bool
+}
+
+func (t jwksTransport) RoundTrip(r *http.Request) (*http.Response, error) {
+	resp, err := t.next.RoundTrip(r)
+	t.failing.Store(err != nil || resp.StatusCode != http.StatusOK)
+	return resp, err
 }
 
 // ProtectedResourceMetadata is the RFC 9728 protected resource metadata document.
@@ -218,8 +233,14 @@ func NewKindeAgentAuth(cfg Config) (*KindeAgentAuth, error) {
 	if verification != VerificationIntrospection {
 		// Unlike jwt.WillValidateWithJWKSUrl, this doesn't fail permanently when Kinde is
 		// unreachable at startup: keys are refetched hourly and on an unknown kid (rate-limited).
+		jwksClient := *httpClient
+		next := jwksClient.Transport
+		if next == nil {
+			next = http.DefaultTransport
+		}
+		jwksClient.Transport = jwksTransport{next: next, failing: &a.jwksFailing}
 		keys, err := keyfunc.NewDefaultOverrideCtx(context.Background(), []string{domain + "/.well-known/jwks"}, keyfunc.Override{
-			Client:      httpClient,
+			Client:      &jwksClient,
 			HTTPTimeout: defaultHTTPTimeout,
 		})
 		if err != nil {
@@ -340,6 +361,10 @@ func (a *KindeAgentAuth) VerifyAccessToken(ctx context.Context, token string) (*
 func (a *KindeAgentAuth) verifyJWT(token string) (golangjwt.MapClaims, error) {
 	parsed, err := jwt.ParseFromString(token, a.jwtOptions...)
 	if err != nil {
+		// An unknown key while Kinde's JWKS can't be fetched is an outage, not a bad token.
+		if errors.Is(err, jwkset.ErrKeyNotFound) && a.jwksFailing.Load() {
+			return nil, unavailable("signing keys could not be fetched", err)
+		}
 		return nil, invalidToken("token verification failed", err)
 	}
 	if !parsed.IsValid() {
