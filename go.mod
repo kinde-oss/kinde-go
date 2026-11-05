@@ -77,7 +77,7 @@ require (
 
 require (
 	github.com/99designs/keyring v1.2.2
-	github.com/MicahParks/jwkset v0.11.0
+	github.com/MicahParks/jwkset v0.11.4
 	github.com/davecgh/go-spew v1.1.1 // indirect
 	github.com/gin-contrib/sessions v1.1.3
 	github.com/gin-gonic/gin v1.12.0
