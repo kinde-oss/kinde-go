@@ -12,7 +12,7 @@ require (
 	go.opentelemetry.io/otel v1.47.0
 	go.opentelemetry.io/otel/metric v1.47.0
 	go.opentelemetry.io/otel/trace v1.47.0
-	golang.org/x/oauth2 v0.34.0
+	golang.org/x/oauth2 v0.37.0
 	golang.org/x/term v0.47.0
 )
 
