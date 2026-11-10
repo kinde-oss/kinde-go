@@ -48,7 +48,7 @@ type AgentClientConfig struct {
 	// "http://127.0.0.1/callback" on an ephemeral port. Use a fixed port with DCR, or the client
 	// re-registers whenever the port changes.
 	RedirectURI string
-	// Scopes defaults to ["offline"]. openid is dropped when the server doesn't support it.
+	// Scopes defaults to ["offline"]. openid is always dropped: this flow issues no ID token.
 	Scopes []string
 	// Storage persists tokens and the DCR registration. Defaults to memory. frameworks/cli's
 	// keyring session implements it.
@@ -258,11 +258,17 @@ func (c *KindeAgentClient) Disconnect(ctx context.Context, forget bool) error {
 			}
 		}
 	}
-	c.clearTokensLocked()
-	if forget {
-		_ = c.storage.DeleteKey(c.registrationKey())
+	// A token left in storage would be loaded again by the next Connect.
+	errs := []error{revokeErr}
+	if err := c.clearTokensLocked(); err != nil {
+		errs = append(errs, fmt.Errorf("failed to clear stored tokens: %w", err))
 	}
-	return revokeErr
+	if forget {
+		if err := c.storage.DeleteKey(c.registrationKey()); err != nil {
+			errs = append(errs, fmt.Errorf("failed to clear the client registration: %w", err))
+		}
+	}
+	return errors.Join(errs...)
 }
 
 // TokenInfo returns details of the current tokens, if Connect has loaded any.
@@ -417,12 +423,8 @@ func (c *KindeAgentClient) authorizationURL(identity clientIdentity, redirectURI
 	return u.String(), nil
 }
 
-// scopesLocked drops openid when the server doesn't list it; Kinde's scoped issuer refuses it.
+// scopesLocked drops openid, which Kinde's scoped issuer refuses, whatever the server advertises.
 func (c *KindeAgentClient) scopesLocked() []string {
-	supported := c.metadata.ScopesSupported
-	if len(supported) == 0 || slices.Contains(supported, "openid") {
-		return c.cfg.Scopes
-	}
 	return slices.DeleteFunc(slices.Clone(c.cfg.Scopes), func(s string) bool { return s == "openid" })
 }
 
@@ -444,10 +446,10 @@ func (c *KindeAgentClient) refreshLocked(ctx context.Context) error {
 		switch oauthErr.Code {
 		case "invalid_grant":
 			// Revoked, expired, or the application was deleted.
-			c.clearTokensLocked()
+			_ = c.clearTokensLocked()
 			return fmt.Errorf("%w: %w", ErrLoginRequired, err)
 		case "invalid_client":
-			c.clearTokensLocked()
+			_ = c.clearTokensLocked()
 			if identity.dynamic {
 				_ = c.storage.DeleteKey(c.registrationKey())
 			}
@@ -536,7 +538,7 @@ func (c *KindeAgentClient) registerLocked(ctx context.Context, redirectURI strin
 
 	switch {
 	case resp.StatusCode == http.StatusNotFound:
-		c.clearTokensLocked()
+		_ = c.clearTokensLocked()
 		_ = c.storage.DeleteKey(c.registrationKey())
 		return nil, fmt.Errorf("client registration failed: the authorization server no longer exists (was the application deleted?): %w", newOAuthError(resp))
 	case resp.StatusCode == http.StatusTooManyRequests:
@@ -681,10 +683,10 @@ func (c *KindeAgentClient) readTokens() *storedTokens {
 	return &tokens
 }
 
-func (c *KindeAgentClient) clearTokensLocked() {
+func (c *KindeAgentClient) clearTokensLocked() error {
 	c.tokens = nil
 	c.generation++
-	_ = c.storage.DeleteKey(c.tokenKey())
+	return c.storage.DeleteKey(c.tokenKey())
 }
 
 func (c *KindeAgentClient) expiringLocked() bool {

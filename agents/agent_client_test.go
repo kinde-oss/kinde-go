@@ -322,6 +322,14 @@ func TestAgentClientIdentity(t *testing.T) {
 		})
 	})
 
+	t.Run("openid is dropped when the server lists no scopes", func(t *testing.T) {
+		f := newFakeServer(t)
+		delete(f.metadata, "scopes_supported")
+		client := f.newClient(t, AgentClientConfig{ClientMetadataURL: testCIMDURL, Scopes: []string{"openid", "offline"}})
+		require.NoError(t, client.Connect(t.Context()))
+		f.locked(func() { assert.Equal(t, "offline", f.authorizations[0].Get("scope")) })
+	})
+
 	t.Run("default scope is offline", func(t *testing.T) {
 		f := newFakeServer(t)
 		require.NoError(t, f.newClient(t, AgentClientConfig{ClientMetadataURL: testCIMDURL}).Connect(t.Context()))
@@ -587,6 +595,14 @@ func TestAgentClientTokens(t *testing.T) {
 		assert.Error(t, err, "registration cleared with forget")
 	})
 
+	t.Run("Disconnect reports a storage failure", func(t *testing.T) {
+		f := newFakeServer(t)
+		storage := &failingDeleteStorage{Storage: NewMemoryStorage()}
+		client := f.newClient(t, AgentClientConfig{ClientMetadataURL: testCIMDURL, Storage: storage})
+		require.NoError(t, client.Connect(t.Context()))
+		assert.ErrorContains(t, client.Disconnect(t.Context(), false), "failed to clear stored tokens")
+	})
+
 	t.Run("Disconnect refuses tokens issued to another client and keeps them", func(t *testing.T) {
 		f := newFakeServer(t)
 		storage := NewMemoryStorage()
@@ -598,6 +614,11 @@ func TestAgentClientTokens(t *testing.T) {
 		assert.NoError(t, err, "tokens kept")
 	})
 }
+
+// failingDeleteStorage is a Storage whose DeleteKey always fails, like a locked keychain.
+type failingDeleteStorage struct{ Storage }
+
+func (failingDeleteStorage) DeleteKey(string) error { return fmt.Errorf("keychain locked") }
 
 func TestAgentClientRedirects(t *testing.T) {
 	t.Parallel()

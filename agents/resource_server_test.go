@@ -214,6 +214,19 @@ func TestMiddlewareIntrospection(t *testing.T) {
 		assert.NotContains(t, challenge, "error=")
 	})
 
+	t.Run("introspection redirect is not followed", func(t *testing.T) {
+		var hits atomic.Int32
+		target := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) { hits.Add(1) }))
+		t.Cleanup(target.Close)
+		f := newFakeKinde(t)
+		f.setIntrospect(func(w http.ResponseWriter, r *http.Request) {
+			http.Redirect(w, r, target.URL, http.StatusTemporaryRedirect)
+		})
+		rec, _ := serve(newTestAuth(t, f, Config{}), "Bearer "+f.sign(t, f.claims(), "kid-1"))
+		assert.Equal(t, http.StatusServiceUnavailable, rec.Code)
+		assert.Zero(t, hits.Load(), "the token and credentials never reach the redirect target")
+	})
+
 	t.Run("non-Bearer Authorization header", func(t *testing.T) {
 		f := newFakeKinde(t)
 		auth := newTestAuth(t, f, Config{})

@@ -114,10 +114,12 @@ type KindeAgentAuth struct {
 	verification   Verification
 	metadata       ProtectedResourceMetadata
 	clockTolerance time.Duration
-	httpClient     *http.Client
-	jwtOptions     []func(*jwt.Token)
-	jwksFailing    atomic.Bool // the last JWKS fetch failed
-	now            func() time.Time
+	// introspectClient doesn't follow redirects: a 307 or 308 would resend the token and
+	// the application's credentials to the new location.
+	introspectClient *http.Client
+	jwtOptions       []func(*jwt.Token)
+	jwksFailing      atomic.Bool // the last JWKS fetch failed
+	now              func() time.Time
 }
 
 // jwksTransport records whether the last JWKS fetch failed, which keyfunc only logs.
@@ -207,6 +209,9 @@ func NewKindeAgentAuth(cfg Config) (*KindeAgentAuth, error) {
 		httpClient = &http.Client{Timeout: defaultHTTPTimeout}
 	}
 
+	introspectClient := *httpClient
+	introspectClient.CheckRedirect = func(*http.Request, []*http.Request) error { return http.ErrUseLastResponse }
+
 	issuer := domain + "/oauth2/agents/" + url.PathEscape(cfg.ClientID)
 	prmURL := wellKnownURL(resource, prmWellKnown)
 	a := &KindeAgentAuth{
@@ -225,9 +230,9 @@ func NewKindeAgentAuth(cfg Config) (*KindeAgentAuth, error) {
 			ScopesSupported:        scopes,
 			ResourceName:           cfg.ResourceName,
 		},
-		clockTolerance: tolerance,
-		httpClient:     httpClient,
-		now:            time.Now,
+		clockTolerance:   tolerance,
+		introspectClient: &introspectClient,
+		now:              time.Now,
 	}
 
 	if verification != VerificationIntrospection {
@@ -391,7 +396,7 @@ func (a *KindeAgentAuth) introspect(ctx context.Context, token string) (golangjw
 	req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
 	req.Header.Set("Accept", "application/json")
 
-	resp, err := a.httpClient.Do(req)
+	resp, err := a.introspectClient.Do(req)
 	if err != nil {
 		return nil, unavailable("introspection request failed", err)
 	}
