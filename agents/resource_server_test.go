@@ -214,6 +214,19 @@ func TestMiddlewareIntrospection(t *testing.T) {
 		assert.NotContains(t, challenge, "error=")
 	})
 
+	t.Run("non-JWT bearer gets invalid_token without calling Kinde", func(t *testing.T) {
+		var calls atomic.Int32
+		f := newFakeKinde(t)
+		f.setIntrospect(func(w http.ResponseWriter, r *http.Request) {
+			calls.Add(1)
+			activeIntrospection(testResourceURL)(w, r)
+		})
+		rec, _ := serve(newTestAuth(t, f, Config{}), "Bearer not-a-jwt")
+		assert.Equal(t, http.StatusUnauthorized, rec.Code)
+		assert.Equal(t, "invalid_token", bearerParam(rec.Header().Values("WWW-Authenticate"), "error"))
+		assert.Zero(t, calls.Load())
+	})
+
 	t.Run("introspection redirect is not followed", func(t *testing.T) {
 		var hits atomic.Int32
 		target := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) { hits.Add(1) }))

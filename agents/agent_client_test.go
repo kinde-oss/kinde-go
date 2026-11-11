@@ -45,6 +45,7 @@ type fakeServer struct {
 	validTokens        map[string]bool
 	revocations        []url.Values
 	redirectTo         string // where /redirect sends a 307
+	revokeStatus       int    // overrides the revocation endpoint's 200
 }
 
 func newFakeServer(t *testing.T) *fakeServer {
@@ -114,6 +115,10 @@ func (f *fakeServer) serve(w http.ResponseWriter, r *http.Request) {
 	case "/oauth2/agents/" + testAppID + "/revoke":
 		_ = r.ParseForm()
 		f.revocations = append(f.revocations, r.PostForm)
+		if f.revokeStatus != 0 {
+			writeJSON(w, f.revokeStatus, oauthErrorBody{Error: "invalid_client"})
+			return
+		}
 		w.WriteHeader(http.StatusOK)
 	default:
 		http.NotFound(w, r)
@@ -250,11 +255,21 @@ func TestAgentClientDiscovery(t *testing.T) {
 		f.locked(func() { assert.Equal(t, "/.well-known/oauth-protected-resource/mcp", f.paths[1]) })
 	})
 
-	t.Run("accepts a PRM for a parent path", func(t *testing.T) {
+	t.Run("accepts a PRM for a parent path and sends its resource", func(t *testing.T) {
 		f := newFakeServer(t)
 		f.prmResource = f.server.URL + "/"
 		client := f.newClient(t, AgentClientConfig{ClientMetadataURL: testCIMDURL})
-		assert.NoError(t, client.Connect(t.Context()))
+		require.NoError(t, client.Connect(t.Context()))
+		f.locked(func() { f.validTokens = map[string]bool{} })
+		resp, err := client.Do(httptestRequest(t, f.resourceURL()))
+		require.NoError(t, err)
+		resp.Body.Close()
+		f.locked(func() {
+			assert.Equal(t, f.prmResource, f.authorizations[0].Get("resource"))
+			require.Len(t, f.tokenForms, 2)
+			assert.Equal(t, f.prmResource, f.tokenForms[0].Get("resource"), "code exchange")
+			assert.Equal(t, f.prmResource, f.tokenForms[1].Get("resource"), "refresh")
+		})
 	})
 
 	t.Run("aborts on a PRM for another origin or path", func(t *testing.T) {
@@ -595,6 +610,17 @@ func TestAgentClientTokens(t *testing.T) {
 		assert.Error(t, err, "registration cleared with forget")
 	})
 
+	t.Run("Disconnect reports a rejected revocation and still clears storage", func(t *testing.T) {
+		f := newFakeServer(t)
+		f.revokeStatus = http.StatusUnauthorized
+		storage := NewMemoryStorage()
+		client := f.newClient(t, AgentClientConfig{ClientMetadataURL: testCIMDURL, Storage: storage})
+		require.NoError(t, client.Connect(t.Context()))
+		assert.ErrorContains(t, client.Disconnect(t.Context(), false), "failed to revoke tokens")
+		_, err := storage.GetKey("kinde_agent_tokens_" + storageHash(f.issuer, f.resourceURL()))
+		assert.Error(t, err, "tokens cleared")
+	})
+
 	t.Run("Disconnect reports a storage failure", func(t *testing.T) {
 		f := newFakeServer(t)
 		storage := &failingDeleteStorage{Storage: NewMemoryStorage()}
@@ -659,7 +685,7 @@ func TestAgentClientRedirects(t *testing.T) {
 		})
 		client := f.newClient(t, AgentClientConfig{})
 		require.NoError(t, client.Connect(t.Context()))
-		require.NoError(t, client.Disconnect(t.Context(), false))
+		assert.ErrorContains(t, client.Disconnect(t.Context(), false), "failed to revoke tokens", "the token wasn't revoked")
 		mu.Lock()
 		defer mu.Unlock()
 		assert.Empty(t, *got)

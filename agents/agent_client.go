@@ -79,6 +79,7 @@ type storedTokens struct {
 	ExpiresAt    time.Time `json:"expires_at"`
 	Scope        string    `json:"scope,omitempty"`
 	ClientID     string    `json:"client_id"`
+	Resource     string    `json:"resource,omitempty"` // the resource parameter the grant was issued for
 }
 
 type storedRegistration struct {
@@ -113,6 +114,7 @@ type KindeAgentClient struct {
 	mu         sync.Mutex
 	metadata   *AuthorizationServerMetadata
 	metadataAt time.Time
+	resourceID string // the protected resource identifier from discovery, sent as the resource parameter
 	tokens     *storedTokens
 	generation uint64 // incremented whenever tokens change
 }
@@ -250,10 +252,14 @@ func (c *KindeAgentClient) Disconnect(ctx context.Context, forget bool) error {
 			if c.tokens.RefreshToken != "" {
 				form = url.Values{"token": {c.tokens.RefreshToken}, "token_type_hint": {"refresh_token"}}
 			}
-			// RFC 7009 answers 200 whatever the token's state, so only transport errors matter.
+			// RFC 7009 answers 200 whatever the token's state, so anything else (401, 503, or a
+			// redirect, which isn't followed) means the token may still be valid.
 			if resp, err := c.postForm(ctx, c.metadata.RevocationEndpoint, identity, form); err != nil {
 				revokeErr = fmt.Errorf("failed to revoke tokens: %w", err)
 			} else {
+				if resp.StatusCode != http.StatusOK {
+					revokeErr = fmt.Errorf("failed to revoke tokens: %w", newOAuthError(resp))
+				}
 				resp.Body.Close()
 			}
 		}
@@ -320,7 +326,7 @@ func (c *KindeAgentClient) ensureMetadataLocked(ctx context.Context) error {
 	if c.metadata != nil && c.now().Sub(c.metadataAt) < metadataCacheTTL {
 		return nil
 	}
-	metadata, err := c.discoverLocked(ctx)
+	metadata, resourceID, err := c.discoverLocked(ctx)
 	if err != nil {
 		if c.metadata != nil {
 			c.metadataAt = c.now()
@@ -331,16 +337,22 @@ func (c *KindeAgentClient) ensureMetadataLocked(ctx context.Context) error {
 	if c.metadata != nil && c.metadata.Issuer != metadata.Issuer {
 		c.tokens = nil
 	}
-	c.metadata, c.metadataAt = metadata, c.now()
+	c.metadata, c.resourceID, c.metadataAt = metadata, resourceID, c.now()
 	return nil
 }
 
-func (c *KindeAgentClient) discoverLocked(ctx context.Context) (*AuthorizationServerMetadata, error) {
+// discoverLocked returns the authorization server metadata and the protected resource
+// identifier, which may be a parent of ResourceURL.
+func (c *KindeAgentClient) discoverLocked(ctx context.Context) (*AuthorizationServerMetadata, string, error) {
 	prm, err := discoverProtectedResource(ctx, c.httpClient, c.resource)
 	if err != nil {
-		return nil, err
+		return nil, "", err
 	}
-	return discoverAuthorizationServer(ctx, c.httpClient, prm.AuthorizationServers[0])
+	metadata, err := discoverAuthorizationServer(ctx, c.httpClient, prm.AuthorizationServers[0])
+	if err != nil {
+		return nil, "", err
+	}
+	return metadata, prm.Resource, nil
 }
 
 func (c *KindeAgentClient) loginLocked(ctx context.Context) error {
@@ -397,12 +409,12 @@ func (c *KindeAgentClient) authorizeLocked(ctx context.Context) (clientIdentity,
 		"code":          {code},
 		"redirect_uri":  {loopback.redirectURI},
 		"code_verifier": {verifier},
-		"resource":      {c.cfg.ResourceURL},
+		"resource":      {c.resourceID},
 	})
 	if err != nil {
 		return identity, err
 	}
-	return identity, c.saveTokensLocked(identity, resp, "")
+	return identity, c.saveTokensLocked(identity, resp, c.resourceID, "")
 }
 
 func (c *KindeAgentClient) authorizationURL(identity clientIdentity, redirectURI, state, verifier string) (string, error) {
@@ -418,7 +430,7 @@ func (c *KindeAgentClient) authorizationURL(identity clientIdentity, redirectURI
 	q.Set("state", state)
 	q.Set("code_challenge", oauth2.S256ChallengeFromVerifier(verifier))
 	q.Set("code_challenge_method", "S256")
-	q.Set("resource", c.cfg.ResourceURL)
+	q.Set("resource", c.resourceID)
 	u.RawQuery = q.Encode()
 	return u.String(), nil
 }
@@ -436,10 +448,16 @@ func (c *KindeAgentClient) refreshLocked(ctx context.Context) error {
 	if !ok {
 		return ErrLoginRequired
 	}
+	// Refresh for the resource the grant was issued for; tokens stored before it was recorded
+	// were issued for the discovered one.
+	resource := c.tokens.Resource
+	if resource == "" {
+		resource = c.resourceID
+	}
 	resp, err := c.tokenRequestLocked(ctx, identity, url.Values{
 		"grant_type":    {"refresh_token"},
 		"refresh_token": {c.tokens.RefreshToken},
-		"resource":      {c.cfg.ResourceURL},
+		"resource":      {resource},
 	})
 	var oauthErr *OAuthError
 	if errors.As(err, &oauthErr) {
@@ -459,7 +477,7 @@ func (c *KindeAgentClient) refreshLocked(ctx context.Context) error {
 	if err != nil {
 		return err
 	}
-	return c.saveTokensLocked(identity, resp, c.tokens.RefreshToken)
+	return c.saveTokensLocked(identity, resp, resource, c.tokens.RefreshToken)
 }
 
 // identityForLoginLocked picks CIMD, then a pre-registered client, then DCR.
@@ -628,12 +646,13 @@ func (c *KindeAgentClient) tokenRequestLocked(ctx context.Context, identity clie
 }
 
 // saveTokensLocked stores resp, keeping previousRefresh when the server didn't rotate it.
-func (c *KindeAgentClient) saveTokensLocked(identity clientIdentity, resp *tokenResponse, previousRefresh string) error {
+func (c *KindeAgentClient) saveTokensLocked(identity clientIdentity, resp *tokenResponse, resource, previousRefresh string) error {
 	tokens := &storedTokens{
 		AccessToken:  resp.AccessToken,
 		RefreshToken: resp.RefreshToken,
 		Scope:        resp.Scope,
 		ClientID:     identity.id,
+		Resource:     resource,
 	}
 	if tokens.RefreshToken == "" {
 		tokens.RefreshToken = previousRefresh

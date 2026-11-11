@@ -387,6 +387,12 @@ type introspectionResponse struct {
 // introspect calls <issuer>/introspect with the application's Basic credentials. The shared
 // /oauth2/introspect endpoint can't resolve CIMD clients, so it's never used.
 func (a *KindeAgentAuth) introspect(ctx context.Context, token string) (golangjwt.MapClaims, error) {
+	// Kinde access tokens are JWTs, so other strings are refused without spending a request.
+	// The claims are only trusted once Kinde confirms the token below.
+	claims, err := jwt.ParseIDTokenUnverified(token)
+	if err != nil {
+		return nil, invalidToken("token is not a JWT", err)
+	}
 	form := url.Values{"token": {token}}
 	req, err := http.NewRequestWithContext(ctx, http.MethodPost, a.issuer+"/introspect", strings.NewReader(form.Encode()))
 	if err != nil {
@@ -420,11 +426,6 @@ func (a *KindeAgentAuth) introspect(ctx context.Context, token string) (golangjw
 	}
 	if data.Exp != nil && time.Unix(*data.Exp, 0).Add(a.clockTolerance).Before(a.now()) {
 		return nil, invalidToken("token is expired", nil)
-	}
-	// Kinde has just confirmed the token, so its payload can be decoded without a signature check.
-	claims, err := jwt.ParseIDTokenUnverified(token)
-	if err != nil {
-		return nil, invalidToken("token is not a JWT", err)
 	}
 	return claims, nil
 }
