@@ -392,7 +392,8 @@ func (flow *AuthorizationCodeFlow) ExchangeCode(ctx context.Context, authorizati
 	var token *oauth2.Token
 	if flow.usePKCE {
 		// Get code verifier from session hooks
-		codeVerifier, err := flow.sessionHooks.GetCodeVerifier()
+		var codeVerifier string
+		codeVerifier, err = flow.sessionHooks.GetCodeVerifier()
 		if err != nil {
 			return fmt.Errorf("failed to get code verifier from session: %w", err)
 		}
