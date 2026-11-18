@@ -91,14 +91,35 @@ func main() {
 		log.Fatalf("%s: %v", resp.Status, err)
 	}
 	fmt.Printf("%s\n%s\n", resp.Status, body)
-	// A failed initialize can still come back as 200 with a JSON-RPC error.
-	var result struct {
-		Error json.RawMessage `json:"error"`
-	}
-	rpcFailed := json.Unmarshal(body, &result) == nil && len(result.Error) > 0 && string(result.Error) != "null"
-	if resp.StatusCode < 200 || resp.StatusCode > 299 || rpcFailed {
+	if resp.StatusCode < 200 || resp.StatusCode > 299 {
 		os.Exit(1)
 	}
+	if err := checkInitializeResponse(body); err != nil {
+		log.Fatal(err)
+	}
+}
+
+// checkInitializeResponse requires a complete JSON-RPC response to the initialize request
+// (id 1) with a result. A failed initialize can still come back as 200 with an error.
+func checkInitializeResponse(body []byte) error {
+	var msg struct {
+		ID     json.RawMessage `json:"id"`
+		Result json.RawMessage `json:"result"`
+		Error  json.RawMessage `json:"error"`
+	}
+	if err := json.Unmarshal(body, &msg); err != nil {
+		return fmt.Errorf("invalid initialize response: %w", err)
+	}
+	if string(msg.ID) != "1" {
+		return fmt.Errorf("initialize response has id %s, want 1", msg.ID)
+	}
+	if len(msg.Error) > 0 && string(msg.Error) != "null" {
+		return fmt.Errorf("initialize failed: %s", msg.Error)
+	}
+	if len(msg.Result) == 0 || string(msg.Result) == "null" {
+		return fmt.Errorf("initialize response has neither result nor error")
+	}
+	return nil
 }
 
 // readResponse returns the body, or for an event stream the JSON-RPC response to the

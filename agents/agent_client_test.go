@@ -10,6 +10,7 @@ import (
 	"net/url"
 	"strings"
 	"sync"
+	"sync/atomic"
 	"testing"
 	"time"
 
@@ -46,6 +47,10 @@ type fakeServer struct {
 	revocations        []url.Values
 	redirectTo         string // where /redirect sends a 307
 	revokeStatus       int    // overrides the revocation endpoint's 200
+	rejectAll          bool   // the resource rejects every token
+	noRefreshToken     bool   // token responses carry no refresh_token
+	omitScope          bool   // token responses carry no scope
+	expiresIn          int    // overrides the 86400-second lifetime
 }
 
 func newFakeServer(t *testing.T) *fakeServer {
@@ -78,7 +83,7 @@ func (f *fakeServer) serve(w http.ResponseWriter, r *http.Request) {
 	switch r.URL.Path {
 	case "/mcp", "/mcp/tools":
 		token, ok := strings.CutPrefix(r.Header.Get("Authorization"), "Bearer ")
-		if ok && f.validTokens[token] {
+		if ok && f.validTokens[token] && !f.rejectAll {
 			w.WriteHeader(http.StatusOK)
 			_, _ = io.WriteString(w, "ok")
 			return
@@ -168,8 +173,15 @@ func (f *fakeServer) issueLocked(refreshToken string) map[string]any {
 	f.issued++
 	token := fmt.Sprintf("at-%d", f.issued)
 	f.validTokens[token] = true
-	resp := map[string]any{"access_token": token, "token_type": "bearer", "expires_in": 86400, "scope": "offline"}
-	if refreshToken != "" {
+	expiresIn := 86400
+	if f.expiresIn != 0 {
+		expiresIn = f.expiresIn
+	}
+	resp := map[string]any{"access_token": token, "token_type": "bearer", "expires_in": expiresIn, "scope": "offline"}
+	if f.omitScope {
+		delete(resp, "scope")
+	}
+	if refreshToken != "" && !f.noRefreshToken {
 		resp["refresh_token"] = refreshToken
 	}
 	return resp
@@ -610,6 +622,104 @@ func TestAgentClientTokens(t *testing.T) {
 		assert.Error(t, err, "registration cleared with forget")
 	})
 
+	t.Run("a token rejected after refresh is dropped so Connect signs in again", func(t *testing.T) {
+		f := newFakeServer(t)
+		client := f.newClient(t, AgentClientConfig{ClientMetadataURL: testCIMDURL})
+		require.NoError(t, client.Connect(t.Context()))
+		f.locked(func() { f.rejectAll = true })
+		resp, err := client.Do(httptestRequest(t, f.resourceURL()))
+		require.NoError(t, err)
+		resp.Body.Close()
+		assert.Equal(t, http.StatusUnauthorized, resp.StatusCode)
+		f.locked(func() { f.rejectAll = false })
+		require.NoError(t, client.Connect(t.Context()))
+		f.locked(func() { assert.Len(t, f.authorizations, 2) })
+	})
+
+	t.Run("a rejected token without a refresh token is dropped so Connect signs in again", func(t *testing.T) {
+		f := newFakeServer(t)
+		f.noRefreshToken = true
+		client := f.newClient(t, AgentClientConfig{ClientMetadataURL: testCIMDURL})
+		require.NoError(t, client.Connect(t.Context()))
+		f.locked(func() { f.validTokens = map[string]bool{} })
+		_, err := client.Do(httptestRequest(t, f.resourceURL()))
+		assert.ErrorIs(t, err, ErrLoginRequired)
+		require.NoError(t, client.Connect(t.Context()))
+		f.locked(func() { assert.Len(t, f.authorizations, 2) })
+	})
+
+	t.Run("without a refresh token the access token is used until it expires", func(t *testing.T) {
+		f := newFakeServer(t)
+		f.noRefreshToken = true
+		f.expiresIn = 30
+		client := f.newClient(t, AgentClientConfig{ClientMetadataURL: testCIMDURL})
+		require.NoError(t, client.Connect(t.Context()))
+		resp, err := client.Do(httptestRequest(t, f.resourceURL()))
+		require.NoError(t, err)
+		resp.Body.Close()
+		assert.Equal(t, http.StatusOK, resp.StatusCode)
+	})
+
+	t.Run("an omitted scope keeps the requested one, then the previous one on refresh", func(t *testing.T) {
+		f := newFakeServer(t)
+		f.omitScope = true
+		client := f.newClient(t, AgentClientConfig{ClientMetadataURL: testCIMDURL, Scopes: []string{"offline", "profile"}})
+		require.NoError(t, client.Connect(t.Context()))
+		info, _ := client.TokenInfo()
+		assert.Equal(t, []string{"offline", "profile"}, info.Scopes)
+		f.locked(func() { f.validTokens = map[string]bool{} })
+		resp, err := client.Do(httptestRequest(t, f.resourceURL()))
+		require.NoError(t, err)
+		resp.Body.Close()
+		info, _ = client.TokenInfo()
+		assert.Equal(t, []string{"offline", "profile"}, info.Scopes)
+	})
+
+	t.Run("a rotated refresh token is kept in memory when storing it fails", func(t *testing.T) {
+		f := newFakeServer(t)
+		f.rotateRefresh = true
+		storage := &failingSetStorage{Storage: NewMemoryStorage()}
+		client := f.newClient(t, AgentClientConfig{ClientMetadataURL: testCIMDURL, Storage: storage})
+		require.NoError(t, client.Connect(t.Context()))
+		storage.fail.Store(true)
+		f.locked(func() { f.validTokens = map[string]bool{} })
+		_, err := client.Do(httptestRequest(t, f.resourceURL()))
+		assert.ErrorContains(t, err, "failed to store tokens")
+		assert.Equal(t, "rt-rotated-1", client.tokens.RefreshToken)
+	})
+
+	t.Run("stored tokens requested with other scopes are not reused", func(t *testing.T) {
+		f := newFakeServer(t)
+		storage := NewMemoryStorage()
+		require.NoError(t, f.newClient(t, AgentClientConfig{ClientMetadataURL: testCIMDURL, Storage: storage}).Connect(t.Context()))
+		wider := f.newClient(t, AgentClientConfig{ClientMetadataURL: testCIMDURL, Storage: storage, Scopes: []string{"profile", "offline"}})
+		require.NoError(t, wider.Connect(t.Context()))
+		same := f.newClient(t, AgentClientConfig{ClientMetadataURL: testCIMDURL, Storage: storage, Scopes: []string{"offline", "profile"}})
+		require.NoError(t, same.Connect(t.Context()))
+		f.locked(func() { assert.Len(t, f.authorizations, 2, "scope order doesn't matter") })
+	})
+
+	t.Run("refresh uses the identity that owns the tokens, not the preferred one", func(t *testing.T) {
+		f := newFakeServer(t)
+		f.metadata["client_id_metadata_document_supported"] = false
+		client := f.newClient(t, AgentClientConfig{ClientMetadataURL: testCIMDURL})
+		require.NoError(t, client.Connect(t.Context()))
+		f.locked(func() {
+			f.metadata["client_id_metadata_document_supported"] = true
+			f.validTokens = map[string]bool{}
+		})
+		later := time.Now().Add(metadataCacheTTL + time.Minute)
+		client.now = func() time.Time { return later }
+		resp, err := client.Do(httptestRequest(t, f.resourceURL()))
+		require.NoError(t, err)
+		resp.Body.Close()
+		f.locked(func() {
+			require.Len(t, f.tokenForms, 2)
+			assert.Equal(t, "dcr-client-1", f.tokenForms[1].Get("client_id"))
+			assert.Equal(t, "dcr-secret-1", f.tokenForms[1].Get("client_secret"))
+		})
+	})
+
 	t.Run("Disconnect reports a rejected revocation and still clears storage", func(t *testing.T) {
 		f := newFakeServer(t)
 		f.revokeStatus = http.StatusUnauthorized
@@ -639,6 +749,19 @@ func TestAgentClientTokens(t *testing.T) {
 		_, err := storage.GetKey("kinde_agent_tokens_" + storageHash(f.issuer, f.resourceURL()))
 		assert.NoError(t, err, "tokens kept")
 	})
+}
+
+// failingSetStorage is a Storage whose SetKey fails once fail is set, like a locked keychain.
+type failingSetStorage struct {
+	Storage
+	fail atomic.Bool
+}
+
+func (s *failingSetStorage) SetKey(key string, value []byte) error {
+	if s.fail.Load() {
+		return fmt.Errorf("keychain locked")
+	}
+	return s.Storage.SetKey(key, value)
 }
 
 // failingDeleteStorage is a Storage whose DeleteKey always fails, like a locked keychain.

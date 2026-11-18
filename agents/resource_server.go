@@ -238,7 +238,8 @@ func NewKindeAgentAuth(cfg Config) (*KindeAgentAuth, error) {
 	if verification != VerificationIntrospection {
 		// Unlike jwt.WillValidateWithJWKSUrl, this doesn't fail permanently when Kinde is
 		// unreachable at startup: keys are refetched hourly and on an unknown kid (rate-limited).
-		jwksClient := *httpClient
+		// A redirect to plain http would let anyone on that hop substitute the signing keys.
+		jwksClient := *withSecureRedirects(httpClient)
 		next := jwksClient.Transport
 		if next == nil {
 			next = http.DefaultTransport

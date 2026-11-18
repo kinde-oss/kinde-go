@@ -80,6 +80,9 @@ type storedTokens struct {
 	Scope        string    `json:"scope,omitempty"`
 	ClientID     string    `json:"client_id"`
 	Resource     string    `json:"resource,omitempty"` // the resource parameter the grant was issued for
+	// RequestedScope is the sorted scope the grant was requested with. Tokens requested with
+	// other scopes aren't reused, so a client that asks for more signs in again.
+	RequestedScope string `json:"requested_scope,omitempty"`
 }
 
 type storedRegistration struct {
@@ -151,6 +154,9 @@ func NewKindeAgentClient(cfg AgentClientConfig) (*KindeAgentClient, error) {
 		httpClient = &http.Client{Timeout: defaultClientTimeout}
 	}
 	noRedirectClient := *httpClient
+	// Discovery follows redirects, but never to plain http: a tampered response there could
+	// replace the token endpoint while keeping the issuer.
+	httpClient = withSecureRedirects(httpClient)
 	noRedirectClient.CheckRedirect = func(*http.Request, []*http.Request) error { return http.ErrUseLastResponse }
 	storage := cfg.Storage
 	if storage == nil {
@@ -191,8 +197,9 @@ func (c *KindeAgentClient) Connect(ctx context.Context) error {
 
 // Do sends req to the resource with the bearer token, refreshing it when it is about to expire.
 // On a 401 it refreshes once and retries; a request with a body is retried only when
-// req.GetBody is set (http.NewRequest sets it for common body types). If the retry also gets
-// a 401, that response is returned and the caller should call Connect.
+// req.GetBody is set (http.NewRequest sets it for common body types). If the token can't be
+// refreshed or the retry also gets a 401, the tokens are dropped and the caller should call
+// Connect to sign in again.
 func (c *KindeAgentClient) Do(req *http.Request) (*http.Response, error) {
 	if !sameOrigin(req.URL, c.resource) {
 		return nil, fmt.Errorf("refusing to send the access token to %s: only %s is allowed", origin(req.URL), origin(c.resource))
@@ -211,7 +218,7 @@ func (c *KindeAgentClient) Do(req *http.Request) (*http.Response, error) {
 	_, _ = io.Copy(io.Discard, io.LimitReader(resp.Body, maxResponseBytes))
 	resp.Body.Close()
 
-	token, err = c.refreshAfter(req.Context(), generation)
+	token, generation, err = c.refreshAfter(req.Context(), generation)
 	if err != nil {
 		return nil, err
 	}
@@ -221,7 +228,21 @@ func (c *KindeAgentClient) Do(req *http.Request) (*http.Response, error) {
 			return nil, err
 		}
 	}
-	return c.send(req, body, token)
+	resp, err = c.send(req, body, token)
+	if err == nil && resp.StatusCode == http.StatusUnauthorized {
+		// The fresh token was rejected too; drop it so Connect signs in again.
+		c.discardTokens(generation)
+	}
+	return resp, err
+}
+
+// discardTokens clears the tokens the resource rejected, unless a newer generation replaced them.
+func (c *KindeAgentClient) discardTokens(generation uint64) {
+	c.mu.Lock()
+	defer c.mu.Unlock()
+	if c.generation == generation {
+		_ = c.clearTokensLocked()
+	}
 }
 
 func (c *KindeAgentClient) send(req *http.Request, body io.ReadCloser, token string) (*http.Response, error) {
@@ -239,18 +260,22 @@ func (c *KindeAgentClient) Disconnect(ctx context.Context, forget bool) error {
 	if err := c.ensureMetadataLocked(ctx); err != nil {
 		return err
 	}
-	if !c.loadTokensLocked() {
-		if stored := c.readTokens(); stored != nil {
-			// Clearing them would leave them valid at the authorization server.
-			return fmt.Errorf("stored tokens were issued to client %q, not the configured one; disconnect with the configuration used to sign in", stored.ClientID)
-		}
+	// Stored tokens are revoked whatever scopes they were requested with.
+	tokens := c.tokens
+	if tokens == nil {
+		tokens = c.readTokens()
 	}
 	var revokeErr error
-	if c.tokens != nil && c.metadata.RevocationEndpoint != "" {
-		if identity, ok := c.existingIdentityLocked(); ok {
-			form := url.Values{"token": {c.tokens.AccessToken}, "token_type_hint": {"access_token"}}
-			if c.tokens.RefreshToken != "" {
-				form = url.Values{"token": {c.tokens.RefreshToken}, "token_type_hint": {"refresh_token"}}
+	if tokens != nil {
+		identity, ok := c.identityForClientLocked(tokens.ClientID)
+		if !ok {
+			// Clearing them would leave them valid at the authorization server.
+			return fmt.Errorf("stored tokens were issued to client %q, not the configured one; disconnect with the configuration used to sign in", tokens.ClientID)
+		}
+		if c.metadata.RevocationEndpoint != "" {
+			form := url.Values{"token": {tokens.AccessToken}, "token_type_hint": {"access_token"}}
+			if tokens.RefreshToken != "" {
+				form = url.Values{"token": {tokens.RefreshToken}, "token_type_hint": {"refresh_token"}}
 			}
 			// RFC 7009 answers 200 whatever the token's state, so anything else (401, 503, or a
 			// redirect, which isn't followed) means the token may still be valid.
@@ -304,20 +329,25 @@ func (c *KindeAgentClient) currentToken(ctx context.Context) (string, uint64, er
 	return c.tokens.AccessToken, c.generation, nil
 }
 
-// refreshAfter refreshes unless another request already did since generation was read.
-func (c *KindeAgentClient) refreshAfter(ctx context.Context, generation uint64) (string, error) {
+// refreshAfter refreshes the token the resource rejected, unless another request already did
+// since generation was read. It returns the token to retry with and its generation.
+func (c *KindeAgentClient) refreshAfter(ctx context.Context, generation uint64) (string, uint64, error) {
 	c.mu.Lock()
 	defer c.mu.Unlock()
 	if c.tokens != nil && c.generation != generation {
-		return c.tokens.AccessToken, nil
+		return c.tokens.AccessToken, c.generation, nil
 	}
 	if !c.loadTokensLocked() {
-		return "", ErrLoginRequired
+		return "", 0, ErrLoginRequired
 	}
 	if err := c.refreshLocked(ctx); err != nil {
-		return "", err
+		if errors.Is(err, ErrLoginRequired) && c.tokens != nil {
+			// No refresh token: drop the rejected token so Connect signs in again.
+			_ = c.clearTokensLocked()
+		}
+		return "", 0, err
 	}
-	return c.tokens.AccessToken, nil
+	return c.tokens.AccessToken, c.generation, nil
 }
 
 // ensureMetadataLocked discovers the authorization server, caching it for 5 minutes. When a
@@ -414,7 +444,7 @@ func (c *KindeAgentClient) authorizeLocked(ctx context.Context) (clientIdentity,
 	if err != nil {
 		return identity, err
 	}
-	return identity, c.saveTokensLocked(identity, resp, c.resourceID, "")
+	return identity, c.saveTokensLocked(identity, resp, c.resourceID, nil)
 }
 
 func (c *KindeAgentClient) authorizationURL(identity clientIdentity, redirectURI, state, verifier string) (string, error) {
@@ -440,11 +470,18 @@ func (c *KindeAgentClient) scopesLocked() []string {
 	return slices.DeleteFunc(slices.Clone(c.cfg.Scopes), func(s string) bool { return s == "openid" })
 }
 
+// requestedScope is the scope this client asks for, sorted so it compares regardless of order.
+func (c *KindeAgentClient) requestedScope() string {
+	scopes := c.scopesLocked()
+	slices.Sort(scopes)
+	return strings.Join(slices.Compact(scopes), " ")
+}
+
 func (c *KindeAgentClient) refreshLocked(ctx context.Context) error {
 	if c.tokens == nil || c.tokens.RefreshToken == "" {
 		return ErrLoginRequired
 	}
-	identity, ok := c.existingIdentityLocked()
+	identity, ok := c.identityForClientLocked(c.tokens.ClientID)
 	if !ok {
 		return ErrLoginRequired
 	}
@@ -477,7 +514,7 @@ func (c *KindeAgentClient) refreshLocked(ctx context.Context) error {
 	if err != nil {
 		return err
 	}
-	return c.saveTokensLocked(identity, resp, resource, c.tokens.RefreshToken)
+	return c.saveTokensLocked(identity, resp, resource, c.tokens)
 }
 
 // identityForLoginLocked picks CIMD, then a pre-registered client, then DCR.
@@ -500,12 +537,18 @@ func (c *KindeAgentClient) identityForLoginLocked(ctx context.Context, redirectU
 	return registrationIdentity(reg), nil
 }
 
-// existingIdentityLocked returns the identity tokens were issued to, without registering.
-func (c *KindeAgentClient) existingIdentityLocked() (clientIdentity, bool) {
-	if identity, ok := c.staticIdentity(); ok {
-		return identity, true
+// identityForClientLocked returns the identity that owns tokens issued to clientID, which isn't
+// necessarily the one a new login would pick (CIMD may have fallen back to DCR), without registering.
+func (c *KindeAgentClient) identityForClientLocked(clientID string) (clientIdentity, bool) {
+	switch {
+	case clientID == "":
+		return clientIdentity{}, false
+	case clientID == c.cfg.ClientMetadataURL:
+		return clientIdentity{id: clientID, authMethod: "none"}, true
+	case clientID == c.cfg.ClientID:
+		return c.preRegisteredIdentity(), true
 	}
-	if reg := c.loadRegistration(); reg != nil {
+	if reg := c.loadRegistration(); reg != nil && reg.ClientID == clientID {
 		return registrationIdentity(reg), true
 	}
 	return clientIdentity{}, false
@@ -516,13 +559,17 @@ func (c *KindeAgentClient) staticIdentity() (clientIdentity, bool) {
 		return clientIdentity{id: c.cfg.ClientMetadataURL, authMethod: "none"}, true
 	}
 	if c.cfg.ClientID != "" {
-		identity := clientIdentity{id: c.cfg.ClientID, secret: c.cfg.ClientSecret, authMethod: "none"}
-		if c.cfg.ClientSecret != "" {
-			identity.authMethod = "client_secret_post"
-		}
-		return identity, true
+		return c.preRegisteredIdentity(), true
 	}
 	return clientIdentity{}, false
+}
+
+func (c *KindeAgentClient) preRegisteredIdentity() clientIdentity {
+	identity := clientIdentity{id: c.cfg.ClientID, secret: c.cfg.ClientSecret, authMethod: "none"}
+	if c.cfg.ClientSecret != "" {
+		identity.authMethod = "client_secret_post"
+	}
+	return identity
 }
 
 func registrationIdentity(reg *storedRegistration) clientIdentity {
@@ -645,21 +692,34 @@ func (c *KindeAgentClient) tokenRequestLocked(ctx context.Context, identity clie
 	return &tr, nil
 }
 
-// saveTokensLocked stores resp, keeping previousRefresh when the server didn't rotate it.
-func (c *KindeAgentClient) saveTokensLocked(identity clientIdentity, resp *tokenResponse, resource, previousRefresh string) error {
+// saveTokensLocked stores resp. On a refresh, previous supplies the refresh token and scope
+// when the server didn't return new ones; on a new grant, an omitted scope is the requested one.
+func (c *KindeAgentClient) saveTokensLocked(identity clientIdentity, resp *tokenResponse, resource string, previous *storedTokens) error {
 	tokens := &storedTokens{
-		AccessToken:  resp.AccessToken,
-		RefreshToken: resp.RefreshToken,
-		Scope:        resp.Scope,
-		ClientID:     identity.id,
-		Resource:     resource,
+		AccessToken:    resp.AccessToken,
+		RefreshToken:   resp.RefreshToken,
+		Scope:          resp.Scope,
+		ClientID:       identity.id,
+		Resource:       resource,
+		RequestedScope: c.requestedScope(),
 	}
-	if tokens.RefreshToken == "" {
-		tokens.RefreshToken = previousRefresh
+	if previous != nil {
+		if tokens.RefreshToken == "" {
+			tokens.RefreshToken = previous.RefreshToken
+		}
+		if tokens.Scope == "" {
+			tokens.Scope = previous.Scope
+		}
+	} else if tokens.Scope == "" {
+		tokens.Scope = strings.Join(c.scopesLocked(), " ")
 	}
 	if resp.ExpiresIn > 0 {
 		tokens.ExpiresAt = c.now().Add(time.Duration(resp.ExpiresIn) * time.Second)
 	}
+	// Keep the new tokens in memory even if storing them fails: a rotated refresh token may
+	// have invalidated the previous one.
+	c.tokens = tokens
+	c.generation++
 	data, err := json.Marshal(tokens)
 	if err != nil {
 		return err
@@ -667,21 +727,20 @@ func (c *KindeAgentClient) saveTokensLocked(identity clientIdentity, resp *token
 	if err := c.storage.SetKey(c.tokenKey(), data); err != nil {
 		return fmt.Errorf("failed to store tokens: %w", err)
 	}
-	c.tokens = tokens
-	c.generation++
 	return nil
 }
 
-// loadTokensLocked loads stored tokens, discarding ones issued to a different client.
+// loadTokensLocked loads stored tokens, ignoring ones issued to a client this configuration
+// can't act for or requested with other scopes.
 func (c *KindeAgentClient) loadTokensLocked() bool {
 	if c.tokens != nil {
 		return true
 	}
 	tokens := c.readTokens()
-	if tokens == nil {
+	if tokens == nil || tokens.RequestedScope != c.requestedScope() {
 		return false
 	}
-	if identity, ok := c.existingIdentityLocked(); !ok || identity.id != tokens.ClientID {
+	if _, ok := c.identityForClientLocked(tokens.ClientID); !ok {
 		return false
 	}
 	c.tokens = tokens
@@ -708,8 +767,17 @@ func (c *KindeAgentClient) clearTokensLocked() error {
 	return c.storage.DeleteKey(c.tokenKey())
 }
 
+// expiringLocked reports whether the access token should be replaced now: shortly before it
+// expires when it can be refreshed, otherwise only once it has expired.
 func (c *KindeAgentClient) expiringLocked() bool {
-	return !c.tokens.ExpiresAt.IsZero() && c.now().Add(refreshBeforeExpiry).After(c.tokens.ExpiresAt)
+	if c.tokens.ExpiresAt.IsZero() {
+		return false
+	}
+	window := refreshBeforeExpiry
+	if c.tokens.RefreshToken == "" {
+		window = 0
+	}
+	return !c.now().Add(window).Before(c.tokens.ExpiresAt)
 }
 
 // Tokens are keyed by (issuer, resource); the registration by issuer, with its redirect URI

@@ -17,6 +17,7 @@ package agents
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io"
 	"net"
@@ -61,6 +62,26 @@ func requireSecureURL(u *url.URL) error {
 	default:
 		return fmt.Errorf("refusing insecure or invalid URL %q: https is required", u.Redacted())
 	}
+}
+
+// withSecureRedirects returns a copy of client that refuses redirects to anything but https (or
+// http on loopback), then applies client's own redirect policy, or Go's default limit of 10.
+func withSecureRedirects(client *http.Client) *http.Client {
+	secure := *client
+	next := client.CheckRedirect
+	secure.CheckRedirect = func(req *http.Request, via []*http.Request) error {
+		if err := requireSecureURL(req.URL); err != nil {
+			return fmt.Errorf("refusing redirect: %w", err)
+		}
+		if next != nil {
+			return next(req, via)
+		}
+		if len(via) >= 10 {
+			return errors.New("stopped after 10 redirects")
+		}
+		return nil
+	}
+	return &secure
 }
 
 func parseSecureURL(raw string) (*url.URL, error) {

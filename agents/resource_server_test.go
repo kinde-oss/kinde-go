@@ -1,11 +1,13 @@
 package agents
 
 import (
+	"context"
 	"crypto/rand"
 	"crypto/rsa"
 	"encoding/base64"
 	"encoding/json"
 	"math/big"
+	"net"
 	"net/http"
 	"net/http/httptest"
 	"strings"
@@ -31,6 +33,7 @@ type fakeKinde struct {
 	key        *rsa.PrivateKey
 	jwksHits   atomic.Int32
 	jwksDown   atomic.Bool
+	jwksMoved  atomic.Pointer[string] // where /.well-known/jwks redirects
 	mu         sync.Mutex
 	introspect func(w http.ResponseWriter, r *http.Request)
 }
@@ -43,6 +46,10 @@ func newFakeKinde(t *testing.T) *fakeKinde {
 	mux := http.NewServeMux()
 	mux.HandleFunc("/.well-known/jwks", func(w http.ResponseWriter, r *http.Request) {
 		f.jwksHits.Add(1)
+		if to := f.jwksMoved.Load(); to != nil && r.URL.Query().Get("moved") == "" {
+			http.Redirect(w, r, *to, http.StatusFound)
+			return
+		}
 		if f.jwksDown.Load() {
 			w.WriteHeader(http.StatusServiceUnavailable)
 			return
@@ -422,6 +429,20 @@ func TestMiddlewareJWT(t *testing.T) {
 			assert.Equal(t, http.StatusUnauthorized, rec.Code)
 		}
 		assert.LessOrEqual(t, f.jwksHits.Load()-initial, int32(1))
+	})
+
+	t.Run("JWKS redirect to plain http is refused", func(t *testing.T) {
+		f := newFakeKinde(t)
+		// jwks.example.com is routed to the fake server, so following the redirect would load the keys.
+		insecure := "http://jwks.example.com/.well-known/jwks?moved=1"
+		f.jwksMoved.Store(&insecure)
+		addr := f.server.Listener.Addr().String()
+		client := &http.Client{Transport: &http.Transport{DialContext: func(ctx context.Context, network, _ string) (net.Conn, error) {
+			return (&net.Dialer{}).DialContext(ctx, network, addr)
+		}}}
+		auth := newTestAuth(t, f, Config{Verification: VerificationJWT, HTTPClient: client})
+		rec, _ := serve(auth, "Bearer "+f.sign(t, f.claims(), "kid-1"))
+		assert.Equal(t, http.StatusServiceUnavailable, rec.Code)
 	})
 
 	t.Run("JWKS unreachable gives 503, not 401", func(t *testing.T) {
