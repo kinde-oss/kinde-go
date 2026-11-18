@@ -3,7 +3,12 @@ package gin_kinde
 import (
 	"context"
 	"encoding/json"
+	"errors"
 	"fmt"
+	"log"
+	"net/url"
+	"slices"
+	"sync"
 
 	"github.com/gin-contrib/sessions"
 	"github.com/gin-gonic/gin"
@@ -25,6 +30,21 @@ import (
 // and is used by the UseKindeAuth middleware to manage authentication state.
 type SessionStorage struct {
 	session sessions.Session
+}
+
+// idTokenDropped is called when the session store could not hold the ID token.
+// It logs once: the token is then stored without it on every request.
+var idTokenDropped = sync.OnceFunc(func() {
+	log.Print("gin_kinde: the session store is too small to keep the ID token with the access token, so it is stored without it. " +
+		"auth_time is then only known when the access token has it, and recency checks (MaxAge) can fail. " +
+		"Use a server-side session store, such as Redis or memstore, instead of a cookie store.")
+})
+
+// sessionToken is the JSON stored in the session: the OAuth2 token and the ID
+// token that came with it, which oauth2.Token does not serialize itself.
+type sessionToken struct {
+	*oauth2.Token
+	IDToken string `json:"id_token,omitempty"`
 }
 
 // GetCodeVerifier retrieves the PKCE code verifier from the session.
@@ -105,11 +125,14 @@ func (storage *SessionStorage) GetRawToken() (*oauth2.Token, error) {
 		return nil, fmt.Errorf("invalid token type in session")
 	}
 
-	var t oauth2.Token
-	if err := json.Unmarshal(tokenBytes, &t); err != nil {
+	stored := sessionToken{Token: &oauth2.Token{}}
+	if err := json.Unmarshal(tokenBytes, &stored); err != nil {
 		return nil, fmt.Errorf("invalid token type in session")
 	}
-	return &t, nil
+	if stored.IDToken != "" {
+		return stored.Token.WithExtra(map[string]interface{}{"id_token": stored.IDToken}), nil
+	}
+	return stored.Token, nil
 }
 
 // SetRawToken stores the raw OAuth2 token in the session.
@@ -117,7 +140,10 @@ func (storage *SessionStorage) GetRawToken() (*oauth2.Token, error) {
 // This method implements authorization_code.ISessionHooks and stores the complete
 // OAuth2 token (including access token, refresh token, expiry, etc.) in the
 // session. The token is serialized to JSON format to avoid gob serialization
-// issues with the oauth2.Token type.
+// issues with the oauth2.Token type. The ID token is stored with it, so that
+// claims such as auth_time can be read later. If the session cannot be saved
+// with the ID token (a cookie store has a size limit), the token is stored
+// without it and that is logged once.
 //
 // Parameters:
 //   - token: The OAuth2 token to store, or nil to clear the token from the session
@@ -135,6 +161,18 @@ func (storage *SessionStorage) SetRawToken(token *oauth2.Token) error {
 		tokenBytes, err := json.Marshal(token)
 		if err != nil {
 			return fmt.Errorf("failed to marshal token: %w", err)
+		}
+		if idToken, ok := token.Extra("id_token").(string); ok && idToken != "" {
+			withIDToken, err := json.Marshal(sessionToken{Token: token, IDToken: idToken})
+			if err != nil {
+				return fmt.Errorf("failed to marshal token: %w", err)
+			}
+			storage.session.Set("kinde_token", string(withIDToken))
+			if err := storage.session.Save(); err == nil {
+				return nil
+			}
+			// Too big for the session store: fall back to the token on its own
+			idTokenDropped()
 		}
 		storage.session.Set("kinde_token", string(tokenBytes))
 	}
@@ -204,8 +242,16 @@ func (storage *SessionStorage) GetState() (string, error) {
 //
 // This method implements authorization_code.SessionHooks.
 func (storage *SessionStorage) SetPostAuthRedirect(redirect string) error {
+	previous := storage.session.Get("post_auth_redirect")
 	storage.session.Set("post_auth_redirect", redirect)
 	if err := storage.session.Save(); err != nil {
+		// Put back what was there: a value that does not fit (a cookie store has
+		// a size limit) would otherwise make every later save of this session fail
+		if previous == nil {
+			storage.session.Delete("post_auth_redirect")
+		} else {
+			storage.session.Set("post_auth_redirect", previous)
+		}
 		return fmt.Errorf("failed to save session: %w", err)
 	}
 	return nil
@@ -278,6 +324,8 @@ func (storage *SessionStorage) SetItem(key, value string) {
 //   - Handles PKCE flow if enabled
 //   - Redirects unauthenticated users to the Kinde login page
 //   - Processes OAuth2 callbacks and stores tokens
+//   - Hands callback errors to the handler set with WithCallbackErrorHandler,
+//     and after a StepUp returns the user to where they were
 //
 // Parameters:
 //   - router: The Gin router group to apply authentication to
@@ -287,7 +335,8 @@ func (storage *SessionStorage) SetItem(key, value string) {
 //   - baseRedirectURL: The base URL for redirects (e.g., "https://yourapp.com")
 //   - options: Optional configuration options (e.g., WithPKCE, WithScopes, WithOffline)
 //
-// Returns an error if the Kinde client cannot be created.
+// Returns an error if an option is invalid (for example WithMaxAge(-1)), so that
+// it shows when the app starts and not on every request.
 //
 // Example:
 //
@@ -308,6 +357,15 @@ func UseKindeAuth(router *gin.RouterGroup, kindeDomain, clientID, clientSecret, 
 		basePath = ""
 	}
 	redirectURI := fmt.Sprintf("%s%s%s", baseRedirectURL, basePath, "/kinde/callback")
+
+	// Report options that can never work now, not as a 500 on every request.
+	// An unparsable Kinde domain is still reported by the middleware, as before.
+	var urlError *url.Error
+	if _, err := authorization_code.NewAuthorizationCodeFlow(kindeDomain, clientID, clientSecret, redirectURI,
+		append(slices.Clone(options), authorization_code.WithSessionHooks(&SessionStorage{}))...,
+	); err != nil && !errors.As(err, &urlError) {
+		return err
+	}
 
 	router.Use(func(ctx *gin.Context) {
 		session := sessions.Default(ctx)
@@ -337,12 +395,15 @@ func UseKindeAuth(router *gin.RouterGroup, kindeDomain, clientID, clientSecret, 
 	router.GET("/kinde/callback", func(ctx *gin.Context) {
 		if client, ok := ctx.Get("kinde_client"); ok {
 			if kindeClient, ok := client.(authorization_code.IAuthorizationCodeFlow); ok {
-				err := kindeClient.ExchangeCode(context.Background(), ctx.Query("code"), ctx.Query("state"))
+				postAuthRedirect, err := kindeClient.HandleCallback(context.Background(), ctx.Request.URL.Query())
 				if err != nil {
-					ctx.AbortWithError(500, err)
+					handleCallbackError(ctx, kindeClient, err)
 					return
 				}
-				ctx.Redirect(302, "/")
+				if postAuthRedirect == "" {
+					postAuthRedirect = "/"
+				}
+				ctx.Redirect(302, postAuthRedirect)
 				return
 			}
 		}
