@@ -3,8 +3,11 @@ package authorization_code
 import (
 	"encoding/base64"
 	"encoding/json"
+	"errors"
 	"fmt"
+	"net/http"
 	"slices"
+	"strconv"
 	"strings"
 
 	"github.com/kinde-oss/kinde-go/jwt"
@@ -12,6 +15,11 @@ import (
 
 type (
 	Option func(*AuthorizationCodeFlow)
+)
+
+const (
+	authParamAcrValues = "acr_values"
+	authParamMaxAge    = "max_age"
 )
 
 // WithAuthParameter adds an arbitrary parameter to the authorization URL.
@@ -86,6 +94,117 @@ func WithAudience(audience string) Option {
 func WithPrompt(prompt string) Option {
 	return func(s *AuthorizationCodeFlow) {
 		WithAuthParameter("prompt", prompt)(s)
+	}
+}
+
+// WithAcrValues requests an authentication context (RFC 9470) by adding the
+// acr_values parameter to the authorization request.
+//
+// Kinde recognises jwt.AcrMFA (a second factor) and jwt.AcrPHR (phishing-resistant,
+// a passkey). When several values are given the highest one applies. If the
+// session already meets the context, Kinde issues tokens without prompting;
+// otherwise it asks only for the missing factor.
+//
+// Set on a flow, this applies to every login made with it. To ask for a
+// stronger context before a single sensitive action, use StepUp instead.
+//
+// Nothing is sent when no values are given. A value other than "mfa" or "phr"
+// makes NewAuthorizationCodeFlow (or StepUp) return an error, because Kinde
+// would silently ignore it.
+//
+// Parameters:
+//   - acrValues: One or more of jwt.AcrMFA and jwt.AcrPHR
+//
+// Returns an Option that sets the acr_values parameter of the authorization URL.
+//
+// Example:
+//
+//	flow, err := NewAuthorizationCodeFlow(baseURL, clientID, clientSecret, callbackURL,
+//	    WithAcrValues(jwt.AcrMFA),
+//	)
+func WithAcrValues(acrValues ...string) Option {
+	return func(s *AuthorizationCodeFlow) {
+		normalized := []string{}
+		for _, value := range strings.Fields(strings.ToLower(strings.Join(acrValues, " "))) {
+			if value != jwt.AcrMFA && value != jwt.AcrPHR {
+				s.optionErrors = append(s.optionErrors,
+					fmt.Errorf("unsupported acr value %q: expected %q or %q", value, jwt.AcrMFA, jwt.AcrPHR))
+				return
+			}
+			if !slices.Contains(normalized, value) {
+				normalized = append(normalized, value)
+			}
+		}
+		if len(normalized) == 0 {
+			return
+		}
+		s.authURLOptions[authParamAcrValues] = []string{strings.Join(normalized, " ")}
+	}
+}
+
+// WithMaxAge sets the maximum age, in seconds, of the user's last authentication
+// by adding the max_age parameter to the authorization request.
+//
+// When the session is older than maxAge, Kinde asks the user to authenticate
+// again: with their first factor when used on its own, or with only the factor
+// required by WithAcrValues when used together with it. 0 is valid and requires
+// re-authentication on every request.
+//
+// The parameter is only sent when this option is used. A negative value makes
+// NewAuthorizationCodeFlow (or StepUp) return an error.
+//
+// Parameters:
+//   - maxAge: The maximum authentication age in seconds (0 or more)
+//
+// Returns an Option that sets the max_age parameter of the authorization URL.
+//
+// Example:
+//
+//	flow, err := NewAuthorizationCodeFlow(baseURL, clientID, clientSecret, callbackURL,
+//	    WithAcrValues(jwt.AcrMFA),
+//	    WithMaxAge(300),
+//	)
+func WithMaxAge(maxAge int) Option {
+	return func(s *AuthorizationCodeFlow) {
+		if maxAge < 0 {
+			s.optionErrors = append(s.optionErrors,
+				fmt.Errorf("invalid max age %d: expected a non-negative number of seconds", maxAge))
+			return
+		}
+		s.authURLOptions[authParamMaxAge] = []string{strconv.Itoa(maxAge)}
+	}
+}
+
+// WithCallbackErrorHandler sets a function that receives every error from
+// AuthorizationCodeReceivedHandler instead of the default plain-text response.
+// The callback route of gin_kinde.UseKindeAuth calls it too; in a Gin app,
+// gin_kinde.WithCallbackErrorHandler gives the function the Gin context.
+//
+// Use it to show your own page when a callback fails. In particular, a step-up
+// that the user cannot complete arrives here as an
+// *UnmetAuthenticationRequirementsError (check with errors.As). That answer is
+// final: show the user why, and do not redirect them back to login.
+//
+// Parameters:
+//   - handler: Writes the response for a failed callback
+//
+// Returns an Option that configures the callback error handler.
+//
+// Example:
+//
+//	flow, err := NewAuthorizationCodeFlow(baseURL, clientID, clientSecret, callbackURL,
+//	    WithCallbackErrorHandler(func(w http.ResponseWriter, r *http.Request, err error) {
+//	        var unmet *UnmetAuthenticationRequirementsError
+//	        if errors.As(err, &unmet) {
+//	            http.Error(w, "Add a passkey or authenticator app to continue.", http.StatusForbidden)
+//	            return
+//	        }
+//	        http.Error(w, "Sign-in failed.", http.StatusInternalServerError)
+//	    }),
+//	)
+func WithCallbackErrorHandler(handler func(w http.ResponseWriter, r *http.Request, err error)) Option {
+	return func(s *AuthorizationCodeFlow) {
+		s.callbackErrorHandler = handler
 	}
 }
 
@@ -399,6 +518,27 @@ func WithReauthState(reauthState string) Option {
 		// Convert snake_case keys to the format expected by authURLOptions
 		// and merge into authURLOptions
 		for key, value := range reauthParams {
+			// The reauth state is not written by the app, so like the rest of it an
+			// unusable acr_values or max_age is skipped, not reported: never send
+			// "<nil>", a rounded fraction, or anything but a non-negative whole number
+			switch key {
+			case "acrValues", authParamAcrValues:
+				if value == nil {
+					continue
+				}
+			case "maxAge", authParamMaxAge:
+				if number, ok := value.(float64); ok {
+					value = strconv.FormatFloat(number, 'f', -1, 64)
+				}
+				text, ok := value.(string)
+				if !ok {
+					continue
+				}
+				if _, err := parseMaxAge(text); err != nil {
+					continue
+				}
+			}
+
 			// Convert value to string
 			var strValue string
 			switch v := value.(type) {
@@ -444,6 +584,10 @@ func WithReauthState(reauthState string) Option {
 				urlKey = "pricing_table_key"
 			case "pagesMode":
 				urlKey = "pages_mode"
+			case "acrValues":
+				urlKey = authParamAcrValues
+			case "maxAge":
+				urlKey = authParamMaxAge
 			}
 
 			// Add to authURLOptions (don't overwrite existing values)
@@ -464,4 +608,46 @@ func WithInvitationCode(invitationCode string) Option {
 			WithAuthParameter("is_invitation", "true")(s)
 		}
 	}
+}
+
+// validateAuthURLOptions reports the errors recorded by options and makes sure
+// acr_values and max_age are only sent with a usable value, whichever option
+// set them: an empty value is dropped, and a max_age that is not a non-negative
+// whole number is rejected, because Kinde would read it as "re-authenticate".
+func (flow *AuthorizationCodeFlow) validateAuthURLOptions() error {
+	errs := slices.Clone(flow.optionErrors)
+
+	for _, name := range []string{authParamAcrValues, authParamMaxAge} {
+		values, ok := flow.authURLOptions[name]
+		if !ok {
+			continue
+		}
+		values = slices.DeleteFunc(slices.Clone(values), func(value string) bool {
+			return strings.TrimSpace(value) == ""
+		})
+		if len(values) == 0 {
+			delete(flow.authURLOptions, name)
+			continue
+		}
+		flow.authURLOptions[name] = values
+	}
+
+	switch values := flow.authURLOptions[authParamMaxAge]; {
+	case len(values) > 1:
+		errs = append(errs, fmt.Errorf("invalid max_age: more than one value given (%s)", strings.Join(values, ", ")))
+	case len(values) == 1:
+		maxAge, err := parseMaxAge(values[0])
+		if err != nil {
+			errs = append(errs, fmt.Errorf("invalid max_age %q: expected a non-negative whole number of seconds", values[0]))
+		} else {
+			flow.authURLOptions[authParamMaxAge] = []string{strconv.FormatUint(maxAge, 10)}
+		}
+	}
+
+	return errors.Join(errs...)
+}
+
+// parseMaxAge parses a max_age value: a non-negative whole number of seconds.
+func parseMaxAge(value string) (uint64, error) {
+	return strconv.ParseUint(strings.TrimSpace(value), 10, 63)
 }
