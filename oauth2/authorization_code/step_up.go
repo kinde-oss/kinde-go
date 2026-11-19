@@ -53,7 +53,18 @@ var ErrStepUpNotSupported = errors.New("step-up authentication is not supported 
 // ISessionHooks), so that auth_time is missing.
 var ErrStepUpLoop = errors.New("step-up authentication just completed but the session still does not meet the requirement")
 
-// stepUpMarker is what a step-up keeps in the session's post-auth redirect.
+// IStepUpSessionHooks can be implemented by an ISessionHooks to keep the record
+// of a step-up in progress under a session key of its own. Without it the
+// record is kept in the post-auth redirect, replacing a value the app stored
+// there. gin_kinde's SessionStorage implements it.
+type IStepUpSessionHooks interface {
+	// SetStepUpRecord stores the record; an empty record clears it.
+	SetStepUpRecord(record string) error
+	// GetStepUpRecord returns the stored record, or an empty string.
+	GetStepUpRecord() (string, error)
+}
+
+// stepUpMarker is what a step-up keeps in the session (see IStepUpSessionHooks).
 // While the request is pending it holds the state of the request, where to
 // return the user to, and what was asked for. After a callback whose tokens
 // did not meet what was asked for, it holds when that happened.
@@ -79,14 +90,20 @@ type stepUpMarker struct {
 //     factor without showing a screen;
 //   - IsStepUpSupported is false (ErrStepUpNotSupported);
 //   - the same step-up just completed and the session still does not meet it (ErrStepUpLoop);
-//   - the request cannot be recorded in the session (SetPostAuthRedirect fails);
+//   - PKCE is enabled for this request only (create the flow with WithPKCE instead);
+//   - the state or the request cannot be stored in the session;
 //   - the discovery document cannot be fetched.
 //
 // Each call stores a new state, replacing any login in progress, so call it when
 // you redirect and not to render a link. It also records the request in the
-// session's post-auth redirect (ISessionHooks.SetPostAuthRedirect), replacing
-// what is there. That is how a step-up that keeps coming back without the
-// tokens meeting it is stopped with ErrStepUpLoop.
+// session: under a key of its own when the session implements
+// IStepUpSessionHooks, otherwise in the post-auth redirect, replacing what is
+// there. That is how a step-up that keeps coming back without the tokens
+// meeting it is stopped with ErrStepUpLoop.
+//
+// An acr the flow already asks for is kept when it is stronger than the
+// requirement's: a flow created with WithAcrValues(jwt.AcrPHR) still asks for
+// phr when the requirement is mfa.
 //
 // Example:
 //
@@ -108,7 +125,14 @@ func (flow *AuthorizationCodeFlow) startStepUp(ctx context.Context, requirement 
 			option(stepUp)
 		}
 	}
-	if requirement.Acr != "" {
+	// The callback is handled by the flow itself, which would not send the code
+	// verifier of a PKCE challenge that only this request carries
+	if stepUp.usePKCE && !flow.usePKCE {
+		return "", fmt.Errorf("step-up authentication cannot enable PKCE for one request: create the flow with WithPKCE")
+	}
+	// The requirement never weakens what the flow already asks for: a flow that
+	// always requires phr keeps asking for phr when a step-up needs mfa
+	if requirement.Acr != "" && !meetsAcr(requestedAcr(stepUp.authURLOptions[authParamAcrValues]), requirement.Acr) {
 		WithAcrValues(requirement.Acr)(stepUp)
 	}
 	if requirement.MaxAge != nil {
@@ -153,6 +177,12 @@ func (flow *AuthorizationCodeFlow) startStepUp(ctx context.Context, requirement 
 	if parsed, err := url.Parse(stepUpURL); err == nil {
 		request.State = parsed.Query().Get("state")
 	}
+	// The state generator does not report a failed write, and without the state
+	// in the session the callback would be refused after the user authenticated
+	if err := flow.sessionHooks.SetState(request.State); err != nil {
+		_ = flow.sessionHooks.SetState(previousState)
+		return "", fmt.Errorf("step-up authentication could not store its state in the session: %w", err)
+	}
 	// Without the marker the user would not come back to where they were, and
 	// nothing would stop a step-up that keeps returning unmet: don't start
 	if err := flow.writeStepUpMarker(request); err != nil {
@@ -165,7 +195,7 @@ func (flow *AuthorizationCodeFlow) startStepUp(ctx context.Context, requirement 
 }
 
 // StepUp redirects the user to Kinde for a step-up (see GetStepUpURL) and
-// remembers where to bring them back to, using the session's post-auth redirect.
+// remembers where to bring them back to (see GetStepUpURL for where that is kept).
 //
 // Handle the callback with HandleCallback (or AuthorizationCodeReceivedHandler,
 // or gin_kinde), not with ExchangeCode alone: that is where the return path
@@ -310,6 +340,11 @@ func requestedAcr(acrValues []string) string {
 	return strongest
 }
 
+// meetsAcr reports whether the requested context is at least as strong as the required one.
+func meetsAcr(requested, required string) bool {
+	return requested == strings.ToLower(required) || (requested == jwt.AcrPHR && strings.EqualFold(required, jwt.AcrMFA))
+}
+
 func (marker stepUpMarker) sameRequirement(other stepUpMarker) bool {
 	if marker.Acr != other.Acr || (marker.MaxAge == nil) != (other.MaxAge == nil) {
 		return false
@@ -321,7 +356,7 @@ func (marker stepUpMarker) sameRequirement(other stepUpMarker) bool {
 // redirect. Anything else stored there is not ours: it reports false.
 func (flow *AuthorizationCodeFlow) readStepUpMarker() (stepUpMarker, bool) {
 	var marker stepUpMarker
-	stored, err := flow.sessionHooks.GetPostAuthRedirect()
+	stored, err := flow.loadStepUpRecord()
 	if err != nil || !strings.HasPrefix(stored, stepUpMarkerPrefix) {
 		return marker, false
 	}
@@ -334,7 +369,25 @@ func (flow *AuthorizationCodeFlow) readStepUpMarker() (stepUpMarker, bool) {
 }
 
 func (flow *AuthorizationCodeFlow) writeStepUpMarker(marker stepUpMarker) error {
-	return flow.sessionHooks.SetPostAuthRedirect(encodeStepUpMarker(marker))
+	return flow.storeStepUpRecord(encodeStepUpMarker(marker))
+}
+
+// storeStepUpRecord keeps the step-up marker in the session; an empty record
+// clears it. Sessions that implement IStepUpSessionHooks keep it under a key
+// of its own. Others keep it in the post-auth redirect, which every
+// ISessionHooks has.
+func (flow *AuthorizationCodeFlow) storeStepUpRecord(record string) error {
+	if hooks, ok := flow.sessionHooks.(IStepUpSessionHooks); ok {
+		return hooks.SetStepUpRecord(record)
+	}
+	return flow.sessionHooks.SetPostAuthRedirect(record)
+}
+
+func (flow *AuthorizationCodeFlow) loadStepUpRecord() (string, error) {
+	if hooks, ok := flow.sessionHooks.(IStepUpSessionHooks); ok {
+		return hooks.GetStepUpRecord()
+	}
+	return flow.sessionHooks.GetPostAuthRedirect()
 }
 
 func encodeStepUpMarker(marker stepUpMarker) string {
@@ -355,7 +408,7 @@ func (flow *AuthorizationCodeFlow) finishStepUp(receivedState string, succeeded 
 		return ""
 	}
 	if marker.State == "" || marker.State != receivedState {
-		_ = flow.sessionHooks.SetPostAuthRedirect("")
+		_ = flow.storeStepUpRecord("")
 		return ""
 	}
 
@@ -363,7 +416,7 @@ func (flow *AuthorizationCodeFlow) finishStepUp(receivedState string, succeeded 
 		// Smaller than the marker it replaces, so a session that held that one holds this
 		_ = flow.writeStepUpMarker(stepUpMarker{Acr: marker.Acr, MaxAge: marker.MaxAge, UnmetAt: time.Now().Unix()})
 	} else {
-		_ = flow.sessionHooks.SetPostAuthRedirect("")
+		_ = flow.storeStepUpRecord("")
 	}
 
 	if !succeeded || !isLocalPath(marker.ReturnTo) {

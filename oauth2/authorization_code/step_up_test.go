@@ -4,6 +4,7 @@ import (
 	"context"
 	"net/http"
 	"net/http/httptest"
+	"net/url"
 	"strings"
 	"testing"
 	"time"
@@ -34,6 +35,12 @@ func TestGetStepUpURL(t *testing.T) {
 			flowOptions: []Option{WithAcrValues(jwt.AcrMFA), WithMaxAge(3600)},
 			requirement: jwt.AuthenticationRequirement{Acr: jwt.AcrPHR, MaxAge: new(0)},
 			acrValues:   "phr", maxAge: "0",
+		},
+		{
+			name:        "a stronger acr on the flow is not weakened",
+			flowOptions: []Option{WithAcrValues(jwt.AcrPHR)},
+			requirement: jwt.AuthenticationRequirement{Acr: jwt.AcrMFA, MaxAge: new(300)},
+			acrValues:   "phr", maxAge: "300",
 		},
 		{name: "prompt=login is still interactive", options: []Option{WithPrompt("login")}, requirement: jwt.AuthenticationRequirement{Acr: jwt.AcrMFA}, acrValues: "mfa"},
 	}
@@ -116,6 +123,7 @@ func TestGetStepUpURL_RejectsInvalidRequests(t *testing.T) {
 		{name: "prompt with none among other values", requirement: jwt.AuthenticationRequirement{Acr: jwt.AcrMFA}, options: []Option{WithPrompt("login none")}, message: "prompt=none"},
 
 		// Nothing to step up to
+		{name: "PKCE for this request only", requirement: jwt.AuthenticationRequirement{Acr: jwt.AcrMFA}, options: []Option{WithPKCE()}, message: "cannot enable PKCE for one request"},
 		{name: "no acr and no max age", message: "requires an acr"},
 
 		// Invalid values
@@ -237,6 +245,29 @@ func TestStepUp(t *testing.T) {
 		met, err := flow.HasAuthenticationContext(context.Background(), requirement)
 		require.NoError(t, err)
 		assert.True(t, met)
+	})
+
+	t.Run("a session with a key for step-ups leaves the app's post-auth redirect alone", func(t *testing.T) {
+		fake := newFakeKinde(t, []string{"mfa", "phr"})
+		base := &stepUpSessionHooks{postAuthRedirect: "/the-apps-own-page"}
+		hooks := &stepUpRecordHooks{stepUpSessionHooks: base}
+		created, err := NewAuthorizationCodeFlow(fake.URL, "client_id", "client_secret", "https://app.example.com/callback",
+			WithSessionHooks(hooks), WithOffline(), WithTokenValidation(true))
+		require.NoError(t, err)
+		flow := created.(*AuthorizationCodeFlow)
+		signedInSession(t, base)
+
+		recorder := httptest.NewRecorder()
+		require.NoError(t, flow.StepUp(recorder, httptest.NewRequest(http.MethodGet, "https://app.example.com/settings/payout", nil), requirement))
+		assert.Equal(t, "/the-apps-own-page", base.postAuthRedirect)
+		assert.NotEmpty(t, hooks.record)
+
+		fake.setTokenResponse(steppedUpTokenResponse(t, 3600))
+		returnTo, err := flow.HandleCallback(context.Background(), url.Values{"code": {"code"}, "state": {queryOf(t, recorder.Header().Get("Location")).Get("state")}})
+		require.NoError(t, err)
+		assert.Equal(t, "/settings/payout", returnTo)
+		assert.Equal(t, "/the-apps-own-page", base.postAuthRedirect)
+		assert.Empty(t, hooks.record)
 	})
 
 	t.Run("an error writes nothing", func(t *testing.T) {

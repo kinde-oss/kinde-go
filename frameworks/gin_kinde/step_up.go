@@ -2,7 +2,6 @@ package gin_kinde
 
 import (
 	"context"
-	"errors"
 	"fmt"
 	"net/http"
 
@@ -47,7 +46,11 @@ func WithCallbackErrorHandler(handler func(ctx *gin.Context, err error)) authori
 			return
 		}
 		// Not the Gin callback route, so there is no Gin context to hand over
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+		status, ok := authorization_code.CallbackErrorStatus(err)
+		if !ok {
+			status = http.StatusInternalServerError
+		}
+		http.Error(w, err.Error(), status)
 	})
 }
 
@@ -123,18 +126,12 @@ func handleCallbackError(ctx *gin.Context, kindeClient authorization_code.IAutho
 		}
 	}
 
-	var unmet *authorization_code.UnmetAuthenticationRequirementsError
-	var loginRequired *authorization_code.LoginRequiredError
-	switch {
-	case errors.As(err, &unmet):
+	if status, ok := authorization_code.CallbackErrorStatus(err); ok {
+		// What Kinde reported, such as an unmet step-up or a cancelled sign-in
 		_ = ctx.Error(err)
-		ctx.String(http.StatusForbidden, "%s", err.Error())
+		ctx.String(status, "%s", err.Error())
 		ctx.Abort()
-	case errors.As(err, &loginRequired):
-		_ = ctx.Error(err)
-		ctx.String(http.StatusUnauthorized, "%s", err.Error())
-		ctx.Abort()
-	default:
-		ctx.AbortWithError(500, err)
+		return
 	}
+	ctx.AbortWithError(500, err)
 }

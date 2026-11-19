@@ -144,20 +144,39 @@ func TestHandleCallback_ValidatesStateBeforeReportingStepUpErrors(t *testing.T) 
 	}
 }
 
-func TestHandleCallback_OtherErrorsKeepExistingBehaviour(t *testing.T) {
+func TestHandleCallback_OtherErrorsAreReported(t *testing.T) {
 	t.Parallel()
 
 	fake := newFakeKinde(t, []string{"mfa", "phr"})
 	flow, hooks := newStepUpTestFlow(t, fake)
+	before := signedInSession(t, hooks)
 	hooks.state = "pending_state"
+	hooks.postAuthRedirect = pendingStepUp("/settings/payout")
+	cancelled := url.Values{"error": {"access_denied"}, "error_description": {"User cancelled"}, "state": {"pending_state"}}
 
-	// As before step-up support: the callback goes to the code exchange, which fails
-	_, err := flow.HandleCallback(context.Background(), url.Values{"error": {"access_denied"}, "state": {"pending_state"}})
+	// The user cancelled: there is no code, so nothing is sent to the token endpoint
+	_, err := flow.HandleCallback(context.Background(), cancelled)
 
+	var reported *CallbackError
+	require.ErrorAs(t, err, &reported)
+	assert.Equal(t, "access_denied", reported.Code)
+	assert.Equal(t, "User cancelled", reported.ErrorDescription)
+	assert.Equal(t, "pending_state", reported.State)
+	assert.Empty(t, fake.getTokenRequests())
+	assert.Same(t, before, hooks.token, "the user stays signed in")
+	assert.Empty(t, hooks.postAuthRedirect, "the step-up it belonged to is over")
+
+	// The built-in handler says so instead of answering with a server error
+	hooks.state = "pending_state"
+	recorder := httptest.NewRecorder()
+	flow.AuthorizationCodeReceivedHandler(recorder, httptest.NewRequest(http.MethodGet, "/callback?"+cancelled.Encode(), nil))
+	assert.Equal(t, http.StatusForbidden, recorder.Code)
+	assert.Contains(t, recorder.Body.String(), "access_denied")
+
+	// The state is still checked first
+	_, err = flow.HandleCallback(context.Background(), url.Values{"error": {"access_denied"}, "state": {"forged"}})
 	require.Error(t, err)
-	var unmet *UnmetAuthenticationRequirementsError
-	assert.False(t, errors.As(err, &unmet))
-	assert.Len(t, fake.getTokenRequests(), 1)
+	assert.False(t, errors.As(err, &reported))
 }
 
 func TestHandleCallback_StepUpReplacesTokensOfSignedInUser(t *testing.T) {
@@ -352,6 +371,20 @@ func TestStepUpLoopIsStopped(t *testing.T) {
 		}
 	})
 
+	t.Run("a step-up whose state cannot be stored is not started", func(t *testing.T) {
+		fake := newFakeKinde(t, []string{"mfa", "phr"})
+		flow, hooks := newStepUpTestFlow(t, fake)
+		signedInSession(t, hooks)
+		hooks.stateFull = true
+
+		stepUpURL, err := flow.GetStepUpURL(context.Background(), requirement)
+
+		require.Error(t, err)
+		assert.Contains(t, err.Error(), "could not store its state")
+		assert.Empty(t, stepUpURL)
+		assert.Empty(t, hooks.postAuthRedirect)
+	})
+
 	t.Run("a step-up the session cannot record is not started", func(t *testing.T) {
 		fake := newFakeKinde(t, []string{"mfa", "phr"})
 		flow, hooks := newStepUpTestFlow(t, fake)
@@ -405,6 +438,7 @@ func TestRefreshAfterStepUpUsesNewRefreshToken(t *testing.T) {
 	}
 	assert.Equal(t, "mfa", token.GetAuthenticationContext().Acr)
 	assert.Equal(t, "refresh-rotated", hooks.token.RefreshToken)
+	assert.False(t, token.GetAuthenticationContext().AuthTime.IsZero(), "the ID token is kept when the refresh response has none")
 }
 
 func TestAuthorizationCodeReceivedHandler_StepUp(t *testing.T) {

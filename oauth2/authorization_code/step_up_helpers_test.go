@@ -63,6 +63,7 @@ type fakeKinde struct {
 	acrValuesSupported []string
 	discoveryStatus    int
 	discoveryHits      int
+	discoveryDelay     time.Duration
 	// tokenResponse is the body of the next token endpoint response; nil answers 400.
 	tokenResponse map[string]any
 	tokenRequests []url.Values
@@ -81,6 +82,12 @@ func newFakeKinde(t *testing.T, acrValuesSupported []string) *fakeKinde {
 	require.NoError(t, err)
 
 	fake.Server = httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if strings.HasSuffix(r.URL.Path, "/.well-known/openid-configuration") {
+			fake.mu.Lock()
+			delay := fake.discoveryDelay
+			fake.mu.Unlock()
+			time.Sleep(delay)
+		}
 		fake.mu.Lock()
 		defer fake.mu.Unlock()
 		w.Header().Set("Content-Type", "application/json")
@@ -134,6 +141,12 @@ func (fake *fakeKinde) setDiscoveryStatus(status int) {
 	fake.discoveryStatus = status
 }
 
+func (fake *fakeKinde) setDiscoveryDelay(delay time.Duration) {
+	fake.mu.Lock()
+	defer fake.mu.Unlock()
+	fake.discoveryDelay = delay
+}
+
 func (fake *fakeKinde) getDiscoveryHits() int {
 	fake.mu.Lock()
 	defer fake.mu.Unlock()
@@ -156,7 +169,19 @@ type stepUpSessionHooks struct {
 	// full makes the session refuse a new post-auth redirect, like a cookie
 	// store that has no room left. Clearing it still works.
 	full bool
+	// stateFull makes the session refuse a new state.
+	stateFull bool
 }
+
+// stepUpRecordHooks is a session that keeps the step-up record under a key of
+// its own (IStepUpSessionHooks).
+type stepUpRecordHooks struct {
+	*stepUpSessionHooks
+	record string
+}
+
+func (h *stepUpRecordHooks) SetStepUpRecord(record string) error { h.record = record; return nil }
+func (h *stepUpRecordHooks) GetStepUpRecord() (string, error)    { return h.record, nil }
 
 func (h *stepUpSessionHooks) SetRawToken(token *oauth2.Token) error { h.token = token; return nil }
 func (h *stepUpSessionHooks) GetRawToken() (*oauth2.Token, error) {
@@ -165,8 +190,14 @@ func (h *stepUpSessionHooks) GetRawToken() (*oauth2.Token, error) {
 	}
 	return h.token, nil
 }
-func (h *stepUpSessionHooks) GetState() (string, error)   { return h.state, nil }
-func (h *stepUpSessionHooks) SetState(state string) error { h.state = state; return nil }
+func (h *stepUpSessionHooks) GetState() (string, error) { return h.state, nil }
+func (h *stepUpSessionHooks) SetState(state string) error {
+	if h.stateFull {
+		return errors.New("session store unavailable")
+	}
+	h.state = state
+	return nil
+}
 func (h *stepUpSessionHooks) SetPostAuthRedirect(redirect string) error {
 	if h.full && redirect != "" {
 		return errors.New("securecookie: the value is too long")

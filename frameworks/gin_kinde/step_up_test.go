@@ -477,6 +477,17 @@ func TestCallback_UnmetAuthenticationRequirements(t *testing.T) {
 		assertFinal(app, location)
 	})
 
+	t.Run("a cancelled sign-in is reported, not exchanged", func(t *testing.T) {
+		app := newStepUpTestApp(t)
+		callback := startStepUp(app, "access_denied")
+
+		status, location, body := app.get(callback)
+
+		assert.Equal(t, http.StatusForbidden, status)
+		assert.Contains(t, body, "access_denied")
+		assertFinal(app, location)
+	})
+
 	t.Run("other callback errors are answered as before without a handler", func(t *testing.T) {
 		app := newStepUpTestApp(t)
 		callback := startStepUp(app, "unmet_authentication_requirements")
@@ -514,4 +525,20 @@ func TestUseKindeAuth_ReportsInvalidOptionsAtSetup(t *testing.T) {
 			assert.Contains(t, err.Error(), tc.message)
 		})
 	}
+}
+
+func TestWithCallbackErrorHandler_OutsideTheGinRoute(t *testing.T) {
+	flow, err := authorization_code.NewAuthorizationCodeFlow("https://testing.kinde.com", "client_id", "client_secret", "https://app.example.com/callback",
+		authorization_code.WithSessionHooks(&SessionStorage{}),
+		WithCallbackErrorHandler(func(*gin.Context, error) { t.Error("there is no Gin context to call it with") }),
+	)
+	require.NoError(t, err)
+
+	// Without a Gin context the error is answered with its own status, not a 500
+	recorder := httptest.NewRecorder()
+	handled := flow.(*authorization_code.AuthorizationCodeFlow).HandleCallbackError(recorder,
+		httptest.NewRequest(http.MethodGet, "/callback", nil), &authorization_code.UnmetAuthenticationRequirementsError{})
+
+	assert.True(t, handled)
+	assert.Equal(t, http.StatusForbidden, recorder.Code)
 }

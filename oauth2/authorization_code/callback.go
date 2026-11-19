@@ -37,7 +37,26 @@ type (
 		// State is the state parameter of the callback. It has been validated.
 		State string
 	}
+
+	// CallbackError is returned from the callback for any other error Kinde
+	// reports, for example access_denied when the user cancels. No code is
+	// exchanged and the session's tokens are left as they were.
+	CallbackError struct {
+		// Code is the error parameter of the callback, for example "access_denied".
+		Code string
+		// ErrorDescription is the error_description sent by Kinde.
+		ErrorDescription string
+		// State is the state parameter of the callback. It has been validated.
+		State string
+	}
 )
+
+func (e *CallbackError) Error() string {
+	if e.ErrorDescription == "" {
+		return "sign-in did not complete: " + e.Code
+	}
+	return "sign-in did not complete: " + e.Code + ": " + e.ErrorDescription
+}
 
 func (e *UnmetAuthenticationRequirementsError) Error() string {
 	if e.ErrorDescription == "" {
@@ -58,11 +77,12 @@ func (e *LoginRequiredError) Error() string {
 // The state is validated first. Then:
 //   - error=unmet_authentication_requirements returns an *UnmetAuthenticationRequirementsError;
 //   - error=login_required returns a *LoginRequiredError;
-//   - anything else is passed to ExchangeCode, which exchanges the code and replaces
+//   - any other error, such as access_denied when the user cancels, returns a *CallbackError;
+//   - otherwise the code is passed to ExchangeCode, which exchanges it and replaces
 //     the access, ID and refresh tokens in the session, also when the user is
 //     already signed in (as after a step-up).
 //
-// Both errors carry the error description and state, and can be matched with
+// The errors carry the error description and state, and can be matched with
 // errors.As. They leave the session's tokens untouched and are never retried.
 //
 // On success it returns the path StepUp stored to send the user back to, or an
@@ -83,17 +103,20 @@ func (e *LoginRequiredError) Error() string {
 func (flow *AuthorizationCodeFlow) HandleCallback(ctx context.Context, query url.Values) (string, error) {
 	receivedState := query.Get("state")
 
-	switch errorCode := query.Get("error"); errorCode {
-	case callbackErrorUnmetAuthenticationRequirements, callbackErrorLoginRequired:
+	if errorCode := query.Get("error"); errorCode != "" {
 		if err := flow.validateState(receivedState); err != nil {
 			return "", err
 		}
 		// The request it belonged to is over
 		flow.finishStepUp(receivedState, false)
-		if errorCode == callbackErrorLoginRequired {
+		switch errorCode {
+		case callbackErrorLoginRequired:
 			return "", &LoginRequiredError{ErrorDescription: query.Get("error_description"), State: receivedState}
+		case callbackErrorUnmetAuthenticationRequirements:
+			return "", &UnmetAuthenticationRequirementsError{ErrorDescription: query.Get("error_description"), State: receivedState}
 		}
-		return "", &UnmetAuthenticationRequirementsError{ErrorDescription: query.Get("error_description"), State: receivedState}
+		// There is no code to exchange: report what Kinde said
+		return "", &CallbackError{Code: errorCode, ErrorDescription: query.Get("error_description"), State: receivedState}
 	}
 
 	if err := flow.ExchangeCode(ctx, query.Get("code"), receivedState); err != nil {
@@ -126,9 +149,11 @@ func isLocalPath(target string) bool {
 	return err == nil && parsed.Scheme == "" && parsed.Host == ""
 }
 
-// stepUpCallbackErrorStatus returns the HTTP status for the default response to
-// a step-up callback error, and false for any other error.
-func stepUpCallbackErrorStatus(err error) (int, bool) {
+// CallbackErrorStatus returns the HTTP status of the default response to an
+// error Kinde reported to the callback: 403 for an unmet step-up or
+// access_denied, 401 for login_required, 400 for any other. It reports false
+// for errors of another kind, such as a state mismatch or a failed exchange.
+func CallbackErrorStatus(err error) (int, bool) {
 	var unmet *UnmetAuthenticationRequirementsError
 	if errors.As(err, &unmet) {
 		return http.StatusForbidden, true
@@ -136,6 +161,13 @@ func stepUpCallbackErrorStatus(err error) (int, bool) {
 	var loginRequired *LoginRequiredError
 	if errors.As(err, &loginRequired) {
 		return http.StatusUnauthorized, true
+	}
+	var reported *CallbackError
+	if errors.As(err, &reported) {
+		if reported.Code == "access_denied" {
+			return http.StatusForbidden, true
+		}
+		return http.StatusBadRequest, true
 	}
 	return 0, false
 }

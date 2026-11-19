@@ -1,6 +1,7 @@
 package gin_kinde
 
 import (
+	"errors"
 	"net/http"
 	"net/http/httptest"
 	"strings"
@@ -87,4 +88,34 @@ func TestSessionStorage_ReportsADroppedIDToken(t *testing.T) {
 	assert.Equal(t, "access", token.AccessToken)
 	assert.Nil(t, token.Extra("id_token"))
 	assert.Equal(t, 1, reported)
+}
+
+// failingSession is a session whose store cannot be reached.
+type failingSession struct {
+	sessions.Session
+}
+
+func (failingSession) Save() error { return errors.New("redis: connection refused") }
+
+func TestSessionStorage_ReportsAStoreFailure(t *testing.T) {
+	gin.SetMode(gin.TestMode)
+
+	reported := 0
+	report := idTokenDropped
+	idTokenDropped = func() { reported++ }
+	t.Cleanup(func() { idTokenDropped = report })
+
+	router := gin.New()
+	router.Use(sessions.Sessions("test", cookie.NewStore([]byte("secret"))))
+	var session sessions.Session
+	router.GET("/", func(ctx *gin.Context) { session = sessions.Default(ctx) })
+	router.ServeHTTP(httptest.NewRecorder(), httptest.NewRequest(http.MethodGet, "/", nil))
+	storage := &SessionStorage{session: failingSession{session}}
+
+	token := (&oauth2.Token{AccessToken: "access"}).WithExtra(map[string]interface{}{"id_token": "the.id.token"})
+	err := storage.SetRawToken(token)
+
+	require.Error(t, err)
+	assert.Contains(t, err.Error(), "connection refused")
+	assert.Equal(t, 0, reported, "a store that fails is not a store that is too small")
 }

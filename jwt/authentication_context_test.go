@@ -217,10 +217,10 @@ func TestToken_GetAuthenticationContext(t *testing.T) {
 			expected:     AuthenticationContext{Amr: []string{}},
 		},
 		{
-			name:         "expired ID token",
+			name:         "expired ID token: when the user authenticated is still read",
 			accessClaims: golangjwt.MapClaims{"auth_time": accessAuthTime.Unix()},
 			idToken:      signed(with(forgedContext, "exp", time.Now().Add(-time.Hour).Unix())),
-			expected:     AuthenticationContext{Amr: []string{}, AuthTime: accessAuthTime},
+			expected:     AuthenticationContext{Amr: []string{}, AuthTime: idAuthTime},
 		},
 		{
 			name:         "ID token of another user",

@@ -18,8 +18,12 @@ const (
 	// discoveryRetryInterval is how long a cached document keeps being served
 	// after a failed refresh before the next attempt.
 	discoveryRetryInterval = time.Minute
-	discoveryTimeout       = 10 * time.Second
-	discoveryMaxBodyLen    = 1 << 20
+	// discoveryErrorTTL is how long a failed first fetch is remembered, so that
+	// checks made while discovery is down fail at once instead of each waiting
+	// for a timeout.
+	discoveryErrorTTL   = 10 * time.Second
+	discoveryTimeout    = 10 * time.Second
+	discoveryMaxBodyLen = 1 << 20
 )
 
 type (
@@ -30,6 +34,8 @@ type (
 
 	discoveryCacheEntry struct {
 		document discoveryDocument
+		// err is set when no document could be fetched yet.
+		err error
 		// refreshAfter is when the document should be fetched again.
 		refreshAfter time.Time
 	}
@@ -59,7 +65,8 @@ var (
 // The discovery document is fetched once per Kinde domain and cached in memory
 // for an hour. If it cannot be refreshed after that, the cached document keeps
 // being used and the fetch is retried a minute later. Only a failed first
-// fetch is returned as an error.
+// fetch is returned as an error; it is remembered for ten seconds, so checks
+// made while discovery is down do not each wait for a timeout.
 func (flow *AuthorizationCodeFlow) IsStepUpSupported(ctx context.Context) (bool, error) {
 	document, err := flow.getDiscoveryDocument(ctx)
 	if err != nil {
@@ -78,44 +85,49 @@ func (flow *AuthorizationCodeFlow) getDiscoveryDocument(ctx context.Context) (di
 	entry, cached := discoveryCache[discoveryURL]
 	if cached && time.Now().Before(entry.refreshAfter) {
 		discoveryMu.Unlock()
-		return entry.document, nil
+		return entry.document, entry.err
 	}
-	// One fetch per Kinde domain at a time: the others wait for its result
-	fetch, waiting := discoveryFetches[discoveryURL]
-	if !waiting {
+	// One fetch per Kinde domain at a time, shared by everyone who needs it. It
+	// runs apart from the caller that started it, so that caller giving up does
+	// not fail the others.
+	fetch, running := discoveryFetches[discoveryURL]
+	if !running {
 		fetch = &discoveryFetch{done: make(chan struct{})}
 		discoveryFetches[discoveryURL] = fetch
+		go refreshDiscoveryDocument(context.WithoutCancel(ctx), discoveryURL, fetch, entry, cached && entry.err == nil)
 	}
 	discoveryMu.Unlock()
 
-	if waiting {
-		select {
-		case <-fetch.done:
-			return fetch.document, fetch.err
-		case <-ctx.Done():
-			return discoveryDocument{}, ctx.Err()
-		}
+	select {
+	case <-fetch.done:
+		return fetch.document, fetch.err
+	case <-ctx.Done():
+		return discoveryDocument{}, ctx.Err()
 	}
+}
 
+// refreshDiscoveryDocument fetches the discovery document, updates the cache
+// and hands the result to everyone waiting on fetch. last is the document
+// fetched before, when there is one.
+func refreshDiscoveryDocument(ctx context.Context, discoveryURL string, fetch *discoveryFetch, last discoveryCacheEntry, hasLast bool) {
 	document, err := fetchDiscoveryDocument(ctx, discoveryURL)
 
 	discoveryMu.Lock()
 	switch {
 	case err == nil:
 		discoveryCache[discoveryURL] = discoveryCacheEntry{document: document, refreshAfter: time.Now().Add(discoveryCacheTTL)}
-	case cached:
+	case hasLast:
 		// Keep answering from the last good document, and try again in a while
-		document, err = entry.document, nil
+		document, err = last.document, nil
 		discoveryCache[discoveryURL] = discoveryCacheEntry{document: document, refreshAfter: time.Now().Add(discoveryRetryInterval)}
 	default:
 		err = fmt.Errorf("failed to fetch discovery document: %w", err)
+		discoveryCache[discoveryURL] = discoveryCacheEntry{err: err, refreshAfter: time.Now().Add(discoveryErrorTTL)}
 	}
 	fetch.document, fetch.err = document, err
 	delete(discoveryFetches, discoveryURL)
 	discoveryMu.Unlock()
 	close(fetch.done)
-
-	return document, err
 }
 
 func fetchDiscoveryDocument(ctx context.Context, discoveryURL string) (discoveryDocument, error) {

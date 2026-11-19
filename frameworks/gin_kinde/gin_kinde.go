@@ -8,6 +8,7 @@ import (
 	"log"
 	"net/url"
 	"slices"
+	"strings"
 	"sync"
 
 	"github.com/gin-contrib/sessions"
@@ -158,21 +159,26 @@ func (storage *SessionStorage) SetRawToken(token *oauth2.Token) error {
 		storage.session.Set("kinde_token", nil)
 	} else {
 		// Serialize token to JSON to avoid gob serialization issues
-		tokenBytes, err := json.Marshal(token)
-		if err != nil {
-			return fmt.Errorf("failed to marshal token: %w", err)
-		}
 		if idToken, ok := token.Extra("id_token").(string); ok && idToken != "" {
 			withIDToken, err := json.Marshal(sessionToken{Token: token, IDToken: idToken})
 			if err != nil {
 				return fmt.Errorf("failed to marshal token: %w", err)
 			}
 			storage.session.Set("kinde_token", string(withIDToken))
-			if err := storage.session.Save(); err == nil {
+			err = storage.session.Save()
+			if err == nil {
 				return nil
+			}
+			if !isTooLargeForStore(err) {
+				// The store itself failed: report it, don't blame the size
+				return fmt.Errorf("failed to save session: %w", err)
 			}
 			// Too big for the session store: fall back to the token on its own
 			idTokenDropped()
+		}
+		tokenBytes, err := json.Marshal(token)
+		if err != nil {
+			return fmt.Errorf("failed to marshal token: %w", err)
 		}
 		storage.session.Set("kinde_token", string(tokenBytes))
 	}
@@ -216,6 +222,46 @@ func (storage *SessionStorage) GetPostAuthRedirect() (string, error) {
 // error if the stored value is not a valid string type.
 //
 // This method implements authorization_code.SessionHooks.
+// SetStepUpRecord keeps the record of a step-up in progress under a session
+// key of its own, so that the post-auth redirect stays the app's.
+//
+// This method implements authorization_code.IStepUpSessionHooks.
+func (storage *SessionStorage) SetStepUpRecord(record string) error {
+	previous := storage.session.Get("kinde_step_up")
+	if record == "" {
+		storage.session.Delete("kinde_step_up")
+	} else {
+		storage.session.Set("kinde_step_up", record)
+	}
+	if err := storage.session.Save(); err != nil {
+		// Put back what was there: a value that does not fit (a cookie store has
+		// a size limit) would otherwise make every later save of this session fail
+		if previous == nil {
+			storage.session.Delete("kinde_step_up")
+		} else {
+			storage.session.Set("kinde_step_up", previous)
+		}
+		return fmt.Errorf("failed to save session: %w", err)
+	}
+	return nil
+}
+
+// GetStepUpRecord returns the record stored with SetStepUpRecord.
+//
+// This method implements authorization_code.IStepUpSessionHooks.
+func (storage *SessionStorage) GetStepUpRecord() (string, error) {
+	record, _ := storage.session.Get("kinde_step_up").(string)
+	return record, nil
+}
+
+// isTooLargeForStore reports whether a session save failed because the session
+// is over the store's size limit, going by how the cookie (securecookie),
+// Redis and memcached stores word that error.
+func isTooLargeForStore(err error) bool {
+	message := strings.ToLower(err.Error())
+	return strings.Contains(message, "too long") || strings.Contains(message, "too big") || strings.Contains(message, "too large")
+}
+
 func (storage *SessionStorage) GetState() (string, error) {
 	v := storage.session.Get("auth_state")
 	if v == nil {
@@ -371,7 +417,9 @@ func UseKindeAuth(router *gin.RouterGroup, kindeDomain, clientID, clientSecret, 
 		session := sessions.Default(ctx)
 		sessionStorage := &SessionStorage{session: session}
 
-		reqOptions := append(options,
+		// A copy: appending to the shared slice would let concurrent requests
+		// overwrite each other's session hooks
+		reqOptions := append(slices.Clone(options),
 			authorization_code.WithSessionHooks(sessionStorage),
 			authorization_code.WithTokenValidation(true),
 		)
@@ -395,7 +443,7 @@ func UseKindeAuth(router *gin.RouterGroup, kindeDomain, clientID, clientSecret, 
 	router.GET("/kinde/callback", func(ctx *gin.Context) {
 		if client, ok := ctx.Get("kinde_client"); ok {
 			if kindeClient, ok := client.(authorization_code.IAuthorizationCodeFlow); ok {
-				postAuthRedirect, err := kindeClient.HandleCallback(context.Background(), ctx.Request.URL.Query())
+				postAuthRedirect, err := kindeClient.HandleCallback(ctx.Request.Context(), ctx.Request.URL.Query())
 				if err != nil {
 					handleCallbackError(ctx, kindeClient, err)
 					return

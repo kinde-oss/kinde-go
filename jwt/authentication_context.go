@@ -102,8 +102,8 @@ func HasAuthenticationContext(authContext AuthenticationContext, requirement Aut
 //
 // acr and amr are read from the access token. auth_time is read from the ID
 // token when there is one, because Kinde only adds it to the access token when
-// it can establish it. The ID token is verified first, with the same key
-// function and parser options as the access token, and must be unexpired and
+// it can establish it. The ID token is verified first: its signature with the
+// same key function and algorithms as the access token, and it must be
 // issued by the same issuer, for the same user, to the same client: its azp
 // (or, without one, its aud) must name the access token's azp. Otherwise it is
 // ignored and auth_time is read from the access token.
@@ -146,15 +146,21 @@ func (j *Token) HasAuthenticationContext(requirement AuthenticationRequirement) 
 }
 
 // verifiedIDTokenClaims returns the claims of the ID token, or nil when there
-// is none or it cannot be tied to the verified access token: its signature and
-// expiry are checked like the access token's, and its issuer, subject and
-// client must match the access token's issuer, subject and authorized party.
+// is none or it cannot be tied to the verified access token: its signature is
+// checked like the access token's, and its issuer, subject and client must
+// match the access token's issuer, subject and authorized party. An expired ID
+// token is still read, so that auth_time outlives it.
 func (j *Token) verifiedIDTokenClaims() map[string]any {
 	idToken, ok := j.GetIdToken()
 	if !ok || idToken == "" || j.processing.keyFunc == nil {
 		return nil
 	}
-	parsed, err := golangjwt.Parse(idToken, j.processing.keyFunc, j.processing.parsingOptions...)
+	// Its signature is checked like the access token's. Its expiry is not: the
+	// ID token is usually shorter-lived than the access token, and when the user
+	// authenticated stays true after it expires. Issuer, subject and client are
+	// compared with the verified access token below.
+	options := append(slices.Clone(j.processing.parsingOptions), golangjwt.WithoutClaimsValidation())
+	parsed, err := golangjwt.Parse(idToken, j.processing.keyFunc, options...)
 	if err != nil || !parsed.Valid {
 		return nil
 	}

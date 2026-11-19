@@ -290,7 +290,7 @@ func (flow *AuthorizationCodeFlow) AuthorizationCodeReceivedHandler(w http.Respo
 		if flow.HandleCallbackError(w, r, err) {
 			return
 		}
-		if status, ok := stepUpCallbackErrorStatus(err); ok {
+		if status, ok := CallbackErrorStatus(err); ok {
 			// Final answer from Kinde: tell the user, never send them back to login
 			http.Error(w, err.Error(), status)
 			return

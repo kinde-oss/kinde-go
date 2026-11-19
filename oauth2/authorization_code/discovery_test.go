@@ -83,4 +83,50 @@ func TestIsStepUpSupported(t *testing.T) {
 		assert.False(t, supported)
 		assert.Equal(t, 3, fake.getDiscoveryHits())
 	})
+
+	t.Run("a caller that gives up does not fail the others", func(t *testing.T) {
+		fake := newFakeKinde(t, []string{"mfa", "phr"})
+		fake.setDiscoveryDelay(300 * time.Millisecond)
+		flow, _ := newStepUpTestFlow(t, fake)
+
+		// The first caller starts the fetch and runs out of time
+		impatient, cancel := context.WithTimeout(context.Background(), 50*time.Millisecond)
+		defer cancel()
+		first := make(chan error, 1)
+		go func() {
+			_, err := flow.IsStepUpSupported(impatient)
+			first <- err
+		}()
+		time.Sleep(10 * time.Millisecond)
+
+		// The second one joins the same fetch and gets its result
+		supported, err := flow.IsStepUpSupported(context.Background())
+		require.NoError(t, err)
+		assert.True(t, supported)
+		assert.ErrorIs(t, <-first, context.DeadlineExceeded)
+		assert.Equal(t, 1, fake.getDiscoveryHits())
+	})
+
+	t.Run("a failed first fetch is an error, remembered for a moment", func(t *testing.T) {
+		fake := newFakeKinde(t, []string{"mfa", "phr"})
+		fake.setDiscoveryStatus(http.StatusServiceUnavailable)
+		flow, _ := newStepUpTestFlow(t, fake)
+
+		for range 3 {
+			_, err := flow.IsStepUpSupported(context.Background())
+			require.Error(t, err)
+		}
+		assert.Equal(t, 1, fake.getDiscoveryHits(), "checks made while discovery is down do not each wait for it")
+
+		// Once that moment has passed and discovery is back, it is fetched again
+		discoveryMu.Lock()
+		entry := discoveryCache[flow.discoveryURL]
+		entry.refreshAfter = time.Now().Add(-time.Second)
+		discoveryCache[flow.discoveryURL] = entry
+		discoveryMu.Unlock()
+		fake.setDiscoveryStatus(http.StatusOK)
+		supported, err := flow.IsStepUpSupported(context.Background())
+		require.NoError(t, err)
+		assert.True(t, supported)
+	})
 }
