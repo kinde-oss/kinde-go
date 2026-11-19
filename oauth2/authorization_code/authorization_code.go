@@ -60,6 +60,22 @@ type (
 		InjectTokenMiddleware(next http.Handler) http.Handler
 		// GetToken returns the validated JWT token.
 		GetToken(context.Context) (*jwt.Token, error)
+		// HandleCallback processes the callback query: it validates the state, returns
+		// *UnmetAuthenticationRequirementsError or *LoginRequiredError when Kinde reports one,
+		// and otherwise exchanges the code and replaces the session's tokens.
+		// It returns the path stored by StepUp to send the user back to, if any.
+		HandleCallback(ctx context.Context, query url.Values) (postAuthRedirect string, err error)
+		// GetStepUpURL returns the URL of an interactive login that asks Kinde for the
+		// required authentication context (RFC 9470).
+		GetStepUpURL(ctx context.Context, requirement jwt.AuthenticationRequirement, options ...Option) (string, error)
+		// StepUp redirects the user to GetStepUpURL and remembers where to bring them back to.
+		StepUp(w http.ResponseWriter, r *http.Request, requirement jwt.AuthenticationRequirement, options ...Option) error
+		// GetAuthenticationContext returns the acr, amr and auth_time of the current session.
+		GetAuthenticationContext(ctx context.Context) (jwt.AuthenticationContext, error)
+		// HasAuthenticationContext checks if the current session meets the requirement.
+		HasAuthenticationContext(ctx context.Context, requirement jwt.AuthenticationRequirement) (bool, error)
+		// IsStepUpSupported checks if the Kinde environment advertises acr_values_supported.
+		IsStepUpSupported(ctx context.Context) (bool, error)
 	}
 
 	// IDeviceAuthorizationFlow represents the interface for the device authorization flow.
@@ -91,6 +107,10 @@ type (
 		usePKCE         bool
 		codeChallenge   string
 		challengeMethod string
+		// Step-up authentication support fields
+		discoveryURL         string
+		optionErrors         []error
+		callbackErrorHandler func(w http.ResponseWriter, r *http.Request, err error)
 	}
 )
 
@@ -244,7 +264,9 @@ func (flow *AuthorizationCodeFlow) GetAuthURLWithInvitation(invitationCode strin
 //   - "state": The state parameter that was sent in the authorization request
 //
 // If successful, the tokens are stored and the user is authenticated. If an error occurs,
-// an HTTP error response is written to the response writer.
+// an HTTP error response is written to the response writer, or the error is passed to the
+// handler set with WithCallbackErrorHandler. After a StepUp, the user is redirected back
+// to where they were.
 //
 // Parameters:
 //   - w: The HTTP response writer
@@ -256,13 +278,28 @@ func (flow *AuthorizationCodeFlow) GetAuthURLWithInvitation(invitationCode strin
 func (flow *AuthorizationCodeFlow) AuthorizationCodeReceivedHandler(w http.ResponseWriter, r *http.Request) {
 	receivedState := r.URL.Query().Get("state")
 	if !flow.stateVerifier(flow, receivedState) {
+		if flow.HandleCallbackError(w, r, fmt.Errorf("invalid state parameter")) {
+			return
+		}
 		http.Error(w, "invalid state parameter", http.StatusBadRequest)
 		return
 	}
-	// Use ExchangeCode to properly handle PKCE code verifier if enabled
-	if err := flow.ExchangeCode(r.Context(), r.URL.Query().Get("code"), receivedState); err != nil {
+	// HandleCallback uses ExchangeCode to properly handle PKCE code verifier if enabled
+	postAuthRedirect, err := flow.HandleCallback(r.Context(), r.URL.Query())
+	if err != nil {
+		if flow.HandleCallbackError(w, r, err) {
+			return
+		}
+		if status, ok := CallbackErrorStatus(err); ok {
+			// Final answer from Kinde: tell the user, never send them back to login
+			http.Error(w, err.Error(), status)
+			return
+		}
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
+	}
+	if postAuthRedirect != "" {
+		http.Redirect(w, r, postAuthRedirect, http.StatusFound)
 	}
 }
 
@@ -279,7 +316,8 @@ func newAuthorizationCodeFlow(baseURL string, clientID string, clientSecret stri
 	}
 
 	flow := &AuthorizationCodeFlow{
-		JWKS_URL: fmt.Sprintf("%v://%v/.well-known/jwks", asURL.Scheme, host),
+		JWKS_URL:     fmt.Sprintf("%v://%v/.well-known/jwks", asURL.Scheme, host),
+		discoveryURL: fmt.Sprintf("%v://%v/.well-known/openid-configuration", asURL.Scheme, host),
 		config: oauth2.Config{
 			ClientID:     clientID,
 			ClientSecret: clientSecret,
@@ -319,11 +357,15 @@ func newAuthorizationCodeFlow(baseURL string, clientID string, clientSecret stri
 		return nil, fmt.Errorf("session hooks are not set, please connect your session management with WithSessionHooks")
 	}
 
+	if err := flow.validateAuthURLOptions(); err != nil {
+		return nil, err
+	}
+
 	return flow, nil
 }
 
-// Exchanges the authorization code for a token and established KindeContext
-func (flow *AuthorizationCodeFlow) ExchangeCode(ctx context.Context, authorizationCode string, receivedState string) error {
+// validateState checks the state received on the callback against the one stored in the session.
+func (flow *AuthorizationCodeFlow) validateState(receivedState string) error {
 	storedState, err := flow.sessionHooks.GetState()
 	if err != nil {
 		return fmt.Errorf("failed to get state from session: %w", err)
@@ -337,10 +379,21 @@ func (flow *AuthorizationCodeFlow) ExchangeCode(ctx context.Context, authorizati
 		return fmt.Errorf("state mismatch: expected %s, got %s", storedState, receivedState)
 	}
 
+	return nil
+}
+
+// Exchanges the authorization code for a token and established KindeContext
+func (flow *AuthorizationCodeFlow) ExchangeCode(ctx context.Context, authorizationCode string, receivedState string) error {
+	err := flow.validateState(receivedState)
+	if err != nil {
+		return err
+	}
+
 	var token *oauth2.Token
 	if flow.usePKCE {
 		// Get code verifier from session hooks
-		codeVerifier, err := flow.sessionHooks.GetCodeVerifier()
+		var codeVerifier string
+		codeVerifier, err = flow.sessionHooks.GetCodeVerifier()
 		if err != nil {
 			return fmt.Errorf("failed to get code verifier from session: %w", err)
 		}
