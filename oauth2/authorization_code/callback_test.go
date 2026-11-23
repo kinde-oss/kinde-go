@@ -425,6 +425,7 @@ func TestRefreshAfterStepUpUsesNewRefreshToken(t *testing.T) {
 		"refresh_token": "refresh-rotated",
 		"token_type":    "bearer",
 		"expires_in":    3600,
+		"scope":         "openid offline",
 	})
 	token, err := flow.GetToken(context.Background())
 	require.NoError(t, err)
@@ -439,6 +440,7 @@ func TestRefreshAfterStepUpUsesNewRefreshToken(t *testing.T) {
 	assert.Equal(t, "mfa", token.GetAuthenticationContext().Acr)
 	assert.Equal(t, "refresh-rotated", hooks.token.RefreshToken)
 	assert.False(t, token.GetAuthenticationContext().AuthTime.IsZero(), "the ID token is kept when the refresh response has none")
+	assert.Equal(t, "openid offline", hooks.token.Extra("scope"), "next to the other fields of the refresh response")
 }
 
 func TestAuthorizationCodeReceivedHandler_StepUp(t *testing.T) {

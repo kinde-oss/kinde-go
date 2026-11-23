@@ -90,7 +90,7 @@ type stepUpMarker struct {
 //     factor without showing a screen;
 //   - IsStepUpSupported is false (ErrStepUpNotSupported);
 //   - the same step-up just completed and the session still does not meet it (ErrStepUpLoop);
-//   - PKCE is enabled for this request only (create the flow with WithPKCE instead);
+//   - a PKCE option is passed for this request (create the flow with WithPKCE instead);
 //   - the state or the request cannot be stored in the session;
 //   - the discovery document cannot be fetched.
 //
@@ -101,9 +101,9 @@ type stepUpMarker struct {
 // there. That is how a step-up that keeps coming back without the tokens
 // meeting it is stopped with ErrStepUpLoop.
 //
-// An acr the flow already asks for is kept when it is stronger than the
-// requirement's: a flow created with WithAcrValues(jwt.AcrPHR) still asks for
-// phr when the requirement is mfa.
+// The strongest acr among the flow's, the options' and the requirement's is
+// sent: a flow created with WithAcrValues(jwt.AcrPHR) still asks for phr when
+// the requirement or an option says mfa.
 //
 // Example:
 //
@@ -118,22 +118,30 @@ func (flow *AuthorizationCodeFlow) startStepUp(ctx context.Context, requirement 
 		return "", err
 	}
 
-	// Apply the options to a copy, so they only affect this request
+	// Apply the options to a copy, so they only affect this request. The copy
+	// has no session while they run: a request that is refused must not have
+	// written to it (WithPKCE stores a new code verifier)
 	stepUp := flow.clone()
+	stepUp.sessionHooks = nil
 	for _, option := range options {
 		if option != nil {
 			option(stepUp)
 		}
 	}
-	// The callback is handled by the flow itself, which would not send the code
-	// verifier of a PKCE challenge that only this request carries
-	if stepUp.usePKCE && !flow.usePKCE {
-		return "", fmt.Errorf("step-up authentication cannot enable PKCE for one request: create the flow with WithPKCE")
+	stepUp.sessionHooks = flow.sessionHooks
+	// The callback is handled by the flow itself, with the flow's code verifier:
+	// a PKCE challenge that only this request carries could not be completed
+	if stepUp.usePKCE != flow.usePKCE || stepUp.codeChallenge != flow.codeChallenge || stepUp.challengeMethod != flow.challengeMethod {
+		return "", fmt.Errorf("step-up authentication cannot set PKCE for one request: create the flow with WithPKCE")
 	}
-	// The requirement never weakens what the flow already asks for: a flow that
+	// The strongest acr asked for wins: the requirement raises what the options
+	// ask for, and neither weakens what the flow itself asks for. A flow that
 	// always requires phr keeps asking for phr when a step-up needs mfa
 	if requirement.Acr != "" && !meetsAcr(requestedAcr(stepUp.authURLOptions[authParamAcrValues]), requirement.Acr) {
 		WithAcrValues(requirement.Acr)(stepUp)
+	}
+	if flowAcr := flow.authURLOptions[authParamAcrValues]; !meetsAcr(requestedAcr(stepUp.authURLOptions[authParamAcrValues]), requestedAcr(flowAcr)) {
+		stepUp.authURLOptions[authParamAcrValues] = slices.Clone(flowAcr)
 	}
 	if requirement.MaxAge != nil {
 		WithMaxAge(*requirement.MaxAge)(stepUp)
@@ -341,8 +349,10 @@ func requestedAcr(acrValues []string) string {
 }
 
 // meetsAcr reports whether the requested context is at least as strong as the required one.
+// Nothing required is always met.
 func meetsAcr(requested, required string) bool {
-	return requested == strings.ToLower(required) || (requested == jwt.AcrPHR && strings.EqualFold(required, jwt.AcrMFA))
+	required = strings.ToLower(strings.TrimSpace(required))
+	return required == "" || requested == required || (requested == jwt.AcrPHR && required == jwt.AcrMFA)
 }
 
 func (marker stepUpMarker) sameRequirement(other stepUpMarker) bool {

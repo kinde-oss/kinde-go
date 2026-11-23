@@ -51,7 +51,15 @@ func (t sessionTokenSource) Token() (*oauth2.Token, error) {
 	if possiblyNewToken != token && token != nil {
 		if _, refreshed := possiblyNewToken.Extra("id_token").(string); !refreshed {
 			if idToken, ok := token.Extra("id_token").(string); ok && idToken != "" {
-				possiblyNewToken = possiblyNewToken.WithExtra(map[string]interface{}{"id_token": idToken})
+				// WithExtra replaces every extra field, so carry over the other
+				// fields of a token response next to the ID token
+				extra := map[string]interface{}{"id_token": idToken}
+				for _, field := range []string{"access_token", "token_type", "expires_in", "refresh_token", "scope"} {
+					if value := possiblyNewToken.Extra(field); value != nil {
+						extra[field] = value
+					}
+				}
+				possiblyNewToken = possiblyNewToken.WithExtra(extra)
 			}
 		}
 	}

@@ -42,6 +42,20 @@ func TestGetStepUpURL(t *testing.T) {
 			requirement: jwt.AuthenticationRequirement{Acr: jwt.AcrMFA, MaxAge: new(300)},
 			acrValues:   "phr", maxAge: "300",
 		},
+		{
+			name:        "an option does not weaken the flow's acr either",
+			flowOptions: []Option{WithAcrValues(jwt.AcrPHR)},
+			options:     []Option{WithAcrValues(jwt.AcrMFA)},
+			requirement: jwt.AuthenticationRequirement{Acr: " MFA "},
+			acrValues:   "phr",
+		},
+		{
+			name:        "an option can raise the acr, however the requirement is written",
+			flowOptions: []Option{WithAcrValues(jwt.AcrMFA)},
+			options:     []Option{WithAcrValues(jwt.AcrPHR)},
+			requirement: jwt.AuthenticationRequirement{Acr: " MFA "},
+			acrValues:   "phr",
+		},
 		{name: "prompt=login is still interactive", options: []Option{WithPrompt("login")}, requirement: jwt.AuthenticationRequirement{Acr: jwt.AcrMFA}, acrValues: "mfa"},
 	}
 
@@ -93,6 +107,18 @@ func TestGetStepUpURL(t *testing.T) {
 		assert.Equal(t, "S256", query.Get("code_challenge_method"))
 	})
 
+	t.Run("a refused request leaves the session's code verifier alone", func(t *testing.T) {
+		fake := newFakeKinde(t, []string{"mfa", "phr"})
+		flow, hooks := newStepUpTestFlow(t, fake, WithPKCE())
+		verifier := hooks.codeVerifier
+		require.NotEmpty(t, verifier)
+
+		_, err := flow.GetStepUpURL(context.Background(), jwt.AuthenticationRequirement{Acr: jwt.AcrMFA}, WithPKCE())
+
+		require.ErrorContains(t, err, "cannot set PKCE for one request")
+		assert.Equal(t, verifier, hooks.codeVerifier, "a login already in progress can still complete")
+	})
+
 	t.Run("keeps the current tokens until the callback replaces them", func(t *testing.T) {
 		fake := newFakeKinde(t, []string{"mfa", "phr"})
 		flow, hooks := newStepUpTestFlow(t, fake)
@@ -123,7 +149,7 @@ func TestGetStepUpURL_RejectsInvalidRequests(t *testing.T) {
 		{name: "prompt with none among other values", requirement: jwt.AuthenticationRequirement{Acr: jwt.AcrMFA}, options: []Option{WithPrompt("login none")}, message: "prompt=none"},
 
 		// Nothing to step up to
-		{name: "PKCE for this request only", requirement: jwt.AuthenticationRequirement{Acr: jwt.AcrMFA}, options: []Option{WithPKCE()}, message: "cannot enable PKCE for one request"},
+		{name: "PKCE for this request only", requirement: jwt.AuthenticationRequirement{Acr: jwt.AcrMFA}, options: []Option{WithPKCE()}, message: "cannot set PKCE for one request"},
 		{name: "no acr and no max age", message: "requires an acr"},
 
 		// Invalid values
