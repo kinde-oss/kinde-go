@@ -3,10 +3,12 @@ package authorization_code
 import (
 	"context"
 	"fmt"
+	"net/url"
 	"testing"
 
 	"github.com/kinde-oss/kinde-go/jwt"
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
 func TestAuthorizationCodeFlowWithPKCE(t *testing.T) {
@@ -149,4 +151,23 @@ func TestPKCEUtilityFunctions(t *testing.T) {
 	// Test that challenge is deterministic
 	codeChallenge2 := generateCodeChallenge(codeVerifier)
 	assert.Equal(codeChallenge, codeChallenge2, "code challenge should be deterministic for same verifier")
+}
+
+func TestExchangeCode_PKCEFailureKeepsTokens(t *testing.T) {
+	t.Parallel()
+
+	fake := newFakeKinde(t, []string{"mfa", "phr"})
+	hooks := &stepUpSessionHooks{}
+	created, err := NewAuthorizationCodeFlow(fake.URL, "client_id", "client_secret", "https://app.example.com/callback",
+		WithSessionHooks(hooks), WithPKCE(), WithTokenValidation(true))
+	require.NoError(t, err)
+	flow := created.(*AuthorizationCodeFlow)
+	before := signedInSession(t, hooks)
+	hooks.state = "pending_state"
+
+	// The token endpoint rejects the code
+	_, err = flow.HandleCallback(context.Background(), url.Values{"code": {"bad_code"}, "state": {"pending_state"}})
+
+	assert.Error(t, err, "a failed exchange is not a successful callback")
+	assert.Same(t, before, hooks.token, "a failed step-up leaves the user signed in with the tokens they had")
 }
